@@ -16,6 +16,7 @@
 #define new DEBUG_NEW
 #endif
 
+
 // CExpandableView
 
 IMPLEMENT_DYNCREATE(CExpandableView, CView)
