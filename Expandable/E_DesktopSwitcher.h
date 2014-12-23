@@ -6,6 +6,8 @@ class E_DesktopSwitcher
 private:
 	
 public:
+	E_DesktopSwitcher();
+	~E_DesktopSwitcher();
 	void drawWindowSwitcher();
 	void drawPreview();
 	void onMouseClick();

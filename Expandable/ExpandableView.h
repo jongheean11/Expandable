@@ -1,3 +1,5 @@
+#include "E_Global.h"
+#include "E_DesktopSwitcher.h"
 
 // ExpandableView.h : CExpandableView 클래스의 인터페이스
 //
@@ -14,9 +16,13 @@ protected: // serialization에서만 만들어집니다.
 // 특성입니다.
 public:
 	CExpandableDoc* GetDocument() const;
+	
+	bool desktopSwitcher_bool;
 
 // 작업입니다.
 public:
+	E_Global e_global;
+	E_DesktopSwitcher desktopSwitcher;
 
 // 재정의입니다.
 public:
@@ -40,6 +46,9 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // ExpandableView.cpp의 디버그 버전

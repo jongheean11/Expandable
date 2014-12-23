@@ -24,14 +24,21 @@ IMPLEMENT_DYNCREATE(CExpandableView, CView)
 BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
 
 CExpandableView::CExpandableView()
 {
-	// TODO: 여기에 생성 코드를 추가합니다.
+	//// Initialize
+	// boolean
+	desktopSwitcher_bool = false;
 
+	// Screen 해상도값을 Global의 resolutionWidth, resolutionHeight에 Set
+	e_global.setresolutionWidth(GetSystemMetrics(SM_CXSCREEN));
+	e_global.setresolutionHeight(GetSystemMetrics(SM_CYSCREEN));
 }
 
 CExpandableView::~CExpandableView()
@@ -94,3 +101,26 @@ CExpandableDoc* CExpandableView::GetDocument() const // 디버그되지 않은 버전은 �
 
 
 // CExpandableView 메시지 처리기
+
+
+void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar == 'D')
+	{
+		desktopSwitcher_bool = true;
+	}
+
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar == 'D')
+	{
+		desktopSwitcher_bool = false;
+		desktopSwitcher.drawWindowSwitcher();
+	}
+
+	CView::OnKeyUp(nChar, nRepCnt, nFlags);
+}

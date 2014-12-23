@@ -1,6 +1,16 @@
 #include "stdafx.h"
 #include "E_DesktopSwitcher.h"
 
+E_DesktopSwitcher::E_DesktopSwitcher()
+{
+	
+}
+
+E_DesktopSwitcher::~E_DesktopSwitcher()
+{
+
+}
+
 void E_DesktopSwitcher::drawWindowSwitcher()
 {
 
