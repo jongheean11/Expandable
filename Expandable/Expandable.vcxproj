@@ -102,6 +102,8 @@
     <ClInclude Include="Expandable.h" />
     <ClInclude Include="ExpandableDoc.h" />
     <ClInclude Include="ExpandableView.h" />
+    <ClInclude Include="E_Desktop.h" />
+    <ClInclude Include="E_Window.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -111,6 +113,8 @@
     <ClCompile Include="Expandable.cpp" />
     <ClCompile Include="ExpandableDoc.cpp" />
     <ClCompile Include="ExpandableView.cpp" />
+    <ClCompile Include="E_Desktop.cpp" />
+    <ClCompile Include="E_Window.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
