@@ -1,19 +1,46 @@
 #include "stdafx.h"
 #include "E_Window.h"
 
-E_Window::E_Window(){
+E_Window::E_Window()
+{
 }
+
 E_Window::E_Window(const E_Window &tmp)
 {
-	//*this = tmp;
+	start_x = tmp.start_x;
+	start_y = tmp.start_y;
+	width = tmp.width;
+	height = tmp.height;
+	zIndex = tmp.zIndex;
+	windowState = tmp.windowState;
+	dockState = tmp.dockState;
+	alertState = tmp.alertState;
+	hwnd = tmp.hwnd;
 }
 
 E_Window::~E_Window()
 {
 }
+
 void E_Window::operator=(const E_Window &tmp)
 {
-	*this = tmp;
+	start_x = tmp.start_x;
+	start_y = tmp.start_y;
+	width = tmp.width;
+	height = tmp.height;
+	zIndex = tmp.zIndex;
+	windowState = tmp.windowState;
+	dockState = tmp.dockState;
+	alertState = tmp.alertState;
+	hwnd = tmp.hwnd;
+}
+
+bool E_Window::operator==(const E_Window &tmp)
+{
+	if (hwnd == tmp.hwnd)
+		return true;
+	else
+		false;
 }
 
 void E_Window::setHWND(string mainWindowStr, string exWindowStr)

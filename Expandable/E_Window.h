@@ -5,8 +5,6 @@
 using namespace Gdiplus;
 using namespace std;
 
-
-
 class E_Window
 {
 private:
@@ -25,6 +23,7 @@ public:
 	E_Window(const E_Window &tmp);
 	~E_Window();
 	void operator=(const E_Window &tmp); 
+	bool operator==(const E_Window &tmp);
 	void setHWND(string mainWindowStr, string exWindowStr);
 	void setIconInvisible();
 	void setIconVisible();
