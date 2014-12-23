@@ -45,6 +45,9 @@
     <ClInclude Include="E_Window.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="E_DesktopSwitcher.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -66,6 +69,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="E_Window.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="E_DesktopSwitcher.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
