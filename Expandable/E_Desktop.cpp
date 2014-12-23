@@ -30,8 +30,8 @@ void E_Desktop::setList()
 {
 
 }
-/*
-CList<E_Window> E_Desktop::getOnList()
+
+list<E_Window> E_Desktop::getOnList()
 {
 	return onWindowList;
 }
@@ -39,7 +39,7 @@ CList<E_Window> E_Desktop::getOnList()
 void E_Desktop::setOnList()
 {
 
-}*/
+}
 
 void E_Desktop::setAllIconInvisible()
 {

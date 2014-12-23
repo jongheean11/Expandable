@@ -1,5 +1,4 @@
 #include <gdiplus.h>
-#include <afxtempl.h>
 #include <afxwin.h>
 #include "E_Window.h"
 #include <list>
@@ -11,8 +10,7 @@ class E_Desktop
 private:
 	int index;
 	list<E_Window> windowList;	//가지고 있는 윈도우리스트
-	//CList<E_Window,E_Window&> windowList;				
-	CList<E_Window> onWindowList;			//활성화된 윈도우
+	list<E_Window> onWindowList;			//활성화된 윈도우
 	POSITION pos,old;
 	E_Window* current;
 	CBitmap screenshot;
@@ -32,7 +30,7 @@ public:
 	void setIndex(int newindex);
 	list<E_Window> getList();
 	void setList();
-	CList<E_Window> getOnList();
+	list<E_Window> getOnList();
 	void setOnList();
 	E_Desktop();
 	E_Desktop(const E_Desktop &tmp);
