@@ -11,6 +11,11 @@ E_Desktop::E_Desktop(const E_Desktop &tmp)
 	current = tmp.current;
 }
 
+E_Desktop::~E_Desktop()
+{
+
+}
+
 void E_Desktop::operator=(const E_Desktop &tmp)
 {
 	index = tmp.index;

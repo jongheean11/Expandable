@@ -20,7 +20,7 @@ double E_Global::getresolutionWidth()
 	return resolutionWidth;
 }
 
-void E_Global::E_Global::setresolutionHeight(int paramHeight)
+void E_Global::setresolutionHeight(int paramHeight)
 {
 	resolutionHeight = paramHeight;
 }
@@ -40,7 +40,7 @@ double E_Global::getVirtualWidth()
 	return virtualWidth;
 }
 
-void E_Global::E_Global::setVirtualHeight(int paramHeight)
+void E_Global::setVirtualHeight(int paramHeight)
 {
 	virtualHeight = paramHeight;
 }
@@ -50,7 +50,7 @@ double E_Global::getVirtualHeight()
 	return virtualHeight;
 }
 
-void E_Global::E_Global::setSelectedDesktopIndex(int paramIndex)
+void E_Global::setSelectedDesktopIndex(int paramIndex)
 {
 	selectedDesktopIndex = paramIndex;
 }
@@ -60,12 +60,12 @@ int E_Global::getSelectedDesktopIndex()
 	return selectedDesktopIndex;
 }
 
-void E_Global::E_Global::startUpdateSelectedDesktop()
+void E_Global::startUpdateSelectedDesktop()
 {
 
 }
 
-void E_Global::E_Global::stopUpdateSelectedDesktop()
+void E_Global::stopUpdateSelectedDesktop()
 {
 
 }

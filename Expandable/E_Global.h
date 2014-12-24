@@ -1,4 +1,3 @@
-#include <afxwin.h>
 #include "E_Desktop.h"
 
 class E_Global

@@ -1,10 +1,7 @@
-#include <gdiplus.h>
-#include <afxwin.h>
 #include "E_Window.h"
-#include <list>
 using namespace Gdiplus;
 
-
+#pragma once
 class E_Desktop
 {
 private:

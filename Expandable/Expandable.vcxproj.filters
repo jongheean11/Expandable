@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="AeroPeek">
+      <UniqueIdentifier>{6bb15250-21fb-4567-abcf-ed97d2829438}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GlobalWindow">
+      <UniqueIdentifier>{a695bc85-eb7e-40f5-9f79-bcf9184578c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WindowSwitcher">
+      <UniqueIdentifier>{26859507-c487-4b27-affc-4d5c2fb975a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DesktopSwitcher">
+      <UniqueIdentifier>{bd8e691c-7660-429b-ba7e-ec5e125110c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,6 +63,9 @@
     <ClInclude Include="E_Global.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="E_AeroPeekController.h">
+      <Filter>AeroPeek</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -79,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="E_Global.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="E_AeroPeekController.cpp">
+      <Filter>AeroPeek</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

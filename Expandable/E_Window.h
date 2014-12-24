@@ -1,10 +1,7 @@
-#include <windef.h>
-#include <gdiplus.h>
-#include <iostream>
-
 using namespace Gdiplus;
 using namespace std;
 
+#pragma once
 class E_Window
 {
 private:

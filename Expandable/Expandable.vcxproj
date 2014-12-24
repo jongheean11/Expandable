@@ -57,6 +57,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dwmapi.lib;</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -99,6 +100,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="E_AeroPeekController.h" />
     <ClInclude Include="Expandable.h" />
     <ClInclude Include="ExpandableDoc.h" />
     <ClInclude Include="ExpandableView.h" />
@@ -112,6 +114,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="E_AeroPeekController.cpp" />
     <ClCompile Include="Expandable.cpp" />
     <ClCompile Include="ExpandableDoc.cpp" />
     <ClCompile Include="ExpandableView.cpp" />
@@ -141,4 +144,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Expandable.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
