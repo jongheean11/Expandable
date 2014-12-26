@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include"E_Map.h"
 void E_Map::drawMap()
 {
@@ -6,7 +7,7 @@ void E_Map::drawMap()
 
 void E_Map::onMouseLButtonDown()
 {
-
+ 
 }
 
 void E_Map::onMouseMove()
