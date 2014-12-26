@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include"E_Map.h"
 void E_Map::drawMap()
 {
