@@ -11,6 +11,7 @@ public:
 private:
 	std::list<HTHUMBNAIL> handle_list;
 public:
+	// 등록한 모든 미리보기를 제거함
 	DWORD unregisterAllAreo();
 };
 
