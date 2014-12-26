@@ -107,6 +107,7 @@
     <ClInclude Include="E_Desktop.h" />
     <ClInclude Include="E_DesktopSwitcher.h" />
     <ClInclude Include="E_Global.h" />
+    <ClInclude Include="E_Map.h" />
     <ClInclude Include="E_Window.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="E_Desktop.cpp" />
     <ClCompile Include="E_DesktopSwitcher.cpp" />
     <ClCompile Include="E_Global.cpp" />
+    <ClCompile Include="E_Map.cpp" />
     <ClCompile Include="E_Window.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="stdafx.cpp">
