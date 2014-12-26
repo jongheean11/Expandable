@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "E_DesktopSwitcher.h"
+#include <Windows.h>
+
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {

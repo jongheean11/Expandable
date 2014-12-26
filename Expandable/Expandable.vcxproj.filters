@@ -25,6 +25,9 @@
     <Filter Include="DesktopSwitcher">
       <UniqueIdentifier>{bd8e691c-7660-429b-ba7e-ec5e125110c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{cec9e148-089f-449d-954f-0ffb026f2841}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,23 +54,23 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="E_Desktop.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="E_Window.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="E_DesktopSwitcher.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="E_Global.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="E_AeroPeekController.h">
       <Filter>AeroPeek</Filter>
     </ClInclude>
+    <ClInclude Include="E_Global.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Desktop.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Window.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_DesktopSwitcher.h">
+      <Filter>DesktopSwitcher</Filter>
+    </ClInclude>
     <ClInclude Include="E_Map.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,23 +89,23 @@
     <ClCompile Include="ExpandableView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="E_Desktop.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="E_Window.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="E_DesktopSwitcher.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="E_Global.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="E_AeroPeekController.cpp">
       <Filter>AeroPeek</Filter>
     </ClCompile>
+    <ClCompile Include="E_Desktop.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Global.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Window.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_DesktopSwitcher.cpp">
+      <Filter>DesktopSwitcher</Filter>
+    </ClCompile>
     <ClCompile Include="E_Map.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
