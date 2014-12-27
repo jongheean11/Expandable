@@ -114,7 +114,10 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		desktopSwitcher_bool = true;
 	}
-
+	if (nChar == 'A')
+	{
+		
+	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -125,6 +128,12 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		desktopSwitcher_bool = false;
 		desktopSwitcher.drawWindowSwitcher();
+	}
+	if (nChar == 'A')
+	{
+		
+		e_map.drawMap();
+		e_map.startTimer();
 	}
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }

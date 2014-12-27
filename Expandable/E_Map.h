@@ -4,12 +4,15 @@
 class E_Map
 {
 private:
-	int visibleTime;
+	int visibleTime=3000;
+	CWnd* hwnd_cwnd_emap;
 	E_Window* draggingWindow;
 	clock_t sTime, nTime;
-	
+	bool ison = false;
 public:
-	static volatile bool isThreadRunning;
+	E_Map();
+	~E_Map();
+	static volatile bool isThreadRunning ;
 	void drawMap();
 	void onMouseLButtonDown();
 	void onMouseMove();

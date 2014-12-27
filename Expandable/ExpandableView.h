@@ -24,6 +24,7 @@ public:
 	
 	bool desktopSwitcher_bool;
 
+
 // 작업입니다.
 public:
 	E_Global e_global;
