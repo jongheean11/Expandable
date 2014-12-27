@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "E_DesktopSwitcher.h"
-#include "E_Global.h"
-#include <Windows.h>
+#include "E_AeroPeekController.h"
+#include <Windows.h> 
 
-HRESULT UpdateDesktop(HWND hwnd);
+HRESULT UpdateDesktop_Background(HWND hwnd, double left, double top, double right, double bottom);
+HRESULT UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom);
+HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double bottom);
 
 
 E_DesktopSwitcher::E_DesktopSwitcher()
@@ -83,7 +85,18 @@ void E_DesktopSwitcher::drawPreview()
 	PAINTSTRUCT ps;
 	HDC hdc;
 	HWND other = NULL;
-	UpdateDesktop(hwnd_cwnd->m_hWnd);
+	/*
+	string mainWindowStr = "Shell_SecondaryTrayWnd";
+	std::wstring l_temp = std::wstring(mainWindowStr.begin(), mainWindowStr.end());
+	LPCWSTR l_str = l_temp.c_str();
+	HWND taskbar = FindWindowW(l_str, NULL);
+	CRect sizeRect;
+	GetWindowRect(taskbar, &sizeRect);
+	*/
+	AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(E_Global::resolutionHeight)/E_Global::resolutionWidth);
+	AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(E_Global::resolutionHeight) / E_Global::resolutionWidth);
+	UpdateDesktop3(hwnd_cwnd->m_hWnd, 100, 100, 300, 180);
+
 	hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);
 	// TODO: 여기에 그리기 코드를 추가합니다.
 	EndPaint(hwnd_cwnd->m_hWnd, &ps);
@@ -109,7 +122,7 @@ void E_DesktopSwitcher::updateComponent(E_Desktop* targetDesktop, E_Window* targ
 
 }
 
-HRESULT UpdateDesktop(HWND hwnd)
+HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double bottom)
 {
 	string mainWindowStr = "Facebook - Chrome",
 		exWindowStr = "Chrome_RenderWidgetHostHWND";
@@ -120,6 +133,7 @@ HRESULT UpdateDesktop(HWND hwnd)
 	HRESULT hr = S_OK;
 	// Register the thumbnail
 	HTHUMBNAIL thumbnail = NULL;
+	
 	HWND chrome = FindWindowW(NULL, l_str);
 	if (NULL != chrome) {
 		HWND child = FindWindowExW(chrome, NULL, t_str, NULL);
@@ -143,7 +157,7 @@ HRESULT UpdateDesktop(HWND hwnd)
 	if (SUCCEEDED(hr))
 	{
 		// The destination rectangle size
-		RECT dest = { 0, 50, 500, 550 };
+		RECT dest = { left, top, right, bottom };
 
 		// Set the thumbnail properties for use
 		DWM_THUMBNAIL_PROPERTIES dskThumbProps;
