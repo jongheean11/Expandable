@@ -12,6 +12,7 @@
 #include "ExpandableDoc.h"
 #include "ExpandableView.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -26,9 +27,13 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_RBUTTONUP()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
+
+double E_Global::resolutionWidth;
+double E_Global::resolutionHeight;
 
 CExpandableView::CExpandableView()
 {
@@ -37,8 +42,8 @@ CExpandableView::CExpandableView()
 	desktopSwitcher_bool = false;
 
 	// Screen 해상도값을 Global의 resolutionWidth, resolutionHeight에 Set
-	e_global.setresolutionWidth(GetSystemMetrics(SM_CXSCREEN));
-	e_global.setresolutionHeight(GetSystemMetrics(SM_CYSCREEN));
+	E_Global::resolutionWidth = GetSystemMetrics(SM_CXSCREEN);
+	E_Global::resolutionHeight = GetSystemMetrics(SM_CYSCREEN);
 }
 
 CExpandableView::~CExpandableView()
@@ -109,7 +114,10 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		desktopSwitcher_bool = true;
 	}
-
+	if (nChar == 'A')
+	{
+		
+	}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -121,6 +129,18 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 		desktopSwitcher_bool = false;
 		desktopSwitcher.drawWindowSwitcher();
 	}
-
+	if (nChar == 'A')
+	{
+		
+		e_map.drawMap();
+		e_map.startTimer();
+	}
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+void CExpandableView::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	e_map.stopTimer();
+	CView::OnTimer(nIDEvent);
 }

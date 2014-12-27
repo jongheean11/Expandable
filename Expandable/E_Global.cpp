@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_Global.h"
 
+
 E_Global::E_Global()
 {
 
@@ -9,7 +10,7 @@ E_Global::~E_Global()
 {
 
 }
-
+/*
 void E_Global::setresolutionWidth(int paramWidth)
 {
 	resolutionWidth = paramWidth;
@@ -49,7 +50,7 @@ double E_Global::getVirtualHeight()
 {
 	return virtualHeight;
 }
-
+*/
 void E_Global::setSelectedDesktopIndex(int paramIndex)
 {
 	selectedDesktopIndex = paramIndex;

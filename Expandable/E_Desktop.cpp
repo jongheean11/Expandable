@@ -50,7 +50,7 @@ void E_Desktop::setAllIconInvisible()
 {
 	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setIconInvisible();
+		(*itr).setIconInvisible((*itr).getHWND());
 	}
 	/*
 	POSITION pos = windowList.GetHeadPosition();
@@ -65,7 +65,7 @@ void E_Desktop::setAllIconVisible()
 {
 	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setIconVisible();
+		(*itr).setIconVisible((*itr).getHWND());
 	}
 	/*
 	POSITION pos = windowList.GetHeadPosition();

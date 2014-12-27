@@ -66,7 +66,7 @@ void E_Window::setHWND(string mainWindowStr, string exWindowStr)
 	hwnd = targethwnd;
 }
 
-void E_Window::setIconInvisible()
+void E_Window::setIconInvisible(HWND hwnd)
 {
 	ITaskbarList *pTaskList = NULL;
 	CoCreateInstance(CLSID_TaskbarList, NULL,
@@ -90,7 +90,8 @@ void E_Window::setIconInvisible()
 		OutputDebugStringA("INTERFACE FAIL");
 	}
 }
-void E_Window::setIconVisible()
+
+void E_Window::setIconVisible(HWND hwnd)
 {
 	ITaskbarList *pTaskList = NULL;
 	CoCreateInstance(CLSID_TaskbarList, NULL,

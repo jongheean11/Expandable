@@ -3,11 +3,14 @@
 class E_DesktopSwitcher
 {
 private:
-	
+	CWnd* hwnd_cwnd;
+	//HWND hwnd;
+	bool ison;
 public:
 	E_DesktopSwitcher();
 	~E_DesktopSwitcher();
 	void drawWindowSwitcher();
+	VOID destroyWindowSwitcher();
 	void drawPreview();
 	void onMouseClick();
 	void switchDesktop(int direction);
