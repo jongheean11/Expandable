@@ -22,8 +22,8 @@ public:
 	void operator=(const E_Window &tmp); 
 	bool operator==(const E_Window &tmp);
 	void setHWND(string mainWindowStr, string exWindowStr);
-	void setIconInvisible();
-	void setIconVisible();
+	static void setIconInvisible(HWND hwnd);
+	static void setIconVisible(HWND hwnd);
 	void setTransparent();
 	void setOpaque();
 	HWND getHWND();

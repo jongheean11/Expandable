@@ -30,6 +30,9 @@ END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
 
+double E_Global::resolutionWidth;
+double E_Global::resolutionHeight;
+
 CExpandableView::CExpandableView()
 {
 	//// Initialize
@@ -37,8 +40,8 @@ CExpandableView::CExpandableView()
 	desktopSwitcher_bool = false;
 
 	// Screen 해상도값을 Global의 resolutionWidth, resolutionHeight에 Set
-	e_global.setresolutionWidth(GetSystemMetrics(SM_CXSCREEN));
-	e_global.setresolutionHeight(GetSystemMetrics(SM_CYSCREEN));
+	E_Global::resolutionWidth = GetSystemMetrics(SM_CXSCREEN);
+	E_Global::resolutionHeight = GetSystemMetrics(SM_CYSCREEN);
 }
 
 CExpandableView::~CExpandableView()

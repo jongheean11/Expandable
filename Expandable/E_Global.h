@@ -3,8 +3,6 @@
 class E_Global
 {
 private:
-	double resolutionWidth, resolutionHeight;
-	double virtualWidth, virtualHeight;
 	int selectedDesktopIndex;
 	int aeroMode;
 	int updateState;
@@ -13,14 +11,16 @@ private:
 public:
 	E_Global();
 	~E_Global();
-	void setresolutionWidth(int paramWidth);
-	double getresolutionWidth();
-	void setresolutionHeight(int paramHeight);
-	double getresolutionHeight();
-	void setVirtualWidth(int paramWidth);
-	double getVirtualWidth();
-	void setVirtualHeight(int paramHeight);
-	double getVirtualHeight();
+	static double resolutionWidth, resolutionHeight;
+	static double virtualWidth, virtualHeight;
+	/*static void setresolutionWidth(int paramWidth);
+	static double getresolutionWidth();
+	static void setresolutionHeight(int paramHeight);
+	static double getresolutionHeight();
+	static void setVirtualWidth(int paramWidth);
+	static double getVirtualWidth();
+	static void setVirtualHeight(int paramHeight);
+	static double getVirtualHeight();*/
 	void setSelectedDesktopIndex(int paramIndex);
 	int getSelectedDesktopIndex();
 	void startUpdateSelectedDesktop();
