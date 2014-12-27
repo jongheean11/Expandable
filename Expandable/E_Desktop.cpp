@@ -9,7 +9,7 @@ E_Desktop::E_Desktop(const E_Desktop &tmp)
 	pos = tmp.pos;
 	old = tmp.old;
 	current = tmp.current;
-}
+}//
 
 E_Desktop::~E_Desktop()
 {
