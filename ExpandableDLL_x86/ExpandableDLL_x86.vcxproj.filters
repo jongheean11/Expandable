@@ -25,6 +25,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="E_HookingAssembly.txt">
+      <Filter>Hook</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -35,6 +38,12 @@
     </ClInclude>
     <ClInclude Include="E_Hooking.h">
       <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="E_DLLClient.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="changlib.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -47,11 +56,11 @@
     <ClCompile Include="E_dllmain.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="E_Network.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="E_Hooking.cpp">
       <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="E_DLLClient.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
