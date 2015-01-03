@@ -5,12 +5,33 @@ E_Global* E_Global::singleton = NULL;
 
 E_Global::E_Global()
 {
-
 }
+
 E_Global::~E_Global()
 {
 
 }
+
+CWnd* E_Global::getBackgroundWindow(){
+	HWND background = GetShellWindow();
+
+	return CWnd::FromHandle(background);
+}
+CWnd* E_Global::getTaskbarWindow(){
+	string mainWindowStr = "Shell_TrayWnd",
+		exWindowStr = "ReBarWindow32";
+	std::wstring l_temp = std::wstring(mainWindowStr.begin(), mainWindowStr.end());
+	LPCWSTR l_str = l_temp.c_str();
+	std::wstring t_temp = std::wstring(exWindowStr.begin(), exWindowStr.end());
+	LPCWSTR t_str = t_temp.c_str();
+	HRESULT hr = S_OK;
+	// Register the thumbnail
+	HTHUMBNAIL thumbnail = NULL;
+	HWND taskbar = FindWindowW(l_str, NULL);
+
+	return CWnd::FromHandle(taskbar);
+}
+
 /*
 void E_Global::setresolutionWidth(int paramWidth)
 {

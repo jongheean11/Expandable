@@ -1,6 +1,7 @@
 #pragma once
 #include "afxwin.h"
 #include "E_EnvironmentManager.h"
+#include "E_AeroPeekController.h"
 class E_WindowSwitcher :
 	public CWnd
 {
