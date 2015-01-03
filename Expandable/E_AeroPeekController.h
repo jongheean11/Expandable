@@ -130,5 +130,8 @@ public:
 	}
 private:
 	std::list<HTHUMBNAIL> handle_list;
+public:
+	// AeroPeek이 활성화 되어있는지?
+	bool isAeroPeekMode();
 };
 

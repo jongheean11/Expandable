@@ -1,6 +1,7 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 
+#pragma once
 class E_Global : E_GlobalUpdater
 {
 private:

@@ -9,7 +9,6 @@
 
 #include "resource.h"       // 주 기호입니다.
 
-
 // CExpandableApp:
 // 이 클래스의 구현에 대해서는 Expandable.cpp을 참조하십시오.
 //

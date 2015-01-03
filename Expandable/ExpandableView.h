@@ -7,7 +7,7 @@
 #include "E_Map.h"
 
 #include "E_DesktopSwitcher.h"
-
+#include "E_AeroPeekController.h"
 
 #pragma once
 
