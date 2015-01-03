@@ -27,7 +27,7 @@ public:
 
 // 작업입니다.
 public:
-	E_Global e_global;
+	//E_Global e_global;
 	E_DesktopSwitcher desktopSwitcher;
 	E_Map e_map;
 	CTime initTime;

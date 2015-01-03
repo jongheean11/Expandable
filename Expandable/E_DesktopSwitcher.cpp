@@ -35,13 +35,16 @@ void E_DesktopSwitcher::drawWindowSwitcher()
 		NULL,
 		NULL);
 	ShowWindow(hwnd, SW_SHOWMAXIMIZED);*/
+	
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
 	CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
 	if (!ison)
 	{	
-		hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, (int)E_Global::resolutionWidth, (int)E_Global::resolutionHeight), CWnd::GetDesktopWindow() , 1234);
+		hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234);
 		//SetClassLong(hwnd_cwnd->)
 		// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 		hwnd_cwnd->ShowWindow(SW_SHOWMAXIMIZED);
@@ -93,8 +96,11 @@ void E_DesktopSwitcher::drawPreview()
 	CRect sizeRect;
 	GetWindowRect(taskbar, &sizeRect);
 	*/
-	E_AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(E_Global::resolutionHeight)/E_Global::resolutionWidth);
-	E_AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(E_Global::resolutionHeight) / E_Global::resolutionWidth);
+
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
+	E_AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
+	E_AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
 	UpdateDesktop3(hwnd_cwnd->m_hWnd, 100, 100, 300, 180);
 
 	hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);

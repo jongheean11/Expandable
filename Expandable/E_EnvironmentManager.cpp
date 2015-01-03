@@ -4,9 +4,20 @@
 E_EnvironmentManager* E_EnvironmentManager::singleton = NULL;
 const wchar_t* E_EnvironmentManager::ExeFile = L"Expandable.exe";
 
-E_EnvironmentManager::E_EnvironmentManager(E_GlobalUpdater* updater)
+E_EnvironmentManager::E_EnvironmentManager()
 {
-	
+	this->width = GetSystemMetrics(SM_CXSCREEN);
+	this->height = GetSystemMetrics(SM_CYSCREEN);
+}
+
+long E_EnvironmentManager::getWidth(){
+	return width;
+}
+long E_EnvironmentManager::getHeight(){
+	return height;
+}
+void E_EnvironmentManager::setGlobalUpdater(E_GlobalUpdater* updater){
+	this->globalUpdater = updater;
 }
 
 
@@ -58,10 +69,10 @@ bool E_EnvironmentManager::getRunningAutoHotkey()
 }
 
 // updater를 매개변수로 받는 싱글톤 생성함수
-E_EnvironmentManager* E_EnvironmentManager::getSingleton(E_GlobalUpdater* updater)
+E_EnvironmentManager* E_EnvironmentManager::getSingleton()
 {
 	if (singleton == NULL) {
-		singleton = new E_EnvironmentManager(updater);
+		singleton = new E_EnvironmentManager();
 	}
 	return singleton;
 }
@@ -89,21 +100,21 @@ LRESULT E_EnvironmentManager::OnDisplayChange(WPARAM wParam, LPARAM lParam)
 
 	if (dualMonitorMode == false) {
 		//It's not about Dual Monitor
-		if (this->width != width || this->height != height) {
-			//듀얼모니터가 아닐때만 동작 
-			//해상도 변경 관련...
-			//globalUpdater->OnChangeResolution(width, height);
-		}
+		//if (this->width != width || this->height != height) {
+		//	//듀얼모니터가 아닐때만 동작 
+		//	//해상도 변경 관련...
+		//	//globalUpdater->OnChangeResolution(width, height);
+		//}
 		if (this->dualMonitorMode != dualMonitorMode){
 			//이전 상태와 달라졌다면
-			//globalUpdater->OnDualMonitorMode(dualMonitorMode);
+			globalUpdater->OnDualMonitorMode(dualMonitorMode);
 		}
 	} else if(dualMonitorMode == true) {
 
 		//It's about Dual Monitor
 		if (this->dualMonitorMode != dualMonitorMode){
 			//이전 상태와 달라졌다면
-			//globalUpdater->OnDualMonitorMode(dualMonitorMode);
+			globalUpdater->OnDualMonitorMode(dualMonitorMode);
 		}
 	}
 

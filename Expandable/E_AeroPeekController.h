@@ -1,5 +1,6 @@
 
 #include "E_Global.h"
+#include "E_EnvironmentManager.h"
 using namespace std;
 
 #pragma once
@@ -87,11 +88,13 @@ public:
 				{
 					OutputDebugString(L"DRAW SUCCESS\n");
 
+					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
 					// ºñ °è»ê
-					double ratio_y = ((right - left) * E_Global::resolutionHeight) / E_Global::resolutionWidth;
+					double ratio_y = ((right - left) * enManager->getHeight()) / enManager->getWidth();
 
 					// The destination rectangle size
-					RECT dest = { left, bottom - (ratio_y*(sizeRect.bottom - sizeRect.top) / E_Global::resolutionHeight), right, bottom };
+					RECT dest = { left, bottom - (ratio_y*(sizeRect.bottom - sizeRect.top) / enManager->getHeight()), right, bottom };
 					//RECT dest = { left, bottom - (sizeRect.bottom - sizeRect.top), right, bottom };
 
 					// Set the thumbnail properties for use
