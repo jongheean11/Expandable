@@ -7,6 +7,7 @@ E_AeroPeekController::E_AeroPeekController()
 E_AeroPeekController::~E_AeroPeekController()
 {
 }
+E_AeroPeekController* E_AeroPeekController::singleton = NULL;
 
 // Aero API를 사용하여 미리화면을 등록해주는 함수
 HRESULT E_AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL& hThumbnail)

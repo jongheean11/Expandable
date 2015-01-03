@@ -28,6 +28,9 @@
     <Filter Include="Map">
       <UniqueIdentifier>{cec9e148-089f-449d-954f-0ffb026f2841}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EnvironmentManager">
+      <UniqueIdentifier>{848d1d5d-3019-4044-a7ce-00daed1d4da5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -72,6 +75,12 @@
     <ClInclude Include="E_Map.h">
       <Filter>Map</Filter>
     </ClInclude>
+    <ClInclude Include="E_EnvironmentManager.h">
+      <Filter>EnvironmentManager</Filter>
+    </ClInclude>
+    <ClInclude Include="E_GlobalUpdater.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -106,6 +115,12 @@
     </ClCompile>
     <ClCompile Include="E_Map.cpp">
       <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="E_EnvironmentManager.cpp">
+      <Filter>EnvironmentManager</Filter>
+    </ClCompile>
+    <ClCompile Include="E_GlobalUpdater.cpp">
+      <Filter>GlobalWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

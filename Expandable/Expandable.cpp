@@ -11,6 +11,9 @@
 #include "ExpandableDoc.h"
 #include "ExpandableView.h"
 
+#include "E_EnvironmentManager.h"
+#include "E_GlobalUpdater.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -124,6 +127,25 @@ BOOL CExpandableApp::InitInstance()
 	// 창 하나만 초기화되었으므로 이를 표시하고 업데이트합니다.
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
+
+	//Switcher 계열 초기화
+
+	//E_Global 계열 초기화
+
+	//Environment Manager 초기화
+	CWnd* hwnd_cwnd = (CWnd*)E_EnvironmentManager::getSingleton(new E_GlobalUpdater());
+	CBrush m_oBkgndBrush;
+	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
+	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
+
+	hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
+	//SetClassLong(hwnd_cwnd->)
+	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
+	hwnd_cwnd->ShowWindow(SW_HIDE);
+	hwnd_cwnd->UpdateWindow();
+	E_EnvironmentManager::getRunningMainProcess();
+	
 	return TRUE;
 }
 

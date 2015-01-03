@@ -56,3 +56,4 @@
 #include <windef.h>
 #include <gdiplus.h>
 #include <iostream>
+#include <tlhelp32.h>
