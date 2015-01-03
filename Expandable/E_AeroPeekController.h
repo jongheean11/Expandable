@@ -3,16 +3,31 @@
 using namespace std;
 
 #pragma once
-class AeroPeekController
+class E_AeroPeekController
 {
+private:
+	//singleton variable
+	static E_AeroPeekController* singleton;
+	//private constructor
+	E_AeroPeekController();		
+	~E_AeroPeekController();	//강제 해제를 막음
 public:
-	AeroPeekController();
-	~AeroPeekController();
+	//get singleton function
+	static E_AeroPeekController* E_AeroPeekController::getSingleton()
+	{
+		if (E_AeroPeekController::singleton == NULL)
+			E_AeroPeekController::singleton = new E_AeroPeekController();
+		return E_AeroPeekController::singleton;
+	}
+
 	// Aero API를 사용하여 화면을 복사해주는 함수
-	HRESULT AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL &hthumbnail);
+	HRESULT E_AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL &hthumbnail);
 	// 등록한 미리보기를 제거함
 	HRESULT unregisterAero(HTHUMBNAIL hThumbnail);
-	static HRESULT AeroPeekController::UpdateDesktop_Background(HWND hwnd, double left, double top, double right, double bottom)
+	// 등록한 모든 미리보기를 제거함
+	DWORD unregisterAllAreo();
+	
+	static HRESULT E_AeroPeekController::UpdateDesktop_Background(HWND hwnd, double left, double top, double right, double bottom)
 	{
 		HRESULT hr = S_OK;
 		// Register the thumbnail
@@ -48,7 +63,7 @@ public:
 		return hr;
 	}
 
-	static HRESULT AeroPeekController::UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom)
+	static HRESULT E_AeroPeekController::UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom)
 	{
 		string mainWindowStr = "Shell_TrayWnd",
 			exWindowStr = "ReBarWindow32";
@@ -112,8 +127,5 @@ public:
 	}
 private:
 	std::list<HTHUMBNAIL> handle_list;
-public:
-	// 등록한 모든 미리보기를 제거함
-	DWORD unregisterAllAreo();
 };
 

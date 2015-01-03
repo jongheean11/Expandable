@@ -1,20 +1,15 @@
 #include "stdafx.h"
 #include "E_AeroPeekController.h"
-
-
-
-AeroPeekController::AeroPeekController()
+E_AeroPeekController::E_AeroPeekController()
 {
 }
 
-
-AeroPeekController::~AeroPeekController()
+E_AeroPeekController::~E_AeroPeekController()
 {
 }
-
 
 // Aero API를 사용하여 미리화면을 등록해주는 함수
-HRESULT AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL& hThumbnail)
+HRESULT E_AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL& hThumbnail)
 {
 	HRESULT hr = S_OK;
 
@@ -41,7 +36,7 @@ HRESULT AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out H
 
 
 // 등록한 미리보기를 제거함
-HRESULT AeroPeekController::unregisterAero(HTHUMBNAIL hThumbnail)
+HRESULT E_AeroPeekController::unregisterAero(HTHUMBNAIL hThumbnail)
 {
 	HRESULT result = DwmUnregisterThumbnail(hThumbnail);
 	if (SUCCEEDED(result))
@@ -50,7 +45,7 @@ HRESULT AeroPeekController::unregisterAero(HTHUMBNAIL hThumbnail)
 }
 
 // 등록된 모든 미리보기 제거
-DWORD AeroPeekController::unregisterAllAreo()
+DWORD E_AeroPeekController::unregisterAllAreo()
 {
 	DWORD result = TRUE;
 	for (std::list<HTHUMBNAIL>::iterator iterator = handle_list.begin(); iterator != handle_list.end();) {

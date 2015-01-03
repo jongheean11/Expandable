@@ -93,8 +93,8 @@ void E_DesktopSwitcher::drawPreview()
 	CRect sizeRect;
 	GetWindowRect(taskbar, &sizeRect);
 	*/
-	AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(E_Global::resolutionHeight)/E_Global::resolutionWidth);
-	AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(E_Global::resolutionHeight) / E_Global::resolutionWidth);
+	E_AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(E_Global::resolutionHeight)/E_Global::resolutionWidth);
+	E_AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(E_Global::resolutionHeight) / E_Global::resolutionWidth);
 	UpdateDesktop3(hwnd_cwnd->m_hWnd, 100, 100, 300, 180);
 
 	hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);
