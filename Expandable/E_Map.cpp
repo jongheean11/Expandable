@@ -10,9 +10,11 @@ E_Map::E_Map()
 }
 E_Map::~E_Map()
 {
-	hwnd_cwnd_emap->CloseWindow();
-	hwnd_cwnd_emap->DestroyWindow();
-	hwnd_cwnd_emap = NULL;
+	if (hwnd_cwnd_emap != NULL)
+	{
+		hwnd_cwnd_emap->DestroyWindow();
+		hwnd_cwnd_emap = NULL;
+	}
 }
 
 void E_Map::drawMap()

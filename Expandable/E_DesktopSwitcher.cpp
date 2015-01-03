@@ -10,7 +10,6 @@ HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double 
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
-	//hwnd_cwnd->Create(_T("STATIC"), _T("DesktopSwitcher"), WS_CHILD | WS_VISIBLE, CRect(0, 0, (int)E_Global::getresolutionWidth(), (int)E_Global::getresolutionHeight()), AfxGetApp()->m_pMainWnd, 1234);
 	hwnd_cwnd = NULL;
 	hwnd_cwnd = new CWnd;
 	ison = false;
@@ -18,9 +17,10 @@ E_DesktopSwitcher::E_DesktopSwitcher()
 
 E_DesktopSwitcher::~E_DesktopSwitcher()
 {
-	//DestroyWindow(hwnd);
 	hwnd_cwnd->DestroyWindow();
+	hwnd_cwnd = NULL;
 }
+E_DesktopSwitcher* E_DesktopSwitcher::singleton = NULL;
 
 void E_DesktopSwitcher::drawWindowSwitcher()
 {
@@ -51,20 +51,14 @@ void E_DesktopSwitcher::drawWindowSwitcher()
 		hwnd_cwnd->UpdateWindow();
 		E_Window::setIconInvisible(hwnd_cwnd->m_hWnd);
 		ison = true;
+		drawPreview();
 	}
 	else
 	{
 		E_Window::setIconVisible(hwnd_cwnd->m_hWnd);
-		hwnd_cwnd->CloseWindow();
 		hwnd_cwnd->DestroyWindow();
 		ison = false;
-		
-		//hwnd_cwnd->~CWnd();
-		/*hwnd_cwnd = new CWnd;
-		hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, (int)E_Global::resolutionWidth, (int)E_Global::resolutionHeight), CWnd::GetDesktopWindow(), 1234);*/
 	}
-
-	drawPreview();
 	/*E_Window::setIconInvisible(hwnd_cwnd->m_hWnd);
 	hwnd_cwnd->ShowWindow(SW_SHOWMAXIMIZED);
 	hwnd_cwnd->UpdateWindow();*/
@@ -75,11 +69,6 @@ void E_DesktopSwitcher::drawWindowSwitcher()
 
 void E_DesktopSwitcher::destroyWindowSwitcher()
 {
-	if (hwnd_cwnd != NULL)
-	{
-		hwnd_cwnd->DestroyWindow();
-		hwnd_cwnd = NULL;
-	}
 }
 
 void E_DesktopSwitcher::drawPreview()

@@ -164,6 +164,7 @@ BOOL CExpandableApp::InitInstance()
 	cwnd_env->ShowWindow(SW_HIDE);
 	cwnd_env->UpdateWindow();
 	
+
 	return TRUE;
 }
 

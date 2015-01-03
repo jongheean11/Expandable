@@ -4,14 +4,25 @@
 class E_DesktopSwitcher
 {
 private:
+	//singleton variable
+	static E_DesktopSwitcher* singleton;
+	//private constructor
+	E_DesktopSwitcher();
+	~E_DesktopSwitcher();	//강제 해제를 막음
+
 	CWnd* hwnd_cwnd;
 	//HWND hwnd;
 	bool ison;
 public:
-	E_DesktopSwitcher();
-	~E_DesktopSwitcher();
+	//get singleton function
+	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
+	{
+		if (E_DesktopSwitcher::singleton == NULL)
+			E_DesktopSwitcher::singleton = new E_DesktopSwitcher();
+		return E_DesktopSwitcher::singleton;
+	}
 	void drawWindowSwitcher();
-	VOID destroyWindowSwitcher();
+	void destroyWindowSwitcher();
 	void drawPreview();
 	void onMouseClick();
 	void switchDesktop(int direction);

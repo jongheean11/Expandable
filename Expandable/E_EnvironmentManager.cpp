@@ -33,27 +33,27 @@ bool E_EnvironmentManager::getRunningMainProcess()
 	if (currentHandle) {
 		DWORD pid = GetProcessId(GetCurrentProcess());
 		CloseHandle(currentHandle);
-		if (hSnapshot)
+	if (hSnapshot)
+	{
+		PROCESSENTRY32 ProcessEntry32;
+		BOOL bProcessFound;
+		ProcessEntry32.dwSize = sizeof(PROCESSENTRY32);
+		bProcessFound = Process32First(hSnapshot, &ProcessEntry32);
+		while (bProcessFound)
 		{
-			PROCESSENTRY32 ProcessEntry32;
-			BOOL bProcessFound;
-			ProcessEntry32.dwSize = sizeof(PROCESSENTRY32);
-			bProcessFound = Process32First(hSnapshot, &ProcessEntry32);
-			while (bProcessFound)
-			{
 				if (wcscmp(ProcessEntry32.szExeFile, E_EnvironmentManager::ExeFileName) == 0 && ProcessEntry32.th32ProcessID != pid){
 					//중복 프로세스 존재...
 					result = true;
-					/*WCHAR dbgmsg[9999];
+			/*WCHAR dbgmsg[9999];
 					wsprintf(dbgmsg, L"PID : %d\n", pid);
 					OutputDebugString(dbgmsg);
 					wsprintf(dbgmsg, L"%s [%d]\n", ProcessEntry32.szExeFile, ProcessEntry32.th32ProcessID);
-					OutputDebugString(dbgmsg);*/
-				}
-				bProcessFound = Process32Next(hSnapshot, &ProcessEntry32);
+			OutputDebugString(dbgmsg);*/
 			}
-			CloseHandle(hSnapshot);
+			bProcessFound = Process32Next(hSnapshot, &ProcessEntry32);
 		}
+		CloseHandle(hSnapshot);
+	}
 	}
 	return result;
 }
