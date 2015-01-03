@@ -2,7 +2,7 @@
 #include "E_EnvironmentManager.h"
 
 E_EnvironmentManager* E_EnvironmentManager::singleton = NULL;
-const wchar_t* E_EnvironmentManager::ExeFile = L"Expandable.exe";
+const wchar_t* E_EnvironmentManager::ExeFileName = L"Expandable.exe";
 
 E_EnvironmentManager::E_EnvironmentManager()
 {
@@ -20,46 +20,42 @@ void E_EnvironmentManager::setGlobalUpdater(E_GlobalUpdater* updater){
 	this->globalUpdater = updater;
 }
 
-
 E_EnvironmentManager::~E_EnvironmentManager()
-{
-}
-
-// GlobalWindow에 해상도 변경을 알리는 함수
-void E_EnvironmentManager::notifyChangeResolution()
-{
-	
-}
-
-// GlobalWindow에 듀얼모니터 상태 변화를 알리는 함수
-void E_EnvironmentManager::notifyDualMonitorMode()
 {
 }
 
 // 이미 동작하는 Expandable이 있는지??
 bool E_EnvironmentManager::getRunningMainProcess()
 {
+	bool result = false;
 	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	DWORD pid = GetProcessId(GetModuleHandleA(NULL));
-	if (hSnapshot)
-	{
-		PROCESSENTRY32 ProcessEntry32;
-		BOOL bProcessFound;
-		ProcessEntry32.dwSize = sizeof(PROCESSENTRY32);
-		bProcessFound = Process32First(hSnapshot, &ProcessEntry32);
-		while (bProcessFound)
+	HANDLE currentHandle = GetCurrentProcess();
+	if (currentHandle) {
+		DWORD pid = GetProcessId(GetCurrentProcess());
+		CloseHandle(currentHandle);
+		if (hSnapshot)
 		{
-			/*WCHAR dbgmsg[9999];
-			wsprintf(dbgmsg,L"%s [%d]\n", ProcessEntry32.szExeFile, ProcessEntry32.th32ProcessID);
-			OutputDebugString(dbgmsg);*/
-			if (wcscmp(ProcessEntry32.szExeFile, E_EnvironmentManager::ExeFile) == 0 && ProcessEntry32.th32ProcessID != pid){
-				//중복 프로세스 존재
+			PROCESSENTRY32 ProcessEntry32;
+			BOOL bProcessFound;
+			ProcessEntry32.dwSize = sizeof(PROCESSENTRY32);
+			bProcessFound = Process32First(hSnapshot, &ProcessEntry32);
+			while (bProcessFound)
+			{
+				if (wcscmp(ProcessEntry32.szExeFile, E_EnvironmentManager::ExeFileName) == 0 && ProcessEntry32.th32ProcessID != pid){
+					//중복 프로세스 존재...
+					result = true;
+					/*WCHAR dbgmsg[9999];
+					wsprintf(dbgmsg, L"PID : %d\n", pid);
+					OutputDebugString(dbgmsg);
+					wsprintf(dbgmsg, L"%s [%d]\n", ProcessEntry32.szExeFile, ProcessEntry32.th32ProcessID);
+					OutputDebugString(dbgmsg);*/
+				}
+				bProcessFound = Process32Next(hSnapshot, &ProcessEntry32);
 			}
-			bProcessFound = Process32Next(hSnapshot, &ProcessEntry32);
+			CloseHandle(hSnapshot);
 		}
-		CloseHandle(hSnapshot);
 	}
-	return 0;
+	return result;
 }
 
 // 동작하는 핫키 프로그램이 있는지?
@@ -95,22 +91,16 @@ LRESULT E_EnvironmentManager::OnDisplayChange(WPARAM wParam, LPARAM lParam)
 		dualMonitorMode = false;
 	}
 
-	double width = lParam & 0x0000ffff;
-	double height = (lParam >> 16);
+	long width = lParam & 0x0000ffff;
+	long height = (lParam >> 16);
 
 	if (dualMonitorMode == false) {
 		//It's not about Dual Monitor
-		//if (this->width != width || this->height != height) {
-		//	//듀얼모니터가 아닐때만 동작 
-		//	//해상도 변경 관련...
-		//	//globalUpdater->OnChangeResolution(width, height);
-		//}
 		if (this->dualMonitorMode != dualMonitorMode){
 			//이전 상태와 달라졌다면
 			globalUpdater->OnDualMonitorMode(dualMonitorMode);
 		}
 	} else if(dualMonitorMode == true) {
-
 		//It's about Dual Monitor
 		if (this->dualMonitorMode != dualMonitorMode){
 			//이전 상태와 달라졌다면
@@ -122,9 +112,9 @@ LRESULT E_EnvironmentManager::OnDisplayChange(WPARAM wParam, LPARAM lParam)
 	this->width = width;
 	this->height = height;
 	
-	char dbgmsg[9999];
-	sprintf(dbgmsg, "width: %lf, height: %lf. mode %d", width, height, dualMonitorMode);
-	OutputDebugStringA(dbgmsg);
+	/*char dbgmsg[9999];
+	sprintf(dbgmsg, "width: %d, height: %d, mode: %d, monitor %d \n", width, height, dualMonitorMode, monitorCount);
+	OutputDebugStringA(dbgmsg);*/
 	
 	return 0;
 }

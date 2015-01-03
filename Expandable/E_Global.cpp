@@ -80,7 +80,7 @@ void E_Global::stopUpdateSelectedDesktop()
 
 E_Global* E_Global::getSingleton()
 {
-	if (singleton != NULL)
+	if (singleton == NULL)
 		singleton = new E_Global();
 	return singleton;
 }

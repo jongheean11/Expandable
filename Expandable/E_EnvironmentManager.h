@@ -15,11 +15,9 @@ private:
 	bool runningAutoHotkeyProcess;
 	E_GlobalUpdater* globalUpdater;
 public:
-	static const wchar_t* ExeFile;
+	static const wchar_t* ExeFileName;
 	long getWidth();
 	long getHeight();
-	void E_EnvironmentManager::notifyChangeResolution();
-	void E_EnvironmentManager::notifyDualMonitorMode();
 	void setGlobalUpdater(E_GlobalUpdater* updater);
 	// 이미 동작하는 Expandable이 있는지??
 	static bool getRunningMainProcess();
