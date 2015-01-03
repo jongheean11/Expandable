@@ -8,6 +8,7 @@
 
 #include "E_DesktopSwitcher.h"
 #include "E_AeroPeekController.h"
+#include "E_WindowSwitcher.h"
 
 #pragma once
 

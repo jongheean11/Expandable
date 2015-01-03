@@ -13,6 +13,8 @@
 
 #include "E_EnvironmentManager.h"
 #include "E_GlobalUpdater.h"
+#include "E_Global.h"
+#include "E_WindowSwitcher.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -129,25 +131,38 @@ BOOL CExpandableApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 
 	//Switcher 계열 초기화
+	
+	//Window Switcher 초기화
+	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
+
+	CBrush brush_window;
+	brush_window.CreateSolidBrush(RGB(255, 255, 255));
+	UINT nClassStyle_window = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_window.GetSafeHandle(), 0);
+
+	cwnd_windowSwicher->Create(szClassName_window, _T(""), WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
+	//SetClassLong(cwnd_env->)
+	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
+	cwnd_windowSwicher->ShowWindow(SW_HIDE);
+	cwnd_windowSwicher->UpdateWindow();
 
 	//E_Global 계열 초기화
 	CWnd* cwnd_global = (CWnd*)E_Global::getSingleton();
 
 	//Environment Manager 초기화
-	CWnd* hwnd_cwnd = (CWnd*)E_EnvironmentManager::getSingleton();
-	((E_EnvironmentManager*)hwnd_cwnd)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
+	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
+	((E_EnvironmentManager*)cwnd_env)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
 
 	CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
 
-	hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
-	//SetClassLong(hwnd_cwnd->)
+	cwnd_env->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
+	//SetClassLong(cwnd_env->)
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
-	hwnd_cwnd->ShowWindow(SW_HIDE);
-	hwnd_cwnd->UpdateWindow();
-	E_EnvironmentManager::getRunningMainProcess();
+	cwnd_env->ShowWindow(SW_HIDE);
+	cwnd_env->UpdateWindow();
 	
 	return TRUE;
 }

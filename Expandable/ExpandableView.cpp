@@ -115,11 +115,13 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		
 	}
 	if (nChar == 'C'){
-		char dbgmsg[999];
+	/*	char dbgmsg[999];
 		sprintf(dbgmsg,"mode? : %d\n",
 			E_AeroPeekController::getSingleton()->isAeroPeekMode());
-		OutputDebugStringA(dbgmsg);
+		OutputDebugStringA(dbgmsg);*/
+		E_WindowSwitcher::getSingleton()->startSwitcher();
 	}
+	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
