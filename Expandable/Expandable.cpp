@@ -146,6 +146,7 @@ BOOL CExpandableApp::InitInstance()
 	hwnd_cwnd->UpdateWindow();
 	E_EnvironmentManager::getRunningMainProcess();
 	
+
 	return TRUE;
 }
 

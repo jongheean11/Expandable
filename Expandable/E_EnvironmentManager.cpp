@@ -9,7 +9,6 @@ E_EnvironmentManager::E_EnvironmentManager(E_GlobalUpdater* updater)
 	
 }
 
-
 E_EnvironmentManager::~E_EnvironmentManager()
 {
 }
