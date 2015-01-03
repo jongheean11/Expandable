@@ -13,7 +13,6 @@ E_AeroPeekController* E_AeroPeekController::singleton = NULL;
 HRESULT E_AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out HTHUMBNAIL& hThumbnail)
 {
 	HRESULT hr = S_OK;
-
 	hr = DwmRegisterThumbnail(dest, src, &hThumbnail);
 	if (SUCCEEDED(hr))  {
 		// Set the thumbnail properties for use
@@ -61,4 +60,16 @@ DWORD E_AeroPeekController::unregisterAllAreo()
 		}
 	}
 	return result;
+}
+
+// AeroPeek이 활성화 되어있는지?
+bool E_AeroPeekController::isAeroPeekMode()
+{
+	BOOL result;
+	bool returnVal=false;
+	HRESULT hResult = DwmIsCompositionEnabled(&result);
+	if (SUCCEEDED(hResult)) {
+		returnVal = result;
+	}
+	return returnVal;
 }

@@ -1,4 +1,5 @@
 #include "E_Desktop.h"
+#include "E_EnvironmentManager.h"
 
 class E_DesktopSwitcher
 {

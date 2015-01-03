@@ -131,9 +131,12 @@ BOOL CExpandableApp::InitInstance()
 	//Switcher 계열 초기화
 
 	//E_Global 계열 초기화
+	CWnd* cwnd_global = (CWnd*)E_Global::getSingleton();
 
 	//Environment Manager 초기화
-	CWnd* hwnd_cwnd = (CWnd*)E_EnvironmentManager::getSingleton(new E_GlobalUpdater());
+	CWnd* hwnd_cwnd = (CWnd*)E_EnvironmentManager::getSingleton();
+	((E_EnvironmentManager*)hwnd_cwnd)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
+
 	CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;

@@ -1,6 +1,8 @@
 #include "E_Desktop.h"
+#include "E_GlobalUpdater.h"
 
-class E_Global
+#pragma once
+class E_Global : E_GlobalUpdater
 {
 private:
 	int selectedDesktopIndex;
@@ -9,8 +11,6 @@ private:
 	list<E_Desktop> desktopList;
 	list<E_Window> dockedWindowList;
 public:
-	E_Global();
-	~E_Global();
 	static double resolutionWidth, resolutionHeight;
 	static double virtualWidth, virtualHeight;
 	/*static void setresolutionWidth(int paramWidth);
@@ -25,4 +25,12 @@ public:
 	int getSelectedDesktopIndex();
 	void startUpdateSelectedDesktop();
 	void stopUpdateSelectedDesktop();
+
+	virtual void OnDualMonitorMode(bool result);
+private:
+	static E_Global* singleton;
+	E_Global();
+	~E_Global();
+public:
+	static E_Global* getSingleton();
 };

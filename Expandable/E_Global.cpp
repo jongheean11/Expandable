@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_Global.h"
 
+E_Global* E_Global::singleton = NULL;
 
 E_Global::E_Global()
 {
@@ -51,6 +52,12 @@ double E_Global::getVirtualHeight()
 	return virtualHeight;
 }
 */
+
+//듀얼 모니터 관련 콜백
+void E_Global::OnDualMonitorMode(bool dualMonitorMode){
+	
+}
+
 void E_Global::setSelectedDesktopIndex(int paramIndex)
 {
 	selectedDesktopIndex = paramIndex;
@@ -69,4 +76,11 @@ void E_Global::startUpdateSelectedDesktop()
 void E_Global::stopUpdateSelectedDesktop()
 {
 
+}
+
+E_Global* E_Global::getSingleton()
+{
+	if (singleton == NULL)
+		singleton = new E_Global();
+	return singleton;
 }
