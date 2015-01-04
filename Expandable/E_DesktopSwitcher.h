@@ -1,7 +1,7 @@
 #include "E_Desktop.h"
 #include "E_EnvironmentManager.h"
 
-class E_DesktopSwitcher
+class E_DesktopSwitcher : public CWnd
 {
 private:
 	//singleton variable
@@ -10,8 +10,8 @@ private:
 	E_DesktopSwitcher();
 	~E_DesktopSwitcher();	//강제 해제를 막음
 
-	CWnd* hwnd_cwnd;
-	//HWND hwnd;
+	E_Desktop* focusedDesktop;
+	E_Window* clickedWindow;
 	bool ison;
 public:
 	//get singleton function
@@ -28,4 +28,7 @@ public:
 	void switchDesktop(int direction);
 	void drawOverview(E_Desktop* targetDesktop, E_Window* targetWindow);
 	void updateComponent(E_Desktop* targetDesktop, E_Window* targetWindow);
+
+private:
+	std::list<HTHUMBNAIL> handle_list;
 };
