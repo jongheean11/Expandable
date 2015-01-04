@@ -16,6 +16,8 @@
 #include "E_Global.h"
 #include "E_WindowSwitcher.h"
 
+#include "E_WindowSwitcherTest.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -163,7 +165,10 @@ BOOL CExpandableApp::InitInstance()
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_env->ShowWindow(SW_HIDE);
 	cwnd_env->UpdateWindow();
-	
+
+	//Test
+	E_WindowSwitcherTest::testGetAeroSize();
+	E_WindowSwitcherTest::testGetIconSize();
 
 	return TRUE;
 }
