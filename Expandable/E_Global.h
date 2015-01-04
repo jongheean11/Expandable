@@ -11,6 +11,7 @@ private:
 	list<E_Desktop> desktopList;
 	list<E_Window> dockedWindowList;
 public:
+
 	static double resolutionWidth, resolutionHeight;
 	static double virtualWidth, virtualHeight;
 	/*static void setresolutionWidth(int paramWidth);
@@ -25,6 +26,9 @@ public:
 	int getSelectedDesktopIndex();
 	void startUpdateSelectedDesktop();
 	void stopUpdateSelectedDesktop();
+
+	CWnd* getBackgroundWindow();
+	CWnd* getTaskbarWindow();
 
 	virtual void OnDualMonitorMode(bool result);
 private:

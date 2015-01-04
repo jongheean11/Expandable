@@ -8,6 +8,7 @@
 
 #include "E_DesktopSwitcher.h"
 #include "E_AeroPeekController.h"
+#include "E_WindowSwitcher.h"
 
 #pragma once
 
@@ -27,7 +28,7 @@ public:
 
 // 작업입니다.
 public:
-	E_Global e_global;
+//	E_Global e_global;
 	E_Map e_map;
 	CTime initTime;
 // 재정의입니다.
