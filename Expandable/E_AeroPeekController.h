@@ -135,5 +135,10 @@ private:
 public:
 	// AeroPeek이 활성화 되어있는지?
 	bool isAeroPeekMode();
+	// 에어로 위치 이동시킴
+	HRESULT moveAero(__in HTHUMBNAIL hThumbnail, RECT rect);
+	// 핸들이 존재하는지 검사
+	bool existHandle(HTHUMBNAIL thumbnail);
+	
 };
 
