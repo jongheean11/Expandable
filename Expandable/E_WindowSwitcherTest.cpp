@@ -11,6 +11,7 @@ E_WindowSwitcherTest::~E_WindowSwitcherTest()
 {
 }
 
+
 void E_WindowSwitcherTest::testGetIconSize()
 {
 	if (E_WindowSwitcher::getSingleton()->getIconSize(1280) == 48)
@@ -26,4 +27,13 @@ void E_WindowSwitcherTest::testGetAeroSize()
 		TRACE_WIN32A("%sOK\n", "[testGetAeroSize]");
 	else
 		TRACE_WIN32A("%sFAIL\n", "[testGetAeroSize]");
+}
+
+
+void E_WindowSwitcherTest::testGetPaddingSize()
+{
+	if (E_WindowSwitcher::getSingleton()->getPaddingSize(1920) == 10)
+		TRACE_WIN32A("%sOK\n", "[testGetPaddingSize]");
+	else
+		TRACE_WIN32A("%sFAIL\n", "[testGetPaddingSize]");
 }
