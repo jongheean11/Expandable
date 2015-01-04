@@ -2,6 +2,7 @@
 #include "E_DesktopSwitcher.h"
 #include "E_AeroPeekController.h"
 #include <Windows.h> 
+#include <WinUser.h>
 
 HRESULT UpdateDesktop_Background(HWND hwnd, double left, double top, double right, double bottom);
 HRESULT UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom);
@@ -10,15 +11,16 @@ HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double 
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
+	/*
 	hwnd_cwnd = NULL;
 	hwnd_cwnd = new CWnd;
+	*/
+	
 	ison = false;
 }
 
 E_DesktopSwitcher::~E_DesktopSwitcher()
 {
-	hwnd_cwnd->DestroyWindow();
-	hwnd_cwnd = NULL;
 }
 E_DesktopSwitcher* E_DesktopSwitcher::singleton = NULL;
 
@@ -42,6 +44,7 @@ void E_DesktopSwitcher::drawWindowSwitcher()
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
+	E_DesktopSwitcher* hwnd_cwnd = E_DesktopSwitcher::getSingleton();
 	if (!ison)
 	{	
 		hwnd_cwnd->Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234);
@@ -75,26 +78,42 @@ void E_DesktopSwitcher::drawPreview()
 {
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
+	CDC* cdc;
 	HDC hdc;
 	HWND other = NULL;
-	/*
-	string mainWindowStr = "Shell_SecondaryTrayWnd";
-	std::wstring l_temp = std::wstring(mainWindowStr.begin(), mainWindowStr.end());
-	LPCWSTR l_str = l_temp.c_str();
-	HWND taskbar = FindWindowW(l_str, NULL);
-	CRect sizeRect;
-	GetWindowRect(taskbar, &sizeRect);
-	*/
 
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 
-	E_AeroPeekController::UpdateDesktop_Background(hwnd_cwnd->m_hWnd, 50, 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
-	E_AeroPeekController::UpdateDesktop_Taskbar(hwnd_cwnd->m_hWnd, 50, 301.25, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
-	UpdateDesktop3(hwnd_cwnd->m_hWnd, 100, 100, 300, 180);
+	E_AeroPeekController::UpdateDesktop_Background(*this, 50, 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
+	E_AeroPeekController::UpdateDesktop_Taskbar(*this, 50, 301.25, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth());
+	UpdateDesktop3(*this, 100, 100, 300, 180);
+	
 
-	hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);
+	CWnd* temp;
+	
+	
+	//hdc = BeginPaint(&ps);
+	cdc = BeginPaint(&ps);
 	// TODO: 여기에 그리기 코드를 추가합니다.
-	EndPaint(hwnd_cwnd->m_hWnd, &ps);
+	EndPaint(&ps);
+
+	/* 
+	// HTHUMBNAIL list 등록
+	for () //iterating list
+	{
+		PAINTSTRUCT ps;
+		HDC hdc;
+		HTHUMBNAIL pushThumbnail;
+		CRect sizeRect;
+		GetWindowRect(targetHWND, &sizeRect);
+		RECT backgroundRECT = iterating // { , 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth() };
+		E_AeroPeekController::getSingleton()->registerAero(, hwnd_cwnd->m_hWnd, backgroundRECT, pushThumbnail);
+		handle_list.push_back(pushThumbnail);
+
+		hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);
+		// TODO: 여기에 그리기 코드를 추가합니다.
+		EndPaint(hwnd_cwnd->m_hWnd, &ps);
+	}*/
 }
 
 void E_DesktopSwitcher::onMouseClick()
