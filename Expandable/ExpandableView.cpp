@@ -113,6 +113,7 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar == 'A')
 	{
 		
+		
 	}
 	if (nChar == 'C'){
 	/*	char dbgmsg[999];

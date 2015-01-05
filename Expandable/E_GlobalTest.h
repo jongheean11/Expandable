@@ -6,5 +6,6 @@ public:
 	E_GlobalTest();
 	~E_GlobalTest();
 	static void testGetKakaoWindow();
+	static list<HWND> testGetAllWindows();
 };
 

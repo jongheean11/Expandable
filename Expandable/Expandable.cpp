@@ -172,7 +172,7 @@ BOOL CExpandableApp::InitInstance()
 	E_WindowSwitcherTest::testGetIconSize();
 	E_WindowSwitcherTest::testGetPaddingSize();
 	E_GlobalTest::testGetKakaoWindow();
-
+	E_GlobalTest::testGetAllWindows();
 	return TRUE;
 }
 

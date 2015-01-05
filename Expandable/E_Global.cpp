@@ -118,21 +118,26 @@ CWnd* E_Global::getKakaoWindow()
 
 list<HWND> E_Global::getAllWindows()
 {
-	list<HWND> windowList;
-	HWND tmpWindowHwnd;
-	CWnd *tmpWinodwCwnd;
-	tmpWindowHwnd = GetForegroundWindow();
-	tmpWinodwCwnd = CWnd::FromHandle(tmpWindowHwnd);
+	E_Global* object = E_Global::getSingleton();
 
-	while (1)
+	EnumWindows(E_Global::EnumCallBack, 0);
+
+	return object->windowList;
+}
+
+BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
+{
+	E_Global *global = E_Global::getSingleton();
+
+	WCHAR Cap[255];
+	int length;
+	::GetWindowText(hwnd, Cap, 254);
+	length = ::GetWindowTextLength(hwnd);
+
+	if (IsWindowVisible(hwnd) && length > 0)
 	{
-		windowList.push_back(tmpWindowHwnd);
-		tmpWinodwCwnd = tmpWinodwCwnd->GetNextWindow(GW_HWNDNEXT);
-		if (tmpWinodwCwnd == NULL || tmpWinodwCwnd->m_hWnd == NULL)
-		{
-			break;
-		}
+		global->windowList.push_front(hwnd);
 	}
-	
-	return windowList;
+
+	return TRUE;
 }

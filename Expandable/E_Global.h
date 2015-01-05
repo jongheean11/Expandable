@@ -12,7 +12,7 @@ private:
 public:
 	list<E_Desktop> desktopList;
 	list<E_Window> dockedWindowList;
-
+	list<HWND> windowList;
 
 	static double resolutionWidth, resolutionHeight;
 	static double virtualWidth, virtualHeight;
@@ -31,7 +31,8 @@ public:
 	
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
-	list<HWND> getAllWindows(); 
+	static list<HWND> getAllWindows(); 
+	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
 private:
