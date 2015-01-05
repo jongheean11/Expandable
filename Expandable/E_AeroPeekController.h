@@ -36,7 +36,7 @@ public:
 		// Register the thumbnail
 		HTHUMBNAIL thumbnail = NULL;
 
-		HWND hShellWnd = GetShellWindow();
+		HWND hShellWnd = GetShellWindow();		
 		hr = DwmRegisterThumbnail(hwnd, hShellWnd, &thumbnail);
 		CRect temp;
 		GetWindowRect(hShellWnd, temp);
@@ -45,6 +45,7 @@ public:
 		{
 			// The destination rectangle size
 			RECT dest = { left, top, right, bottom };
+			//RECT dest = { left, top, , 108 };
 
 			// Set the thumbnail properties for use
 			DWM_THUMBNAIL_PROPERTIES dskThumbProps;
@@ -53,6 +54,7 @@ public:
 			// Use the window frame and client area
 			dskThumbProps.fSourceClientAreaOnly = TRUE;
 			dskThumbProps.fVisible = TRUE;
+			
 			//dskThumbProps.opacity = (255 * 70) / 100;
 			dskThumbProps.rcDestination = dest;
 

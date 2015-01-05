@@ -21,14 +21,22 @@ public:
 			E_DesktopSwitcher::singleton = new E_DesktopSwitcher();
 		return E_DesktopSwitcher::singleton;
 	}
-	void drawWindowSwitcher();
-	void destroyWindowSwitcher();
-	void drawPreview();
-	void onMouseClick();
-	void switchDesktop(int direction);
+//	void drawWindowSwitcher();
+//	void destroyWindowSwitcher();
+//	void drawPreview();
+//	void onMouseClick();
+//	void switchDesktop(int direction);
 	void drawOverview(E_Desktop* targetDesktop, E_Window* targetWindow);
 	void updateComponent(E_Desktop* targetDesktop, E_Window* targetWindow);
 
+	
+	void startSwitcher();
+	void terminateSwitcher();
+	void setZOrderTop();
+	void queryPositionAndProcess(int nx, int ny);
+	void switchDesktop(E_Desktop* selection);
+	bool moveWindow(E_Window* target, E_Desktop* dest);
+	bool moveWindow(E_Window* target, E_Desktop* dest);
 private:
 	std::list<HTHUMBNAIL> handle_list;
 };
