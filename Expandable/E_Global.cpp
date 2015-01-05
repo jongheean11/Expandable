@@ -105,3 +105,12 @@ E_Global* E_Global::getSingleton()
 		singleton = new E_Global();
 	return singleton;
 }
+
+
+// 카카오톡 핸들
+CWnd* E_Global::getKakaoWindow()
+{
+	HWND hkakao = FindWindow(NULL, L"카카오톡");
+	
+	return CWnd::FromHandle(hkakao);
+}

@@ -113,6 +113,7 @@
     <ClInclude Include="E_DesktopSwitcher.h" />
     <ClInclude Include="E_EnvironmentManager.h" />
     <ClInclude Include="E_Global.h" />
+    <ClInclude Include="E_GlobalTest.h" />
     <ClInclude Include="E_GlobalUpdater.h" />
     <ClInclude Include="E_Map.h" />
     <ClInclude Include="E_Window.h" />
@@ -132,6 +133,7 @@
     <ClCompile Include="E_DesktopSwitcher.cpp" />
     <ClCompile Include="E_EnvironmentManager.cpp" />
     <ClCompile Include="E_Global.cpp" />
+    <ClCompile Include="E_GlobalTest.cpp" />
     <ClCompile Include="E_GlobalUpdater.cpp" />
     <ClCompile Include="E_Map.cpp" />
     <ClCompile Include="E_Window.cpp" />

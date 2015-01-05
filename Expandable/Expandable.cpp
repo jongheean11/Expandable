@@ -17,6 +17,7 @@
 #include "E_WindowSwitcher.h"
 
 #include "E_WindowSwitcherTest.h"
+#include "E_GlobalTest.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -154,7 +155,7 @@ BOOL CExpandableApp::InitInstance()
 	//Environment Manager ÃÊ±âÈ­
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
 	((E_EnvironmentManager*)cwnd_env)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
-
+	
 	CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
@@ -166,10 +167,11 @@ BOOL CExpandableApp::InitInstance()
 	cwnd_env->ShowWindow(SW_HIDE);
 	cwnd_env->UpdateWindow();
 
-	//Test
+	//Unit Test
 	E_WindowSwitcherTest::testGetAeroSize();
 	E_WindowSwitcherTest::testGetIconSize();
 	E_WindowSwitcherTest::testGetPaddingSize();
+	E_GlobalTest::testGetKakaoWindow();
 
 	return TRUE;
 }

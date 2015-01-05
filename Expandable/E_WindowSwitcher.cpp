@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_WindowSwitcher.h"
 
+enum SHAPE{VERTICAL, HORIZONTAL};
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 
@@ -34,9 +35,7 @@ void E_WindowSwitcher::startSwitcher()
 	r.left =0;
 	r.right =100;
 	r.bottom =100;
-	CWnd* val = E_Global::getSingleton()->getBackgroundWindow();
-	HWND a = val->GetSafeHwnd();
-	aeroManager->registerAero(E_Global::getSingleton()->getBackgroundWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
+	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
 
@@ -60,13 +59,14 @@ END_MESSAGE_MAP()
 
 void E_WindowSwitcher::OnPaint()
 {
-	static int temp = 0;
-	temp++;
+	static int tempDesktopCount = 2;
+
 
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
 	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
+		
 		//aero peek size...
 		//첫번째 데스크탑...
 		long aeroWidth = getAeroSize(resWidth);	//패딩 포함 aero크기
@@ -96,7 +96,7 @@ void E_WindowSwitcher::OnPaint()
 		//테스트 
 		RECT rect;
 		rect.top = previewTop;
-		rect.left = previewLeft + temp;
+		rect.left = previewLeft;
 		rect.right = rect.left + previewWidth;
 		rect.bottom = rect.top + previewWidth;
 		E_AeroPeekController::getSingleton()->moveAero(this->temp, rect);

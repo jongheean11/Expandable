@@ -38,4 +38,6 @@ private:
 	~E_Global();
 public:
 	static E_Global* getSingleton();
+	// 카카오톡 핸들
+	static CWnd* getKakaoWindow();
 };
