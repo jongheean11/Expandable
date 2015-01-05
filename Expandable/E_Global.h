@@ -8,9 +8,10 @@ private:
 	int selectedDesktopIndex;
 	int aeroMode;
 	int updateState;
+	
+public:
 	list<E_Desktop> desktopList;
 	list<E_Window> dockedWindowList;
-public:
 
 	static double resolutionWidth, resolutionHeight;
 	static double virtualWidth, virtualHeight;
@@ -26,7 +27,7 @@ public:
 	int getSelectedDesktopIndex();
 	void startUpdateSelectedDesktop();
 	void stopUpdateSelectedDesktop();
-
+	
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
 

@@ -8,6 +8,56 @@ HRESULT UpdateDesktop_Background(HWND hwnd, double left, double top, double righ
 HRESULT UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom);
 HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double bottom);
 
+void drawDesktopSwitcher()
+{
+	E_Global *e_global = E_Global::getSingleton();
+	PAINTSTRUCT ps;
+	HDC hdc;
+	HTHUMBNAIL pushThumbnail;
+	CRect sizeRect_background;
+	HWND hShellWnd = GetShellWindow();
+	GetWindowRect(hShellWnd, &sizeRect_background);
+	
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
+	double ratio_wh = (double)enManager->getWidth() / (double)enManager->getHeight(),
+		ratio_hw = (double)enManager->getHeight() / (double)enManager->getWidth();
+	double initial_padding_width = 50,
+		initial_padding_height = 50 * ratio_hw;	
+	double switch_width = ((double)enManager->getWidth() - initial_padding_width * 2) / ratio_hw * (double)0.175, // 0.7/4 = 0.175, 100=50*2
+		padding_width = ((double)enManager->getWidth() - initial_padding_width * 2) / ratio_hw * (double)0.0375; // 0.15/4 = 0.0375
+	double switch_height = switch_width * ratio_hw,
+		padding_height = padding_width * ratio_hw; 
+	
+	if (e_global->desktopList.size() >= 4)
+	{
+		int i = 0;
+		for (std::list<E_Desktop>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++) //iterating list
+		{
+			RECT backgroundRECT =
+			{
+				initial_padding_width + padding_width * (2 * i - 1),
+				initial_padding_height,
+				(initial_padding_width + padding_width * (2 * i - 1)) + switch_width,
+				initial_padding_height + switch_height
+			}; // { , 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth() };
+			E_AeroPeekController::getSingleton()->registerAero(hShellWnd, E_DesktopSwitcher::getSingleton()->m_hWnd, backgroundRECT, pushThumbnail);
+			deSwitcher->handle_list.push_back(pushThumbnail);
+			for (std::list<E_Window>::iterator itr_window = itr_desktop->onWindowList.begin(); itr_window != itr_desktop->onWindowList.end(); itr_window++)
+			{
+				
+			}
+			i++;
+		}
+		hdc = BeginPaint(*deSwitcher, &ps);
+
+		EndPaint(*deSwitcher, &ps);
+	}
+	else
+	{
+
+	}
+}
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
@@ -54,23 +104,9 @@ void E_DesktopSwitcher::startSwitcher()
 		cdc = BeginPaint(&ps);
 		EndPaint(&ps);
 
-		/*
+		drawDesktopSwitcher();
 		// HTHUMBNAIL list 등록
-		for () //iterating list
-		{
-		PAINTSTRUCT ps;
-		HDC hdc;
-		HTHUMBNAIL pushThumbnail;
-		CRect sizeRect;
-		GetWindowRect(targetHWND, &sizeRect);
-		RECT backgroundRECT = iterating // { , 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth() };
-		E_AeroPeekController::getSingleton()->registerAero(, hwnd_cwnd->m_hWnd, backgroundRECT, pushThumbnail);
-		handle_list.push_back(pushThumbnail);
-
-		hdc = BeginPaint(hwnd_cwnd->m_hWnd, &ps);
-		// TODO: 여기에 그리기 코드를 추가합니다.
-		EndPaint(hwnd_cwnd->m_hWnd, &ps);
-		}*/
+		
 	}
 	else
 	{
@@ -88,13 +124,23 @@ void E_DesktopSwitcher::startSwitcher()
 
 void E_DesktopSwitcher::terminateSwitcher()
 {
+	E_AeroPeekController *e_aeropeekcontroller = E_AeroPeekController::getSingleton();
+	for (std::list<HTHUMBNAIL>::iterator itr = handle_list.begin(); itr != handle_list.end(); itr++)
+	{
+		e_aeropeekcontroller->unregisterAero(*itr);
+	}
+	handle_list.clear();
+	
+	E_Window::setIconVisible(this->m_hWnd);
+	DestroyWindow();
+	ison = false;
 }
 
 void E_DesktopSwitcher::switchDesktop(E_Desktop* selection)
 {
 
 }
-
+/*
 void E_DesktopSwitcher::drawOverview(E_Desktop* targetDesktop, E_Window* targetWindow)
 {
 
@@ -104,7 +150,7 @@ void E_DesktopSwitcher::updateComponent(E_Desktop* targetDesktop, E_Window* targ
 {
 
 }
-
+*/
 HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double bottom)
 {
 	string mainWindowStr = "Facebook - Chrome",

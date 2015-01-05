@@ -131,7 +131,7 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar == 'D')
 	{
 		desktopSwitcher_bool = false;
-		E_DesktopSwitcher::getSingleton()->drawWindowSwitcher();
+		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 	if (nChar == 'A')
 	{

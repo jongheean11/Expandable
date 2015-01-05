@@ -6,13 +6,13 @@ class E_Desktop
 {
 private:
 	int index;
-	list<E_Window> windowList;	//가지고 있는 윈도우리스트
-	list<E_Window> onWindowList;			//활성화된 윈도우
 	POSITION pos,old;
 	E_Window* current;
 	CBitmap screenshot;
 	
 public:
+	list<E_Window> windowList;	//가지고 있는 윈도우리스트
+	list<E_Window> onWindowList;			//활성화된 윈도우
 	void setAllIconInvisible();
 	void setAllIconVisible();
 	void setAllTransparent();
