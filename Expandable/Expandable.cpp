@@ -169,6 +169,7 @@ BOOL CExpandableApp::InitInstance()
 	//Test
 	E_WindowSwitcherTest::testGetAeroSize();
 	E_WindowSwitcherTest::testGetIconSize();
+	E_WindowSwitcherTest::testGetPaddingSize();
 
 	return TRUE;
 }

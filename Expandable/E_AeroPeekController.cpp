@@ -73,3 +73,40 @@ bool E_AeroPeekController::isAeroPeekMode()
 	}
 	return returnVal;
 }
+
+
+
+// 에어로 위치 이동시킴
+HRESULT E_AeroPeekController::moveAero(__in HTHUMBNAIL hThumbnail, RECT rect)
+{
+	HRESULT hr = S_FALSE;
+	if (existHandle(hThumbnail)) {
+		// Set the thumbnail properties for use
+		DWM_THUMBNAIL_PROPERTIES dskThumbProps;
+		dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
+
+		// Use the window frame and client area
+		dskThumbProps.fSourceClientAreaOnly = FALSE;
+		dskThumbProps.fVisible = TRUE;
+		dskThumbProps.opacity = (255 * 70) / 100;
+		dskThumbProps.rcDestination = rect;
+
+		// Display the thumbnail
+		HRESULT hr = DwmUpdateThumbnailProperties(hThumbnail, &dskThumbProps);
+	}
+	return hr;
+}
+
+
+// 핸들이 존재하는지 검사
+bool E_AeroPeekController::existHandle(HTHUMBNAIL thumbnail)
+{
+	bool result = false;
+	for (std::list<HTHUMBNAIL>::iterator iterPos = handle_list.begin(); iterPos != handle_list.end(); iterPos++) {
+		if (thumbnail == *iterPos) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}

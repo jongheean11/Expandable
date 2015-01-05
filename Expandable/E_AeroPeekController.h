@@ -36,7 +36,7 @@ public:
 		// Register the thumbnail
 		HTHUMBNAIL thumbnail = NULL;
 
-		HWND hShellWnd = GetShellWindow();		
+		HWND hShellWnd = GetShellWindow();
 		hr = DwmRegisterThumbnail(hwnd, hShellWnd, &thumbnail);
 		CRect temp;
 		GetWindowRect(hShellWnd, temp);
@@ -45,7 +45,6 @@ public:
 		{
 			// The destination rectangle size
 			RECT dest = { left, top, right, bottom };
-			//RECT dest = { left, top, , 108 };
 
 			// Set the thumbnail properties for use
 			DWM_THUMBNAIL_PROPERTIES dskThumbProps;
@@ -54,7 +53,6 @@ public:
 			// Use the window frame and client area
 			dskThumbProps.fSourceClientAreaOnly = TRUE;
 			dskThumbProps.fVisible = TRUE;
-			
 			//dskThumbProps.opacity = (255 * 70) / 100;
 			dskThumbProps.rcDestination = dest;
 
@@ -137,5 +135,10 @@ private:
 public:
 	// AeroPeek이 활성화 되어있는지?
 	bool isAeroPeekMode();
+	// 에어로 위치 이동시킴
+	HRESULT moveAero(__in HTHUMBNAIL hThumbnail, RECT rect);
+	// 핸들이 존재하는지 검사
+	bool existHandle(HTHUMBNAIL thumbnail);
+	
 };
 

@@ -8,5 +8,6 @@ public:
 	~E_WindowSwitcherTest();
 	static void testGetIconSize();
 	static void testGetAeroSize();
+	static void testGetPaddingSize();
 };
 

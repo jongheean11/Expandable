@@ -28,26 +28,15 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 void E_WindowSwitcher::startSwitcher()
 {
 	running = true;
-	static long resWidth = envManager->getWidth();
-	static long resHeight = envManager->getHeight();
-	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
-		//aero peek size...
-		
-	}
-	else {
-		//icon size...
-		
-	}
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	RECT r;
 	r.top =0;
 	r.left =0;
 	r.right =100;
 	r.bottom =100;
-	HTHUMBNAIL thumbnail;
 	CWnd* val = E_Global::getSingleton()->getBackgroundWindow();
 	HWND a = val->GetSafeHwnd();
-	aeroManager->registerAero(E_Global::getSingleton()->getBackgroundWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, thumbnail);
+	aeroManager->registerAero(E_Global::getSingleton()->getBackgroundWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
 
@@ -71,18 +60,53 @@ END_MESSAGE_MAP()
 
 void E_WindowSwitcher::OnPaint()
 {
+	static int temp = 0;
+	temp++;
+
 	CPaintDC dc(this); // device context for painting
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
+	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
+		//aero peek size...
+		//첫번째 데스크탑...
+		long aeroWidth = getAeroSize(resWidth);	//패딩 포함 aero크기
+		long paddingSize = getPaddingSize(resWidth);	// 패딩의 크기
+		//데스크탑 계산
+		long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
+		long tempAeroHeightCount = 1;	//임시 높이는 1개
+		static long switcherWidth = aeroWidth * tempWindowCount + paddingSize * 2;
+		static long switcherHeight = aeroWidth * tempAeroHeightCount + paddingSize * 2;
+		static long switcherLeft = resWidth / 2 - switcherWidth / 2;
+		static long switcherTop = resHeight / 2 - switcherHeight / 2;
+
+		static long aeroStartLeft =  paddingSize;	
+		static long aeroStartTop = paddingSize;	//스위처 이름 높이 추가 필요
+		
+		static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
+		static long previewLeft = paddingSize * 2;	//실제 aero 크기
+		static long previewTop = paddingSize * 2;	//실제 aero 크기
+		
+		//위치 이동
+		this->SetWindowPos(NULL
+			, switcherLeft
+			, switcherTop
+			, switcherWidth, switcherHeight
+			, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+		//테스트 
+		RECT rect;
+		rect.top = previewTop;
+		rect.left = previewLeft + temp;
+		rect.right = rect.left + previewWidth;
+		rect.bottom = rect.top + previewWidth;
+		E_AeroPeekController::getSingleton()->moveAero(this->temp, rect);
+		
+	}
+	else {
+		//icon size...
+	}
+
 	//항목의 개수에 따라 크기를 조절하여 가운데 정렬할 것
-	static int top = resHeight / 4;
-	static int left = resWidth / 4;
-	static int width = resWidth / 2;
-	static long height = resHeight / 2;
-	this->SetWindowPos(NULL, left, top, width, height, SWP_NOZORDER | SWP_SHOWWINDOW);
-	
-	
 	OutputDebugStringA("OnPaint()");
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
@@ -140,4 +164,13 @@ int E_WindowSwitcher::getAeroWindowWidth(int maxBoxCount, int boxwidth)
 int E_WindowSwitcher::getAeroWindowHeight(int maxBoxCount, int boxwidth)
 {
 	return 0;
+}
+
+
+// 레이아웃에서 사용되는 패딩의 크기를 반환받음 
+int E_WindowSwitcher::getPaddingSize(int res_width)
+{
+	//1 : 192 = 패딩 : 바탕화면
+	
+	return res_width/192;
 }

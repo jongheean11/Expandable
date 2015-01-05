@@ -51,9 +51,11 @@
 #include <dwmapi.h>
 #include <Shobjidl.h>
 #include <list>
+#include <set>
 
 //ETC (Global Window Manager)
 #include <windef.h>
 #include <gdiplus.h>
 #include <iostream>
 #include <tlhelp32.h>
+#include <windows.h>

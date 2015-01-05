@@ -32,5 +32,8 @@ public:
 	int getAeroWindowWidth(int maxBoxCount, int boxwidth);
 	// 박스 개수와 너비를 이용해 높이 산출
 	int getAeroWindowHeight(int maxBoxCount, int boxwidth);
+	// 레이아웃에서 사용되는 패딩의 크기를 반환받음
+	int getPaddingSize(int res_width);
+	HTHUMBNAIL temp;
 };
 
