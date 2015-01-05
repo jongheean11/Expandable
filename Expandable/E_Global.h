@@ -13,6 +13,7 @@ public:
 	list<E_Desktop> desktopList;
 	list<E_Window> dockedWindowList;
 
+
 	static double resolutionWidth, resolutionHeight;
 	static double virtualWidth, virtualHeight;
 	/*static void setresolutionWidth(int paramWidth);
@@ -30,6 +31,7 @@ public:
 	
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
+	list<HWND> getAllWindows(); 
 
 	virtual void OnDualMonitorMode(bool result);
 private:
