@@ -65,7 +65,7 @@ void E_WindowSwitcher::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
-
+	
 	TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
 	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
 
@@ -84,7 +84,7 @@ void E_WindowSwitcher::OnPaint()
 				long tempAeroHeightCount = 2;	//임시 높이는 1개
 
 				static long switcherWidth = aeroWidth * tempWindowCount + paddingSize * 2;
-				static long switcherHeight = aeroWidth * tempAeroHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
+				static long switcherHeight = aeroHeight * tempAeroHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
 				static long switcherLeft = resWidth / 2 - switcherWidth / 2;
 				static long switcherTop = resHeight / 2 - switcherHeight / 2;
 
