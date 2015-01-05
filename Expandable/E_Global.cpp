@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_Global.h"
-
+#pragma once
+#include <list>
 E_Global* E_Global::singleton = NULL;
 
 E_Global::E_Global()
@@ -104,4 +105,25 @@ E_Global* E_Global::getSingleton()
 	if (singleton == NULL)
 		singleton = new E_Global();
 	return singleton;
+}
+
+list<HWND> E_Global::getAllWindows()
+{
+	list<HWND> windowList;
+	HWND tmpWindowHwnd;
+	CWnd *tmpWinodwCwnd;
+	tmpWindowHwnd = GetForegroundWindow();
+	tmpWinodwCwnd = CWnd::FromHandle(tmpWindowHwnd);
+
+	while (1)
+	{
+		windowList.push_back(tmpWindowHwnd);
+		tmpWinodwCwnd = tmpWinodwCwnd->GetNextWindow(GW_HWNDNEXT);
+		if (tmpWinodwCwnd == NULL || tmpWinodwCwnd->m_hWnd == NULL)
+		{
+			break;
+		}
+	}
+	
+	return windowList;
 }
