@@ -175,7 +175,6 @@ BOOL CExpandableApp::InitInstance()
 	E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
 
-
 	return TRUE;
 }
 

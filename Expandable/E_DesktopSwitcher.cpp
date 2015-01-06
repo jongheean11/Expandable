@@ -68,7 +68,7 @@ void drawDesktopSwitcher()
 		aeController->registerAero(hTaskbarWnd, deSwitcher->m_hWnd, taskbarRECT, pushThumbnail);
 		deSwitcher->handle_list.push_back(pushThumbnail);
 		std::list<HWND> all_windows = e_global->getAllWindows();
-		
+
 		//for (std::list<E_Window>::iterator itr_window = itr_desktop->onWindowList.end(); itr_window != itr_desktop->onWindowList.begin(); itr_window--) // iterating backward
 		for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
 		{
@@ -92,7 +92,7 @@ void drawDesktopSwitcher()
 			aeController->registerAero(*itr_window, deSwitcher->m_hWnd, windowRECT, pushThumbnail);
 			deSwitcher->handle_list.push_back(pushThumbnail);
 		}
-		
+
 		i++;
 		//if (i == _max)
 		if (i == _max+2)
