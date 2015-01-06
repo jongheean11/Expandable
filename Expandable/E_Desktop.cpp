@@ -26,31 +26,16 @@ void E_Desktop::operator=(const E_Desktop &tmp)
 	current = tmp.current;;
 }
 
-list<E_Window> E_Desktop::getList()
+list<E_Window*> E_Desktop::getWindowList()
 {
 	return windowList;
 }
 
-void E_Desktop::setList()
-{
-
-}
-
-list<E_Window> E_Desktop::getOnList()
-{
-	return onWindowList;
-}
-
-void E_Desktop::setOnList()
-{
-
-}
-
 void E_Desktop::setAllIconInvisible()
 {
-	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setIconInvisible((*itr).getHWND());
+		(*itr)->setIconInvisible((*itr)->getWindow()->GetSafeHwnd());
 	}
 	/*
 	POSITION pos = windowList.GetHeadPosition();
@@ -63,9 +48,9 @@ void E_Desktop::setAllIconInvisible()
 
 void E_Desktop::setAllIconVisible()
 {
-	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setIconVisible((*itr).getHWND());
+		(*itr)->setIconVisible((*itr)->getWindow()->GetSafeHwnd());
 	}
 	/*
 	POSITION pos = windowList.GetHeadPosition();
@@ -78,9 +63,9 @@ void E_Desktop::setAllIconVisible()
 
 void E_Desktop::setAllTransparent()
 {
-	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setTransparent();
+		(*itr)->setTransparent();
 	}
 	/*POSITION pos = windowList.GetHeadPosition();
 	for (int i = 0; i < windowList.GetCount(); i++)
@@ -92,9 +77,9 @@ void E_Desktop::setAllTransparent()
 
 void E_Desktop::setAllOpaque()
 {
-	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr).setOpaque();
+		(*itr)->setOpaque();
 	}
 	/*
 	pos = windowList.GetHeadPosition();
@@ -107,14 +92,14 @@ void E_Desktop::setAllOpaque()
 
 void E_Desktop::insertWindow(E_Window* targetWindow)
 {
-	windowList.push_back(*targetWindow);
+	windowList.push_back(targetWindow);
 }
 
 void E_Desktop::removeWindow(E_Window* targetWindow)
 {
-	for (list<E_Window>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		if ((*itr).getHWND() == targetWindow->getHWND())
+		if ((*itr)->getWindow()->GetSafeHwnd() == targetWindow->getWindow()->GetSafeHwnd())
 		{
 			windowList.remove(*itr);
 			break;
@@ -131,16 +116,6 @@ void E_Desktop::removeWindow(E_Window* targetWindow)
 	}*/	
 }
 
-void E_Desktop::drawAddedWindow(E_Window* selectedWindow, Rect* area)
-{
-	
-	
-}
-
-void E_Desktop::drawRemoveWindow(E_Window* selectedWindow, Rect* area)
-{
-	
-}
 
 void E_Desktop::takeScreenshot()
 {
@@ -189,3 +164,15 @@ void E_Desktop::setIndex(int newindex)
 	index = newindex;
 }
 
+
+
+// ¸ðµçÃ¢ SW_SHOW
+void E_Desktop::setAllShow()
+{
+}
+
+
+CBitmap E_Desktop::getScreenshot()
+{
+	return CBitmap();
+}
