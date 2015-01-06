@@ -37,3 +37,30 @@ void E_WindowSwitcherTest::testGetPaddingSize()
 	else
 		TRACE_WIN32A("%sFAIL\n", "[testGetPaddingSize]");
 }
+
+void E_WindowSwitcherTest::testGetShape()
+{
+
+	int res_width = 100;
+	int res_height = 80;
+
+	int width = 100;
+	int height = 50;
+	if (E_WindowSwitcher::getSingleton()->getShape(width, height, res_width, res_height) == HORIZONTAL)
+		TRACE_WIN32A("%sOK\n", "[testGetShape]");
+	else
+		TRACE_WIN32A("%sFAIL\n", "[testGetShape]");
+
+	res_width = 100;
+	res_height = 80;
+
+	width = 50;
+	height = 100;
+
+	
+	if (E_WindowSwitcher::getSingleton()->getShape(width, height, res_width, res_height) == VERTICAL)
+		TRACE_WIN32A("%sOK\n", "[testGetShape]");
+	else
+		TRACE_WIN32A("%sFAIL\n", "[testGetShape]");
+	
+}

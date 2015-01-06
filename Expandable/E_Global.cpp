@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_Global.h"
-
+#pragma once
+#include <list>
 E_Global* E_Global::singleton = NULL;
 
 E_Global::E_Global()
@@ -104,4 +105,39 @@ E_Global* E_Global::getSingleton()
 	if (singleton == NULL)
 		singleton = new E_Global();
 	return singleton;
+}
+
+
+// 카카오톡 핸들
+CWnd* E_Global::getKakaoWindow()
+{
+	HWND hkakao = FindWindow(NULL, L"카카오톡");
+	
+	return CWnd::FromHandle(hkakao);
+}
+
+list<HWND> E_Global::getAllWindows()
+{
+	E_Global* object = E_Global::getSingleton();
+
+	EnumWindows(E_Global::EnumCallBack, 0);
+
+	return object->windowList;
+}
+
+BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
+{
+	E_Global *global = E_Global::getSingleton();
+
+	WCHAR Cap[255];
+	int length;
+	::GetWindowText(hwnd, Cap, 254);
+	length = ::GetWindowTextLength(hwnd);
+
+	if (IsWindowVisible(hwnd) && length > 0)
+	{
+		global->windowList.push_front(hwnd);
+	}
+
+	return TRUE;
 }

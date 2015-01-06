@@ -34,9 +34,8 @@ void E_WindowSwitcher::startSwitcher()
 	r.left =0;
 	r.right =100;
 	r.bottom =100;
-	CWnd* val = E_Global::getSingleton()->getBackgroundWindow();
-	HWND a = val->GetSafeHwnd();
-	aeroManager->registerAero(E_Global::getSingleton()->getBackgroundWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
+	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
+	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
 
@@ -60,47 +59,187 @@ END_MESSAGE_MAP()
 
 void E_WindowSwitcher::OnPaint()
 {
-	static int temp = 0;
-	temp++;
+	static int tempDesktopCount = 2;
+
 
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
+	
+	TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
 	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
+
 		//aero peek size...
-		//첫번째 데스크탑...
-		long aeroWidth = getAeroSize(resWidth);	//패딩 포함 aero크기
-		long paddingSize = getPaddingSize(resWidth);	// 패딩의 크기
-		//데스크탑 계산
-		long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
-		long tempAeroHeightCount = 1;	//임시 높이는 1개
-		static long switcherWidth = aeroWidth * tempWindowCount + paddingSize * 2;
-		static long switcherHeight = aeroWidth * tempAeroHeightCount + paddingSize * 2;
-		static long switcherLeft = resWidth / 2 - switcherWidth / 2;
-		static long switcherTop = resHeight / 2 - switcherHeight / 2;
+		//전체 데스크탑 공용 변수...
+		{
+			static long aeroWidth = getAeroWidthSize(resWidth);	//패딩 포함 aero크기
+			static long aeroHeight = getAeroHeightSize(resHeight); // 패딩 포함 aero크기
+			static long paddingSize = getPaddingSize(resWidth);	// 패딩의 크기
+			static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
+			static long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
+			TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
+			{
+				//첫번째 데스크탑 계산
+				long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
+				long tempAeroHeightCount = 2;	//임시 높이는 1개
 
-		static long aeroStartLeft =  paddingSize;	
-		static long aeroStartTop = paddingSize;	//스위처 이름 높이 추가 필요
-		
-		static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
-		static long previewLeft = paddingSize * 2;	//실제 aero 크기
-		static long previewTop = paddingSize * 2;	//실제 aero 크기
-		
-		//위치 이동
-		this->SetWindowPos(NULL
-			, switcherLeft
-			, switcherTop
-			, switcherWidth, switcherHeight
-			, SWP_NOZORDER | SWP_SHOWWINDOW);
+				static long switcherWidth = aeroWidth * tempWindowCount + paddingSize * 2;
+				static long switcherHeight = aeroHeight * tempAeroHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
+				static long switcherLeft = resWidth / 2 - switcherWidth / 2;
+				static long switcherTop = resHeight / 2 - switcherHeight / 2;
 
-		//테스트 
-		RECT rect;
-		rect.top = previewTop;
-		rect.left = previewLeft + temp;
-		rect.right = rect.left + previewWidth;
-		rect.bottom = rect.top + previewWidth;
-		E_AeroPeekController::getSingleton()->moveAero(this->temp, rect);
-		
+				TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
+
+				//첫번째 창
+				{
+					static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
+					static long aeroTopoffset = paddingSize; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+
+					//경계선
+					CRect temprect;
+					temprect.top = aeroTopoffset;
+					temprect.left = aeroLeftoffset;
+					temprect.bottom = temprect.top + aeroHeight;
+					temprect.right = temprect.left + aeroWidth;
+					dc.Rectangle(temprect);
+					
+					//aero 기준 오프셋
+					static long previewLeftoffset = paddingSize;	//실제 aero 크기
+					static long previewTopoffset = paddingSize;	//실제 aero 크기
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+
+					CRect crect;
+
+					//하나의 프리뷰 박스 기준 축소된 윈도우 크기
+					long windowWidth = 0;
+					long windowHeight = 0;
+					long windowTopOffset = 0;
+					long windowLeftOffset = 0;
+
+					E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
+
+					double ratio = 0;
+					switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
+					case HORIZONTAL:
+						ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
+						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
+
+						//수평으로 길때
+						windowWidth = previewWidth;
+						windowHeight = (int)(windowWidth / ratio);
+						windowTopOffset = (previewHeight - windowHeight) / 2;
+						windowLeftOffset = 0;
+						break;
+						
+					case VERTICAL:
+						ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
+						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
+
+						//수직으로 길때
+						windowHeight = previewHeight;
+						windowWidth = (int)(windowHeight / ratio);
+						windowTopOffset = 0;
+						windowLeftOffset = (previewWidth - windowWidth) / 2;
+						break;
+
+					}
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d",ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
+					//위치 이동
+					this->SetWindowPos(NULL
+						, switcherLeft
+						, switcherTop
+						, switcherWidth, switcherHeight
+						, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+					//테스트 
+					RECT rect;
+					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
+					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
+					rect.right = rect.left + windowWidth;
+					rect.bottom = rect.top + windowHeight;
+
+					E_AeroPeekController::getSingleton()->moveAero(this->temp, rect);
+				}
+				//두번째 창
+				{
+					static long aeroLeftoffset = paddingSize ; //윈도우 별로 위치가 달라짐!!!
+					static long aeroTopoffset = paddingSize + aeroHeight ; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+
+					//경계선
+					CRect temprect;
+					temprect.top = aeroTopoffset;
+					temprect.left = aeroLeftoffset;
+					temprect.bottom = temprect.top + aeroHeight;
+					temprect.right = temprect.left + aeroWidth;
+					dc.Rectangle(temprect);
+
+					//aero 기준 오프셋
+					static long previewLeftoffset = paddingSize;	//실제 aero 크기
+					static long previewTopoffset = paddingSize;	//실제 aero 크기
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+
+					CRect crect;
+
+					//하나의 프리뷰 박스 기준 축소된 윈도우 크기
+					long windowWidth = 0;
+					long windowHeight = 0;
+					long windowTopOffset = 0;
+					long windowLeftOffset = 0;
+
+					E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
+
+					double ratio = 0;
+					switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
+					case HORIZONTAL:
+						ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
+						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
+
+						//수평으로 길때
+						windowWidth = previewWidth;
+						windowHeight = (int)(windowWidth / ratio);
+						windowTopOffset = (previewHeight - windowHeight) / 2;
+						windowLeftOffset = 0;
+						break;
+
+					case VERTICAL:
+						ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
+						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
+
+						//수직으로 길때
+						windowHeight = previewHeight;
+						windowWidth = (int)(windowHeight / ratio);
+						windowTopOffset = 0;
+						windowLeftOffset = (previewWidth - windowWidth) / 2;
+						break;
+
+					}
+
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d", ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
+					//위치 이동
+					this->SetWindowPos(NULL
+						, switcherLeft
+						, switcherTop
+						, switcherWidth, switcherHeight
+						, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+					//테스트 
+					RECT rect;
+					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
+					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
+					rect.right = rect.left + windowWidth;
+					rect.bottom = rect.top + windowHeight;
+
+					E_AeroPeekController::getSingleton()->moveAero(this->temp2, rect);
+				}
+			}
+		}
 	}
 	else {
 		//icon size...
@@ -123,6 +262,7 @@ bool E_WindowSwitcher::isRunning()
 int E_WindowSwitcher::getIconSize(int res_width)
 {
 	//1280 : 48 = 화면 : 아이콘 (1/26.6배)
+	
 	static const double ratio = 26.6;
 	double doubleTemp = res_width / ratio;
 	int intTemp = (int)doubleTemp;
@@ -137,10 +277,11 @@ int E_WindowSwitcher::getIconSize(int res_width)
 
 
 // 해상도에 비례한 에어로픽 박스 크기 1/8.95배
-int E_WindowSwitcher::getAeroSize(int res_width)
+int E_WindowSwitcher::getAeroWidthSize(int res_width)
 {
-	//1280 : 143 = 화면 : 에어로 (1/8.95)
-	static const double ratio = 8.95;
+	//1280 : 143 = 화면 : 에어로 (1/8.95)	//맥 페러럴
+	//1920 : 144 = 화면 : 에어로 (1/13.33)	//실제 컴
+	static const double ratio = 13.33;
 	double doubleTemp = res_width / ratio;
 	int intTemp = (int)doubleTemp;
 
@@ -149,6 +290,23 @@ int E_WindowSwitcher::getAeroSize(int res_width)
 		intTemp++;
 	}
 	
+	return intTemp;
+}
+
+
+// 해상도에 비례한 에어로픽 박스 크기 1/8.95배
+int E_WindowSwitcher::getAeroHeightSize(int res_height)
+{
+	//1080 : 80 = 화면 : 에어로 (1/13.5)	//맥 페러럴
+	static const double ratio = 13.5;
+	double doubleTemp = res_height / ratio;
+	int intTemp = (int)doubleTemp;
+
+	//반 올림
+	if ((doubleTemp - (double)intTemp) > 0.5) {
+		intTemp++;
+	}
+
 	return intTemp;
 }
 
@@ -173,4 +331,19 @@ int E_WindowSwitcher::getPaddingSize(int res_width)
 	//1 : 192 = 패딩 : 바탕화면
 	
 	return res_width/192;
+}
+
+
+// 창의 모양을 알 수 있다.
+SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height)
+{
+	double ratio = (double)res_width / (double)res_height;
+	double targetRatio = (double)width / (double)height;
+	SHAPE shape;
+	if (targetRatio > ratio) {
+		shape = HORIZONTAL;
+	} else {
+		shape = VERTICAL;
+	}
+	return shape;
 }

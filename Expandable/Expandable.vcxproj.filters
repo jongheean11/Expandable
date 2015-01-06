@@ -87,6 +87,9 @@
     <ClInclude Include="E_WindowSwitcherTest.h">
       <Filter>WindowSwitcher</Filter>
     </ClInclude>
+    <ClInclude Include="E_GlobalTest.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="E_WindowSwitcherTest.cpp">
       <Filter>WindowSwitcher</Filter>
+    </ClCompile>
+    <ClCompile Include="E_GlobalTest.cpp">
+      <Filter>GlobalWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

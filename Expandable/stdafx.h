@@ -59,3 +59,6 @@
 #include <iostream>
 #include <tlhelp32.h>
 #include <windows.h>
+
+//3rd party
+#include "changlib.h"

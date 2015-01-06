@@ -9,5 +9,6 @@ public:
 	static void testGetIconSize();
 	static void testGetAeroSize();
 	static void testGetPaddingSize();
+	static void testGetShape();
 };
 
