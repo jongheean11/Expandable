@@ -18,8 +18,6 @@ public:
 	bool ExpandableRunningFlag;
 	
 	
-
-	
 	//static double resolutionWidth, resolutionHeight;
 	//static double virtualWidth, virtualHeight;
 	///*static void setresolutionWidth(int paramWidth);

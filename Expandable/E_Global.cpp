@@ -6,6 +6,13 @@ E_Global* E_Global::singleton = NULL;
 
 E_Global::E_Global()
 {
+	int desktopCount;
+	//설정 파일을 읽어온 후
+
+	desktopCount = 4;
+	//데스크탑 생성
+	
+	
 }
 
 E_Global::~E_Global()
@@ -156,6 +163,7 @@ void E_Global::onTimer()
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
+	
 	return false;
 }
 
