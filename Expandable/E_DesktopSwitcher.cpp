@@ -79,7 +79,7 @@ void drawDesktopSwitcher()
 				window_right,
 				window_bottom
 			};
-			aeController->registerAero((*itr_window)->getHWND(), deSwitcher->m_hWnd, windowRECT, pushThumbnail);
+			aeController->registerAero((*itr_window)->getWindow()->GetSafeHwnd(), deSwitcher->m_hWnd, windowRECT, pushThumbnail);
 			deSwitcher->handle_list.push_back(pushThumbnail);
 		}
 

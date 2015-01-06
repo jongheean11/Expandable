@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "E_Window.h"
 
+E_Window::E_Window(CWnd* window)
+{
+	this->window = window;
+}
 E_Window::E_Window()
 {
 }
@@ -15,7 +19,7 @@ E_Window::E_Window(const E_Window &tmp)
 	windowState = tmp.windowState;
 	dockState = tmp.dockState;
 	alertState = tmp.alertState;
-	hwnd = tmp.hwnd;
+	window = tmp.window;
 }
 
 E_Window::~E_Window()
@@ -32,41 +36,41 @@ void E_Window::operator=(const E_Window &tmp)
 	windowState = tmp.windowState;
 	dockState = tmp.dockState;
 	alertState = tmp.alertState;
-	hwnd = tmp.hwnd;
+	window = tmp.window;
 }
 
 bool E_Window::operator==(const E_Window &tmp)
 {
-	if (hwnd == tmp.hwnd)
+	if (window == tmp.window)
 		return true;
 	else
 		false;
 }
 
-void E_Window::setHWND(string mainWindowStr, string exWindowStr)
-{
-	std::wstring l_temp = std::wstring(mainWindowStr.begin(), mainWindowStr.end());
-	LPCWSTR l_str = l_temp.c_str();
-	std::wstring t_temp = std::wstring(exWindowStr.begin(), exWindowStr.end());
-	LPCWSTR t_str = t_temp.c_str();
-	HRESULT hr = S_OK;
+//void E_Window::setHWND(string mainWindowStr, string exWindowStr)
+//{
+//	std::wstring l_temp = std::wstring(mainWindowStr.begin(), mainWindowStr.end());
+//	LPCWSTR l_str = l_temp.c_str();
+//	std::wstring t_temp = std::wstring(exWindowStr.begin(), exWindowStr.end());
+//	LPCWSTR t_str = t_temp.c_str();
+//	HRESULT hr = S_OK;
+//
+//	// Register the thumbnail
+//	HTHUMBNAIL thumbnail = NULL;
+//	HWND child = NULL;
+//	HWND targethwnd = FindWindowW(NULL, l_str);
+//
+//	if (NULL != targethwnd) {
+//		child = FindWindowExW(targethwnd, NULL, t_str, NULL);
+//		if (NULL != child)
+//			OutputDebugString(L"CHILD FOUND\n");
+//		else
+//			OutputDebugString(L"NO CHILD FOUND\n");
+//	}
+//	hwnd = targethwnd;
+//}
 
-	// Register the thumbnail
-	HTHUMBNAIL thumbnail = NULL;
-	HWND child = NULL;
-	HWND targethwnd = FindWindowW(NULL, l_str);
-
-	if (NULL != targethwnd) {
-		child = FindWindowExW(targethwnd, NULL, t_str, NULL);
-		if (NULL != child)
-			OutputDebugString(L"CHILD FOUND\n");
-		else
-			OutputDebugString(L"NO CHILD FOUND\n");
-	}
-	hwnd = targethwnd;
-}
-
-void E_Window::setIconInvisible(HWND hwnd)
+bool E_Window::setIconInvisible(HWND hwnd)
 {
 	ITaskbarList *pTaskList = NULL;
 	CoCreateInstance(CLSID_TaskbarList, NULL,
@@ -79,19 +83,22 @@ void E_Window::setIconInvisible(HWND hwnd)
 		r = pTaskList->DeleteTab(hwnd);
 		if (SUCCEEDED(r)) {
 			OutputDebugStringA("ADD SUCCESS");
+			pTaskList->Release();
+			return true;
 		}
 		else {
-
 			OutputDebugStringA("ADD FAIL");
+			pTaskList->Release();
+			return false;
 		}
-		pTaskList->Release();
 	}
 	else {
 		OutputDebugStringA("INTERFACE FAIL");
+		return false;
 	}
 }
 
-void E_Window::setIconVisible(HWND hwnd)
+bool E_Window::setIconVisible(HWND hwnd)
 {
 	ITaskbarList *pTaskList = NULL;
 	CoCreateInstance(CLSID_TaskbarList, NULL,
@@ -103,32 +110,38 @@ void E_Window::setIconVisible(HWND hwnd)
 		HRESULT r = NULL;// = pTaskList->AddTab(GetDesktop());
 		r = pTaskList->AddTab(hwnd);
 		if (SUCCEEDED(r)) {
+			pTaskList->Release();
 			OutputDebugStringA("ADD SUCCESS");
+			return true;
 		}
 		else {
+			pTaskList->Release();
 			OutputDebugStringA("ADD FAIL");
+			return false;
 		}
-		pTaskList->Release();
 	}
 	else {
 		OutputDebugStringA("INTERFACE FAIL");
 	}
+	return false;
 }
 
 void E_Window::setTransparent()
 {
-	SetWindowLongW(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-	SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA); //창투명
+	SetWindowLongW(window->GetSafeHwnd(), GWL_EXSTYLE, GetWindowLong(window->GetSafeHwnd(), GWL_EXSTYLE) | WS_EX_LAYERED);
+	SetLayeredWindowAttributes(window->GetSafeHwnd(), 0, 0, LWA_ALPHA); //창투명
 }
+
 void E_Window::setOpaque()
 {
-	SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA); //투명해제
-	SetWindowLongW(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) && ~WS_EX_LAYERED);
+	SetLayeredWindowAttributes(window->GetSafeHwnd(), 0, 255, LWA_ALPHA); //투명해제
+	SetWindowLongW(window->GetSafeHwnd(), GWL_EXSTYLE, GetWindowLong(window->GetSafeHwnd(), GWL_EXSTYLE) && ~WS_EX_LAYERED);
 }
-HWND E_Window::getHWND()
-{
-	return hwnd;
-}
+
+//HWND E_Window::getHWND()
+//{
+//	return hwnd;
+//}
 
 double E_Window::getStartX()
 {
@@ -168,4 +181,38 @@ double E_Window::getHeight()
 void E_Window::setHeight(double param_h)
 {
 	height = param_h;
+}
+
+bool E_Window::taskScreenshot()
+{
+	return false;
+}
+
+
+void E_Window::setHide()
+{
+	window->ShowWindow(SW_HIDE);
+}
+
+
+// 윈도우 세팅
+void E_Window::setWindow()
+{
+}
+
+
+CWnd* E_Window::getWindow()
+{
+	return NULL;
+}
+
+
+void E_Window::setIcon()
+{
+}
+
+
+CBitmap E_Window::getIcon()
+{
+	return CBitmap();
 }
