@@ -125,6 +125,12 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		else
 			E_WindowSwitcher::getSingleton()->terminateSwitcher();
 	}
+	if (nChar == 'L'){
+		E_Global::getSingleton()->getSelectedDesktop()->setAllHide();
+	}
+	if (nChar == 'J'){
+		E_Global::getSingleton()->getSelectedDesktop()->setAllShow();
+	}
 	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }

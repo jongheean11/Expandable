@@ -5,7 +5,7 @@ using namespace std;
 class E_Window
 {
 private:
-	CWnd* window;
+	HWND window;
 //	HWND hwnd;
 	CBitmap icon;
 	CBitmap screenshot;
@@ -21,7 +21,7 @@ private:
 public:
 
 	bool taskScreenshot();
-	E_Window(CWnd*);
+	E_Window(HWND);
 	E_Window();
 	E_Window(const E_Window &tmp);
 	~E_Window();
@@ -50,4 +50,5 @@ public:
 	void setWidth(double param_w);
 	double getHeight();
 	void setHeight(double param_h);
+	void setShow();
 };

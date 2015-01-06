@@ -32,8 +32,9 @@ public:
 
 	list<E_Window*> getWindowList();
 
-	E_Desktop();
+	E_Desktop(int index);
 	E_Desktop(const E_Desktop &tmp);
 	~E_Desktop();
 	CBitmap getScreenshot();
+	void setAllHide();
 };

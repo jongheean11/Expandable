@@ -4,15 +4,26 @@
 #include <list>
 E_Global* E_Global::singleton = NULL;
 
-E_Global::E_Global()
+const wchar_t* E_Global::testFrameName = L"expandable";
+
+
+E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
 {
 	int desktopCount;
+	
 	//설정 파일을 읽어온 후
-
 	desktopCount = 4;
+	
 	//데스크탑 생성
+	for (int i = 0; i < desktopCount; i++)
+		desktopList.push_back(new E_Desktop(i+1));
 	
-	
+	//초기 데스크탑 
+	selectedDesktop = *(desktopList.begin());
+	selectedIndex = 1;
+
+	//윈도우 리스트 초기화 // 생성자 안이라 초기화 불가능
+	//}
 }
 
 E_Global::~E_Global()
@@ -116,19 +127,21 @@ list<HWND> E_Global::getAllWindows()
 
 BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 {
+	HWND myhwnd = FindWindow(NULL, E_Global::testFrameName);
 	E_Global *global = E_Global::getSingleton();
-
+	
 	WCHAR Cap[255];
 	int length;
 	::GetWindowText(hwnd, Cap, 254);
 	length = ::GetWindowTextLength(hwnd);
 
-	if (IsWindowVisible(hwnd))
+	if (IsWindowVisible(hwnd) )
 	{
+	
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
-		// 바탕화면, 태스트바, 시작버튼 제거
-		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW))
+		// 바탕화면, 태스트바, 시작버튼 제거, expandable 테스트 윈도우 제거
+		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) && hwnd != myhwnd)
 			global->windowList.push_front(hwnd);
 	}
 
@@ -145,7 +158,7 @@ bool E_Global::setSelectedDesktop()
 // 현재 데스크탑 반환
 E_Desktop* E_Global::getSelectedDesktop()
 {
-	return NULL;
+	return selectedDesktop;
 }
 
 
@@ -203,7 +216,7 @@ bool E_Global::delDesktop()
 // 데스크탑 개수 반환
 int E_Global::getDesktopCount()
 {
-	return 0;
+	return windowList.size();
 }
 
 
@@ -215,4 +228,27 @@ void E_Global::setExpandableRunningFlag()
 bool E_Global::getExpandableRunningFlag()
 {
 	return false;
+}
+
+
+int E_Global::getSelectedIndex()
+{
+	return selectedIndex;
+}
+
+
+void E_Global::setSelectedIndex(int index)
+{
+	this->selectedIndex = index;
+}
+
+
+// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
+void E_Global::init()
+{
+	list<HWND> wlist = getAllWindows();
+	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
+		E_Window* window = new E_Window(*iter);
+		selectedDesktop->insertWindow(window);
+	}
 }

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "E_Window.h"
 
-E_Window::E_Window(CWnd* window)
+E_Window::E_Window(HWND window)
 {
 	this->window = window;
 }
@@ -128,14 +128,14 @@ bool E_Window::setIconVisible(HWND hwnd)
 
 void E_Window::setTransparent()
 {
-	SetWindowLongW(window->GetSafeHwnd(), GWL_EXSTYLE, GetWindowLong(window->GetSafeHwnd(), GWL_EXSTYLE) | WS_EX_LAYERED);
-	SetLayeredWindowAttributes(window->GetSafeHwnd(), 0, 0, LWA_ALPHA); //창투명
+	SetWindowLongW(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) | WS_EX_LAYERED);
+	SetLayeredWindowAttributes(window, 0, 0, LWA_ALPHA); //창투명
 }
 
 void E_Window::setOpaque()
 {
-	SetLayeredWindowAttributes(window->GetSafeHwnd(), 0, 255, LWA_ALPHA); //투명해제
-	SetWindowLongW(window->GetSafeHwnd(), GWL_EXSTYLE, GetWindowLong(window->GetSafeHwnd(), GWL_EXSTYLE) && ~WS_EX_LAYERED);
+	SetLayeredWindowAttributes(window, 0, 255, LWA_ALPHA); //투명해제
+	SetWindowLongW(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) && ~WS_EX_LAYERED);
 }
 
 //HWND E_Window::getHWND()
@@ -191,7 +191,7 @@ bool E_Window::taskScreenshot()
 
 void E_Window::setHide()
 {
-	window->ShowWindow(SW_HIDE);
+	ShowWindow(window,SW_HIDE);
 }
 
 
@@ -215,4 +215,10 @@ void E_Window::setIcon()
 CBitmap E_Window::getIcon()
 {
 	return CBitmap();
+}
+
+
+void E_Window::setShow()
+{
+	ShowWindow(window, SW_SHOW);
 }

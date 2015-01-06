@@ -11,9 +11,13 @@ E_Desktop::E_Desktop(const E_Desktop &tmp)
 	current = tmp.current;
 }//
 
+E_Desktop::E_Desktop(int index){
+	this->index = index;
+}
+
 E_Desktop::~E_Desktop()
 {
-
+	
 }
 
 void E_Desktop::operator=(const E_Desktop &tmp)
@@ -164,15 +168,26 @@ void E_Desktop::setIndex(int newindex)
 	index = newindex;
 }
 
-
-
 // ¸ðµçÃ¢ SW_SHOW
 void E_Desktop::setAllShow()
 {
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		(*itr)->setShow();
+	}
 }
 
 
 CBitmap E_Desktop::getScreenshot()
 {
 	return CBitmap();
+}
+
+
+void E_Desktop::setAllHide()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		(*itr)->setHide();
+	}
 }

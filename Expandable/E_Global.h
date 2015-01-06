@@ -1,10 +1,15 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 
+/*
+객체 생성 후
+init()로 초기화 필요.
+*/
 #pragma once
 class E_Global : E_GlobalUpdater
 {
 private:
+	int selectedIndex;	//데스크탑 인덱스는 1부터 시작
 	E_Desktop* selectedDesktop;
 	int updateMode;
 	list<HWND> windowList;
@@ -13,25 +18,11 @@ private:
 	~E_Global();
 	
 public:
-	list<E_Desktop> desktopList;
-	list<E_Window> dockedWindowList;
+	static const wchar_t* testFrameName;
+
+	list<E_Desktop*> desktopList;
+	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
-	
-	
-	//static double resolutionWidth, resolutionHeight;
-	//static double virtualWidth, virtualHeight;
-	///*static void setresolutionWidth(int paramWidth);
-	//static double getresolutionWidth();
-	//static void setresolutionHeight(int paramHeight);
-	//static double getresolutionHeight();
-	//static void setVirtualWidth(int paramWidth);
-	//static double getVirtualWidth();
-	//static void setVirtualHeight(int paramHeight);
-	//static double getVirtualHeight();*/
-	//void setSelectedDesktopIndex(int paramIndex);
-	//int getSelectedDesktopIndex();
-	//void startUpdateSelectedDesktop();
-	//void stopUpdateSelectedDesktop();
 	
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
@@ -66,4 +57,8 @@ public:
 	int getDesktopCount();
 	void setExpandableRunningFlag();
 	bool getExpandableRunningFlag();
+	int getSelectedIndex();
+	void setSelectedIndex(int index);
+	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
+	void init();
 };
