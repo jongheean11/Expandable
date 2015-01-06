@@ -66,12 +66,12 @@ void drawDesktopSwitcher()
 		aeController->registerAero(hTaskbarWnd, deSwitcher->m_hWnd, taskbarRECT, pushThumbnail);
 		deSwitcher->handle_list.push_back(pushThumbnail);
 
-		for (std::list<E_Window>::iterator itr_window = itr_desktop->onWindowList.end(); itr_window != itr_desktop->onWindowList.begin(); itr_window--) // iterating backward
+		for (std::list<E_Window*>::iterator itr_window = itr_desktop->onWindowList.end(); itr_window != itr_desktop->onWindowList.begin(); itr_window--) // iterating backward
 		{
-			double window_left = itr_window->getStartX() * ratio_ww + background_left,
-				window_top = itr_window->getStartY() * ratio_hh + background_top;
-			double window_right = itr_window->getWidth() * ratio_ww + window_left,
-				window_bottom = itr_window->getHeight() * ratio_hh + window_top;
+			double window_left = (*itr_window)->getStartX() * ratio_ww + background_left,
+				window_top = (*itr_window)->getStartY() * ratio_hh + background_top;
+			double window_right = (*itr_window)->getWidth() * ratio_ww + window_left,
+				window_bottom = (*itr_window)->getHeight() * ratio_hh + window_top;
 			RECT windowRECT =
 			{
 				window_left,
@@ -79,7 +79,7 @@ void drawDesktopSwitcher()
 				window_right,
 				window_bottom
 			};
-			aeController->registerAero(itr_window->getHWND(), deSwitcher->m_hWnd, windowRECT, pushThumbnail);
+			aeController->registerAero((*itr_window)->getHWND(), deSwitcher->m_hWnd, windowRECT, pushThumbnail);
 			deSwitcher->handle_list.push_back(pushThumbnail);
 		}
 
