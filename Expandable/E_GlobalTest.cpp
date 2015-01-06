@@ -22,10 +22,14 @@ void E_GlobalTest::testGetKakaoWindow()
 }
  list<HWND> E_GlobalTest::testGetAllWindows()
 {
+	 E_Global::getSingleton()->getKakaoWindow()->ShowWindow(SW_HIDE);
+
 	E_Global* object = E_Global::getSingleton();
 	
-	EnumWindows(E_Global::EnumCallBack, 0);
-	
-	return object->windowList;
-	
+	//EnumWindows(E_Global::EnumCallBack, 0);
+
+	E_Global::getSingleton()->getKakaoWindow()->ShowWindow(SW_SHOW);
+	list<HWND> result = object->getAllWindows();
+
+	return result;
 }
