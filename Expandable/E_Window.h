@@ -27,4 +27,12 @@ public:
 	void setTransparent();
 	void setOpaque();
 	HWND getHWND();
+	double getStartX();
+	void setStartX(double param_x);
+	double getStartY();
+	void setStartY(double param_y);
+	double getWidth();
+	void setWidth(double param_w);
+	double getHeight();
+	void setHeight(double param_h);
 };

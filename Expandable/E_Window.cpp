@@ -129,3 +129,43 @@ HWND E_Window::getHWND()
 {
 	return hwnd;
 }
+
+double E_Window::getStartX()
+{
+	return start_x;
+}
+
+void E_Window::setStartX(double param_x)
+{
+	start_x = param_x;
+}
+
+double E_Window::getStartY()
+{
+	return start_y;
+}
+
+void E_Window::setStartY(double param_y)
+{
+	start_y = param_y;
+}
+
+double E_Window::getWidth()
+{
+	return width;
+}
+
+void E_Window::setWidth(double param_w)
+{
+	width = param_w;
+}
+
+double E_Window::getHeight()
+{
+	return height;
+}
+
+void E_Window::setHeight(double param_h)
+{
+	height = param_h;
+}
