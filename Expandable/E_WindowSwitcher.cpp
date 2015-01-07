@@ -29,13 +29,33 @@ void E_WindowSwitcher::startSwitcher()
 {
 	running = true;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
-	RECT r;
-	r.top =0;
-	r.left =0;
-	r.right =100;
-	r.bottom =100;
+	E_Global* global = E_Global::getSingleton();
+	RECT r={ 0, 0, 10, 10 };
+	//r.top =0;
+	//r.left =0;
+	//r.right =10;
+	//r.bottom =10;
+	
+	HWND hwnd = NULL;
+	HTHUMBNAIL hthumbnail = NULL;
+
+	E_Desktop* desktop = global->getSelectedDesktop();
+	std::list<E_Window*> winlist = desktop->getWindowList();
+	for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
+		hwnd = (*iter)->getWindow();
+		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))) {
+			thumb_list.push_back(hthumbnail);
+		}
+		
+	}
+
+	//test code
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
+	
+	thumb_list.push_back(temp);
+	thumb_list.push_back(temp2);
+
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
 
@@ -43,8 +63,20 @@ void E_WindowSwitcher::startSwitcher()
 // UI를 없에고 창을 가리는 함수
 void E_WindowSwitcher::terminateSwitcher()
 {
+	//크리티컬 세션?
+	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
+	HRESULT result;
 	running = false;
 	this->ShowWindow(SW_HIDE);
+	for (std::list<HTHUMBNAIL>::iterator iter = thumb_list.begin(); iter != thumb_list.end(); iter++) {
+		result = aeroManager->unregisterAero(*iter);
+		if (SUCCEEDED(result)) {
+			TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE OK");
+		}else {
+			TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
+		}
+	}
+	thumb_list.clear();
 }
 
 

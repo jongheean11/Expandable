@@ -14,6 +14,7 @@ private:
 	~E_WindowSwitcher();
 	E_EnvironmentManager* envManager;
 	bool running;
+	list<HTHUMBNAIL> thumb_list;
 public:
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴

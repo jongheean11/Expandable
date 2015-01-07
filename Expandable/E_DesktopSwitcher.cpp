@@ -10,53 +10,97 @@ HRESULT UpdateDesktop3(HWND hwnd, double left, double top, double right, double 
 
 void drawDesktopSwitcher()
 {
-	E_Global *e_global = E_Global::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+	
 	PAINTSTRUCT ps;
 	HDC hdc;
 	HTHUMBNAIL pushThumbnail;
-	CRect sizeRect_background;
-	HWND hShellWnd = GetShellWindow();
-	GetWindowRect(hShellWnd, &sizeRect_background);
-	
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
+	CRect sizeRect_background, sizeRect_taskbar;
+	HWND hShellWnd = GetShellWindow(); // 바탕화면 hwnd
+	GetWindowRect(hShellWnd, &sizeRect_background); // 바탕화면 크기 얻기
+	HWND hTaskbarWnd = FindWindowW(_T("Shell_TrayWnd"), NULL); // 작업표시줄 hwnd
+	GetWindowRect(hTaskbarWnd, &sizeRect_taskbar); // 작업표시줄 크기 얻기
+
 	double ratio_wh = (double)enManager->getWidth() / (double)enManager->getHeight(),
 		ratio_hw = (double)enManager->getHeight() / (double)enManager->getWidth();
 	double initial_padding_width = 50,
 		initial_padding_height = 50 * ratio_hw;	
-	double switch_width = ((double)enManager->getWidth() - initial_padding_width * 2) / ratio_hw * (double)0.175, // 0.7/4 = 0.175, 100=50*2
-		padding_width = ((double)enManager->getWidth() - initial_padding_width * 2) / ratio_hw * (double)0.0375; // 0.15/4 = 0.0375
+	double switch_width = ((double)enManager->getWidth() - initial_padding_width * 2) * (double)0.175, // 0.7/4 = 0.175, 100=50*2
+		padding_width = ((double)enManager->getWidth() - initial_padding_width * 2) * (double)0.0375; // 0.15/4 = 0.0375
 	double switch_height = switch_width * ratio_hw,
 		padding_height = padding_width * ratio_hw; 
+	double ratio_ww = switch_width / (double)enManager->getWidth(),
+		ratio_hh = switch_height / (double)enManager->getHeight();
 	
-	if (e_global->desktopList.size() >= 4)
+	double background_left = 0, background_top = initial_padding_height, // top은 변하지 않음.
+		background_right = 0, background_bottom = initial_padding_height + switch_height, // bottom은 변하지 않음
+		taskbar_top = background_bottom - sizeRect_taskbar.Height() * ratio_hh; // bottom, left, right는 background와 동일
+	
+	int i = 1,
+	_max = e_global->desktopList.size() >= 4 ? 5 : e_global->desktopList.size() + 1,
+	__max = e_global->desktopList.size() >= 4 ? 5 : 4 - e_global->desktopList.size();
+	//for (std::list<E_Desktop>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++) //iterating list
+	for (;;)
 	{
-		int i = 0;
-		for (std::list<E_Desktop>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++) //iterating list
+		//background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + __max*((switch_width + padding_width * 2) / 2);
+		background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + (__max-3)*((switch_width + padding_width * 2) / 2);
+		background_right = background_left + switch_width;
+		RECT backgroundRECT =
 		{
-			RECT backgroundRECT =
+			background_left,
+			background_top,
+			background_right,
+			background_bottom,
+		};
+		aeController->registerAero(hShellWnd, deSwitcher->m_hWnd, backgroundRECT, pushThumbnail);
+		deSwitcher->handle_list.push_back(pushThumbnail);
+
+		RECT taskbarRECT =
+		{
+			background_left,
+			taskbar_top,
+			background_right,
+			background_bottom
+		};
+		aeController->registerAero(hTaskbarWnd, deSwitcher->m_hWnd, taskbarRECT, pushThumbnail);
+		deSwitcher->handle_list.push_back(pushThumbnail);
+		std::list<HWND> all_windows = e_global->getAllWindows();
+
+		//for (std::list<E_Window>::iterator itr_window = itr_desktop->onWindowList.end(); itr_window != itr_desktop->onWindowList.begin(); itr_window--) // iterating backward
+		for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
+		{
+			/*double window_left = itr_window->getStartX() * ratio_ww + background_left,
+				window_top = itr_window->getStartY() * ratio_hh + background_top;
+			double window_right = itr_window->getWidth() * ratio_ww + window_left,
+				window_bottom = itr_window->getHeight() * ratio_hh + window_top;*/
+			CRect getSize;
+			GetWindowRect(*itr_window, &getSize);
+			double window_left = getSize.left * ratio_ww + background_left,
+				window_top = getSize.top * ratio_hh + background_top;
+			double window_right = getSize.Width() * ratio_ww + window_left,
+				window_bottom = getSize.Height() * ratio_hh + window_top;
+			RECT windowRECT =
 			{
-				initial_padding_width + padding_width * (2 * i - 1),
-				initial_padding_height,
-				(initial_padding_width + padding_width * (2 * i - 1)) + switch_width,
-				initial_padding_height + switch_height
-			}; // { , 50, 500, (500 - 50)*(enManager->getHeight()) / enManager->getWidth() };
-			E_AeroPeekController::getSingleton()->registerAero(hShellWnd, E_DesktopSwitcher::getSingleton()->m_hWnd, backgroundRECT, pushThumbnail);
+				window_left,
+				window_top,
+				window_right,
+				window_bottom
+			};
+			aeController->registerAero(*itr_window, deSwitcher->m_hWnd, windowRECT, pushThumbnail);
 			deSwitcher->handle_list.push_back(pushThumbnail);
-			for (std::list<E_Window>::iterator itr_window = itr_desktop->onWindowList.begin(); itr_window != itr_desktop->onWindowList.end(); itr_window++)
-			{
-				
-			}
-			i++;
 		}
-		hdc = BeginPaint(*deSwitcher, &ps);
 
-		EndPaint(*deSwitcher, &ps);
+		i++;
+		//if (i == _max)
+		if (i == _max+2)
+			break;
 	}
-	else
-	{
-
-	}
+	OutputDebugStringA("draw");
+	hdc = BeginPaint(*deSwitcher, &ps);
+	EndPaint(*deSwitcher, &ps);
 }
 
 E_DesktopSwitcher::E_DesktopSwitcher()
@@ -85,41 +129,20 @@ void E_DesktopSwitcher::startSwitcher()
 	if (!ison)
 	{	
 		Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234); // nid 뭔지 꼭 찾기.
-		ShowWindow(SW_SHOWMAXIMIZED);
 		UpdateWindow();
 		E_Window::setIconInvisible(this->m_hWnd);
 		ison = true;
 		
-
-		int wmId, wmEvent;
-		PAINTSTRUCT ps;
-		CDC* cdc;
-		HDC hdc;
-		HWND other = NULL;
-
-		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-		E_AeroPeekController::UpdateDesktop_Background(*this, 50, 50, 500, 303.125);
-		E_AeroPeekController::UpdateDesktop_Taskbar(*this, 50, 293.593, 500, 281 + 23);
-		UpdateDesktop3(*this, 100, 100, 300, 180);
-		cdc = BeginPaint(&ps);
-		EndPaint(&ps);
-
 		drawDesktopSwitcher();
-		// HTHUMBNAIL list 등록
-		
+		ShowWindow(SW_SHOWMAXIMIZED);
 	}
 	else
 	{
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
 		ison = false;
+		this->handle_list.clear();
 	}
-
-	/*E_Window::setIconInvisible(hwnd_cwnd->m_hWnd);
-	hwnd_cwnd->ShowWindow(SW_SHOWMAXIMIZED);
-	hwnd_cwnd->UpdateWindow();*/
-	
-	//hwnd_cwnd->SetLayeredWindowAttributes(RGB(255, 0, 0), 0, LWA_COLORKEY);
 }
 
 void E_DesktopSwitcher::terminateSwitcher()

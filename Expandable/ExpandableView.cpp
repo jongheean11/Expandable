@@ -120,7 +120,16 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		sprintf(dbgmsg,"mode? : %d\n",
 			E_AeroPeekController::getSingleton()->isAeroPeekMode());
 		OutputDebugStringA(dbgmsg);*/
-		E_WindowSwitcher::getSingleton()->startSwitcher();
+		if (E_WindowSwitcher::getSingleton()->isRunning() == false)
+			E_WindowSwitcher::getSingleton()->startSwitcher();
+		else
+			E_WindowSwitcher::getSingleton()->terminateSwitcher();
+	}
+	if (nChar == 'L'){
+		E_Global::getSingleton()->getSelectedDesktop()->setAllHide();
+	}
+	if (nChar == 'J'){
+		E_Global::getSingleton()->getSelectedDesktop()->setAllShow();
 	}
 	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);

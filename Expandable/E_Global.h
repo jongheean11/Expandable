@@ -1,33 +1,28 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 
+/*
+객체 생성 후
+init()로 초기화 필요.
+*/
 #pragma once
 class E_Global : E_GlobalUpdater
 {
 private:
-	int selectedDesktopIndex;
-	int aeroMode;
-	int updateState;
+	int selectedIndex;	//데스크탑 인덱스는 1부터 시작
+	E_Desktop* selectedDesktop;
+	int updateMode;
+	list<HWND> windowList;
+	static E_Global* singleton;
+	E_Global();
+	~E_Global();
 	
 public:
-	list<E_Desktop> desktopList;
-	list<E_Window> dockedWindowList;
-	list<HWND> windowList;
+	static const wchar_t* testFrameName;
 
-	static double resolutionWidth, resolutionHeight;
-	static double virtualWidth, virtualHeight;
-	/*static void setresolutionWidth(int paramWidth);
-	static double getresolutionWidth();
-	static void setresolutionHeight(int paramHeight);
-	static double getresolutionHeight();
-	static void setVirtualWidth(int paramWidth);
-	static double getVirtualWidth();
-	static void setVirtualHeight(int paramHeight);
-	static double getVirtualHeight();*/
-	void setSelectedDesktopIndex(int paramIndex);
-	int getSelectedDesktopIndex();
-	void startUpdateSelectedDesktop();
-	void stopUpdateSelectedDesktop();
+	list<E_Desktop*> desktopList;
+	list<E_Window*> dockedWindowList;
+	bool ExpandableRunningFlag;
 	
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
@@ -35,12 +30,35 @@ public:
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
-private:
-	static E_Global* singleton;
-	E_Global();
-	~E_Global();
 public:
 	static E_Global* getSingleton();
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
+	//
+	// 현재 데스크탑 저장
+	bool setSelectedDesktop();
+	// 현재 데스크탑 반환
+	E_Desktop* getSelectedDesktop();
+	// 주기적 업데이트를 위한 타이머
+	void startTimer();
+	void onTimer();
+	// 업데이트 시작
+	bool startUpdate();
+	// 업데이트 쓰레드
+	void onUpdate();
+	// 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
+	void stopUpdate();
+	bool getUpdateMode();
+	// 리스트의 끝에 데스크탑 추가
+	bool addOneDesktop();
+	// 데스크탑 제거
+	bool delDesktop();
+	// 데스크탑 개수 반환
+	int getDesktopCount();
+	void setExpandableRunningFlag();
+	bool getExpandableRunningFlag();
+	int getSelectedIndex();
+	void setSelectedIndex(int index);
+	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
+	void init();
 };

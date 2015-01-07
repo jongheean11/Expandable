@@ -133,6 +133,14 @@ BOOL CExpandableApp::InitInstance()
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 
+	//창 이름 변경
+	m_pMainWnd->SetWindowTextW(E_Global::testFrameName);
+
+
+	//E_Global 계열 초기화
+	E_Global* cwnd_global = E_Global::getSingleton();
+	cwnd_global->init();
+
 	//Switcher 계열 초기화
 	
 	//Window Switcher 초기화
@@ -148,9 +156,6 @@ BOOL CExpandableApp::InitInstance()
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_windowSwicher->ShowWindow(SW_HIDE);
 	cwnd_windowSwicher->UpdateWindow();
-
-	//E_Global 계열 초기화
-	CWnd* cwnd_global = (CWnd*)E_Global::getSingleton();
 
 	//Environment Manager 초기화
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
@@ -174,7 +179,6 @@ BOOL CExpandableApp::InitInstance()
 	E_GlobalTest::testGetKakaoWindow();
 	E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
-
 
 	return TRUE;
 }
