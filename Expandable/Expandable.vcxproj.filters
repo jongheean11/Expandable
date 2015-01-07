@@ -31,6 +31,9 @@
     <Filter Include="EnvironmentManager">
       <UniqueIdentifier>{848d1d5d-3019-4044-a7ce-00daed1d4da5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DragAndDropSwitcher">
+      <UniqueIdentifier>{afa18eb3-4715-4089-b702-688b14c0e68d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -90,6 +93,9 @@
     <ClInclude Include="E_GlobalTest.h">
       <Filter>GlobalWindow</Filter>
     </ClInclude>
+    <ClInclude Include="E_DragAndDropSwitcher.h">
+      <Filter>DragAndDropSwitcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -139,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="E_GlobalTest.cpp">
       <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_DragAndDropSwitcher.cpp">
+      <Filter>DragAndDropSwitcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
