@@ -12,6 +12,8 @@
 #include "ExpandableDoc.h"
 #include "ExpandableView.h"
 
+#include "E_WindowTest.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -130,6 +132,9 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'J'){
 		E_Global::getSingleton()->getSelectedDesktop()->setAllShow();
+	}
+	if (nChar == 'H'){
+		E_WindowTest::testTakeScreenshot();
 	}
 	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);

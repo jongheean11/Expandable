@@ -18,6 +18,7 @@
 
 #include "E_WindowSwitcherTest.h"
 #include "E_GlobalTest.h"
+#include "E_WindowTest.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -179,6 +180,7 @@ BOOL CExpandableApp::InitInstance()
 	E_GlobalTest::testGetKakaoWindow();
 	E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
+	//E_WindowTest::testTakeScreenshot();
 
 	return TRUE;
 }

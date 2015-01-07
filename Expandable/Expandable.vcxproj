@@ -119,6 +119,7 @@
     <ClInclude Include="E_Window.h" />
     <ClInclude Include="E_WindowSwitcher.h" />
     <ClInclude Include="E_WindowSwitcherTest.h" />
+    <ClInclude Include="E_WindowTest.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="E_Window.cpp" />
     <ClCompile Include="E_WindowSwitcher.cpp" />
     <ClCompile Include="E_WindowSwitcherTest.cpp" />
+    <ClCompile Include="E_WindowTest.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

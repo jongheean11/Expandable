@@ -23,7 +23,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
 	selectedIndex = 1;
 
 	//윈도우 리스트 초기화 // 생성자 안이라 초기화 불가능
-	//}
+	//
 }
 
 E_Global::~E_Global()

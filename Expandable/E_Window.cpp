@@ -4,6 +4,9 @@
 E_Window::E_Window(HWND window)
 {
 	this->window = window;
+	SetMinimizeMaximizeAnimation(false);
+	takeScreenshot();
+	SetMinimizeMaximizeAnimation(true);
 }
 E_Window::E_Window()
 {
@@ -191,9 +194,105 @@ void E_Window::setHeight(double param_h)
 	height = param_h;
 }
 
-bool E_Window::taskScreenshot()
+void E_Window::SetMinimizeMaximizeAnimation(bool status)
 {
-	return false;
+	ANIMATIONINFO animationInfo;
+	if (status)
+		animationInfo.iMinAnimate = 1;
+	else
+		animationInfo.iMinAnimate = 0;
+	animationInfo.cbSize = sizeof(ANIMATIONINFO);
+	//SystemParametersInfo(SPI_GETANIMATION, sizeof(ANIMATIONINFO),
+	//	&animationInfo,SPIF_UPDATEINIFILE);
+
+	//if (animationInfo.iMinAnimate != status)
+	//{
+		//animationInfo.iMinAnimate = status;
+		SystemParametersInfo(SPI_SETANIMATION, sizeof(ANIMATIONINFO),
+			&animationInfo, SPIF_SENDCHANGE);
+	//}
+}
+
+bool E_Window::takeScreenshot()
+{
+	//ShowWindow(window,SW_FORCEMINIMIZE); // 스크린샷 안됨
+	//ShowWindow(window, SW_HIDE);	//스크린샷 안됨
+	//ShowWindow(window, SW_MAXIMIZE);
+	//ShowWindow(window, SW_MINIMIZE);	//스크린샷 안됨
+	//ShowWindow(window, SW_RESTORE);
+	//ShowWindow(window, SW_SHOW);
+	//ShowWindow(window, SW_SHOWDEFAULT);
+	//ShowWindow(window, SW_SHOWMAXIMIZED);
+	//ShowWindow(window, SW_SHOWMINIMIZED);	//스크린샷 안됨
+	//ShowWindow(window, SW_SHOWMINNOACTIVE);	//스크린샷 안됨
+	//ShowWindow(window, SW_SHOWNA);	//될수도 안될수도있음
+	//ShowWindow(window, SW_SHOWNOACTIVATE);
+	//ShowWindow(window, SW_SHOWNORMAL);
+
+	bool notShowing = false;
+	UINT state;
+	WINDOWPLACEMENT windowinfo;
+	GetWindowPlacement(window, &windowinfo);
+
+	//몇몇 상태는 아예 필요없는 조건일 수 있으나 스크린샷이 찍히지 않는 경우를 모두 찾음
+	if ((state = (windowinfo.showCmd )) == SW_FORCEMINIMIZE
+		|| (state = (windowinfo.showCmd )) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+		|| (state = (windowinfo.showCmd )) == SW_MINIMIZE
+		|| (state = (windowinfo.showCmd )) == SW_SHOWMINIMIZED
+		|| (state = (windowinfo.showCmd )) == SW_SHOWMINNOACTIVE
+		|| (state = (windowinfo.showCmd )) == SW_SHOWNA
+		){
+		//스크린샷이 안되는 상황
+		notShowing = true;
+		this->setTransparent();
+		ShowWindow(window, SW_RESTORE);
+	}
+
+	HWND hTargetWnd = window;
+
+	LPCTSTR lpszFilePath;
+
+	CRect rct;
+	if (hTargetWnd)
+		::GetWindowRect(hTargetWnd, &rct);
+	else
+		return FALSE;
+
+	HBITMAP hBitmap = NULL;
+	HBITMAP hOldBitmap = NULL;
+	BOOL bSuccess = FALSE;
+
+	HDC hDC = ::GetWindowDC(hTargetWnd);
+	HDC hMemDC = ::CreateCompatibleDC(hDC);
+	hBitmap = ::CreateCompatibleBitmap(hDC, rct.Width(), rct.Height());
+
+	if (!hBitmap)
+		return FALSE;
+
+	hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
+
+	if (!::PrintWindow(hTargetWnd, hMemDC, 0))
+		bSuccess = FALSE;
+	else
+		bSuccess = TRUE;
+
+
+	SelectObject(hMemDC, hOldBitmap);
+
+	//DeleteObject(hBitmap);
+
+	::DeleteDC(hMemDC);
+	::ReleaseDC(hTargetWnd, hDC);
+
+	screenshot.Attach(hBitmap);
+
+	if (notShowing == true){
+		ShowWindow(window, state);
+		this->setOpaque();
+	}
+	
+	return bSuccess;
+	
 }
 
 
@@ -218,4 +317,10 @@ CBitmap E_Window::getIcon()
 void E_Window::setShow()
 {
 	ShowWindow(window, SW_SHOW);
+}
+
+
+CBitmap* E_Window::getScreenshot()
+{
+	return &screenshot;
 }

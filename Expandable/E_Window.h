@@ -10,7 +10,7 @@ private:
 	CBitmap icon;
 	CBitmap screenshot;
 	//E_Desktop* desktop;
-
+	
 	double start_x, start_y;
 	double width, height;
 	int zIndex;
@@ -20,7 +20,7 @@ private:
 
 public:
 
-	bool taskScreenshot();
+	bool takeScreenshot();
 	E_Window(HWND);
 	E_Window();
 	E_Window(const E_Window &tmp);
@@ -51,4 +51,8 @@ public:
 	double getHeight();
 	void setHeight(double param_h);
 	void setShow();
+
+
+	void SetMinimizeMaximizeAnimation(bool status);
+	CBitmap* getScreenshot();
 };
