@@ -32,8 +32,8 @@ public:
 	void setOpaque();
 	void setHide();
 	// 윈도우 세팅
-	void setWindow();
-	CWnd* getWindow();
+	void setWindow(HWND window);
+	HWND getWindow();
 	void setIcon();
 	CBitmap getIcon();
 

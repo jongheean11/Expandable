@@ -138,10 +138,18 @@ void E_Window::setOpaque()
 	SetWindowLongW(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) && ~WS_EX_LAYERED);
 }
 
-//HWND E_Window::getHWND()
-//{
-//	return hwnd;
-//}
+
+// 윈도우 세팅
+void E_Window::setWindow(HWND window)
+{
+	this->window = window;
+}
+
+
+HWND E_Window::getWindow()
+{
+	return window;
+}
 
 double E_Window::getStartX()
 {
@@ -194,17 +202,6 @@ void E_Window::setHide()
 	ShowWindow(window,SW_HIDE);
 }
 
-
-// 윈도우 세팅
-void E_Window::setWindow()
-{
-}
-
-
-CWnd* E_Window::getWindow()
-{
-	return NULL;
-}
 
 
 void E_Window::setIcon()
