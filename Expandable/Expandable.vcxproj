@@ -111,6 +111,7 @@
     <ClInclude Include="ExpandableView.h" />
     <ClInclude Include="E_Desktop.h" />
     <ClInclude Include="E_DesktopSwitcher.h" />
+    <ClInclude Include="E_DragAndDropSwitcher.h" />
     <ClInclude Include="E_EnvironmentManager.h" />
     <ClInclude Include="E_Global.h" />
     <ClInclude Include="E_GlobalTest.h" />
@@ -132,6 +133,7 @@
     <ClCompile Include="ExpandableView.cpp" />
     <ClCompile Include="E_Desktop.cpp" />
     <ClCompile Include="E_DesktopSwitcher.cpp" />
+    <ClCompile Include="E_DragAndDropSwitcher.cpp" />
     <ClCompile Include="E_EnvironmentManager.cpp" />
     <ClCompile Include="E_Global.cpp" />
     <ClCompile Include="E_GlobalTest.cpp" />
