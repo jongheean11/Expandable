@@ -15,6 +15,8 @@ private:
 	E_EnvironmentManager* envManager;
 	bool running;
 	list<HTHUMBNAIL> thumb_list;
+	unordered_map<HWND, HTHUMBNAIL> thumb_map;
+
 public:
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴

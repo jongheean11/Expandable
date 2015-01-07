@@ -15,7 +15,6 @@ E_WindowSwitcher::~E_WindowSwitcher()
 	
 }
 
-
 E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 {
 	if (singleton == NULL)
@@ -23,19 +22,14 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 	return singleton;
 }
 
-
 // UI를 보여주고 입력을 받는 창을 활성화 시킴
 void E_WindowSwitcher::startSwitcher()
 {
 	running = true;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
-	RECT r={ 0, 0, 10, 10 };
-	//r.top =0;
-	//r.left =0;
-	//r.right =10;
-	//r.bottom =10;
-	
+	RECT r={ 0, 0, 10, 10};
+
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
 
@@ -44,17 +38,17 @@ void E_WindowSwitcher::startSwitcher()
 	for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 		hwnd = (*iter)->getWindow();
 		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))) {
-			thumb_list.push_back(hthumbnail);
+			//thumb_list.push_back(hthumbnail);
+			thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 		}
-		
 	}
 
 	//test code
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
-	
-	thumb_list.push_back(temp);
-	thumb_list.push_back(temp2);
+
+	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp));
+	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp2));
 
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
@@ -68,15 +62,16 @@ void E_WindowSwitcher::terminateSwitcher()
 	HRESULT result;
 	running = false;
 	this->ShowWindow(SW_HIDE);
-	for (std::list<HTHUMBNAIL>::iterator iter = thumb_list.begin(); iter != thumb_list.end(); iter++) {
-		result = aeroManager->unregisterAero(*iter);
+	for (unordered_map<HWND,HTHUMBNAIL>::iterator iter = thumb_map.begin(); iter != thumb_map.end(); iter++) {
+		result = aeroManager->unregisterAero(iter->second);
 		if (SUCCEEDED(result)) {
-			TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE OK");
+			//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE OK");
 		}else {
-			TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
+			//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
 		}
 	}
-	thumb_list.clear();
+	//thumb_list.clear();
+	thumb_map.clear();
 }
 
 
@@ -88,7 +83,7 @@ BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-
+/*창을 새로 그리는 함수*/
 void E_WindowSwitcher::OnPaint()
 {
 	static int tempDesktopCount = 2;
@@ -113,93 +108,48 @@ void E_WindowSwitcher::OnPaint()
 			{
 				//첫번째 데스크탑 계산
 				long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
-				long tempAeroHeightCount = 2;	//임시 높이는 1개
+				long tempAeroHeightCount = 1;	//임시 높이는 1개
 
-				static long switcherWidth = aeroWidth * tempWindowCount + paddingSize * 2;
-				static long switcherHeight = aeroHeight * tempAeroHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
+				long maxWidthCount = 1;
+				long maxHeightCount = 1;
+
+				int windowSize = thumb_map.size();
+				if (windowSize >= 7)
+					maxWidthCount = 7;
+				else
+					maxWidthCount = windowSize;
+				
+				if (windowSize >= 8)
+					maxHeightCount = 2;
+				else
+					maxHeightCount = 1;
+				
+				static long switcherWidth = aeroWidth * maxWidthCount + paddingSize * 2;
+				static long switcherHeight = aeroHeight * maxHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
 				static long switcherLeft = resWidth / 2 - switcherWidth / 2;
 				static long switcherTop = resHeight / 2 - switcherHeight / 2;
 
 				TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
 
-				//첫번째 창
-				{
-					static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
-					static long aeroTopoffset = paddingSize; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+				list<E_Window*> winlist = E_Global::getSingleton()->getSelectedDesktop()->getWindowList();
+				
+				int count = 0;
+				int widthCount = 0;//0~6 까지 반복
+				int heightCount = 0;
+				WINDOWPLACEMENT windowState;
 
-					//경계선
-					CRect temprect;
-					temprect.top = aeroTopoffset;
-					temprect.left = aeroLeftoffset;
-					temprect.bottom = temprect.top + aeroHeight;
-					temprect.right = temprect.left + aeroWidth;
-					dc.Rectangle(temprect);
+				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
+					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
+					cwnd->GetWindowPlacement(&windowState);
 					
-					//aero 기준 오프셋
-					static long previewLeftoffset = paddingSize;	//실제 aero 크기
-					static long previewTopoffset = paddingSize;	//실제 aero 크기
 
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
-
-					CRect crect;
-
-					//하나의 프리뷰 박스 기준 축소된 윈도우 크기
-					long windowWidth = 0;
-					long windowHeight = 0;
-					long windowTopOffset = 0;
-					long windowLeftOffset = 0;
-
-					E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
-
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
-
-					double ratio = 0;
-					switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
-					case HORIZONTAL:
-						ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
-						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
-
-						//수평으로 길때
-						windowWidth = previewWidth;
-						windowHeight = (int)(windowWidth / ratio);
-						windowTopOffset = (previewHeight - windowHeight) / 2;
-						windowLeftOffset = 0;
-						break;
-						
-					case VERTICAL:
-						ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
-						//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
-
-						//수직으로 길때
-						windowHeight = previewHeight;
-						windowWidth = (int)(windowHeight / ratio);
-						windowTopOffset = 0;
-						windowLeftOffset = (previewWidth - windowWidth) / 2;
-						break;
-
-					}
-
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d",ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
-					//위치 이동
-					this->SetWindowPos(NULL
-						, switcherLeft
-						, switcherTop
-						, switcherWidth, switcherHeight
-						, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-					//테스트 
-					RECT rect;
-					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
-					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
-					rect.right = rect.left + windowWidth;
-					rect.bottom = rect.top + windowHeight;
-
-					E_AeroPeekController::getSingleton()->moveAero(this->temp, rect);
-				}
-				//두번째 창
-				{
-					static long aeroLeftoffset = paddingSize ; //윈도우 별로 위치가 달라짐!!!
-					static long aeroTopoffset = paddingSize + aeroHeight ; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+					//
+					CString windowName;
+					cwnd->GetWindowTextW(windowName);
+					TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
+					
+					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
+					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 
 					//경계선
 					CRect temprect;
@@ -213,7 +163,7 @@ void E_WindowSwitcher::OnPaint()
 					static long previewLeftoffset = paddingSize;	//실제 aero 크기
 					static long previewTopoffset = paddingSize;	//실제 aero 크기
 
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
 
 					CRect crect;
 
@@ -223,7 +173,8 @@ void E_WindowSwitcher::OnPaint()
 					long windowTopOffset = 0;
 					long windowLeftOffset = 0;
 
-					E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+					//E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+					cwnd->GetWindowRect(crect);
 
 					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
 
@@ -261,15 +212,178 @@ void E_WindowSwitcher::OnPaint()
 						, switcherWidth, switcherHeight
 						, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-					//테스트 
 					RECT rect;
 					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
 					rect.right = rect.left + windowWidth;
 					rect.bottom = rect.top + windowHeight;
 
-					E_AeroPeekController::getSingleton()->moveAero(this->temp2, rect);
+					if (windowState.showCmd != SW_SHOWMINIMIZED) {
+						E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
+					}
+
+					//위치 조정
+					widthCount = (count + 1) % 7; 
+					if (count >= 7)
+						heightCount = 1; //0 ~ 1 사이
+
+					count++;
+
+					//테스트 코드
+					if (count >= 14)
+						break;
 				}
+
+				////첫번째 창
+				//{
+				//	CWnd* cwnd = CWnd::FromHandle((*winlist.rbegin())->getWindow());
+				//	static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
+				//	static long aeroTopoffset = paddingSize; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+
+				//	//경계선
+				//	CRect temprect;
+				//	temprect.top = aeroTopoffset;
+				//	temprect.left = aeroLeftoffset;
+				//	temprect.bottom = temprect.top + aeroHeight;
+				//	temprect.right = temprect.left + aeroWidth;
+				//	dc.Rectangle(temprect);
+				//	
+				//	//aero 기준 오프셋
+				//	static long previewLeftoffset = paddingSize;	//실제 aero 크기
+				//	static long previewTopoffset = paddingSize;	//실제 aero 크기
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+
+				//	CRect crect;
+
+				//	//하나의 프리뷰 박스 기준 축소된 윈도우 크기
+				//	long windowWidth = 0;
+				//	long windowHeight = 0;
+				//	long windowTopOffset = 0;
+				//	long windowLeftOffset = 0;
+
+				//	//E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+				//	cwnd->GetWindowRect(crect);
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
+
+				//	double ratio = 0;
+				//	switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
+				//	case HORIZONTAL:
+				//		ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
+				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
+
+				//		//수평으로 길때
+				//		windowWidth = previewWidth;
+				//		windowHeight = (int)(windowWidth / ratio);
+				//		windowTopOffset = (previewHeight - windowHeight) / 2;
+				//		windowLeftOffset = 0;
+				//		break;
+				//		
+				//	case VERTICAL:
+				//		ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
+				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
+
+				//		//수직으로 길때
+				//		windowHeight = previewHeight;
+				//		windowWidth = (int)(windowHeight / ratio);
+				//		windowTopOffset = 0;
+				//		windowLeftOffset = (previewWidth - windowWidth) / 2;
+				//		break;
+
+				//	}
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d",ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
+				//	//위치 이동
+				//	this->SetWindowPos(NULL
+				//		, switcherLeft
+				//		, switcherTop
+				//		, switcherWidth, switcherHeight
+				//		, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+				//	//테스트 
+				//	RECT rect;
+				//	rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
+				//	rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
+				//	rect.right = rect.left + windowWidth;
+				//	rect.bottom = rect.top + windowHeight;
+
+				//	E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
+				//}
+				////두번째 창
+				//{
+				//	static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
+				//	static long aeroTopoffset = paddingSize + aeroHeight ; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+				//	
+				//	//경계선
+				//	CRect temprect;
+				//	temprect.top = aeroTopoffset;
+				//	temprect.left = aeroLeftoffset;
+				//	temprect.bottom = temprect.top + aeroHeight;
+				//	temprect.right = temprect.left + aeroWidth;
+				//	dc.Rectangle(temprect);
+
+				//	//aero 기준 오프셋
+				//	static long previewLeftoffset = paddingSize;	//실제 aero 크기
+				//	static long previewTopoffset = paddingSize;	//실제 aero 크기
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+
+				//	CRect crect;
+
+				//	//하나의 프리뷰 박스 기준 축소된 윈도우 크기
+				//	long windowWidth = 0;
+				//	long windowHeight = 0;
+				//	long windowTopOffset = 0;
+				//	long windowLeftOffset = 0;
+
+				//	E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
+
+				//	double ratio = 0;
+				//	switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
+				//	case HORIZONTAL:
+				//		ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
+				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
+
+				//		//수평으로 길때
+				//		windowWidth = previewWidth;
+				//		windowHeight = (int)(windowWidth / ratio);
+				//		windowTopOffset = (previewHeight - windowHeight) / 2;
+				//		windowLeftOffset = 0;
+				//		break;
+
+				//	case VERTICAL:
+				//		ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
+				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
+
+				//		//수직으로 길때
+				//		windowHeight = previewHeight;
+				//		windowWidth = (int)(windowHeight / ratio);
+				//		windowTopOffset = 0;
+				//		windowLeftOffset = (previewWidth - windowWidth) / 2;
+				//		break;
+
+				//	}
+
+				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d", ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
+				//	//위치 이동
+				//	this->SetWindowPos(NULL
+				//		, switcherLeft
+				//		, switcherTop
+				//		, switcherWidth, switcherHeight
+				//		, SWP_NOZORDER | SWP_SHOWWINDOW);
+
+				//	//테스트 
+				//	RECT rect;
+				//	rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
+				//	rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
+				//	rect.right = rect.left + windowWidth;
+				//	rect.bottom = rect.top + windowHeight;
+
+				//	E_AeroPeekController::getSingleton()->moveAero(this->temp2, rect);
+				//}
 			}
 		}
 	}

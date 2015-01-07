@@ -52,6 +52,7 @@
 #include <Shobjidl.h>
 #include <list>
 #include <set>
+#include <unordered_map>
 
 //ETC (Global Window Manager)
 #include <windef.h>
