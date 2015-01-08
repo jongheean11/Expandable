@@ -9,6 +9,7 @@ class E_AeroPeekController
 private:
 	//singleton variable
 	static E_AeroPeekController* singleton;
+	DWM_THUMBNAIL_PROPERTIES dskThumbProps; // Set the thumbnail properties for use
 	//private constructor
 	E_AeroPeekController();		
 	~E_AeroPeekController();	//강제 해제를 막음

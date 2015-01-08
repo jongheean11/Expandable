@@ -2,6 +2,12 @@
 #include "E_AeroPeekController.h"
 E_AeroPeekController::E_AeroPeekController()
 {
+	dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
+
+	// Use the window frame and client area
+	dskThumbProps.fSourceClientAreaOnly = FALSE;
+	dskThumbProps.fVisible = TRUE;
+	dskThumbProps.opacity = (255 * 70) / 100;
 }
 
 E_AeroPeekController::~E_AeroPeekController()
@@ -15,14 +21,6 @@ HRESULT E_AeroPeekController::registerAero(HWND src, HWND dest, RECT rect, __out
 	HRESULT hr = S_OK;
 	hr = DwmRegisterThumbnail(dest, src, &hThumbnail);
 	if (SUCCEEDED(hr))  {
-		// Set the thumbnail properties for use
-		DWM_THUMBNAIL_PROPERTIES dskThumbProps;
-		dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
-
-		// Use the window frame and client area
-		dskThumbProps.fSourceClientAreaOnly = FALSE;
-		dskThumbProps.fVisible = TRUE;
-		dskThumbProps.opacity = (255 * 70) / 100;
 		dskThumbProps.rcDestination = rect;
 
 		// Display the thumbnail
