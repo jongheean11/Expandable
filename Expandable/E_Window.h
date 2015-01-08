@@ -1,3 +1,5 @@
+#include "E_Util.h"
+
 using namespace Gdiplus;
 using namespace std;
 
@@ -6,13 +8,9 @@ class E_Window
 {
 private:
 	HWND window;
-//	HWND hwnd;
 	CBitmap icon;
 	CBitmap screenshot;
-	//E_Desktop* desktop;
 	
-	double start_x, start_y;
-	double width, height;
 	int zIndex;
 	int windowState;
 	int dockState;
@@ -22,8 +20,6 @@ public:
 
 	bool takeScreenshot();
 	E_Window(HWND);
-	E_Window();
-	E_Window(const E_Window &tmp);
 	~E_Window();
 
 	static bool setIconInvisible(HWND hwnd);
@@ -31,28 +27,20 @@ public:
 	void setTransparent();
 	void setOpaque();
 	void setHide();
+	void setShow();
 	// 윈도우 세팅
 	void setWindow(HWND window);
 	HWND getWindow();
-	void setIcon();
-	CBitmap getIcon();
 
 	void operator=(const E_Window &tmp);
 	bool operator==(const E_Window &tmp);
-//	void setHWND(string mainWindowStr, string exWindowStr);
-
-//	HWND getHWND();
-	double getStartX();
-	void setStartX(double param_x);
-	double getStartY();
-	void setStartY(double param_y);
-	double getWidth();
-	void setWidth(double param_w);
-	double getHeight();
-	void setHeight(double param_h);
-	void setShow();
-
-
+	//최소/최대화 애니메이션 제거 및 활성화
 	void SetMinimizeMaximizeAnimation(bool status);
 	CBitmap* getScreenshot();
+
+	CBitmap* getIcon();
+	// 윈도우 Show 상태를 가져옴
+	UINT getShowState();
+	// 에어로가 가능한지 아는 함수.
+	bool isAeroPossible();
 };

@@ -26,7 +26,7 @@ void E_WindowTest::testTakeScreenshot()
 	//cwnd->ShowWindow(SW_RESTORE);
 	//
 	
-	window->takeScreenshot();
+	//window->takeScreenshot();
 	//delete window;
 
 	CWnd* testwin = new CWnd();
@@ -46,21 +46,18 @@ void E_WindowTest::testTakeScreenshot()
 	wchar_t *d = L"asdfasdf";
 	dc.DrawText(d, wcslen(d), &rect2, 0);
 
-	CBitmap* bitmap = window->getScreenshot();
 
-
-
-	//½ºÅ©¸°¼¦
-	CDC cdc;
-	cdc.CreateCompatibleDC(testwin->GetWindowDC());
-	cdc.SelectObject(bitmap->GetSafeHandle());
-	dc.BitBlt(0, 0, 1000, 1000, &cdc, 0, 0, SRCCOPY);
-
+	//dc.BitBlt(200, 500, 100, 100, &cdc, 0, 0, SRCCOPY);
 	testwin->ShowWindow(SW_SHOW);
 	testwin->UpdateWindow();
 	::SetWindowPos(testwin->m_hWnd, HWND_TOPMOST, 0, 0, 0, 0,
 		SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+	//½ºÅ©¸°¼¦
+	CBitmap* bitmap = window->getScreenshot();
+	CDC cdc;
+	cdc.CreateCompatibleDC(testwin->GetWindowDC());
+	cdc.SelectObject(bitmap->GetSafeHandle());
 
-	
-	//cwnd->ShowWindow(SW_SHOWMINIMIZED);
+	dc.SetStretchBltMode(COLORONCOLOR | HALFTONE);
+	dc.StretchBlt(0, 0, 400, 400, &cdc, 0, 0, 1000, 1000, SRCCOPY);
 }

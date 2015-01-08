@@ -19,6 +19,7 @@
 #include "E_WindowSwitcherTest.h"
 #include "E_GlobalTest.h"
 #include "E_WindowTest.h"
+#include "E_UtilTest.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -152,7 +153,7 @@ BOOL CExpandableApp::InitInstance()
 	UINT nClassStyle_window = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_window.GetSafeHandle(), 0);
 
-	cwnd_windowSwicher->Create(szClassName_window, _T(""), WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
+	cwnd_windowSwicher->Create(szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
 	//SetClassLong(cwnd_env->)
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_windowSwicher->ShowWindow(SW_HIDE);
@@ -172,7 +173,7 @@ BOOL CExpandableApp::InitInstance()
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_env->ShowWindow(SW_HIDE);
 	cwnd_env->UpdateWindow();
-
+	
 	//Unit Test
 	E_WindowSwitcherTest::testGetAeroSize();
 	E_WindowSwitcherTest::testGetIconSize();
@@ -181,6 +182,9 @@ BOOL CExpandableApp::InitInstance()
 	E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
 	//E_WindowTest::testTakeScreenshot();
+	E_UtilTest::testGetDefaultIconSize();
+	E_UtilTest::testGetIconHandle();
+	//E_UtilTest::testConvertIconToBitmape();
 
 	return TRUE;
 }
