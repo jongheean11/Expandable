@@ -1,5 +1,7 @@
 #include "E_Desktop.h"
 #include "E_EnvironmentManager.h"
+//#include <hash_map>
+//using namespace stdext;
 
 class E_DesktopSwitcher : public CWnd
 {
@@ -13,6 +15,13 @@ private:
 	E_Desktop* focusedDesktop;
 	E_Window* clickedWindow;
 	bool ison;
+	// property for moving window
+	bool window_selected;
+	CPoint window_leftdown_point;
+	RECT *window_RECT;
+	int desktop_i; // target window (desktop¿ª window∑Œ πŸ≤„æﬂµ )
+	HTHUMBNAIL window_hthumbnail;
+	DWM_THUMBNAIL_PROPERTIES winThumbProps;
 public:
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
@@ -21,14 +30,15 @@ public:
 			E_DesktopSwitcher::singleton = new E_DesktopSwitcher();
 		return E_DesktopSwitcher::singleton;
 	}
+
 //	void drawWindowSwitcher();
 //	void destroyWindowSwitcher();
 //	void drawPreview();
 //	void onMouseClick();
 //	void switchDesktop(int direction);
-	/*void drawOverview(E_Desktop* targetDesktop, E_Window* targetWindow);
-	void updateComponent(E_Desktop* targetDesktop, E_Window* targetWindow);
-	*/
+//	void drawOverview(E_Desktop* targetDesktop, E_Window* targetWindow);
+//	void updateComponent(E_Desktop* targetDesktop, E_Window* targetWindow);
+	
 	
 	void startSwitcher();
 	void terminateSwitcher();
@@ -39,4 +49,15 @@ public:
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //private:
 	std::list<HTHUMBNAIL> handle_list;
+	std::list<RECT*> desktop_area_list_rect;
+	std::list<HWND> desktop_area_list_hwnd;
+	std::list<RECT*> window_area_list_rect;
+	std::list<HWND> window_area_list_hwnd;
+	//hash_map<CRect, HWND> desktop_area_list;
+	//hash_map<CRect, HWND> window_area_list;
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	
 };
