@@ -16,8 +16,9 @@ private:
 	bool running;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
-
+	
 public:
+	static const wchar_t* caption;
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴
 	void startSwitcher();

@@ -25,14 +25,17 @@
     <Filter Include="DesktopSwitcher">
       <UniqueIdentifier>{bd8e691c-7660-429b-ba7e-ec5e125110c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Map">
-      <UniqueIdentifier>{cec9e148-089f-449d-954f-0ffb026f2841}</UniqueIdentifier>
-    </Filter>
     <Filter Include="EnvironmentManager">
       <UniqueIdentifier>{848d1d5d-3019-4044-a7ce-00daed1d4da5}</UniqueIdentifier>
     </Filter>
     <Filter Include="DragAndDropSwitcher">
       <UniqueIdentifier>{afa18eb3-4715-4089-b702-688b14c0e68d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{6b92845e-1cf6-4a66-92b1-542cd0e7ab3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{cec9e148-089f-449d-954f-0ffb026f2841}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +102,12 @@
     <ClInclude Include="E_WindowTest.h">
       <Filter>GlobalWindow</Filter>
     </ClInclude>
+    <ClInclude Include="E_Util.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="E_UtilTest.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -154,6 +163,12 @@
     </ClCompile>
     <ClCompile Include="E_DragAndDropSwitcher.cpp">
       <Filter>DragAndDropSwitcher</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Util.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="E_UtilTest.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

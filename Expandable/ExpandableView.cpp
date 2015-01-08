@@ -129,6 +129,10 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'L'){
 		E_Global::getSingleton()->getSelectedDesktop()->setAllHide();
+		E_Global* global = E_Global::getSingleton();
+		int index = global->getSelectedIndex();
+		global->setSelectedIndex(index ++);
+		
 	}
 	if (nChar == 'J'){
 		E_Global::getSingleton()->getSelectedDesktop()->setAllShow();

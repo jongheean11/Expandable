@@ -117,6 +117,8 @@
     <ClInclude Include="E_GlobalTest.h" />
     <ClInclude Include="E_GlobalUpdater.h" />
     <ClInclude Include="E_Map.h" />
+    <ClInclude Include="E_Util.h" />
+    <ClInclude Include="E_UtilTest.h" />
     <ClInclude Include="E_Window.h" />
     <ClInclude Include="E_WindowSwitcher.h" />
     <ClInclude Include="E_WindowSwitcherTest.h" />
@@ -139,6 +141,8 @@
     <ClCompile Include="E_GlobalTest.cpp" />
     <ClCompile Include="E_GlobalUpdater.cpp" />
     <ClCompile Include="E_Map.cpp" />
+    <ClCompile Include="E_Util.cpp" />
+    <ClCompile Include="E_UtilTest.cpp" />
     <ClCompile Include="E_Window.cpp" />
     <ClCompile Include="E_WindowSwitcher.cpp" />
     <ClCompile Include="E_WindowSwitcherTest.cpp" />

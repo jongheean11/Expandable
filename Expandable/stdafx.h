@@ -61,5 +61,10 @@
 #include <tlhelp32.h>
 #include <windows.h>
 
+#include <stdio.h>
+#include <stddef.h>
+#include <inttypes.h>
+#include <tchar.h> 
+#include <psapi.h> 
 //3rd party
 #include "changlib.h"

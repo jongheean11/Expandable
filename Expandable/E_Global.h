@@ -35,8 +35,6 @@ public:
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
 	//
-	// 현재 데스크탑 저장
-	bool setSelectedDesktop();
 	// 현재 데스크탑 반환
 	E_Desktop* getSelectedDesktop();
 	// 주기적 업데이트를 위한 타이머
@@ -58,6 +56,7 @@ public:
 	void setExpandableRunningFlag();
 	bool getExpandableRunningFlag();
 	int getSelectedIndex();
+	//현재 선택된 인덱스를 바꾸면 선택된 데스크탑도 바뀐다.
 	void setSelectedIndex(int index);
 	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 	void init();
