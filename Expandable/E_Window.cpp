@@ -8,7 +8,7 @@ E_Window::E_Window(HWND window)
 	takeScreenshot();
 	SetMinimizeMaximizeAnimation(true);
 
-	int width = E_Util::getDefaultIconSize();
+	int width = E_Util::getSystemSmallIconSize();
 	HICON hicon = E_Util::getIconHandle(this->window);
 	HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
 	icon.Attach(bitmap);

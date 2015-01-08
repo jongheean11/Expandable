@@ -3,7 +3,7 @@
 
 void E_UtilTest::testGetDefaultIconSize()
 {
-	int width = E_Util::getDefaultIconSize();
+	int width = E_Util::getSystemSmallIconSize();
 	TRACE_WIN32A("[E_UtilTest::testGetDefaultIconSize()] width: %d", width);
 }
 //카카오톡 실행 필요
@@ -20,7 +20,7 @@ void E_UtilTest::testConvertIconToBitmape()
 {
 	HICON icon = E_Util::getIconHandle(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
 	if (icon){
-		int width= E_Util::getDefaultIconSize();
+		int width = E_Util::getSystemSmallIconSize();
 		HBITMAP handle = E_Util::ConvertIconToBitmap(icon, width, width);
 		
 		CWnd* cwnd = E_Global::getSingleton()->getKakaoWindow();

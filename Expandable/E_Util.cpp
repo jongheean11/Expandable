@@ -20,9 +20,15 @@ HICON E_Util::getIconHandle(HWND hwnd) {
 }
 
 // =======================================
-int E_Util::getDefaultIconSize()
+int E_Util::getSystemLargeIconSize()
 {
 	int width = GetSystemMetrics(SM_CXICONSPACING);
+	return width;
+}
+
+int E_Util::getSystemSmallIconSize()
+{
+	int width = 2* GetSystemMetrics(SM_CXSMICON);
 	return width;
 }
 
