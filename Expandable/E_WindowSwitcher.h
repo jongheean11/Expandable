@@ -47,5 +47,6 @@ public:
 	HTHUMBNAIL temp2;
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
+	void E_WindowSwitcher::drawIcon();
 };
 

@@ -83,14 +83,13 @@ HRESULT E_AeroPeekController::moveAero(__in HTHUMBNAIL hThumbnail, RECT rect)
 	if (existHandle(hThumbnail)) {
 		// Set the thumbnail properties for use
 		DWM_THUMBNAIL_PROPERTIES dskThumbProps;
-		dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
+		dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY ;
 
 		// Use the window frame and client area
 		dskThumbProps.fSourceClientAreaOnly = FALSE;
 		dskThumbProps.fVisible = TRUE;
 		dskThumbProps.opacity = (255 * 70) / 100;
 		dskThumbProps.rcDestination = rect;
-
 		// Display the thumbnail
 		HRESULT hr = DwmUpdateThumbnailProperties(hThumbnail, &dskThumbProps);
 	}

@@ -140,6 +140,9 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar == 'H'){
 		E_WindowTest::testTakeScreenshot();
 	}
+	if (nChar == 'T'){
+		E_WindowSwitcher::getSingleton()->drawIcon();
+	}
 	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
