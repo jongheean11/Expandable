@@ -9,6 +9,8 @@ private:
 	~E_EnvironmentManager();
 	long width;
 	long height;
+	long taskbarWidth;
+	long taskbarHeight;
 	bool aeroPeekMode;
 	bool dualMonitorMode;
 	bool runningMainProcess;
@@ -16,6 +18,8 @@ private:
 	E_GlobalUpdater* globalUpdater;
 public:
 	static const wchar_t* ExeFileName;
+	long getTaskbarWidth();
+	long getTaskbarHeight();
 	long getWidth();
 	long getHeight();
 	void setGlobalUpdater(E_GlobalUpdater* updater);

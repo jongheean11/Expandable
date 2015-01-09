@@ -10,7 +10,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
+#define WM_TRAY_NOTIFICATION WM_APP + 1
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+	ON_MESSAGE(WM_TRAY_NOTIFICATION, OnTrayNotification)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -44,6 +45,21 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	//tray 아이콘 생성
+	this->ShowWindow(SW_HIDE);
+	NOTIFYICONDATA nid;
+	ZeroMemory(&nid, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.uID = 0;
+	nid.hWnd = GetSafeHwnd();
+
+	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+	nid.hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	lstrcpy(nid.szTip, TEXT("Naw Menu"));
+	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
+	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+
+	//tray 아이콘 생성
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -114,7 +130,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 		return FALSE;
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
-
+	//cs.style &= ~WS_THICKFRAME; 
 	return TRUE;
 }
 
@@ -236,3 +252,46 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
+LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
+{
+	UINT uMouseMsg = (UINT)lParam;
+	POINT MousePos;
+	CMenu menu, *pPopup;
+	UINT id;
+	switch (uMouseMsg)
+	{
+	case WM_RBUTTONDOWN:
+		SetForegroundWindow();
+		GetCursorPos(&MousePos);
+
+		menu.LoadMenu(IDR_MAINFRAME);
+		pPopup = menu.GetSubMenu(0);
+		id = pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD, MousePos.x, MousePos.y, this);
+		switch (id)
+		{
+		case ID_APP_EXIT:
+			PostMessage(WM_QUIT);
+			break;
+		}
+		break;
+	case WM_LBUTTONDBLCLK:
+		DestroyTrayIcon();
+		ShowWindow(SW_SHOW);
+		break;
+	}
+	return 1;
+	
+}
+
+void CMainFrame::DestroyTrayIcon()
+{
+	NOTIFYICONDATA nid;
+	BOOL bRet;
+	ZeroMemory(&nid, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.uID = 0;
+	nid.hWnd = GetSafeHwnd();
+	bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
+
+	
+}

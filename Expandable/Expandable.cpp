@@ -181,13 +181,15 @@ BOOL CExpandableApp::InitInstance()
 	E_WindowSwitcherTest::testGetIconSize();
 	E_WindowSwitcherTest::testGetPaddingSize();
 	E_GlobalTest::testGetKakaoWindow();
-	E_GlobalTest::testGetAllWindows();
+	//E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
 	//E_WindowTest::testTakeScreenshot();
 	E_UtilTest::testGetDefaultIconSize();
 	E_UtilTest::testGetIconHandle();
 	//E_UtilTest::testConvertIconToBitmape();
 
+
+	
 	return TRUE;
 }
 

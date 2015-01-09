@@ -3,7 +3,6 @@
 //
 
 #pragma once
-
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -27,6 +26,7 @@ public:
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
+	void DestroyTrayIcon();
 #endif
 
 protected:  // 컨트롤 모음이 포함된 멤버입니다.
@@ -40,7 +40,8 @@ protected:
 	afx_msg void OnViewCustomize();
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
-	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI); 
+	afx_msg LRESULT OnTrayNotification(WPARAM, LPARAM);
 	DECLARE_MESSAGE_MAP()
 
 };
