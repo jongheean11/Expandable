@@ -4,8 +4,10 @@
 const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xdf);
+const COLORREF E_WindowSwitcher::aeroColorSelectedMouse = RGB(0x35, 0xb5, 0xee);
 const COLORREF E_WindowSwitcher::borderColor = RGB(0xdc, 0xdb, 0xdb);
 const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
+const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(0xcf, 0xdc, 0xdc);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
@@ -43,6 +45,7 @@ void E_WindowSwitcher::startSwitcher()
 	std::list<E_Window*> winlist = desktop->getWindowList();
 	for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 		hwnd = (*iter)->getWindow();
+		mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
 		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
 			//thumb_list.push_back(hthumbnail);
 			thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
@@ -59,7 +62,7 @@ void E_WindowSwitcher::startSwitcher()
 	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp));
 	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp2));*/
 
-	this->ShowWindow(SW_SHOWMAXIMIZED);
+	this->ShowWindow(SW_SHOW);
 }
 
 
@@ -82,6 +85,7 @@ void E_WindowSwitcher::terminateSwitcher()
 	//thumb_list.clear();
 	thumb_map.clear();
 	rect_map.clear();
+	mode_map.clear();
 }
 
 
@@ -99,7 +103,7 @@ END_MESSAGE_MAP()
 /*창을 새로 그리는 함수*/
 void E_WindowSwitcher::OnPaint()
 {
-	static int tempDesktopCount = 2;
+	
 
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
@@ -117,6 +121,31 @@ void E_WindowSwitcher::OnPaint()
 			static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
 			static long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
 			TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
+
+			// 더블 버퍼링을 위한 코드
+			//메모리 DC를 생성한다. (버퍼 메모리 할당)
+			CDC memDC;
+			//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
+			CBitmap bmp;
+			//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
+			memDC.CreateCompatibleDC(&dc);
+			//주어진 dc에 호환하는 비트맵을 생성한다.
+			bmp.CreateCompatibleBitmap(&dc, resWidth, resHeight);
+			//이제 memDC에 생성된 비트맵을 연결한다.
+			memDC.SelectObject(bmp);
+
+			CBrush brush;   // Must initialize!
+			brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+
+			RECT rect;
+			rect.left = 0;
+			rect.top = 0;
+			rect.right = resWidth;
+			rect.bottom = resHeight;
+			memDC.FillRect(&rect, &brush);
+
+			brush.DeleteObject();
+			
 			{
 				//첫번째 데스크탑 계산
 				long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
@@ -152,6 +181,9 @@ void E_WindowSwitcher::OnPaint()
 				WINDOWPLACEMENT windowState;
 
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
+					//mode_map.key
+					unordered_map<HWND, DRAWMODE>::iterator modeIter = mode_map.find((*iter)->getWindow());
+					DRAWMODE mode = modeIter->second;
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
 					cwnd->GetWindowPlacement(&windowState);
 					
@@ -163,39 +195,51 @@ void E_WindowSwitcher::OnPaint()
 					
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
-
+					
+					
+					//Aero 내부 사각형 브러쉬
 					CBrush brush1;   // Must initialize!
-					brush1.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
-					//Aero 내부 사각형
+					if (mode == DRAW_NORMAL)
+						brush1.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+					else if (mode == UPDATE_TAB)
+						brush1.CreateSolidBrush(E_WindowSwitcher::aeroColorSelected);   // Blue brush.
+					else if (mode == UPDATE_TOUCH)
+						brush1.CreateSolidBrush(E_WindowSwitcher::aeroColorSelectedMouse);   // Blue brush.
+						
 					CRect temprect;
 					temprect.top = aeroTopoffset;
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-					//dc.Rectangle(temprect);
-					dc.FillRect(&temprect, &brush1);
 
-					//경계선
+					//경계선 브러쉬
 					CPen pen;
-					pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
-					dc.SelectObject(pen);
-					::InflateRect(temprect, 1, 1);
-					dc.MoveTo(temprect.left, temprect.top);
-					dc.LineTo(temprect.right, temprect.top);
-					dc.MoveTo(temprect.right, temprect.top);
-					dc.LineTo(temprect.right, temprect.bottom);
-					dc.MoveTo(temprect.left, temprect.top);
-					dc.LineTo(temprect.left, temprect.bottom);
-					dc.MoveTo(temprect.left, temprect.bottom);
-					dc.LineTo(temprect.right, temprect.bottom);
-					pen.DeleteObject();
-					/*
-					CBrush brush;
-					brush.CreateStockObject(NULL_BRUSH);
-					dc.SelectObject(&brush);*/
-					
-					//dc.Rectangle(&temprect);
-					//brush.DeleteObject();
+					if (mode == DRAW_NORMAL)
+						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+					else if (mode == UPDATE_TAB)
+						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelected);
+					else if (mode == UPDATE_TOUCH)
+						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelectedMouse);
+
+					//배경 그리기
+					//dc.Rectangle(temprect);
+					memDC.FillRect(&temprect, &brush1);
+
+					//경계선 그리기
+
+					if (mode == UPDATE_TAB || mode == UPDATE_TOUCH) {
+						memDC.SelectObject(pen);
+						::InflateRect(temprect, 1, 1);
+						int padding = 2;
+						memDC.MoveTo(temprect.left + padding, temprect.top + padding);
+						memDC.LineTo(temprect.right - padding, temprect.top + padding);
+						memDC.MoveTo(temprect.right - padding, temprect.top + padding);
+						memDC.LineTo(temprect.right - padding, temprect.bottom - padding);
+						memDC.MoveTo(temprect.left + padding, temprect.top + padding);
+						memDC.LineTo(temprect.left + padding, temprect.bottom - padding);
+						memDC.MoveTo(temprect.left + padding, temprect.bottom - padding);
+						memDC.LineTo(temprect.right - padding, temprect.bottom - padding);
+					}
 
 					//aero 기준 오프셋
 					static long previewLeftoffset = paddingSize;	//실제 aero 크기
@@ -258,7 +302,6 @@ void E_WindowSwitcher::OnPaint()
 						, SWP_NOZORDER | SWP_SHOWWINDOW);
 					
 					//에어로 픽
-
 					RECT rect;
 					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
@@ -271,8 +314,11 @@ void E_WindowSwitcher::OnPaint()
 						CDC cdc;
 						cdc.CreateCompatibleDC(this->GetWindowDC());
 						cdc.SelectObject(screenshot->GetSafeHandle());
-						dc.SetStretchBltMode(COLORONCOLOR );
-						dc.StretchBlt(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, &cdc, 0, 0, bmpinfo.bmWidth, bmpinfo.bmHeight, SRCCOPY);
+						cdc.SetBkMode(1);
+						cdc.SetBkColor(E_WindowSwitcher::backgroundColor);
+						memDC.SetStretchBltMode(COLORONCOLOR);
+						memDC.StretchBlt(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, &cdc, 0, 0, bmpinfo.bmWidth, bmpinfo.bmHeight, SRCCOPY);
+						cdc.DeleteDC();
 					}
 					
 					//아이콘
@@ -283,175 +329,33 @@ void E_WindowSwitcher::OnPaint()
 						CDC cdc;
 						cdc.CreateCompatibleDC(this->GetWindowDC());
 						cdc.SelectObject((*iter)->getIcon());
-						dc.SetStretchBltMode(COLORONCOLOR);
-						dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						memDC.SetStretchBltMode(COLORONCOLOR);
+						memDC.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						cdc.DeleteDC();
 					}
-					
-					//DwmSetIconicLivePreviewBitmap(this->GetSafeHwnd(), *icon, 0, 0);
+
+
+					//업데이트 플래그
+					mode_map.find((*iter)->getWindow())->second = DRAW_NORMAL;
 
 					//위치 조정
 					widthCount = (count + 1) % 7; 
-
 					count++;
-
 					if (count >= 7)
 						heightCount = 1; //0 ~ 1 사이
-
 					//테스트 코드
 					if (count >= 14)
 						break;
+
+					//dc 해제
+
+					
+					brush1.DeleteObject();
+					pen.DeleteObject();
 				}
 
-				////첫번째 창
-				//{
-				//	CWnd* cwnd = CWnd::FromHandle((*winlist.rbegin())->getWindow());
-				//	static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
-				//	static long aeroTopoffset = paddingSize; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
-
-				//	//경계선
-				//	CRect temprect;
-				//	temprect.top = aeroTopoffset;
-				//	temprect.left = aeroLeftoffset;
-				//	temprect.bottom = temprect.top + aeroHeight;
-				//	temprect.right = temprect.left + aeroWidth;
-				//	dc.Rectangle(temprect);
-				//	
-				//	//aero 기준 오프셋
-				//	static long previewLeftoffset = paddingSize;	//실제 aero 크기
-				//	static long previewTopoffset = paddingSize;	//실제 aero 크기
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
-
-				//	CRect crect;
-
-				//	//하나의 프리뷰 박스 기준 축소된 윈도우 크기
-				//	long windowWidth = 0;
-				//	long windowHeight = 0;
-				//	long windowTopOffset = 0;
-				//	long windowLeftOffset = 0;
-
-				//	//E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
-				//	cwnd->GetWindowRect(crect);
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
-
-				//	double ratio = 0;
-				//	switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
-				//	case HORIZONTAL:
-				//		ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
-				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
-
-				//		//수평으로 길때
-				//		windowWidth = previewWidth;
-				//		windowHeight = (int)(windowWidth / ratio);
-				//		windowTopOffset = (previewHeight - windowHeight) / 2;
-				//		windowLeftOffset = 0;
-				//		break;
-				//		
-				//	case VERTICAL:
-				//		ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
-				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
-
-				//		//수직으로 길때
-				//		windowHeight = previewHeight;
-				//		windowWidth = (int)(windowHeight / ratio);
-				//		windowTopOffset = 0;
-				//		windowLeftOffset = (previewWidth - windowWidth) / 2;
-				//		break;
-
-				//	}
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d",ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
-				//	//위치 이동
-				//	this->SetWindowPos(NULL
-				//		, switcherLeft
-				//		, switcherTop
-				//		, switcherWidth, switcherHeight
-				//		, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-				//	//테스트 
-				//	RECT rect;
-				//	rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
-				//	rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
-				//	rect.right = rect.left + windowWidth;
-				//	rect.bottom = rect.top + windowHeight;
-
-				//	E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
-				//}
-				////두번째 창
-				//{
-				//	static long aeroLeftoffset = paddingSize; //윈도우 별로 위치가 달라짐!!!
-				//	static long aeroTopoffset = paddingSize + aeroHeight ; //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
-				//	
-				//	//경계선
-				//	CRect temprect;
-				//	temprect.top = aeroTopoffset;
-				//	temprect.left = aeroLeftoffset;
-				//	temprect.bottom = temprect.top + aeroHeight;
-				//	temprect.right = temprect.left + aeroWidth;
-				//	dc.Rectangle(temprect);
-
-				//	//aero 기준 오프셋
-				//	static long previewLeftoffset = paddingSize;	//실제 aero 크기
-				//	static long previewTopoffset = paddingSize;	//실제 aero 크기
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
-
-				//	CRect crect;
-
-				//	//하나의 프리뷰 박스 기준 축소된 윈도우 크기
-				//	long windowWidth = 0;
-				//	long windowHeight = 0;
-				//	long windowTopOffset = 0;
-				//	long windowLeftOffset = 0;
-
-				//	E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
-
-				//	double ratio = 0;
-				//	switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
-				//	case HORIZONTAL:
-				//		ratio = (double)(crect.right - crect.left) / (double)(crect.bottom - crect.top); //비율
-				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수평");
-
-				//		//수평으로 길때
-				//		windowWidth = previewWidth;
-				//		windowHeight = (int)(windowWidth / ratio);
-				//		windowTopOffset = (previewHeight - windowHeight) / 2;
-				//		windowLeftOffset = 0;
-				//		break;
-
-				//	case VERTICAL:
-				//		ratio = (double)(crect.bottom - crect.top) / (double)(crect.right - crect.left); //비율
-				//		//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 수직");
-
-				//		//수직으로 길때
-				//		windowHeight = previewHeight;
-				//		windowWidth = (int)(windowHeight / ratio);
-				//		windowTopOffset = 0;
-				//		windowLeftOffset = (previewWidth - windowWidth) / 2;
-				//		break;
-
-				//	}
-
-				//	TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d", ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
-				//	//위치 이동
-				//	this->SetWindowPos(NULL
-				//		, switcherLeft
-				//		, switcherTop
-				//		, switcherWidth, switcherHeight
-				//		, SWP_NOZORDER | SWP_SHOWWINDOW);
-
-				//	//테스트 
-				//	RECT rect;
-				//	rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
-				//	rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
-				//	rect.right = rect.left + windowWidth;
-				//	rect.bottom = rect.top + windowHeight;
-
-				//	E_AeroPeekController::getSingleton()->moveAero(this->temp2, rect);
-				//}
+				//버퍼에 있는 내용 한번에 그리기
+				dc.StretchBlt(0, 0, resWidth, resHeight, &memDC, 0, 0, resWidth, resHeight, SRCCOPY);
 			}
 		}
 	}
@@ -619,8 +523,9 @@ void E_WindowSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
 		RECT rect = itr->second;
 		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
-			
+			mode_map.find(itr->first)->second = UPDATE_TOUCH;
 		}
 	}
+	Invalidate(0);
 	CWnd::OnMouseMove(nFlags, point);
 }
