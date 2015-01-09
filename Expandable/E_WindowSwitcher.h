@@ -16,6 +16,7 @@ private:
 	bool running;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
+	unordered_map<HWND, RECT> rect_map;	//	rect
 	
 public:
 	static const wchar_t* caption;
@@ -48,5 +49,7 @@ public:
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
 	void E_WindowSwitcher::drawIcon();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 };
 

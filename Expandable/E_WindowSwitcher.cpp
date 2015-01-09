@@ -29,7 +29,7 @@ void E_WindowSwitcher::startSwitcher()
 	running = true;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
-	RECT r={ 0, 0, 10, 10};
+	RECT r={ 0, 0, 0, 0};
 
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
@@ -44,6 +44,9 @@ void E_WindowSwitcher::startSwitcher()
 		}
 	}
 	
+	//CDC* cdc = this->GetDC();
+	//cdc->SetBkMode(TRANSPARENT);
+	//cdc->SetBkColor(RGB(0x0, 0x0, 0x0));
 	//test code
 	/*aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
@@ -73,6 +76,7 @@ void E_WindowSwitcher::terminateSwitcher()
 	}
 	//thumb_list.clear();
 	thumb_map.clear();
+	rect_map.clear();
 }
 
 
@@ -82,6 +86,8 @@ void E_WindowSwitcher::setZOrderTop()
 }
 BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_PAINT()
+	ON_WM_CTLCOLOR()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 /*창을 새로 그리는 함수*/
@@ -228,7 +234,7 @@ void E_WindowSwitcher::OnPaint()
 					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
 					rect.right = rect.left + windowWidth;
 					rect.bottom = rect.top + windowHeight;
-					
+					rect_map.insert(unordered_map<HWND, RECT>::value_type(cwnd->GetSafeHwnd(), temprect));
 					if (isAero) {
 						E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
 					} else{
@@ -242,14 +248,14 @@ void E_WindowSwitcher::OnPaint()
 					//아이콘
 					CBitmap* icon = (*iter)->getIcon();
 					BITMAP icon_info;
-					icon->GetBitmap(&icon_info);
-					CDC cdc;
-					cdc.CreateCompatibleDC(this->GetWindowDC());
-					cdc.SelectObject((*iter)->getIcon());
-					dc.SetStretchBltMode(COLORONCOLOR);
-					dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-					
-					POINT point;
+					if (icon->m_hObject != NULL){
+						icon->GetBitmap(&icon_info);
+						CDC cdc;
+						cdc.CreateCompatibleDC(this->GetWindowDC());
+						cdc.SelectObject((*iter)->getIcon());
+						dc.SetStretchBltMode(COLORONCOLOR);
+						dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					}
 					
 					//DwmSetIconicLivePreviewBitmap(this->GetSafeHwnd(), *icon, 0, 0);
 
@@ -539,4 +545,32 @@ SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_h
 		shape = VERTICAL;
 	}
 	return shape;
+}
+
+
+HBRUSH E_WindowSwitcher::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
+	return hbr;
+}
+
+
+void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
+	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
+		RECT rect = itr->second;
+		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
+			if (IsWindow(itr->first)){
+				TRACE_WIN32A("HANDLE: %d", itr->first);
+				//HWND hwnd = ::SetFocus(itr->first);
+				::ShowWindow(itr->first, SW_RESTORE);
+				::BringWindowToTop(itr->first);
+				terminateSwitcher();
+				break;
+			}
+		}
+	}
+
+	CWnd::OnLButtonDown(nFlags, point);
 }
