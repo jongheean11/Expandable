@@ -11,8 +11,10 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
 {
 	int desktopCount;
 	
+	desktopwidth = 2;
+	desktopheight = 2;
 	//설정 파일을 읽어온 후
-	desktopCount = 4;
+	desktopCount = desktopwidth*desktopheight;
 	
 	//데스크탑 생성
 	for (int i = 0; i < desktopCount; i++)
@@ -224,7 +226,7 @@ bool E_Global::delDesktop()
 // 데스크탑 개수 반환
 int E_Global::getDesktopCount()
 {
-	return windowList.size();
+	return desktopList.size();
 }
 
 
