@@ -3,6 +3,7 @@
 
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
+const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
 
 E_WindowSwitcher::E_WindowSwitcher() : running(false)
 {
@@ -37,18 +38,18 @@ void E_WindowSwitcher::startSwitcher()
 	std::list<E_Window*> winlist = desktop->getWindowList();
 	for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 		hwnd = (*iter)->getWindow();
-		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))) {
+		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
 			//thumb_list.push_back(hthumbnail);
 			thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 		}
 	}
-
+	
 	//test code
-	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
+	/*aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
 
 	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp));
-	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp2));
+	thumb_map.insert(unordered_map< HWND, HTHUMBNAIL>::value_type(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), temp2));*/
 
 	this->ShowWindow(SW_SHOWMAXIMIZED);
 }
@@ -88,7 +89,6 @@ void E_WindowSwitcher::OnPaint()
 {
 	static int tempDesktopCount = 2;
 
-
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
@@ -113,7 +113,9 @@ void E_WindowSwitcher::OnPaint()
 				long maxWidthCount = 1;
 				long maxHeightCount = 1;
 
-				int windowSize = thumb_map.size();
+				list<E_Window*> winlist = E_Global::getSingleton()->getSelectedDesktop()->getWindowList();
+
+				int windowSize = winlist.size();
 				if (windowSize >= 7)
 					maxWidthCount = 7;
 				else
@@ -131,7 +133,6 @@ void E_WindowSwitcher::OnPaint()
 
 				TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
 
-				list<E_Window*> winlist = E_Global::getSingleton()->getSelectedDesktop()->getWindowList();
 				
 				int count = 0;
 				int widthCount = 0;//0~6 까지 반복
@@ -146,6 +147,7 @@ void E_WindowSwitcher::OnPaint()
 					//
 					CString windowName;
 					cwnd->GetWindowTextW(windowName);
+					
 					TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
 					
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
@@ -165,7 +167,7 @@ void E_WindowSwitcher::OnPaint()
 
 					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
 
-					CRect crect;
+					CRect crect = { 0, 0, 0,0 };
 
 					//하나의 프리뷰 박스 기준 축소된 윈도우 크기
 					long windowWidth = 0;
@@ -173,9 +175,16 @@ void E_WindowSwitcher::OnPaint()
 					long windowTopOffset = 0;
 					long windowLeftOffset = 0;
 
-					//E_Global::getSingleton()->getKakaoWindow()->GetWindowRect(crect);
-					cwnd->GetWindowRect(crect);
-
+					CBitmap* screenshot;
+					BITMAP bmpinfo;             //비트맵은 높이와 크기가 달라서
+					bool isAero = (*iter)->isAeroPossible();
+					if (isAero)
+						cwnd->GetWindowRect(crect);
+					else{
+						screenshot = (*iter)->getScreenshot();
+						screenshot->GetBitmap(&bmpinfo);
+						crect.SetRect(0,0, bmpinfo.bmWidth, bmpinfo.bmHeight);
+					}
 					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
 
 					double ratio = 0;
@@ -211,23 +220,46 @@ void E_WindowSwitcher::OnPaint()
 						, switcherTop
 						, switcherWidth, switcherHeight
 						, SWP_NOZORDER | SWP_SHOWWINDOW);
+					
+					//에어로 픽
 
 					RECT rect;
 					rect.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
 					rect.right = rect.left + windowWidth;
 					rect.bottom = rect.top + windowHeight;
-
-					if (windowState.showCmd != SW_SHOWMINIMIZED) {
+					
+					if (isAero) {
 						E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
+					} else{
+						CDC cdc;
+						cdc.CreateCompatibleDC(this->GetWindowDC());
+						cdc.SelectObject(screenshot->GetSafeHandle());
+						dc.SetStretchBltMode(COLORONCOLOR );
+						dc.StretchBlt(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, &cdc, 0, 0, bmpinfo.bmWidth, bmpinfo.bmHeight, SRCCOPY);
 					}
+					
+					//아이콘
+					CBitmap* icon = (*iter)->getIcon();
+					BITMAP icon_info;
+					icon->GetBitmap(&icon_info);
+					CDC cdc;
+					cdc.CreateCompatibleDC(this->GetWindowDC());
+					cdc.SelectObject((*iter)->getIcon());
+					dc.SetStretchBltMode(COLORONCOLOR);
+					dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					
+					POINT point;
+					
+					//DwmSetIconicLivePreviewBitmap(this->GetSafeHwnd(), *icon, 0, 0);
 
 					//위치 조정
 					widthCount = (count + 1) % 7; 
-					if (count >= 7)
-						heightCount = 1; //0 ~ 1 사이
 
 					count++;
+
+					if (count >= 7)
+						heightCount = 1; //0 ~ 1 사이
 
 					//테스트 코드
 					if (count >= 14)
@@ -390,12 +422,27 @@ void E_WindowSwitcher::OnPaint()
 	else {
 		//icon size...
 	}
-
 	//항목의 개수에 따라 크기를 조절하여 가운데 정렬할 것
 	OutputDebugStringA("OnPaint()");
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 
+/*
+test code*/
+void E_WindowSwitcher::drawIcon(){
+
+	CPaintDC dc(this); // device context for painting
+	E_Window * temp = new E_Window(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
+	
+	CBitmap* icon = temp->getIcon();
+	BITMAP icon_info;
+	icon->GetBitmap(&icon_info);
+	CDC cdc;
+	cdc.CreateCompatibleDC(this->GetWindowDC());
+	cdc.SelectObject(icon);
+	dc.SetStretchBltMode(COLORONCOLOR);
+	dc.StretchBlt(0,0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+}
 
 // 현재 Switcher가 동작중인가?
 bool E_WindowSwitcher::isRunning()

@@ -20,7 +20,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
 	
 	//초기 데스크탑 
 	selectedDesktop = *(desktopList.begin());
-	selectedIndex = 1;
+	selectedIndex = 0;
 
 	//윈도우 리스트 초기화 // 생성자 안이라 초기화 불가능
 	//
@@ -135,23 +135,18 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 
 	if (IsWindowVisible(hwnd) )
 	{
-	
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
 		// 바탕화면, 태스트바, 시작버튼 제거, expandable 테스트 윈도우 제거
-		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) && hwnd != myhwnd)
-			global->windowList.push_front(hwnd);
+		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) && hwnd != myhwnd){
+			HWND handle = GetParent(hwnd);
+			if (handle == NULL)	//최상위가 윈도우만 포함
+				global->windowList.push_front(hwnd);
+		}
 	}
-
+	
 	return TRUE;
 }
-
-// 현재 데스크탑 저장
-bool E_Global::setSelectedDesktop()
-{
-	return false;
-}
-
 
 // 현재 데스크탑 반환
 E_Desktop* E_Global::getSelectedDesktop()
@@ -238,6 +233,10 @@ int E_Global::getSelectedIndex()
 void E_Global::setSelectedIndex(int index)
 {
 	this->selectedIndex = index;
+	list<E_Desktop*>::iterator iter = desktopList.begin();
+	for (int i = 0; i < selectedIndex; i++)
+		iter++;
+	selectedDesktop = *iter;
 }
 
 
