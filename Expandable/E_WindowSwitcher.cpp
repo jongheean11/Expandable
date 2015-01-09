@@ -51,7 +51,7 @@ void E_WindowSwitcher::startSwitcher()
 	
 	//CDC* cdc = this->GetDC();
 	//cdc->SetBkMode(TRANSPARENT);
-	//cdc->SetBkColor(RGB(0x0, 0x0, 0x0));
+	//cdc->SetBkColor(RGB(0x0, 0x0, 0x0 ));
 	//test code
 	/*aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
@@ -276,7 +276,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 					
 					//¾ÆÀÌÄÜ
-					CBitmap* icon = (*iter)->getIcon();
+					CBitmap* icon                                                                                                                                                                                                                               = (*iter)->getIcon();
 					BITMAP icon_info;
 					if (icon->m_hObject != NULL){
 						icon->GetBitmap(&icon_info);

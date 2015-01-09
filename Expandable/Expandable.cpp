@@ -159,7 +159,10 @@ BOOL CExpandableApp::InitInstance()
 
 	cwnd_windowSwicher->ShowWindow(SW_HIDE);
 	cwnd_windowSwicher->UpdateWindow();
+	//Map 초기화
+	
 
+	//
 	//Environment Manager 초기화
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
 	((E_EnvironmentManager*)cwnd_env)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
