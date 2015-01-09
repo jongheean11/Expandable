@@ -186,6 +186,8 @@ BOOL CExpandableApp::InitInstance()
 	E_UtilTest::testGetIconHandle();
 	//E_UtilTest::testConvertIconToBitmape();
 
+
+	
 	return TRUE;
 }
 

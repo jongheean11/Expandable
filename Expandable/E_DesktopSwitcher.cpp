@@ -119,7 +119,7 @@ void drawDesktopSwitcher()
 		if (i == _max-3)
 			break;
 	}
-
+	
 	//Selected Desktop 부분
 	background_bottom = 1080 - 0.15 * (1080 - (2 * initial_padding_height + switch_height));
 	background_top = (2 * initial_padding_height + switch_height) + 0.05 * (1080 - (2 * initial_padding_height + switch_height));
@@ -216,11 +216,11 @@ void E_DesktopSwitcher::startSwitcher()
 	if (!ison)
 	{	
 		Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234); // nid 뭔지 꼭 찾기.
+		drawDesktopSwitcher();
 		UpdateWindow();
 		E_Window::setIconInvisible(this->m_hWnd);
 		ison = true;
 		
-		drawDesktopSwitcher();
 		ShowWindow(SW_SHOWMAXIMIZED);
 	}
 	else
@@ -237,7 +237,7 @@ void E_DesktopSwitcher::terminateSwitcher()
 		e_aeropeekcontroller->unregisterAero(*itr);
 	}
 	window_hthumbnail_list.clear();
-
+	
 	E_Window::setIconVisible(this->m_hWnd);
 	DestroyWindow();
 	ison = false;
@@ -258,7 +258,7 @@ void E_DesktopSwitcher::updateComponent(E_Desktop* targetDesktop, E_Window* targ
 
 }
 */
-
+	
 
 BEGIN_MESSAGE_MAP(E_DesktopSwitcher, CWnd)
 ON_WM_LBUTTONDOWN()
@@ -279,48 +279,48 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	/*desktop_i = 0;
-	for (std::list<RECT*>::iterator itr_desktop_area = desktop_area_list_rect.begin(); itr_desktop_area != desktop_area_list_rect.end(); itr_desktop_area++)
-	{
-		if (((CRect)(*itr_desktop_area)).PtInRect(point))
+		for (std::list<RECT*>::iterator itr_desktop_area = desktop_area_list_rect.begin(); itr_desktop_area != desktop_area_list_rect.end(); itr_desktop_area++)
 		{
-			window_selected = true;
-			window_leftdown_point = point;
-			window_RECT = *itr_desktop_area;
-			OutputDebugStringA("desktop\n");
-			
-			int i = 0;
-			for (std::list<HTHUMBNAIL>::iterator itr_desktop_thumbnail = handle_list.begin(); itr_desktop_thumbnail != handle_list.end(); itr_desktop_thumbnail++)
+			if (((CRect)(*itr_desktop_area)).PtInRect(point))
 			{
-				if (i != desktop_i)
-					i++;
-				else
+				window_selected = true;
+				window_leftdown_point = point;
+				window_RECT = *itr_desktop_area;
+				OutputDebugStringA("desktop\n");
+
+				int i = 0;
+				for (std::list<HTHUMBNAIL>::iterator itr_desktop_thumbnail = handle_list.begin(); itr_desktop_thumbnail != handle_list.end(); itr_desktop_thumbnail++)
 				{
-					window_hthumbnail = *itr_desktop_thumbnail;
-					return;
+					if (i != desktop_i)
+						i++;
+					else
+					{
+						window_hthumbnail = *itr_desktop_thumbnail;
+						return;
+					}
 				}
 			}
-		}
-		desktop_i++;
+			desktop_i++;
 	}*/
 
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	
 	//initialize swappoint_h
 	swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
-
+	
 	if (!window_selected)
 	{
-		// window 공간들 iterating
-		int window_i = 0;
-		for (std::list<RECT*>::iterator itr_window_area = window_area_list_rect.begin(); itr_window_area != window_area_list_rect.end(); itr_window_area++)
-		{
-			double areasize = ((*itr_window_area)->right - (*itr_window_area)->left)*((*itr_window_area)->bottom - (*itr_window_area)->top);
+	// window 공간들 iterating
+	int window_i = 0;
+	for (std::list<RECT*>::iterator itr_window_area = window_area_list_rect.begin(); itr_window_area != window_area_list_rect.end(); itr_window_area++)
+	{
+		double areasize = ((*itr_window_area)->right - (*itr_window_area)->left)*((*itr_window_area)->bottom - (*itr_window_area)->top);
 			if ((((CRect)(*itr_window_area)).PtInRect(point)) && !(areasize == this->getMainDesktopSize()))
-			{
+		{
 				window_selected = true;
 				window_leftdown_point = point;
 				
-				OutputDebugStringA("window\n");
+			OutputDebugStringA("window\n");
 			
 				std::list<HTHUMBNAIL>::iterator itr_window_thumbnail = window_hthumbnail_list.begin();
 				std::list<HWND>::iterator itr_window_hwnd = window_area_list_hwnd.begin();
@@ -331,16 +331,16 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						window_hthumbnail = *itr_window_thumbnail;
 						window_RECT = *itr_window_area;
 						window_RECT_copy = new RECT(*window_RECT);
-						return;
-					}
+			return;
+		}
 					itr_window_thumbnail++;
 					itr_window_hwnd++;
 				}
 			}
-			window_i++;
-		}
+		window_i++;
 	}
-
+	}
+	
 	CWnd::OnLButtonDown(nFlags, point);
 }
 
@@ -352,7 +352,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		winThumbProps.rcDestination = *window_RECT;
 		DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-		window_selected = false;
+	window_selected = false;
 	}
 	
 	CWnd::OnLButtonUp(nFlags, point);
@@ -388,7 +388,7 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 				height = (*window_RECT_copy).bottom - (*window_RECT_copy).top;
 			//*window_Rect_copy
 		}
-			
+
 		return;
 	}
 

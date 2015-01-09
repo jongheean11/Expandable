@@ -249,6 +249,10 @@ void E_WindowSwitcher::OnPaint()
 					dc.SetStretchBltMode(COLORONCOLOR);
 					dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					
+					POINT point;
+					
+					//DwmSetIconicLivePreviewBitmap(this->GetSafeHwnd(), *icon, 0, 0);
+
 					//위치 조정
 					widthCount = (count + 1) % 7; 
 
@@ -418,12 +422,27 @@ void E_WindowSwitcher::OnPaint()
 	else {
 		//icon size...
 	}
-
 	//항목의 개수에 따라 크기를 조절하여 가운데 정렬할 것
 	OutputDebugStringA("OnPaint()");
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 
+/*
+test code*/
+void E_WindowSwitcher::drawIcon(){
+
+	CPaintDC dc(this); // device context for painting
+	E_Window * temp = new E_Window(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
+	
+	CBitmap* icon = temp->getIcon();
+	BITMAP icon_info;
+	icon->GetBitmap(&icon_info);
+	CDC cdc;
+	cdc.CreateCompatibleDC(this->GetWindowDC());
+	cdc.SelectObject(icon);
+	dc.SetStretchBltMode(COLORONCOLOR);
+	dc.StretchBlt(0,0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+}
 
 // 현재 Switcher가 동작중인가?
 bool E_WindowSwitcher::isRunning()
