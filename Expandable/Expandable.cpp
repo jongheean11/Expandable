@@ -149,13 +149,12 @@ BOOL CExpandableApp::InitInstance()
 	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
 
 	CBrush brush_window;
-	UINT nClassStyle_window = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(RGB(0x37, 0xb6, 0xeb)), 0);
-
+	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 	cwnd_windowSwicher->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 0);
 	
 	CDC* pDC = cwnd_windowSwicher->GetDC();
-	//pDC->SetBkColor(RGB(0x0, 0x0, 0x0));
+	pDC->SetBkColor(RGB(0x0, 0x0, 0x0));
 	pDC->SetBkMode(TRANSPARENT);
 
 	cwnd_windowSwicher->ShowWindow(SW_HIDE);

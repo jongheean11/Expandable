@@ -19,6 +19,13 @@ private:
 	unordered_map<HWND, RECT> rect_map;	//	rect
 	
 public:
+	const static COLORREF backgroundColor;
+	const static COLORREF aeroColor;
+	const static COLORREF aeroColorSelected;
+	const static COLORREF borderColor;
+	const static COLORREF borderColorSelected;
+	
+
 	static const wchar_t* caption;
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴
@@ -51,5 +58,6 @@ public:
 	void E_WindowSwitcher::drawIcon();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 

@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "E_WindowSwitcher.h"
 
+const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
+const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
+const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xdf);
+const COLORREF E_WindowSwitcher::borderColor = RGB(0xdc, 0xdb, 0xdb);
+const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
@@ -88,6 +93,7 @@ BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_PAINT()
 	ON_WM_CTLCOLOR()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 /*창을 새로 그리는 함수*/
@@ -149,7 +155,6 @@ void E_WindowSwitcher::OnPaint()
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
 					cwnd->GetWindowPlacement(&windowState);
 					
-
 					//
 					CString windowName;
 					cwnd->GetWindowTextW(windowName);
@@ -159,13 +164,38 @@ void E_WindowSwitcher::OnPaint()
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 
-					//경계선
+					CBrush brush1;   // Must initialize!
+					brush1.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+					//Aero 내부 사각형
 					CRect temprect;
 					temprect.top = aeroTopoffset;
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-					dc.Rectangle(temprect);
+					//dc.Rectangle(temprect);
+					dc.FillRect(&temprect, &brush1);
+
+					//경계선
+					CPen pen;
+					pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+					dc.SelectObject(pen);
+					::InflateRect(temprect, 1, 1);
+					dc.MoveTo(temprect.left, temprect.top);
+					dc.LineTo(temprect.right, temprect.top);
+					dc.MoveTo(temprect.right, temprect.top);
+					dc.LineTo(temprect.right, temprect.bottom);
+					dc.MoveTo(temprect.left, temprect.top);
+					dc.LineTo(temprect.left, temprect.bottom);
+					dc.MoveTo(temprect.left, temprect.bottom);
+					dc.LineTo(temprect.right, temprect.bottom);
+					pen.DeleteObject();
+					/*
+					CBrush brush;
+					brush.CreateStockObject(NULL_BRUSH);
+					dc.SelectObject(&brush);*/
+					
+					//dc.Rectangle(&temprect);
+					//brush.DeleteObject();
 
 					//aero 기준 오프셋
 					static long previewLeftoffset = paddingSize;	//실제 aero 크기
@@ -562,9 +592,16 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		RECT rect = itr->second;
 		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
 			if (IsWindow(itr->first)){
-				TRACE_WIN32A("HANDLE: %d", itr->first);
 				//HWND hwnd = ::SetFocus(itr->first);
-				::ShowWindow(itr->first, SW_RESTORE);
+				WINDOWPLACEMENT windowState;
+
+				char title[255] = { 0, }; 
+				::GetWindowTextA(itr->first, title, 255);
+				::GetWindowPlacement(itr->first, &windowState);
+				TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+				
+				if (windowState.showCmd != SW_MAXIMIZE )
+					::ShowWindow(itr->first, SW_RESTORE);
 				::BringWindowToTop(itr->first);
 				terminateSwitcher();
 				break;
@@ -573,4 +610,17 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void E_WindowSwitcher::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
+		RECT rect = itr->second;
+		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
+			
+		}
+	}
+	CWnd::OnMouseMove(nFlags, point);
 }
