@@ -119,9 +119,7 @@ CWnd* E_Global::getKakaoWindow()
 list<HWND> E_Global::getAllWindows()
 {
 	E_Global* object = E_Global::getSingleton();
-
 	EnumWindows(E_Global::EnumCallBack, 0);
-
 	return object->windowList;
 }
 

@@ -8,6 +8,15 @@ E_EnvironmentManager::E_EnvironmentManager()
 {
 	this->width = GetSystemMetrics(SM_CXSCREEN);
 	this->height = GetSystemMetrics(SM_CYSCREEN);
+	
+	HWND hWnd = ::FindWindow(TEXT("Shell_TrayWnd"),NULL);
+	if (hWnd != NULL)
+	{
+		CRect rect;
+		::GetWindowRect(hWnd, &rect);
+		this->taskbarWidth = rect.right - rect.left;
+		this->taskbarHeight = rect.bottom - rect.top;
+	}
 }
 
 long E_EnvironmentManager::getWidth(){
@@ -15,6 +24,12 @@ long E_EnvironmentManager::getWidth(){
 }
 long E_EnvironmentManager::getHeight(){
 	return height;
+}
+long E_EnvironmentManager::getTaskbarWidth(){
+	return taskbarWidth;
+}
+long E_EnvironmentManager::getTaskbarHeight(){
+	return taskbarHeight;
 }
 void E_EnvironmentManager::setGlobalUpdater(E_GlobalUpdater* updater){
 	this->globalUpdater = updater;

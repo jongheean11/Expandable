@@ -136,6 +136,9 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar == 'H'){
 		E_WindowTest::testTakeScreenshot();
 	}
+	if (nChar == 'K'){
+		E_DragAndDropSwitcher::getSingleton()->startSwitcher();
+	}
 	
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -152,7 +155,6 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		
 		e_map.drawMap();
-		e_map.startTimer();
 	}
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }

@@ -129,11 +129,11 @@ void E_DesktopSwitcher::startSwitcher()
 	if (!ison)
 	{	
 		Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234); // nid ¹ºÁö ²À Ã£±â.
+		drawDesktopSwitcher();
 		UpdateWindow();
 		E_Window::setIconInvisible(this->m_hWnd);
 		ison = true;
 		
-		drawDesktopSwitcher();
 		ShowWindow(SW_SHOWMAXIMIZED);
 	}
 	else

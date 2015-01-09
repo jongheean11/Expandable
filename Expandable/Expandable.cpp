@@ -182,6 +182,8 @@ BOOL CExpandableApp::InitInstance()
 	E_WindowSwitcherTest::testGetShape();
 	//E_WindowTest::testTakeScreenshot();
 
+
+	
 	return TRUE;
 }
 
