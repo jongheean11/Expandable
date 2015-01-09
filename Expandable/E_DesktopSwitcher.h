@@ -18,10 +18,11 @@ private:
 	// property for moving window
 	bool window_selected;
 	CPoint window_leftdown_point;
-	RECT *window_RECT;
+	RECT *window_RECT, *window_RECT_copy;
 	int desktop_i; // target window (desktop¿ª window∑Œ πŸ≤„æﬂµ )
 	HTHUMBNAIL window_hthumbnail;
 	DWM_THUMBNAIL_PROPERTIES winThumbProps;
+	double main_desktop_size;
 public:
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
@@ -44,11 +45,15 @@ public:
 	void terminateSwitcher();
 	void setZOrderTop();
 	void queryPositionAndProcess(int nx, int ny);
-	void switchDesktop(E_Desktop* selection);//
+	void switchDesktop(E_Desktop* selection);
+	double getMainDesktopSize();
+	void setMainDesktopSize(double size);
+	//
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //private:
-	std::list<HTHUMBNAIL> handle_list;
+	double swappoint_h;
+	std::list<HTHUMBNAIL> desktop_hthumbnail_list, window_hthumbnail_list;
 	std::list<RECT*> desktop_area_list_rect;
 	std::list<HWND> desktop_area_list_hwnd;
 	std::list<RECT*> window_area_list_rect;
