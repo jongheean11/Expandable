@@ -35,7 +35,6 @@ public:
 	static E_Global* getSingleton();
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
-	//
 	// 현재 데스크탑 반환
 	E_Desktop* getSelectedDesktop();
 	// 주기적 업데이트를 위한 타이머

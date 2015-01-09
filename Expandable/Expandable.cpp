@@ -149,13 +149,14 @@ BOOL CExpandableApp::InitInstance()
 	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
 
 	CBrush brush_window;
-	brush_window.CreateSolidBrush(RGB(255, 255, 255));
-	UINT nClassStyle_window = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_window.GetSafeHandle(), 0);
+	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
+	cwnd_windowSwicher->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 0);
+	
+	CDC* pDC = cwnd_windowSwicher->GetDC();
+	pDC->SetBkColor(RGB(0x0, 0x0, 0x0));
+	pDC->SetBkMode(TRANSPARENT);
 
-	cwnd_windowSwicher->Create(szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 1234);
-	//SetClassLong(cwnd_env->)
-	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_windowSwicher->ShowWindow(SW_HIDE);
 	cwnd_windowSwicher->UpdateWindow();
 
@@ -179,7 +180,7 @@ BOOL CExpandableApp::InitInstance()
 	E_WindowSwitcherTest::testGetIconSize();
 	E_WindowSwitcherTest::testGetPaddingSize();
 	E_GlobalTest::testGetKakaoWindow();
-	E_GlobalTest::testGetAllWindows();
+	//E_GlobalTest::testGetAllWindows();
 	E_WindowSwitcherTest::testGetShape();
 	//E_WindowTest::testTakeScreenshot();
 	E_UtilTest::testGetDefaultIconSize();

@@ -142,8 +142,23 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 		// 바탕화면, 태스트바, 시작버튼 제거, expandable 테스트 윈도우 제거
 		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) && hwnd != myhwnd){
 			HWND handle = GetParent(hwnd);
-			if (handle == NULL)	//최상위가 윈도우만 포함
+			if (handle == NULL)
+			{ //최상위 윈도우만 포함
+				// 정훈 수정. 중복되는 메모리 주소값 있을시 추가 안함 (CWND 및 HWND 중복 방지)
+				bool already_exist = false;
+				for (std::list<HWND>::iterator itr_inspect = global->windowList.begin(); itr_inspect != global->windowList.end(); itr_inspect++)
+				{
+					if (hwnd == *itr_inspect)
+					{
+						already_exist = true;
+					}
+				}
+
+				if (!already_exist)
+				{
 				global->windowList.push_front(hwnd);
+		}
+	}
 		}
 	}
 	

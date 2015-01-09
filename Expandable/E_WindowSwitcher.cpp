@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "E_WindowSwitcher.h"
 
+const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
+const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
+const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xdf);
+const COLORREF E_WindowSwitcher::borderColor = RGB(0xdc, 0xdb, 0xdb);
+const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
@@ -29,7 +34,7 @@ void E_WindowSwitcher::startSwitcher()
 	running = true;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
-	RECT r={ 0, 0, 10, 10};
+	RECT r={ 0, 0, 0, 0};
 
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
@@ -44,6 +49,9 @@ void E_WindowSwitcher::startSwitcher()
 		}
 	}
 	
+	//CDC* cdc = this->GetDC();
+	//cdc->SetBkMode(TRANSPARENT);
+	//cdc->SetBkColor(RGB(0x0, 0x0, 0x0));
 	//test code
 	/*aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp);
 	aeroManager->registerAero(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd(), this->GetSafeHwnd(), r, temp2);
@@ -73,6 +81,7 @@ void E_WindowSwitcher::terminateSwitcher()
 	}
 	//thumb_list.clear();
 	thumb_map.clear();
+	rect_map.clear();
 }
 
 
@@ -82,6 +91,9 @@ void E_WindowSwitcher::setZOrderTop()
 }
 BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_PAINT()
+	ON_WM_CTLCOLOR()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 /*창을 새로 그리는 함수*/
@@ -143,7 +155,6 @@ void E_WindowSwitcher::OnPaint()
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
 					cwnd->GetWindowPlacement(&windowState);
 					
-
 					//
 					CString windowName;
 					cwnd->GetWindowTextW(windowName);
@@ -153,13 +164,38 @@ void E_WindowSwitcher::OnPaint()
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 
-					//경계선
+					CBrush brush1;   // Must initialize!
+					brush1.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+					//Aero 내부 사각형
 					CRect temprect;
 					temprect.top = aeroTopoffset;
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-					dc.Rectangle(temprect);
+					//dc.Rectangle(temprect);
+					dc.FillRect(&temprect, &brush1);
+
+					//경계선
+					CPen pen;
+					pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+					dc.SelectObject(pen);
+					::InflateRect(temprect, 1, 1);
+					dc.MoveTo(temprect.left, temprect.top);
+					dc.LineTo(temprect.right, temprect.top);
+					dc.MoveTo(temprect.right, temprect.top);
+					dc.LineTo(temprect.right, temprect.bottom);
+					dc.MoveTo(temprect.left, temprect.top);
+					dc.LineTo(temprect.left, temprect.bottom);
+					dc.MoveTo(temprect.left, temprect.bottom);
+					dc.LineTo(temprect.right, temprect.bottom);
+					pen.DeleteObject();
+					/*
+					CBrush brush;
+					brush.CreateStockObject(NULL_BRUSH);
+					dc.SelectObject(&brush);*/
+					
+					//dc.Rectangle(&temprect);
+					//brush.DeleteObject();
 
 					//aero 기준 오프셋
 					static long previewLeftoffset = paddingSize;	//실제 aero 크기
@@ -228,7 +264,7 @@ void E_WindowSwitcher::OnPaint()
 					rect.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset;
 					rect.right = rect.left + windowWidth;
 					rect.bottom = rect.top + windowHeight;
-					
+					rect_map.insert(unordered_map<HWND, RECT>::value_type(cwnd->GetSafeHwnd(), temprect));
 					if (isAero) {
 						E_AeroPeekController::getSingleton()->moveAero((thumb_map.find(cwnd->GetSafeHwnd()))->second, rect);
 					} else{
@@ -242,14 +278,14 @@ void E_WindowSwitcher::OnPaint()
 					//아이콘
 					CBitmap* icon = (*iter)->getIcon();
 					BITMAP icon_info;
-					icon->GetBitmap(&icon_info);
-					CDC cdc;
-					cdc.CreateCompatibleDC(this->GetWindowDC());
-					cdc.SelectObject((*iter)->getIcon());
-					dc.SetStretchBltMode(COLORONCOLOR);
-					dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-					
-					POINT point;
+					if (icon->m_hObject != NULL){
+						icon->GetBitmap(&icon_info);
+						CDC cdc;
+						cdc.CreateCompatibleDC(this->GetWindowDC());
+						cdc.SelectObject((*iter)->getIcon());
+						dc.SetStretchBltMode(COLORONCOLOR);
+						dc.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					}
 					
 					//DwmSetIconicLivePreviewBitmap(this->GetSafeHwnd(), *icon, 0, 0);
 
@@ -539,4 +575,52 @@ SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_h
 		shape = VERTICAL;
 	}
 	return shape;
+}
+
+
+HBRUSH E_WindowSwitcher::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CWnd::OnCtlColor(pDC, pWnd, nCtlColor);
+	return hbr;
+}
+
+
+void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
+	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
+		RECT rect = itr->second;
+		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
+			if (IsWindow(itr->first)){
+				//HWND hwnd = ::SetFocus(itr->first);
+				WINDOWPLACEMENT windowState;
+
+				char title[255] = { 0, }; 
+				::GetWindowTextA(itr->first, title, 255);
+				::GetWindowPlacement(itr->first, &windowState);
+				TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+				
+				if (windowState.showCmd != SW_MAXIMIZE )
+					::ShowWindow(itr->first, SW_RESTORE);
+				::BringWindowToTop(itr->first);
+				terminateSwitcher();
+				break;
+			}
+		}
+	}
+
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void E_WindowSwitcher::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
+		RECT rect = itr->second;
+		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
+			
+		}
+	}
+	CWnd::OnMouseMove(nFlags, point);
 }
