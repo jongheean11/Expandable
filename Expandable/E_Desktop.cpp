@@ -1,15 +1,6 @@
 #include "stdafx.h"
 #include "E_Desktop.h"
 
-E_Desktop::E_Desktop(const E_Desktop &tmp)
-{
-	index = tmp.index;
-	//windowList = tmp.windowList;
-	//onWindowList = tmp.onWindowList;
-	pos = tmp.pos;
-	old = tmp.old;
-	current = tmp.current;
-}//
 
 E_Desktop::E_Desktop(int index){
 	this->index = index;
@@ -105,21 +96,25 @@ void E_Desktop::removeWindow(E_Window* targetWindow)
 	{
 		if ((*itr)->getWindow() == targetWindow->getWindow())
 		{
+			delete (*itr);
 			windowList.remove(*itr);
 			break;
 		}
 	}
-	/*
-	pos = windowList.GetHeadPosition();
-	while (pos != NULL)
-	{
-		old = pos;
-		current = &windowList.GetNext(pos);
-		if (current->getHWND() == targetWindow->getHWND())
-			windowList.RemoveAt(old);
-	}*/	
 }
 
+
+void E_Desktop::excludeWindow(E_Window* targetWindow)
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		if ((*itr)->getWindow() == targetWindow->getWindow())
+		{
+			windowList.remove(*itr);
+			break;
+		}
+	}
+}
 
 void E_Desktop::takeScreenshot()
 {
@@ -191,3 +186,15 @@ void E_Desktop::setAllHide()
 		(*itr)->setHide();
 	}
 }
+
+
+void E_Desktop::clearWindow()
+{
+	//∞¥√º «ÿ¡¶
+	for (list<E_Window*>::iterator iter = windowList.begin(); iter != windowList.end(); iter++) {
+		delete *iter;
+	}
+	windowList.clear();
+}
+
+

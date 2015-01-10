@@ -1,34 +1,37 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
+#include "E_IGlobal.h"
 
 /*
 객체 생성 후
 init()로 초기화 필요.
 */
 #pragma once
-class E_Global : E_GlobalUpdater
+class E_Global : E_GlobalUpdater, E_IGlobal
 {
 private:
 	int selectedIndex;	//데스크탑 인덱스는 1부터 시작
 	E_Desktop* selectedDesktop;
 	int updateMode;
 	list<HWND> windowList;
+	list<HWND> windowListForUpdate;	//업데이트시에 사용 업데이트 전 항상 초기화 필요
 	static E_Global* singleton;
 	int desktopwidth;
 	int desktopheight;
+	int desktopCount;
 	E_Global();
 	~E_Global();
-	
-public: 
+
+public:
 	static const wchar_t* testFrameName;
-	
+
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
-	
+
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
-	static list<HWND> getAllWindows(); 
+	static list<HWND> getAllWindows();
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
@@ -63,4 +66,22 @@ public:
 	void init();
 	int getDesktopWidth();
 	int getDesktopHeight();
+	// 데스크탑을 가져온다.
+	E_Desktop* getDesktop(int index);
+
+	void moveTopWindowLeft();
+	// 탑 윈도우를 오른쪽 데스크탑으로 전달
+	void moveTopWindowRight();
+	// 탑 윈도우를 아래로 데스크탑으로 전달
+	void moveTopWindowDown();
+	// 탑 윈도우를 위쪽 데스크탑으로 전달
+	void moveTopWindowUp();
+	// 왼쪽 데스크 탑으로 이동
+	void moveDesktopLeft();
+	// 오른쪽 데스크탑으로 이동
+	void moveDesktopRight();
+	// 위쪽 데스크탑으로 이동
+	void moveDesktopUp();
+	// 아래쪽 데스크탑으로 이동
+	void moveDesktopDown();
 };

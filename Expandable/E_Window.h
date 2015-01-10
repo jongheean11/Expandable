@@ -11,6 +11,7 @@ private:
 	CBitmap icon;
 	CBitmap screenshot;
 	
+	char windowName[255];
 	int zIndex;
 	int windowState;
 	int dockState;
@@ -43,4 +44,5 @@ public:
 	UINT getShowState();
 	// 에어로가 가능한지 아는 함수.
 	bool isAeroPossible();
+	char* getWindowName();
 };

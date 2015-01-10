@@ -15,6 +15,7 @@
 #include "E_GlobalUpdater.h"
 #include "E_Global.h"
 #include "E_WindowSwitcher.h"
+#include "E_Hotkey.h"
 
 #include "E_WindowSwitcherTest.h"
 #include "E_GlobalTest.h"
@@ -147,18 +148,6 @@ BOOL CExpandableApp::InitInstance()
 	
 	//Window Switcher 초기화
 	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
-
-	CBrush brush_window;
-	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
-	cwnd_windowSwicher->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 0);
-	
-	CDC* pDC = cwnd_windowSwicher->GetDC();
-	pDC->SetBkColor(RGB(0x0, 0x0, 0x0));
-	pDC->SetBkMode(TRANSPARENT);
-
-	cwnd_windowSwicher->ShowWindow(SW_HIDE);
-	cwnd_windowSwicher->UpdateWindow();
 	
 	//Environment Manager 초기화
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
@@ -174,7 +163,11 @@ BOOL CExpandableApp::InitInstance()
 	// nID : ID of the Window -> 고려안된점 : 해당 ID가 affordable한지 체크 안 되 있음.
 	cwnd_env->ShowWindow(SW_HIDE);
 	cwnd_env->UpdateWindow();
-	
+
+	//Hotkey 초기화
+	E_Hotkey* key = E_Hotkey::getSingleton();
+	key->init((E_IGlobal*)cwnd_global);
+
 	//Unit Test
 	E_WindowSwitcherTest::testGetAeroSize();
 	E_WindowSwitcherTest::testGetIconSize();
