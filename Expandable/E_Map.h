@@ -10,8 +10,12 @@ private:
 	E_Window* draggingWindow;
 	clock_t sTime, nTime;
 	CPoint iconClick;
-	bool iconMoveMode;
+	HWND selectIconHwnd;
+	RECT foreRect;
+	int iconMoveMode;
+	bool clicked;
 	bool ison;
+	bool redraw;
 	int transparent;
 public:
 	E_Map();
