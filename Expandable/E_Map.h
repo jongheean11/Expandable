@@ -1,9 +1,10 @@
 
 #include "E_EnvironmentManager.h"
 
-class E_Map : CWnd
+class E_Map : public CWnd
 {
 private:
+	static E_Map* singleton;
 	int visibleTime=3000;
 	CWnd* hwnd_cwnd_emap;
 	E_Window* draggingWindow;
@@ -13,6 +14,7 @@ private:
 public:
 	E_Map();
 	~E_Map();
+	static E_Map* getSingleton();
 	static volatile bool isThreadRunning ;
 	void drawMap();
 	void terminateMap();
@@ -23,4 +25,9 @@ public:
 	void stopTimer();
 	void setTransparent(int value);
 	UINT checkTime(LPVOID param);
+	
+	
+	DECLARE_MESSAGE_MAP()
+//	afx_msg void OnPaint();
+	afx_msg void OnPaint();
 };

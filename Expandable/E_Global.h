@@ -14,12 +14,13 @@ private:
 	int updateMode;
 	list<HWND> windowList;
 	static E_Global* singleton;
+	
 	E_Global();
 	~E_Global();
 	
-public:
+public: 
 	static const wchar_t* testFrameName;
-
+	int desktopwidth, desktopheight;
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;

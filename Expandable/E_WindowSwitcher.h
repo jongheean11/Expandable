@@ -3,8 +3,8 @@
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
 
-enum SHAPE{ VERTICAL, HORIZONTAL };
-
+enum SHAPE{VERTICAL, HORIZONTAL};
+enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
 class E_WindowSwitcher :
 	public CWnd
 {
@@ -16,8 +16,19 @@ private:
 	bool running;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
+	unordered_map<HWND, RECT> rect_map;	//	rect
+	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
 	
 public:
+	const static COLORREF backgroundColor;
+	const static COLORREF aeroColor;
+	const static COLORREF aeroColorSelected;
+	const static COLORREF aeroColorSelectedMouse;
+	const static COLORREF borderColor;
+	const static COLORREF borderColorSelected;
+	const static COLORREF borderColorSelectedMouse;
+	
+
 	static const wchar_t* caption;
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴
@@ -48,5 +59,8 @@ public:
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
 	void E_WindowSwitcher::drawIcon();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 
