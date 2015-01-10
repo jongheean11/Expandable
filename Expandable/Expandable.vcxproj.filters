@@ -111,6 +111,12 @@
     <ClInclude Include="memdc-redsusia.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="E_Hotkey.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_IGlobal.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -172,6 +178,12 @@
     </ClCompile>
     <ClCompile Include="E_UtilTest.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Hotkey.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_IGlobal.cpp">
+      <Filter>GlobalWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

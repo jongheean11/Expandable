@@ -15,6 +15,13 @@ const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
 E_WindowSwitcher::E_WindowSwitcher() : running(false)
 {
 	envManager = E_EnvironmentManager::getSingleton();
+
+	CBrush brush_window;
+	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
+	this->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 200, 400), CWnd::GetDesktopWindow(), 0);
+	this->ShowWindow(SW_HIDE);
+	this->UpdateWindow();
 }
 
 
@@ -42,16 +49,18 @@ void E_WindowSwitcher::startSwitcher()
 	HTHUMBNAIL hthumbnail = NULL;
 
 	E_Desktop* desktop = global->getSelectedDesktop();
-	std::list<E_Window*> winlist = desktop->getWindowList();
-	for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
-		hwnd = (*iter)->getWindow();
-		mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
-		if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
-			//thumb_list.push_back(hthumbnail);
-			thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
-		}
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
+				hwnd = (*iter)->getWindow();
+				mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
+				if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
+					//thumb_list.push_back(hthumbnail);
+					thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
+				}
+			}
 	}
-	
+
 	//CDC* cdc = this->GetDC();
 	//cdc->SetBkMode(TRANSPARENT);
 	//cdc->SetBkColor(RGB(0x0, 0x0, 0x0 ));
@@ -103,15 +112,13 @@ END_MESSAGE_MAP()
 /*창을 새로 그리는 함수*/
 void E_WindowSwitcher::OnPaint()
 {
-	
-
 	CPaintDC dc(this); // device context for painting
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
 	
 	TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
 	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
-
+		
 		//aero peek size...
 		//전체 데스크탑 공용 변수...
 		{
@@ -174,7 +181,7 @@ void E_WindowSwitcher::OnPaint()
 
 				TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
 
-				
+				//크기 계산을 위한 카운트 변수
 				int count = 0;
 				int widthCount = 0;//0~6 까지 반복
 				int heightCount = 0;
@@ -224,7 +231,7 @@ void E_WindowSwitcher::OnPaint()
 					//배경 그리기
 					//dc.Rectangle(temprect);
 					memDC.FillRect(&temprect, &brush1);
-
+					
 					//경계선 그리기
 
 					if (mode == UPDATE_TAB || mode == UPDATE_TOUCH) {

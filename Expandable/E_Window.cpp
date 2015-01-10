@@ -4,18 +4,36 @@
 E_Window::E_Window(HWND window)
 {
 	this->window = window;
+	//스크린샷
 	SetMinimizeMaximizeAnimation(false);
 	takeScreenshot();
 	SetMinimizeMaximizeAnimation(true);
-
+	
+	//아이콘
 	int width = E_Util::getSystemSmallIconSize();
 	HICON hicon = E_Util::getIconHandle(this->window);
 	HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
 	icon.Attach(bitmap);
+
+	//윈도우 이름
+	GetWindowTextA(window, windowName, 255);
 }
 
 E_Window::~E_Window()
 {
+	//스크린샷/ 아이콘 자원 해제
+	if (icon.DeleteObject()){
+		TRACE_WIN32A("[Window::~E_Window()] icon 소멸");
+	}
+	else{
+		TRACE_WIN32A("[Window::~E_Window()] icon 소멸실패");
+	}
+	if (screenshot.DeleteObject()){
+		TRACE_WIN32A("[Window::~E_Window()] screenshot 소멸");
+	}
+	else{
+		TRACE_WIN32A("[Window::~E_Window()] screenshot 소멸실패");
+	}
 }
 
 bool E_Window::operator==(const E_Window &tmp)
@@ -261,4 +279,10 @@ bool E_Window::isAeroPossible()
 	}
 
 	return true;
+}
+
+
+char* E_Window::getWindowName()
+{
+	return windowName;
 }

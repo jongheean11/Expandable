@@ -27,9 +27,8 @@ public:
 	const static COLORREF borderColor;
 	const static COLORREF borderColorSelected;
 	const static COLORREF borderColorSelectedMouse;
-	
-
 	static const wchar_t* caption;
+
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴
 	void startSwitcher();
