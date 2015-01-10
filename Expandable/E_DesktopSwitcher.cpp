@@ -5,6 +5,7 @@
 #include <WinUser.h>
 #include <sstream>
 #include <string>
+#include "E_WindowSwitcher.h"
 
 HRESULT UpdateDesktop_Background(HWND hwnd, double left, double top, double right, double bottom);
 HRESULT UpdateDesktop_Taskbar(HWND hwnd, double left, double top, double right, double bottom);
@@ -224,13 +225,18 @@ void E_DesktopSwitcher::startSwitcher()
 {	
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 
-	CBrush m_oBkgndBrush;
+	/*CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
+	CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);*/
 	if (!ison)
 	{	
-		Create(szClassName, _T(""), WS_VISIBLE, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234); // nid 뭔지 꼭 찾기.
+		//Create(szClassName, _T(""), WS_VISIBLE || WS_EX_TOPMOST, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234); // nid 뭔지 꼭 찾기.
+		CBrush brush_window;
+		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
+		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
+		CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+		
 		drawDesktopSwitcher();
 		UpdateWindow();
 		E_Window::setIconInvisible(this->m_hWnd);
@@ -290,6 +296,18 @@ void moveWindow(HWND target, int x, int y, int width, int height)
 	UpdateWindow(target);
 }
 
+void getWindowText(HWND hwnd)
+{
+	LPWSTR a = new WCHAR[1000];
+	GetWindowText(hwnd, a, 1000);
+	delete a;
+}
+
+void bringWindowToTop(HWND hwnd)
+{
+	BringWindowToTop(hwnd);
+}
+
 bool testflag = false;
 void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -323,6 +341,7 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 
 	//initialize swappoint_h
 	swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
@@ -343,8 +362,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 				std::list<HTHUMBNAIL>::iterator itr_window_thumbnail = window_hthumbnail_list.begin();
 				std::list<HWND>::iterator itr_window_hwnd = window_area_list_hwnd.begin();
-				std::list<E_Desktop*>::iterator desktop_temp = e_global->desktopList.begin(); //TO-DO
-				std::list<E_Window*>::iterator itr_window = (*desktop_temp)->windowList.begin(); //TO-DO
+				std::list<E_Desktop*>::iterator desktop_current = e_global->desktopList.begin(); //TO-DO
+				std::list<E_Window*>::reverse_iterator itr_window = (*desktop_current)->windowList.rbegin(); //TO-DO
 
 				
 				std::list<RECT*>::iterator itr_rect_from_desktop = window_desktop_rect_list.begin(); 
@@ -353,20 +372,50 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 				{
 					if (i == window_i)
 					{
+						getWindowText((*itr_window)->getWindow());
+						bringWindowToTop((*itr_window)->getWindow());
+
 						window_ptr = *itr_window;
+						(*desktop_current)->windowList.remove(*itr_window);
+						(*desktop_current)->windowList.push_back(window_ptr);
+						E_Desktop* new_desktop_current = *desktop_current;
+						e_global->desktopList.insert(desktop_current,new_desktop_current);
 						window_RECT = *itr_window_area;
 						window_RECT_copy = new RECT(*window_RECT);
-						window_hthumbnail = *itr_window_thumbnail;
+						window_area_list_rect.remove(*itr_window_area);
+						window_area_list_rect.push_front(window_RECT);
+
+						//window_area_list_hwnd.remove(*itr_window_hwnd);
+						//window_area_list_hwnd.push_front(*itr_window_hwnd);
+						//
+						//(*desktop_current)->windowList.push_back(*itr_window);
+						//window_desktop_hthumbnail_list.remove(*itr_hthumbnail_from_desktop);
+						//window_desktop_hthumbnail_list.push_front(*itr_hthumbnail_from_desktop);
+						aeController->unregisterAero(*itr_window_thumbnail);
+						window_hthumbnail_list.remove(*itr_window_thumbnail);
+						aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT, window_hthumbnail);
+						window_hthumbnail_list.push_front(window_hthumbnail);
+						
+						//*itr_window_thumbnail = new_hthumbnail;
+						//window_hthumbnail = new_hthumbnail;
+						//window_hthumbnail = *itr_window_thumbnail;
 						
 						window_RECT_from_desktop = *itr_rect_from_desktop;
-						window_hthumbnail_from_desktop = *itr_hthumbnail_from_desktop;
-
+						window_desktop_rect_list.remove(*itr_rect_from_desktop);
+						window_desktop_rect_list.push_front(window_RECT_from_desktop);
+						
+						aeController->unregisterAero(*itr_hthumbnail_from_desktop);
+						window_desktop_hthumbnail_list.remove(*itr_hthumbnail_from_desktop);
+						aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_from_desktop, window_hthumbnail_from_desktop);
+						window_desktop_hthumbnail_list.push_front(window_hthumbnail_from_desktop);
+						
 						//if (testflag)
 							//return;
 						//testflag = true;
 						return;
 					}
 					
+					itr_window++;
 					itr_window_thumbnail++;
 					itr_window_hwnd++;
 					itr_rect_from_desktop++;
@@ -417,7 +466,6 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 							// 메모리 구조 제대로 안잡힘...
 							(*window_RECT_from_desktop).left += ((enManager->getWidth() - 100) / 4) * (i - target_desktop_index);
 							(*window_RECT_from_desktop).right += ((enManager->getWidth() - 100) / 4) * (i - target_desktop_index);
-
 							winThumbProps.rcDestination = *window_RECT_from_desktop;
 							DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
 							
