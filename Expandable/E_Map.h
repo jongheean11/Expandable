@@ -14,6 +14,7 @@ private:
 public:
 	E_Map();
 	~E_Map();
+	const static COLORREF backgroundColor;
 	static E_Map* getSingleton();
 	static volatile bool isThreadRunning ;
 	void drawMap();
@@ -25,6 +26,7 @@ public:
 	void stopTimer();
 	void setTransparent(int value);
 	UINT checkTime(LPVOID param);
+	static const wchar_t* caption;
 	
 	
 	DECLARE_MESSAGE_MAP()
