@@ -122,34 +122,44 @@ void E_Map::OnPaint()
 		
 		
 		
-		int mapWidth = e_global->desktopwidth;
-		int mapHeight = e_global->desktopheight;
+		int mapWidth = e_global->getDesktopWidth();
+		int mapHeight = e_global->getDesktopHeight();
 		int desktopCount = e_global->getDesktopCount();
 		long x1, y1, x2, y2;
-
+		long tmp1 = (h - th)*0.25 / mapHeight;
+		long tmp2 = 0.15*w / mapWidth;
+		RECT rectForIcon;
+		HWND tmphwnd;
+		long iconSize = 0.15*w / 8;
 		//test 현재 바탕화면의 프로그램 맵에 그리기
 		for (int i = 0; i < mapHeight; i++)
 		{
-			y1 = (h - th)*0.75 + i*(h - th)*0.25 / mapHeight;
-			y2 = y1 + (h - th)*0.25 / mapHeight;
+			y1 = (h - th)*0.75 + i*tmp1;
+			y2 = y1 + tmp1;
 			for (int j = 0; j < mapWidth; j++)
 			{
-				x1 = w*0.85 + i*0.15*w / mapWidth;
-				x2 = x1 + 0.15*w / mapWidth;
-
-
+				x1 = w*0.85 + j*tmp2;
+				x2 = x1 + tmp2;
 				dc.Rectangle(x1, y1, x2, y2);
-
-				//pDC->Rectangle(&rect);
-				//dc.SetStretchBltMode(COLORONCOLOR);
-
 			}
-
 		}
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
-		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)
+		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
+			std::list<E_Window*> desktop_window = (*itr_desktop)->windowList;
+			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+			{
+				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
+				//아이콘별위치는?
+				tmphwnd = (*itr_window)->getWindow();
+				::GetWindowRect(tmphwnd, &rectForIcon);
+				//rect 가로사이즈는 미니맵 크기의 1/8
 
+
+
+
+			}
+			
 		}
 
 		//test 현재 바탕화면의 프로그램 맵에 그리기
