@@ -7,7 +7,7 @@ const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
-
+	iconMoveMode = false;
 	hwnd_cwnd_emap = this;
 	ison = false;
 	transparent = 160;
@@ -88,6 +88,8 @@ void E_Map::stopTimer()
 
 void E_Map::terminateMap()
 {
+	iconRectList.clear();
+	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
 	ison = false;
 }
@@ -98,6 +100,9 @@ void E_Map::setTransparent(int value)
 }
 BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -182,13 +187,24 @@ void E_Map::OnPaint()
 					dc.SetStretchBltMode(COLORONCOLOR);
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					dc.StretchBlt(iconPosstx+1, icpnPossty+1, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-
+					RECT *iconRect = new RECT{ iconPosstx + 1, icpnPossty + 1, iconPosstx + 1 + iconSize, icpnPossty + 1 + iconSize };
+					iconRectList.push_front(iconRect);
+					iconHwndList.push_front(tmphwnd);
 					cdc.DeleteDC();
 				}
 			}
 			
 		}
 		//test 현재 바탕화면의 프로그램 맵에 그리기
+		if (iconMoveMode)// Lbutton down
+		{
+
+		}
+
+
+
+
+
 	}
 
 
@@ -201,4 +217,37 @@ E_Map* E_Map::getSingleton()
 	if (singleton == NULL)
 		singleton = new E_Map();
 	return singleton;
+}
+
+void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	std::list<HWND>::iterator itr_hwnd = iconHwndList.begin();
+	for (std::list<RECT*>::iterator itr_rect = iconRectList.begin(); itr_rect != iconRectList.end(); itr_rect++,itr_hwnd++)	//각 데스크탑 별로출력
+	{
+		if ((*itr_rect)->left < point.x && (*itr_rect)->right > point.x && (*itr_rect)->top < point.y && (*itr_rect)->bottom > point.y)
+		{
+			iconMoveMode = true;
+			iconClick = point;
+			break;
+		}
+	}
+	
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CWnd::OnLButtonUp(nFlags, point);
+}
+
+
+void E_Map::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	CWnd::OnMouseMove(nFlags, point);
 }

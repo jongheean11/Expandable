@@ -9,11 +9,15 @@ private:
 	CWnd* hwnd_cwnd_emap;
 	E_Window* draggingWindow;
 	clock_t sTime, nTime;
+	CPoint iconClick;
+	bool iconMoveMode;
 	bool ison;
 	int transparent;
 public:
 	E_Map();
 	~E_Map();
+	std::list<RECT*> iconRectList;
+	std::list<HWND> iconHwndList;
 	const static COLORREF backgroundColor;
 	static E_Map* getSingleton();
 	static volatile bool isThreadRunning ;
@@ -32,4 +36,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 //	afx_msg void OnPaint();
 	afx_msg void OnPaint();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
