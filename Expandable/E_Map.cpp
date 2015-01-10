@@ -261,12 +261,16 @@ void E_Map::OnPaint()
 		cdc.SetBkMode(1);
 		cdc.SetBkColor(E_Map::backgroundColor);
 
-
 		memDC.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 		foreRect.left = iconClick.x ;
 		foreRect.right = iconClick.x + iconSize;
 		foreRect.top = iconClick.y ;
 		foreRect.bottom = iconClick.y + iconSize ;
+		
+		RECT rectForMove;
+		::GetWindowRect(selectIconHwnd, &rectForMove);
+		::MoveWindow(selectIconHwnd, iconClick.x *100/15*mapWidth, iconClick.y *100/25*mapHeight, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+		//SetWindowPos(CWnd::FromHandle(selectIconHwnd),rectForMove.left,rectForMove.top, rectForMove.right -rectForMove.left, rectForMove.bottom - rectForMove.top, SWP_NOSIZE | SWP_SHOWWINDOW);
 		/*CDC cdc;
 		cdc.CreateCompatibleDC(this->GetWindowDC());
 		CBitmap icon;

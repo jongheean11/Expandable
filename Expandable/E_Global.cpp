@@ -10,7 +10,7 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
 {
-	desktopwidth = 2;
+	desktopwidth = 3;
 	desktopheight = 2;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
