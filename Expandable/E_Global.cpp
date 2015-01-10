@@ -268,3 +268,13 @@ void E_Global::init()
 		selectedDesktop->insertWindow(window);
 	}
 }
+
+int E_Global::getDesktopWidth()
+{
+	return desktopwidth;
+}
+
+int E_Global::getDesktopHeight()
+{
+	return desktopheight;
+}

@@ -14,13 +14,14 @@ private:
 	int updateMode;
 	list<HWND> windowList;
 	static E_Global* singleton;
-	
+	int desktopwidth;
+	int desktopheight;
 	E_Global();
 	~E_Global();
 	
 public: 
 	static const wchar_t* testFrameName;
-	int desktopwidth, desktopheight;
+	
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
@@ -60,4 +61,6 @@ public:
 	void setSelectedIndex(int index);
 	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 	void init();
+	int getDesktopWidth();
+	int getDesktopHeight();
 };

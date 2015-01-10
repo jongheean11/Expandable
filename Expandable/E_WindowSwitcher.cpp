@@ -322,7 +322,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 					
 					//¾ÆÀÌÄÜ
-					CBitmap* icon                                                                                                                                                                                                                               = (*iter)->getIcon();
+					CBitmap* icon = (*iter)->getIcon();
 					BITMAP icon_info;
 					if (icon->m_hObject != NULL){
 						icon->GetBitmap(&icon_info);
