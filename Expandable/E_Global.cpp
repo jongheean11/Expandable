@@ -2,6 +2,7 @@
 #include "E_Global.h"
 #pragma once
 #include <list>
+
 E_Global* E_Global::singleton = NULL;
 
 const wchar_t* E_Global::testFrameName = L"expandable";
@@ -173,6 +174,7 @@ E_Desktop* E_Global::getSelectedDesktop()
 // 주기적 업데이트를 위한 타이머
 void E_Global::startTimer()
 {
+
 }
 
 

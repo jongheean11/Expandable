@@ -27,6 +27,8 @@ void drawDesktopSwitcher()
 	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 	
+	deSwitcher->target_desktop_index = 0;
+
 	PAINTSTRUCT ps;
 	HDC hdc;
 	HTHUMBNAIL pushThumbnail;
@@ -53,18 +55,18 @@ void drawDesktopSwitcher()
 	
 	int i = 1,
 	_max = e_global->desktopList.size() >= 4 ? 5 : e_global->desktopList.size() + 1,
-	__max = e_global->desktopList.size() >= 4 ? 5 : 4 - e_global->desktopList.size();
+	__max = e_global->desktopList.size() >= 4 ? 0 : 4 - e_global->desktopList.size();
 
 	std::list<HWND> all_windows = e_global->getAllWindows();
 
 	//아래부턴 Desktop 및 Window Manage 된 후 적용 가능한 코드.
 	
 	//Desktop 리스트 부분
-	//for (std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++) //iterating list
-	for (;;)
+	for (std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++) //iterating list
+	//for (;;)
 	{
-		//background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + __max*((switch_width + padding_width * 2) / 2);
-		background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + (__max-3)*((switch_width + padding_width * 2) / 2);
+		background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + __max*((switch_width + padding_width * 2) / 2);
+		//background_left = initial_padding_width + padding_width * (2 * i - 1) + switch_width * (i - 1) + (__max-3)*((switch_width + padding_width * 2) / 2);
 		background_right = background_left + switch_width;
 		RECT *backgroundRECT = new RECT
 		{
@@ -86,16 +88,16 @@ void drawDesktopSwitcher()
 		aeController->registerAero(hTaskbarWnd, deSwitcher->m_hWnd, taskbarRECT, pushThumbnail);
 		//deSwitcher->handle_list.push_back(pushThumbnail);
 
-		//for (std::list<E_Window*>::iterator itr_window = ((*itr_desktop)->onWindowList.end()); itr_window != ((*itr_desktop)->onWindowList.begin()); itr_window--) // iterating backward
-		for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
+		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
+		//for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
 		{
 			//double window_left = itr_window->getStartX() * ratio_ww + background_left,
 				//window_top = itr_window->getStartY() * ratio_hh + background_top;
 			//double window_right = itr_window->getWidth() * ratio_ww + window_left,
 				//window_bottom = itr_window->getHeight() * ratio_hh + window_top;
 			CRect getSize;
-			//GetWindowRect((*itr_window)->getWindow(), &getSize);
-			GetWindowRect(*itr_window, &getSize);
+			GetWindowRect((*itr_window)->getWindow(), &getSize);
+			//GetWindowRect(*itr_window, &getSize);
 			double window_left = getSize.left * ratio_ww + background_left,
 				window_top = getSize.top * ratio_hh + background_top;
 			double window_right = getSize.Width() * ratio_ww + window_left,
@@ -107,16 +109,21 @@ void drawDesktopSwitcher()
 				window_right,
 				window_bottom
 			};
-			//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
-			aeController->registerAero(*itr_window, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
-			//deSwitcher->handle_list.push_back(pushThumbnail);
+			aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			//aeController->registerAero(*itr_window, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			
+			if (i - 1 == deSwitcher->target_desktop_index) // 선택된 Desktop section에 그려질 window 영역만 RECT 및 HTHUMBNAIL 저장
+			{
+				deSwitcher->window_desktop_rect_list.push_front(windowRECT);
+				deSwitcher->window_desktop_hthumbnail_list.push_front(pushThumbnail);
+			}
 		}
 
 		deSwitcher->desktop_area_list_rect.push_back(backgroundRECT);
 
 		i++;
-		//if (i == _max)
-		if (i == _max-3)
+		if (i == _max)
+		//if (i == _max-3)
 			break;
 	}
 	
@@ -125,6 +132,9 @@ void drawDesktopSwitcher()
 	background_top = (2 * initial_padding_height + switch_height) + 0.05 * (1080 - (2 * initial_padding_height + switch_height));
 	background_left = (enManager->getWidth() - (background_bottom-background_top) * ratio_wh) / 2;
 	background_right = enManager->getWidth() - background_left;
+
+	deSwitcher->main_desktop_width = background_right - background_left;
+	deSwitcher->main_desktop_height = background_bottom - background_top;
 
 	ratio_ww = (background_right - background_left) / (double)enManager->getWidth();
 	ratio_hh = (background_bottom - background_top) / (double)enManager->getHeight();
@@ -152,15 +162,19 @@ void drawDesktopSwitcher()
 	aeController->registerAero(hTaskbarWnd, deSwitcher->m_hWnd, taskbarRECT, pushThumbnail);
 	//deSwitcher->handle_list.push_back(pushThumbnail);
 
-	for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
+
+	//for (std::list<HWND>::iterator itr_window = all_windows.begin(); itr_window != all_windows.end(); itr_window++)
+	std::list<E_Desktop*>::iterator desktop_temp = e_global->desktopList.begin();
+	std::list<E_Window*> window_list = (*desktop_temp)->windowList;
+	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
 		//double window_left = itr_window->getStartX() * ratio_ww + background_left,
 		//window_top = itr_window->getStartY() * ratio_hh + background_top;
 		//double window_right = itr_window->getWidth() * ratio_ww + window_left,
 		//window_bottom = itr_window->getHeight() * ratio_hh + window_top;
 		CRect getSize;
-		//GetWindowRect((*itr_window)->getWindow(), &getSize);
-		GetWindowRect(*itr_window, &getSize);
+		GetWindowRect((*itr_window)->getWindow(), &getSize);
+		//GetWindowRect(*itr_window, &getSize);
 		double window_left = getSize.left * ratio_ww + background_left,
 			window_top = getSize.top * ratio_hh + background_top;
 		double window_right = getSize.Width() * ratio_ww + window_left,
@@ -172,8 +186,8 @@ void drawDesktopSwitcher()
 			window_right,
 			window_bottom
 		};
-		//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
-		aeController->registerAero(*itr_window, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		//aeController->registerAero(*itr_window, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
 		deSwitcher->window_hthumbnail_list.push_front(pushThumbnail);
 
 		deSwitcher->window_area_list_rect.push_front(windowRECT);
@@ -193,6 +207,7 @@ E_DesktopSwitcher::E_DesktopSwitcher()
 	ison = false;
 
 	window_selected = false;
+	window_squeezed = false;
 	winThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
 	// Use the window frame and client area
 	winThumbProps.fSourceClientAreaOnly = FALSE;
@@ -275,72 +290,93 @@ void moveWindow(HWND target, int x, int y, int width, int height)
 	UpdateWindow(target);
 }
 
+bool testflag = false;
 void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	/*desktop_i = 0;
 		for (std::list<RECT*>::iterator itr_desktop_area = desktop_area_list_rect.begin(); itr_desktop_area != desktop_area_list_rect.end(); itr_desktop_area++)
 		{
-			if (((CRect)(*itr_desktop_area)).PtInRect(point))
+		if (((CRect)(*itr_desktop_area)).PtInRect(point))
+		{
+		window_selected = true;
+		window_leftdown_point = point;
+		window_RECT = *itr_desktop_area;
+		OutputDebugStringA("desktop\n");
+
+		int i = 0;
+		for (std::list<HTHUMBNAIL>::iterator itr_desktop_thumbnail = handle_list.begin(); itr_desktop_thumbnail != handle_list.end(); itr_desktop_thumbnail++)
+		{
+		if (i != desktop_i)
+		i++;
+		else
+		{
+		window_hthumbnail = *itr_desktop_thumbnail;
+		return;
+		}
+		}
+		}
+		desktop_i++;
+		}*/
+
+	window_squeezed = false;
+
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+
+	//initialize swappoint_h
+	swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
+
+	if (!window_selected)
+	{
+		// window 공간들 iterating
+		int window_i = 0;
+		for (std::list<RECT*>::iterator itr_window_area = window_area_list_rect.begin(); itr_window_area != window_area_list_rect.end(); itr_window_area++)
+		{
+			double areasize = ((*itr_window_area)->right - (*itr_window_area)->left)*((*itr_window_area)->bottom - (*itr_window_area)->top);
+			if ((((CRect)(*itr_window_area)).PtInRect(point)) && !(areasize == this->getMainDesktopSize()))
 			{
 				window_selected = true;
 				window_leftdown_point = point;
-				window_RECT = *itr_desktop_area;
-				OutputDebugStringA("desktop\n");
 
-				int i = 0;
-				for (std::list<HTHUMBNAIL>::iterator itr_desktop_thumbnail = handle_list.begin(); itr_desktop_thumbnail != handle_list.end(); itr_desktop_thumbnail++)
-				{
-					if (i != desktop_i)
-						i++;
-					else
-					{
-						window_hthumbnail = *itr_desktop_thumbnail;
-						return;
-					}
-				}
-			}
-			desktop_i++;
-	}*/
+				OutputDebugStringA("window\n");
 
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-	
-	//initialize swappoint_h
-	swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
-	
-	if (!window_selected)
-	{
-	// window 공간들 iterating
-	int window_i = 0;
-	for (std::list<RECT*>::iterator itr_window_area = window_area_list_rect.begin(); itr_window_area != window_area_list_rect.end(); itr_window_area++)
-	{
-		double areasize = ((*itr_window_area)->right - (*itr_window_area)->left)*((*itr_window_area)->bottom - (*itr_window_area)->top);
-			if ((((CRect)(*itr_window_area)).PtInRect(point)) && !(areasize == this->getMainDesktopSize()))
-		{
-				window_selected = true;
-				window_leftdown_point = point;
-				
-			OutputDebugStringA("window\n");
-			
 				std::list<HTHUMBNAIL>::iterator itr_window_thumbnail = window_hthumbnail_list.begin();
 				std::list<HWND>::iterator itr_window_hwnd = window_area_list_hwnd.begin();
-				for (int i = 0; ; i++)
+				std::list<E_Desktop*>::iterator desktop_temp = e_global->desktopList.begin(); //TO-DO
+				std::list<E_Window*>::iterator itr_window = (*desktop_temp)->windowList.begin(); //TO-DO
+
+				
+				std::list<RECT*>::iterator itr_rect_from_desktop = window_desktop_rect_list.begin(); 
+				std::list<HTHUMBNAIL>::iterator itr_hthumbnail_from_desktop = window_desktop_hthumbnail_list.begin(); //TO-DO
+				for (int i = 0;; i++)
 				{
 					if (i == window_i)
 					{
-						window_hthumbnail = *itr_window_thumbnail;
+						window_ptr = *itr_window;
 						window_RECT = *itr_window_area;
 						window_RECT_copy = new RECT(*window_RECT);
-			return;
-		}
+						window_hthumbnail = *itr_window_thumbnail;
+						
+						window_RECT_from_desktop = *itr_rect_from_desktop;
+						window_hthumbnail_from_desktop = *itr_hthumbnail_from_desktop;
+
+						//if (testflag)
+							//return;
+						//testflag = true;
+						return;
+					}
+					
 					itr_window_thumbnail++;
 					itr_window_hwnd++;
+					itr_rect_from_desktop++;
+					itr_hthumbnail_from_desktop++;
 				}
 			}
-		window_i++;
+			window_i++;
+		}
 	}
-	}
-	
+
 	CWnd::OnLButtonDown(nFlags, point);
 }
 
@@ -350,9 +386,75 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	if (window_selected)
 	{
-		winThumbProps.rcDestination = *window_RECT;
-		DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-	window_selected = false;
+		if (window_squeezed)
+		{
+			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+			E_Global* e_global = E_Global::getSingleton();
+			
+			int i = 0;
+			double bottom_edge = (50 * (double)enManager->getHeight() / (double)enManager->getWidth()) + (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth());
+			if (bottom_edge > ((*window_RECT_copy).top + 20))
+			{
+				std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+
+				i = 0;
+				for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
+				{
+					/*bool noOverlap = (*itr_desktop_rect)->left > (*window_RECT_copy).right ||
+						(*window_RECT_copy).left > (*itr_desktop_rect)->right ||
+						(*itr_desktop_rect)->top > (*window_RECT_copy).bottom ||
+						(*window_RECT_copy).top > (*itr_desktop_rect)->bottom;*/
+					
+					bool yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+					if (yesOverlap)
+					{
+						if (i != target_desktop_index)
+						{
+							(*itr_desktop)->windowList.remove(window_ptr);
+							window_hthumbnail_list.remove(window_hthumbnail);
+							window_area_list_rect.remove(window_RECT);
+							
+							// 메모리 구조 제대로 안잡힘...
+							(*window_RECT_from_desktop).left += ((enManager->getWidth() - 100) / 4) * (i - target_desktop_index);
+							(*window_RECT_from_desktop).right += ((enManager->getWidth() - 100) / 4) * (i - target_desktop_index);
+
+							winThumbProps.rcDestination = *window_RECT_from_desktop;
+							DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+							
+							E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+							aeController->unregisterAero(window_hthumbnail_from_desktop);
+							//DwmUpdateThumbnailProperties(window_hthumbnail_from_desktop, &winThumbProps);
+
+							window_desktop_rect_list.remove(window_RECT_from_desktop);
+							window_desktop_hthumbnail_list.remove(window_hthumbnail_from_desktop);
+
+							window_selected = false;
+							window_squeezed = false;
+							return;
+						}
+						break;
+					}
+
+					i++;
+					itr_desktop++;
+				}
+				winThumbProps.rcDestination = *window_RECT;
+				DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+			}
+			else
+			{
+				winThumbProps.rcDestination = *window_RECT;
+				DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+			}
+		}
+		else
+		{
+			winThumbProps.rcDestination = *window_RECT;
+			DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+		}
+		
+		window_selected = false;
+		window_squeezed = false;
 	}
 	
 	CWnd::OnLButtonUp(nFlags, point);
@@ -364,6 +466,7 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 	// desktop 공간들 iterating
 	if (((GetKeyState(VK_LBUTTON) & 0x80) != 0) && window_selected)
 	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 		LONG diff_x = point.x - window_leftdown_point.x,
 			diff_y = point.y - window_leftdown_point.y;
 
@@ -378,15 +481,31 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 		
 		winThumbProps.rcDestination = *window_RECT_copy;
 		DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-		
+
 		window_leftdown_point = point;
 
 		// TO-DO-LIST
-		if ((double)(*window_RECT_copy).top < swappoint_h - 50)
+		if (window_squeezed)
 		{
-			LONG width = (*window_RECT_copy).right - (*window_RECT_copy).left,
-				height = (*window_RECT_copy).bottom - (*window_RECT_copy).top;
-			//*window_Rect_copy
+
+		}
+		else
+		{
+			if ((double)(*window_RECT_copy).top < swappoint_h - 50)
+			{
+				window_squeezed = true;
+
+				double ratio_wW = (((double)enManager->getWidth() - 100) * (double)0.175) / main_desktop_width,
+					ratio_hH = (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth()) / main_desktop_height;
+
+				(*window_RECT_copy).top = point.y - (point.y - (*window_RECT_copy).top) * ratio_hH;
+				(*window_RECT_copy).bottom = point.y + ((*window_RECT_copy).bottom - point.y) * ratio_hH;
+				(*window_RECT_copy).left = point.x - (point.x - (*window_RECT_copy).left) * ratio_wW;
+				(*window_RECT_copy).right = point.x + ((*window_RECT_copy).right - point.x) * ratio_wW;
+
+				winThumbProps.rcDestination = *window_RECT_copy;
+				DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+			}
 		}
 
 		return;

@@ -15,14 +15,20 @@ private:
 	E_Desktop* focusedDesktop;
 	E_Window* clickedWindow;
 	bool ison;
+
 	// property for moving window
-	bool window_selected;
+	bool window_selected, window_squeezed;
+	E_Window* window_ptr;
 	CPoint window_leftdown_point;
-	RECT *window_RECT, *window_RECT_copy;
+	RECT *window_RECT, *window_RECT_copy, *window_RECT_from_desktop;
 	int desktop_i; // target window (desktop을 window로 바꿔야됨)
-	HTHUMBNAIL window_hthumbnail;
+	HTHUMBNAIL window_hthumbnail, window_hthumbnail_from_desktop;
 	DWM_THUMBNAIL_PROPERTIES winThumbProps;
 	double main_desktop_size;
+public:
+	int target_desktop_index;
+	double main_desktop_width, main_desktop_height;
+
 public:
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
@@ -52,7 +58,11 @@ public:
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //private:
-	double swappoint_h;
+	// 선택된 desktop 영역내의 rect 및 HTHUMBNAIL만 관리
+	std::list<RECT*> window_desktop_rect_list;
+	std::list<HTHUMBNAIL> window_desktop_hthumbnail_list;
+
+	double swappoint_h;	
 	std::list<HTHUMBNAIL> desktop_hthumbnail_list, window_hthumbnail_list;
 	std::list<RECT*> desktop_area_list_rect;
 	std::list<HWND> desktop_area_list_hwnd;

@@ -30,6 +30,7 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
 	ON_WM_TIMER()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
@@ -42,6 +43,7 @@ CExpandableView::CExpandableView()
 	desktopSwitcher_bool = false;
 
 	// Screen 해상도값을 Global의 resolutionWidth, resolutionHeight에 Set
+
 }
 
 CExpandableView::~CExpandableView()
@@ -52,7 +54,7 @@ BOOL CExpandableView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
-
+	
 	return CView::PreCreateWindow(cs);
 }
 
@@ -79,6 +81,7 @@ void CExpandableView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 #ifndef SHARED_HANDLERS
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 #endif
+
 }
 
 
@@ -118,10 +121,10 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		
 	}
 	if (nChar == 'C'){
-	/*	char dbgmsg[999];
-		sprintf(dbgmsg,"mode? : %d\n",
-			E_AeroPeekController::getSingleton()->isAeroPeekMode());
-		OutputDebugStringA(dbgmsg);*/
+//		char dbgmsg[999];
+//		sprintf(dbgmsg,"mode? : %d\n",
+//			E_AeroPeekController::getSingleton()->isAeroPeekMode());
+//		OutputDebugStringA(dbgmsg);
 		if (E_WindowSwitcher::getSingleton()->isRunning() == false)
 			E_WindowSwitcher::getSingleton()->startSwitcher();
 		else
@@ -169,6 +172,32 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	e_map.stopTimer();
+	//e_map.stopTimer();
+	
+	/*
+	if (nIDEvent == 1)
+	{
+		return;
+	}
+	else if (nIDEvent == 2)
+	{
+		return;
+	}
+	*/
+
+	//KillTimer(1);
 	CView::OnTimer(nIDEvent);
+}
+
+int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	//SetTimer(1, 3000, NULL);
+	//SetTimer(2, 5000, NULL);
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+
+	return 0;
 }
