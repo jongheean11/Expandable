@@ -10,18 +10,15 @@ private:
 	HWND window;
 	CBitmap icon;
 	CBitmap screenshot;
-	
 	char windowName[255];
-	int zIndex;
-	int windowState;
-	int dockState;
-	int alertState;
 
 public:
 
-	bool takeScreenshot();
 	E_Window(HWND);
 	~E_Window();
+	bool takeScreenshot();
+	//최소/최대화 애니메이션 제거 및 활성화
+	void SetMinimizeMaximizeAnimation(bool status);
 
 	static bool setIconInvisible(HWND hwnd);
 	static bool setIconVisible(HWND hwnd);
@@ -32,11 +29,10 @@ public:
 	// 윈도우 세팅
 	void setWindow(HWND window);
 	HWND getWindow();
+	char* getWindowName();
 
 	void operator=(const E_Window &tmp);
 	bool operator==(const E_Window &tmp);
-	//최소/최대화 애니메이션 제거 및 활성화
-	void SetMinimizeMaximizeAnimation(bool status);
 	CBitmap* getScreenshot();
 
 	CBitmap* getIcon();
@@ -44,5 +40,4 @@ public:
 	UINT getShowState();
 	// 에어로가 가능한지 아는 함수.
 	bool isAeroPossible();
-	char* getWindowName();
 };

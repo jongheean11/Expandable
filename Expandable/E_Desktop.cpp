@@ -11,16 +11,6 @@ E_Desktop::~E_Desktop()
 	
 }
 
-void E_Desktop::operator=(const E_Desktop &tmp)
-{
-	index = tmp.index;
-	//windowList = tmp.windowList;
-	//onWindowList = tmp.onWindowList;
-	pos = tmp.pos;
-	old = tmp.old;
-	current = tmp.current;;
-}
-
 list<E_Window*> E_Desktop::getWindowList()
 {
 	return windowList;
@@ -198,3 +188,8 @@ void E_Desktop::clearWindow()
 }
 
 
+
+
+void E_Desktop::takeAllWindowScreenshot()
+{
+}

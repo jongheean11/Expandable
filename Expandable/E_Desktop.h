@@ -6,8 +6,6 @@ class E_Desktop
 {
 private:
 	int index;
-	POSITION pos,old;
-	E_Window* current;
 	CBitmap screenshot;
 	
 public:
@@ -19,6 +17,7 @@ public:
 	void setAllShow();
 	void setAllTransparent();
 	void setAllOpaque();
+	void setAllHide();
 
 	void operator=(const E_Desktop &tmp);
 
@@ -27,15 +26,18 @@ public:
 	void excludeWindow(E_Window* targetWindow);
 	void clearWindow();
 
+
+	// ¹Ì ±¸Çö
 	void takeScreenshot();
+	CBitmap getScreenshot();
+	void takeAllWindowScreenshot();
+
+	list<E_Window*> getWindowList();
 
 	int getIndex();
 	void setIndex(int newindex);
 
-	list<E_Window*> getWindowList();
 
 	E_Desktop(int index);
 	~E_Desktop();
-	CBitmap getScreenshot();
-	void setAllHide();
 };
