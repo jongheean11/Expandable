@@ -11,7 +11,6 @@ private:
 	long height;
 	long taskbarWidth;
 	long taskbarHeight;
-	bool aeroPeekMode;
 	bool dualMonitorMode;
 	bool runningMainProcess;
 	bool runningAutoHotkeyProcess;
@@ -23,6 +22,8 @@ public:
 	long getWidth();
 	long getHeight();
 	void setGlobalUpdater(E_GlobalUpdater* updater);
+
+	void notifyDualMonitorMode();
 	// 이미 동작하는 Expandable이 있는지??
 	static bool getRunningMainProcess();
 	// 동작하는 핫키 프로그램이 있는지?

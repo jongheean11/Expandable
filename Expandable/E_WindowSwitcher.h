@@ -27,9 +27,8 @@ public:
 	const static COLORREF borderColor;
 	const static COLORREF borderColorSelected;
 	const static COLORREF borderColorSelectedMouse;
-	
-
 	static const wchar_t* caption;
+
 	static E_WindowSwitcher* getSingleton();
 	// UI를 보여주고 입력을 받는 창을 활성화 시킴
 	void startSwitcher();
@@ -37,11 +36,7 @@ public:
 	void terminateSwitcher();
 	// ZOrderTop
 	void setZOrderTop();
-	DECLARE_MESSAGE_MAP()
-	afx_msg void OnPaint();
-	// 현재 Switcher가 동작중인가?
-public:
-	bool isRunning();
+
 	// 해상도에 대비한 아이콘의 크기를 반환
 	int getIconSize(int res_width);
 	// 해상도에 비례한 에어로픽 너비 크기
@@ -54,11 +49,17 @@ public:
 	int getAeroWindowHeight(int maxBoxCount, int boxwidth);
 	// 레이아웃에서 사용되는 패딩의 크기를 반환받음
 	int getPaddingSize(int res_width);
-	HTHUMBNAIL temp;
-	HTHUMBNAIL temp2;
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
 	void E_WindowSwitcher::drawIcon();
+
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnPaint();
+	// 현재 Switcher가 동작중인가?
+public:
+	bool isRunning();
+	HTHUMBNAIL temp;
+	HTHUMBNAIL temp2;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
