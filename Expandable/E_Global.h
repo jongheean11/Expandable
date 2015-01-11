@@ -12,13 +12,10 @@ class E_Global : E_GlobalUpdater, E_IGlobal
 private:
 	int selectedIndex;	//데스크탑 인덱스는 1부터 시작
 	E_Desktop* selectedDesktop;
-	int updateMode;
-	list<HWND> windowList;
+	bool updateMode;
+	list<HWND> windowList;			//임시 사용 윈도우 리스트
 	list<HWND> windowListForUpdate;	//업데이트시에 사용 업데이트 전 항상 초기화 필요
 	static E_Global* singleton;
-	int desktopwidth;
-	int desktopheight;
-	int desktopCount;
 	E_Global();
 	~E_Global();
 
@@ -28,6 +25,9 @@ public:
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
+	int desktopwidth;
+	int desktopheight;
+	int desktopCount;
 
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
@@ -41,6 +41,11 @@ public:
 	static CWnd* getKakaoWindow();
 	// 현재 데스크탑 반환
 	E_Desktop* getSelectedDesktop();
+	//현재 선택된 인덱스를 바꾸면 선택된 데스크탑도 바뀐다.
+	void setSelectedIndex(int index);
+	int getSelectedIndex();
+	// 데스크탑을 가져온다.
+	E_Desktop* getDesktop(int index);
 	// 주기적 업데이트를 위한 타이머
 	void startTimer();
 	void onTimer();
@@ -59,15 +64,10 @@ public:
 	int getDesktopCount();
 	void setExpandableRunningFlag();
 	bool getExpandableRunningFlag();
-	int getSelectedIndex();
-	//현재 선택된 인덱스를 바꾸면 선택된 데스크탑도 바뀐다.
-	void setSelectedIndex(int index);
 	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 	void init();
 	int getDesktopWidth();
 	int getDesktopHeight();
-	// 데스크탑을 가져온다.
-	E_Desktop* getDesktop(int index);
 
 	void moveTopWindowLeft();
 	// 탑 윈도우를 오른쪽 데스크탑으로 전달

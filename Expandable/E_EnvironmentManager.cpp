@@ -143,3 +143,8 @@ int E_EnvironmentManager::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
+
+
+void E_EnvironmentManager::notifyDualMonitorMode()
+{
+}
