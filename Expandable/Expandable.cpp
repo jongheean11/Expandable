@@ -140,17 +140,20 @@ BOOL CExpandableApp::InitInstance()
 	m_pMainWnd->SetWindowTextW(E_Global::testFrameName);
 
 	//Switcher 계열 초기화
+	E_WindowSwitcher* windowSwicher = E_WindowSwitcher::getSingleton();
+	E_DesktopSwitcher* desktopSwicher = E_DesktopSwitcher::getSingleton();
+	E_DragAndDropSwitcher* dragSwicher = E_DragAndDropSwitcher::getSingleton();
+	E_Map* map = E_Map::getSingleton();
 	
 	//Window Switcher 초기화
 	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
-
 	CWnd* cwnd_desktopSwicher = E_DesktopSwitcher::getSingleton();
 	CWnd* cwnd_dragSwicher = E_DragAndDropSwitcher::getSingleton();
 	CWnd* cwnd_map = E_Map::getSingleton();
 
 	//E_Global 계열 초기화
 	E_Global* cwnd_global = E_Global::getSingleton();
-	cwnd_global->init((E_ISwitcherUpdator*)cwnd_desktopSwicher, (E_ISwitcherUpdator*)cwnd_map, (E_ISwitcherUpdator*)cwnd_dragSwicher, (E_ISwitcherUpdator*)cwnd_windowSwicher);
+	cwnd_global->init((E_ISwitcherUpdator*)desktopSwicher, (E_ISwitcherUpdator*)map, (E_ISwitcherUpdator*)dragSwicher, (E_ISwitcherUpdator*)windowSwicher);
 	
 	//Environment Manager 초기화
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();

@@ -201,7 +201,7 @@ void E_Global::loopUpdate()
 	//TRACE_WIN32A("E_Global::loopUpdate()");
 	while (updateMode){
 		if (onUpdate()){
-			TRACE_WIN32A("E_Global::loopUpdate()");
+			//TRACE_WIN32A("E_Global::loopUpdate()");
 			windowSwitcher->updateSelectedDesktop();
 			desktopSwitcher->updateSelectedDesktop();
 			mapSwitcher->updateSelectedDesktop();
@@ -352,6 +352,11 @@ void E_Global::setSelectedIndex(int index)
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
+	TRACE_WIN32A("HELL");
+	window->updateSelectedDesktop();
+	desktop->updateSelectedDesktop();
+	map->updateSelectedDesktop();
+	drag->updateSelectedDesktop();
 	this->windowSwitcher = window;
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;
