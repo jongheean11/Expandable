@@ -62,7 +62,7 @@ void E_Map::drawMap()
 		CString szClassName_map = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
 		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
 		//hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
-		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight), CWnd::GetDesktopWindow(), 0);
+		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight ), CWnd::GetDesktopWindow(), 0);
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -115,9 +115,9 @@ void E_Map::OnPaint()
 	CDC memDC;
 	CBitmap bmp;
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-	E_Global* e_global = E_Global::getSingleton();
+	E_Global* e_global = E_Global::getSingleton(); 
 	//e_global->onUpdate();
-	long w = enManager->getWidth();
+	long w = enManager->getWidth(); 
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
 	memDC.CreateCompatibleDC(&dc);
@@ -247,8 +247,13 @@ void E_Map::OnPaint()
 					memDC.SetStretchBltMode(COLORONCOLOR);
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					if (selectIconHwnd != (*itr_window)->getWindow())
-						memDC.StretchBlt(iconPosstx + 1, icpnPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-					RECT *iconRect = new RECT{ iconPosstx + 1, icpnPossty + 2, iconPosstx + 3 + iconSize, icpnPossty + 3 + iconSize };
+					{
+						if (iconPosstx < iconSize / 2 && icpnPossty < iconSize /2)
+							memDC.StretchBlt(2 , 2 , iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						else
+						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					}
+					RECT *iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize/2, iconPosstx + 3 + iconSize, icpnPossty + 3 + iconSize };
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
 					cdc.DeleteDC();
@@ -295,7 +300,7 @@ void E_Map::OnPaint()
 				cdc.SetBkColor(E_Map::backgroundColor);
 
 
-				memDC.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize/2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 
 				break;
 
@@ -322,20 +327,20 @@ void E_Map::OnPaint()
 		cdc.SetBkMode(1);
 		cdc.SetBkColor(E_Map::backgroundColor);
 
-		memDC.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-		foreRect.left = iconClick.x;
-		foreRect.right = iconClick.x + iconSize;
-		foreRect.top = iconClick.y;
-		foreRect.bottom = iconClick.y + iconSize;
+		memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize/2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+		foreRect.left = iconClick.x - iconSize/2;
+		foreRect.right = iconClick.x + iconSize /2;
+		foreRect.top = iconClick.y - iconSize/2;
+		foreRect.bottom = iconClick.y + iconSize/2;
 
 		RECT rectForMove;
-		long newxpoint = iconClick.x / e_global->getMapsize()*mapWidth / mapWidth;
-		long newypoint = (h - th)*iconClick.y / w / e_global->getMapsize() / mapHeight*mapHeight;
+		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
+		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
 		if (newxpoint < w && newypoint < h)
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
-			::MoveWindow(selectIconHwnd, newxpoint, newypoint, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+			::MoveWindow(selectIconHwnd, newxpoint , newypoint , rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 		}
 		else
 		{
@@ -419,6 +424,11 @@ E_Map* E_Map::getSingleton()
 
 void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	E_Global* e_global = E_Global::getSingleton(); 
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	long w = enManager->getWidth(); 
+	double mapsize = e_global->getMapsize();
+
 	up = true;
 	forSelectMap = true;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
@@ -431,9 +441,12 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 			iconMoveMode = 1;
 			iconClick = point;
 			selectIconHwnd = (*itr_hwnd);
+			::ShowWindow(selectIconHwnd, SW_NORMAL);
 			break;
 		}
 	}
+	clickindexx = mouse.x / (mapsize*w) + 1;
+	clickindexy = mouse.y / (mapsize*w) + 1;
 	time = settingTimer;
 	Invalidate(0);
 	CWnd::OnLButtonDown(nFlags, point);
@@ -442,6 +455,16 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 
 void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	E_Global* e_global = E_Global::getSingleton();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	
+	long h = enManager->getHeight();
+	long th = enManager->getTaskbarHeight();
+	long w = enManager->getWidth();
+	long iconSize = w*e_global->getMapsize() / 4 * e_global->getIconsize();
+	double mapsize = e_global->getMapsize();
+	upindexx = point.x / (mapsize*w) + 1;
+	upindexy = point.y / (mapsize*w) + 1;
 	up = true;
 	bool in = false;
 	forSelectMap = false;
@@ -449,24 +472,41 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	iconMoveMode = 0;
 	clicked = false;
 	time = settingTimer;
+	
+	RECT trect;
+	trect.left = point.x - iconSize/2;
+	trect.top = point.y - iconSize/2;
+	trect.right = trect.left + iconSize/2;
+	trect.bottom = trect.top + iconSize/2;
+	
+	
 	std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 	for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_hwnd != iconHwndList.end(); itr_hwnd++, itr_rect++)	//각 데스크탑 별로출력
 	{
 		if ((*itr_hwnd) == selectIconHwnd)
 		{
+			RECT trect2;
+			long xp = point.x / e_global->getMapsize() - w*e_global->getMapsize();
+			long yp = point.y*h / w / e_global->getMapsize() - w*e_global->getMapsize();
+			//CWnd *pWnd = CWnd::FromHandle(selectIconHwnd);
+			::GetWindowRect(selectIconHwnd, &trect2);
+			//pWnd->SetWindowPos(NULL, (upindexx - 1)*w + point.x, (upindexy - 1)*(h - th) + point.y, trect2.right - trect2.left, trect2.bottom - trect2.top, SWP_NOZORDER | SWP_SHOWWINDOW);
+			::MoveWindow(selectIconHwnd, xp , yp, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
+
 			in = true;
 			iconHwndList.remove((*itr_hwnd));
 			iconRectList.remove((*itr_rect));
 			iconHwndList.push_front(selectIconHwnd);
-			iconRectList.push_front(&foreRect);
+			iconRectList.push_front(&trect);
 			selectIconHwnd = NULL;
+
 			break;
 		}
 	}
 
 	Invalidate(0);
 	CWnd::OnLButtonUp(nFlags, point);
-	if (!in)
+	if (!in && clickindexx == upindexx && clickindexy == upindexy)
 		terminateMap();
 }
 
@@ -474,12 +514,12 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
+	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
 	time = settingTimer;
 	mouse = iconClick = point;
 	iconMoveMode = 2;
 	if (clicked)
-	Invalidate(0);
+		Invalidate(0);
 	CWnd::OnMouseMove(nFlags, point);
 }
 

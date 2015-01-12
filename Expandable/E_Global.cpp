@@ -11,8 +11,8 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 {
 	mapsize = 0.06;
 	iconsize = 1;
-	desktopwidth = 4;
-	desktopheight = 3;
+	desktopwidth = 2;
+	desktopheight = 2;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	
