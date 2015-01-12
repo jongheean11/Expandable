@@ -1,6 +1,8 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 #include "E_IGlobal.h"
+#include "E_Mutex.h"
+#include "E_ISwitcherUpdator.h"
 
 /*
 객체 생성 후
@@ -18,7 +20,10 @@ private:
 	static E_Global* singleton;
 	E_Global();
 	~E_Global();
-
+	double mapsize;
+	double iconsize;
+	//스레드
+	thread* currentThread;
 public:
 	static const wchar_t* testFrameName;
 
@@ -35,7 +40,14 @@ public:
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
+	//인터페이스 호출을 위한 함수
+	E_ISwitcherUpdator* desktopSwitcher;
+	E_ISwitcherUpdator* mapSwitcher;
+	E_ISwitcherUpdator* dragSwitcher;
+	E_ISwitcherUpdator* windowSwitcher;
 public:
+	double getIconsize();
+	double getMapsize();
 	static E_Global* getSingleton();
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
@@ -52,9 +64,11 @@ public:
 	// 업데이트 시작
 	bool startUpdate();
 	// 업데이트 쓰레드
-	void onUpdate();
+	bool onUpdate();
 	// 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
-	void stopUpdate();
+	bool stopUpdate();
+	// 실시간으로 윈도우 업데이트
+	void loopUpdate();
 	bool getUpdateMode();
 	// 리스트의 끝에 데스크탑 추가
 	bool addOneDesktop();
@@ -64,8 +78,9 @@ public:
 	int getDesktopCount();
 	void setExpandableRunningFlag();
 	bool getExpandableRunningFlag();
+
 	// 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
-	void init();
+	void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window);
 	int getDesktopWidth();
 	int getDesktopHeight();
 

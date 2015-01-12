@@ -1,4 +1,5 @@
 #include "E_Window.h"
+#include "E_Mutex.h"
 using namespace Gdiplus;
 
 #pragma once
@@ -40,4 +41,5 @@ public:
 
 	E_Desktop(int index);
 	~E_Desktop();
+	// 윈도우를 리스트에 포함
 };

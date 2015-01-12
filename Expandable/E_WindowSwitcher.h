@@ -2,11 +2,11 @@
 #include "afxwin.h"
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
+#include "E_ISwitcherUpdator.h"
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
-class E_WindowSwitcher :
-	public CWnd
+class E_WindowSwitcher : public CWnd, public E_ISwitcherUpdator
 {
 private:
 	static E_WindowSwitcher* singleton;
@@ -14,12 +14,17 @@ private:
 	~E_WindowSwitcher();
 	E_EnvironmentManager* envManager;
 	bool running;
+	bool updateFlag;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
 	unordered_map<HWND, RECT> rect_map;	//	rect
 	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
+
+protected:
 	
+
 public:
+	virtual void updateSelectedDesktop();
 	const static COLORREF backgroundColor;
 	const static COLORREF aeroColor;
 	const static COLORREF aeroColorSelected;
@@ -51,7 +56,7 @@ public:
 	int getPaddingSize(int res_width);
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
-	void E_WindowSwitcher::drawIcon();
+	//void E_WindowSwitcher::drawIcon();
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
@@ -63,5 +68,7 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	// 스위처를 재시작하는 함수
+	void restartSwitcher();
 };
 

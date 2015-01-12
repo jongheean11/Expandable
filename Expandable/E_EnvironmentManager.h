@@ -1,4 +1,5 @@
 #include "E_GlobalUpdater.h"
+#include "E_ISwitcherUpdator.h"
 
 #pragma once
 class E_EnvironmentManager : CWnd

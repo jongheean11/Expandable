@@ -7,11 +7,12 @@ E_Global* E_Global::singleton = NULL;
 
 const wchar_t* E_Global::testFrameName = L"expandable";
 
-
-E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
+E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
-	desktopwidth = 3;
-	desktopheight = 2;
+	mapsize = 0.06;
+	iconsize = 1;
+	desktopwidth = 4;
+	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	
@@ -31,7 +32,14 @@ E_Global::~E_Global()
 {
 
 }
-
+double E_Global::getMapsize()
+{
+	return mapsize;
+}
+double E_Global::getIconsize()
+{
+	return iconsize;
+}
 CWnd* E_Global::getBackgroundWindow(){
 	HWND background = GetShellWindow();
 
@@ -112,7 +120,6 @@ E_Global* E_Global::getSingleton()
 CWnd* E_Global::getKakaoWindow()
 {
 	HWND hkakao = FindWindow(NULL, L"카카오톡");
-	
 	return CWnd::FromHandle(hkakao);
 }
 
@@ -120,6 +127,7 @@ CWnd* E_Global::getKakaoWindow()
 list<HWND> E_Global::getAllWindows()
 {
 	E_Global* object = E_Global::getSingleton();
+	object->windowListForUpdate.clear();	//초기화
 	EnumWindows(E_Global::EnumCallBack, 0);
 	return object->windowListForUpdate;
 }
@@ -135,7 +143,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	::GetWindowText(hwnd, Cap, 254);
 	length = ::GetWindowTextLength(hwnd);
 
-	if (IsWindowVisible(hwnd) )
+	if (IsWindowVisible(hwnd))
 	{
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
@@ -175,7 +183,7 @@ E_Desktop* E_Global::getSelectedDesktop()
 // 주기적 업데이트를 위한 타이머
 void E_Global::startTimer()
 {
-
+	updateMode = true;
 }
 
 
@@ -183,36 +191,115 @@ void E_Global::onTimer()
 {
 }
 
-
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
-	
+	TRACE_WIN32A("E_Global::startUpdate()");
+	if (currentThread == NULL && updateMode != true){
+		updateMode = true;
+		thread* t = new thread{ &E_Global::loopUpdate, this };
+		currentThread = t;
+		return true;
+	}
 	return false;
 }
 
-
-// 업데이트 쓰레드
-void E_Global::onUpdate()
+// 실시간으로 윈도우 업데이트
+void E_Global::loopUpdate()
 {
-	//뮤텍스
-
-	windowListForUpdate.clear();	//초기화
-	list<HWND> wlist = getAllWindows();
-	selectedDesktop->clearWindow();
-	//윈도우 추가
-	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
-		E_Window* window = new E_Window(*iter);
-		selectedDesktop->insertWindow(window);
+	//TRACE_WIN32A("E_Global::loopUpdate()");
+	while (updateMode){
+		if (onUpdate()){
+			//TRACE_WIN32A("E_Global::loopUpdate()");
+			windowSwitcher->updateSelectedDesktop();
+			desktopSwitcher->updateSelectedDesktop();
+			mapSwitcher->updateSelectedDesktop();
+			dragSwitcher->updateSelectedDesktop();
 	}
+		Sleep(100);
+}
+}
 
+// 업데이트 쓰레드// 변화될 경우 참을 반환한다.
+bool E_Global::onUpdate()
+{
+	bool result = false;
+	//TRACE_WIN32A("E_Global::onUpdate()");
+	//뮤텍스
+	//lock_guard<mutex> lockGuard(E_Mutex::updateMutex);//데드락
+	//윈도우 리스트 업데이트
+	list<HWND> wlist = getAllWindows();
+	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
+	//selectedDesktop->clearWindow();
+	//윈도우 추가
+
+	Sleep(2000);
+	//TRACE_WIN32A("E_Global::onUpdate ING...()");
+	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
+	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
+		//바뀐 윈도우만 업데이트
+		int wlistSize = wlist.size();
+		int selectedSize = selectedWindows.size();
+		list<E_Window*> noChangeList;
+		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
+			HWND findWindow = 0;
+			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
+				if (*iter == (*iter_window)->getWindow()){
+					noChangeList.push_back(*iter_window);
+					selectedDesktop->excludeWindow(*iter_window);
+					findWindow = *iter;
+				}
+			}
+			if (findWindow == NULL){
+				E_Window* window = new E_Window(findWindow);
+				noChangeList.push_back(window);
+			}
+		}*/
+		//리스트 업데이트
+		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
+			HWND findWindow = NULL;
+			for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
+				if (*iter == (*iter_window)->getWindow()){
+					noChangeList.push_back(*iter_window);
+					selectedDesktop->excludeWindow(*iter_window);
+					findWindow = *iter;
+				}
+			}
+			if (findWindow == NULL){
+		E_Window* window = new E_Window(*iter);
+				noChangeList.push_back(window);
+			}
+		}
+
+		//기존 윈도우를 제외한 윈도우 제거
+		selectedDesktop->clearWindow();
+		//실제 리스트에 업데이트
+		for (list<E_Window*>::iterator iter = noChangeList.begin(); iter != noChangeList.end(); iter++){
+			selectedDesktop->insertWindow(*iter);
+		}
+		//업데이트
+		result = true;
+	}
+	else{
+		
+	}
+	//TRACE_WIN32A("E_Global::onUpdateEnd()");
+	return result;
 }
 
 
 // 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
-void E_Global::stopUpdate()
+bool E_Global::stopUpdate()
 {
-
+	TRACE_WIN32A("E_Global::stopUpdate()");
+	if (currentThread != NULL && updateMode == true){
+		updateMode = false;
+		currentThread->join();	//스레드가 끝날때까지 대기
+		delete currentThread;
+		currentThread = NULL;
+		return true;
+	}
+	return false;
 }
 
 
@@ -271,8 +358,17 @@ void E_Global::setSelectedIndex(int index)
 
 
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
-void E_Global::init()
+void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
+	TRACE_WIN32A("HELL");
+	window->updateSelectedDesktop();
+	desktop->updateSelectedDesktop();
+	map->updateSelectedDesktop();
+	drag->updateSelectedDesktop();*/
+	this->windowSwitcher = window;
+	this->dragSwitcher = drag;
+	this->mapSwitcher = map;
+	this->desktopSwitcher = desktop;
 	list<HWND> wlist = getAllWindows();
 	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
 		E_Window* window = new E_Window(*iter);

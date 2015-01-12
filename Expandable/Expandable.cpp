@@ -139,20 +139,26 @@ BOOL CExpandableApp::InitInstance()
 	//창 이름 변경
 	m_pMainWnd->SetWindowTextW(E_Global::testFrameName);
 
-
-	//E_Global 계열 초기화
-	E_Global* cwnd_global = E_Global::getSingleton();
-	cwnd_global->init();
-
 	//Switcher 계열 초기화
+	E_WindowSwitcher* windowSwicher = E_WindowSwitcher::getSingleton();
+	E_DesktopSwitcher* desktopSwicher = E_DesktopSwitcher::getSingleton();
+	E_DragAndDropSwitcher* dragSwicher = E_DragAndDropSwitcher::getSingleton();
+	E_Map* map = E_Map::getSingleton();
 	
 	//Window Switcher 초기화
 	CWnd* cwnd_windowSwicher = E_WindowSwitcher::getSingleton();
+	CWnd* cwnd_desktopSwicher = E_DesktopSwitcher::getSingleton();
+	CWnd* cwnd_dragSwicher = E_DragAndDropSwitcher::getSingleton();
+	CWnd* cwnd_map = E_Map::getSingleton();
+
+	//E_Global 계열 초기화
+	E_Global* cwnd_global = E_Global::getSingleton();
+	cwnd_global->init((E_ISwitcherUpdator*)desktopSwicher, (E_ISwitcherUpdator*)map, (E_ISwitcherUpdator*)dragSwicher, (E_ISwitcherUpdator*)windowSwicher);
 	
 	//Environment Manager 초기화
 	CWnd* cwnd_env = (CWnd*)E_EnvironmentManager::getSingleton();
 	((E_EnvironmentManager*)cwnd_env)->setGlobalUpdater((E_GlobalUpdater*)cwnd_global);
-	
+
 	CBrush m_oBkgndBrush;
 	m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
 	UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
@@ -168,6 +174,7 @@ BOOL CExpandableApp::InitInstance()
 	E_Hotkey* key = E_Hotkey::getSingleton();
 	key->init((E_IGlobal*)cwnd_global);
 
+
 	//Unit Test
 	E_WindowSwitcherTest::testGetAeroSize();
 	E_WindowSwitcherTest::testGetIconSize();
@@ -179,7 +186,6 @@ BOOL CExpandableApp::InitInstance()
 	E_UtilTest::testGetDefaultIconSize();
 	E_UtilTest::testGetIconHandle();
 	//E_UtilTest::testConvertIconToBitmape();
-
 
 	return TRUE;
 }

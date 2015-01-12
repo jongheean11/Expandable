@@ -66,5 +66,10 @@
 #include <inttypes.h>
 #include <tchar.h> 
 #include <psapi.h> 
+
+//exclusive operation
+#include <mutex>
+#include <thread>
+
 //3rd party
 #include "changlib.h"
