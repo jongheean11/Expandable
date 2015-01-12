@@ -212,7 +212,7 @@ void E_Map::OnPaint()
 		{
 			if ((*itr_hwnd) == selectIconHwnd)
 			{
-				
+				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
 				foreRect.left = (*itr_rect)->left;
 				foreRect.right = (*itr_rect)->right;
@@ -270,6 +270,7 @@ void E_Map::OnPaint()
 		RECT rectForMove;
 		::GetWindowRect(selectIconHwnd, &rectForMove);
 		::MoveWindow(selectIconHwnd, iconClick.x *100/15*mapWidth, iconClick.y *100/25*mapHeight, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+		::BringWindowToTop(selectIconHwnd);
 		//SetWindowPos(CWnd::FromHandle(selectIconHwnd),rectForMove.left,rectForMove.top, rectForMove.right -rectForMove.left, rectForMove.bottom - rectForMove.top, SWP_NOSIZE | SWP_SHOWWINDOW);
 		/*CDC cdc;
 		cdc.CreateCompatibleDC(this->GetWindowDC());
