@@ -22,6 +22,8 @@ private:
 	int transparent;
 	int time;
 	int settingTimer;
+	bool select;
+	bool up;
 public:
 	
 	virtual void updateSelectedDesktop();
