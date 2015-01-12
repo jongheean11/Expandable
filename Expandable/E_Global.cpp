@@ -143,7 +143,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	::GetWindowText(hwnd, Cap, 254);
 	length = ::GetWindowTextLength(hwnd);
 
-	if (IsWindowVisible(hwnd) )
+	if (IsWindowVisible(hwnd))
 	{
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
@@ -216,7 +216,7 @@ void E_Global::loopUpdate()
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
 	}
-		Sleep(10);
+		Sleep(100);
 }
 }
 
@@ -269,7 +269,6 @@ bool E_Global::onUpdate()
 		E_Window* window = new E_Window(*iter);
 				noChangeList.push_back(window);
 			}
-
 		}
 
 		//기존 윈도우를 제외한 윈도우 제거
@@ -362,7 +361,7 @@ void E_Global::setSelectedIndex(int index)
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
 	TRACE_WIN32A("HELL");
-	/*window->updateSelectedDesktop();
+	window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();
 	drag->updateSelectedDesktop();*/

@@ -14,6 +14,7 @@ private:
 	~E_WindowSwitcher();
 	E_EnvironmentManager* envManager;
 	bool running;
+	bool updateFlag;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
 	unordered_map<HWND, RECT> rect_map;	//	rect
@@ -67,5 +68,7 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	// 스위처를 재시작하는 함수
+	void restartSwitcher();
 };
 
