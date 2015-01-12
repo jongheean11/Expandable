@@ -2,13 +2,13 @@
 #include "afxwin.h"
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
+#include "E_ISwitcherUpdator.h"
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
-class E_WindowSwitcher : public CWnd, E_ISwitcherUpdator
+class E_WindowSwitcher : public CWnd, virtual E_ISwitcherUpdator
 {
 private:
-	void updateSelectedDesktop();
 	static E_WindowSwitcher* singleton;
 	E_WindowSwitcher();
 	~E_WindowSwitcher();
@@ -18,7 +18,10 @@ private:
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
 	unordered_map<HWND, RECT> rect_map;	//	rect
 	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
-	
+
+protected:
+	virtual void updateSelectedDesktop();
+
 public:
 	const static COLORREF backgroundColor;
 	const static COLORREF aeroColor;

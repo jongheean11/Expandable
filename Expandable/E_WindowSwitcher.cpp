@@ -14,7 +14,9 @@ const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
 
 void E_WindowSwitcher::updateSelectedDesktop()
 {
+	int a;
 	//업데이트가 발생한 경우 자동으로 호출됨
+	TRACE_WIN32A("[E_WindowSwitcher::updateSelectedDesktop()]");
 }
 E_WindowSwitcher::E_WindowSwitcher() : running(false)
 {
@@ -123,7 +125,7 @@ void E_WindowSwitcher::OnPaint()
 	static long resWidth = envManager->getWidth();
 	static long resHeight = envManager->getHeight();
 	
-	TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
+	//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
 	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
 		
 		//aero peek size...
@@ -134,7 +136,7 @@ void E_WindowSwitcher::OnPaint()
 			static long paddingSize = getPaddingSize(resWidth);	// 패딩의 크기
 			static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
 			static long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
-			TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
+			//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
 			{
 				// 더블 버퍼링을 위한 코드
 				//메모리 DC를 생성한다. (버퍼 메모리 할당)
@@ -185,7 +187,7 @@ void E_WindowSwitcher::OnPaint()
 				static long switcherLeft = resWidth / 2 - switcherWidth / 2;
 				static long switcherTop = resHeight / 2 - switcherHeight / 2;
 
-				TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
+				//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
 
 				//크기 계산을 위한 카운트 변수
 				int count = 0;
@@ -195,6 +197,9 @@ void E_WindowSwitcher::OnPaint()
 
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
 					//mode_map.key
+					if (mode_map.find((*iter)->getWindow()) == mode_map.end()){
+						continue;
+					}
 					unordered_map<HWND, DRAWMODE>::iterator modeIter = mode_map.find((*iter)->getWindow());
 					DRAWMODE mode = modeIter->second;
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
@@ -204,7 +209,7 @@ void E_WindowSwitcher::OnPaint()
 					CString windowName;
 					cwnd->GetWindowTextW(windowName);
 					
-					TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
+					//TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
 
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
@@ -258,7 +263,7 @@ void E_WindowSwitcher::OnPaint()
 					static long previewLeftoffset = paddingSize;	//실제 aero 크기
 					static long previewTopoffset = paddingSize;	//실제 aero 크기
 
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
+					//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] aeroLeftoffset: %d aeroTopoffset: %d previewLeftoffset: %d previewTopoffset: %d", aeroLeftoffset, aeroTopoffset, previewLeftoffset, previewTopoffset);
 
 					CRect crect = { 0, 0, 0,0 };
 
@@ -278,7 +283,7 @@ void E_WindowSwitcher::OnPaint()
 						screenshot->GetBitmap(&bmpinfo);
 						crect.SetRect(0,0, bmpinfo.bmWidth, bmpinfo.bmHeight);
 					}
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
+					//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] CRECT top %d left %d bottom %d right %d", crect.top, crect.left, crect.bottom, crect.right);
 
 					double ratio = 0;
 					switch (getShape(crect.right - crect.left, crect.bottom - crect.top, resWidth, resHeight)) {
@@ -306,7 +311,7 @@ void E_WindowSwitcher::OnPaint()
 
 					}
 
-					TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d", ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
+					//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] 창 ratio: %lf windowWidth: %d windowHeight: %d windowTopOffset: %d windowLeftOffset: %d", ratio, windowWidth, windowHeight, windowTopOffset, windowLeftOffset);
 					//위치 이동
 					this->SetWindowPos(NULL
 						, switcherLeft
@@ -378,7 +383,7 @@ void E_WindowSwitcher::OnPaint()
 		//icon size...
 	}
 	//항목의 개수에 따라 크기를 조절하여 가운데 정렬할 것
-	OutputDebugStringA("OnPaint()");
+	//OutputDebugStringA("OnPaint()");
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 

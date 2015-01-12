@@ -200,15 +200,22 @@ void E_Global::loopUpdate()
 {
 	//TRACE_WIN32A("E_Global::loopUpdate()");
 	while (updateMode){
-		onUpdate();
-		Sleep(2000);
+		if (onUpdate()){
+			TRACE_WIN32A("E_Global::loopUpdate()");
+			windowSwitcher->updateSelectedDesktop();
+			desktopSwitcher->updateSelectedDesktop();
+			mapSwitcher->updateSelectedDesktop();
+			dragSwitcher->updateSelectedDesktop();
+		}
+		Sleep(300);
 	}
 }
 
-// 업데이트 쓰레드
-void E_Global::onUpdate()
+// 업데이트 쓰레드// 변화될 경우 참을 반환한다.
+bool E_Global::onUpdate()
 {
-	TRACE_WIN32A("E_Global::onUpdate()");
+	bool result = false;
+	//TRACE_WIN32A("E_Global::onUpdate()");
 	//뮤텍스
 	//lock_guard<mutex> lockGuard(E_Mutex::updateMutex);//데드락
 	//윈도우 리스트 업데이트
@@ -219,7 +226,7 @@ void E_Global::onUpdate()
 	lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 	//Sleep(2000);
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
-	//사이즈가 다르거나 마지막이 다르다면..
+	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
 	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
 		//바뀐 윈도우만 업데이트
 		int wlistSize = wlist.size();
@@ -262,12 +269,14 @@ void E_Global::onUpdate()
 		for (list<E_Window*>::iterator iter = noChangeList.begin(); iter != noChangeList.end(); iter++){
 			selectedDesktop->insertWindow(*iter);
 		}
-		
+		//업데이트
+		result = true;
 	}
 	else{
 		
 	}
-	TRACE_WIN32A("E_Global::onUpdateEnd()");
+	//TRACE_WIN32A("E_Global::onUpdateEnd()");
+	return result;
 }
 
 
@@ -341,8 +350,12 @@ void E_Global::setSelectedIndex(int index)
 
 
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
-void E_Global::init()
+void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
+	this->windowSwitcher = window;
+	this->dragSwitcher = drag;
+	this->mapSwitcher = map;
+	this->desktopSwitcher = desktop;
 	list<HWND> wlist = getAllWindows();
 	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
 		E_Window* window = new E_Window(*iter);
