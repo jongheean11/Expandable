@@ -14,10 +14,10 @@ const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
 
 void E_WindowSwitcher::updateSelectedDesktop()
 {
-	int a;
 	//업데이트가 발생한 경우 자동으로 호출됨
 	TRACE_WIN32A("[E_WindowSwitcher::updateSelectedDesktop()]");
 }
+
 E_WindowSwitcher::E_WindowSwitcher() : running(false)
 {
 	envManager = E_EnvironmentManager::getSingleton();

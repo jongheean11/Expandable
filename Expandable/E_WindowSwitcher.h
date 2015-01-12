@@ -6,7 +6,7 @@
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
-class E_WindowSwitcher : public CWnd, virtual E_ISwitcherUpdator
+class E_WindowSwitcher : public CWnd, public E_ISwitcherUpdator
 {
 private:
 	static E_WindowSwitcher* singleton;
@@ -20,9 +20,10 @@ private:
 	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
 
 protected:
-	virtual void updateSelectedDesktop();
+	
 
 public:
+	virtual void updateSelectedDesktop();
 	const static COLORREF backgroundColor;
 	const static COLORREF aeroColor;
 	const static COLORREF aeroColorSelected;

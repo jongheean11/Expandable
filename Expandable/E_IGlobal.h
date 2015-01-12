@@ -20,4 +20,3 @@ public:
 	// 아래쪽 데스크탑으로 이동
 	virtual void moveDesktopDown() = 0;
 };
-

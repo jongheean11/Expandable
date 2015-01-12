@@ -100,7 +100,7 @@ void E_Hotkey::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 	case E_Hotkey::IDWINDOWLEFT:
 	{
 								   iglobal->moveTopWindowLeft();
-								   //TRACE_WIN32A("[E_Hotkey::OnHotKey]MOVE WINDOW TO LEFT");
+								   TRACE_WIN32A("[E_Hotkey::OnHotKey]MOVE WINDOW TO LEFT");
 								   break;
 	}
 	case E_Hotkey::IDWINDOWRIGHT:
