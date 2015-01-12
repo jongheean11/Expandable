@@ -1,9 +1,10 @@
 #include "E_Desktop.h"
 #include "E_EnvironmentManager.h"
+#include "E_ISwitcherUpdator.h"
 #include <hash_map>
 using namespace stdext;
 
-class E_DesktopSwitcher : public CWnd, E_ISwitcherUpdator
+class E_DesktopSwitcher : public CWnd, virtual  E_ISwitcherUpdator
 {
 private:
 	//singleton variable

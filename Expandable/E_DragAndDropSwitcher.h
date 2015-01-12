@@ -1,6 +1,6 @@
 #include "E_ISwitcherUpdator.h"
 #pragma once
-class E_DragAndDropSwitcher : CWnd, E_ISwitcherUpdator
+class E_DragAndDropSwitcher : public CWnd, virtual  E_ISwitcherUpdator
 {
 private:
 	static E_DragAndDropSwitcher* singleton;

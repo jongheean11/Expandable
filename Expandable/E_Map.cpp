@@ -7,7 +7,7 @@ const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
-	Invalidate(0);
+	TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
@@ -131,7 +131,7 @@ void E_Map::OnPaint()
 		iconRectList.clear();
 		iconHwndList.clear();
 		ison = true;
-		// device context for painting
+		 // device context for painting
 	
 		long x1, y1, x2, y2;
 		//long tmp1 = (h - th)*0.25 / mapHeight;
@@ -270,7 +270,7 @@ void E_Map::OnPaint()
 		if (newxpoint < w && newypoint < h)
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
-			::GetWindowRect(selectIconHwnd, &rectForMove);
+		::GetWindowRect(selectIconHwnd, &rectForMove);
 			::MoveWindow(selectIconHwnd, newxpoint, newypoint, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 		}
 		else

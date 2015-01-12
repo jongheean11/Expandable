@@ -41,4 +41,5 @@ public:
 
 	E_Desktop(int index);
 	~E_Desktop();
+	// 윈도우를 리스트에 포함
 };

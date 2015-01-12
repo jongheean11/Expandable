@@ -6,6 +6,7 @@
 void E_DragAndDropSwitcher::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
+	TRACE_WIN32A("[E_DragAndDropSwitcher::updateSelectedDesktop()]");
 }
 
 E_DragAndDropSwitcher::E_DragAndDropSwitcher()

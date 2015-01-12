@@ -1,7 +1,8 @@
 
 #include "E_EnvironmentManager.h"
+#include "E_ISwitcherUpdator.h"
 
-class E_Map : public CWnd, E_ISwitcherUpdator
+class E_Map : public CWnd, virtual E_ISwitcherUpdator
 {
 private:
 	static E_Map* singleton;
