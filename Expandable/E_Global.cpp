@@ -9,7 +9,9 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
-	desktopwidth = 3;
+	mapsize = 0.06;
+	iconsize = 1;
+	desktopwidth = 4;
 	desktopheight = 2;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
@@ -30,7 +32,14 @@ E_Global::~E_Global()
 {
 
 }
-
+double E_Global::getMapsize()
+{
+	return mapsize;
+}
+double E_Global::getIconsize()
+{
+	return iconsize;
+}
 CWnd* E_Global::getBackgroundWindow(){
 	HWND background = GetShellWindow();
 
@@ -206,9 +215,9 @@ void E_Global::loopUpdate()
 			desktopSwitcher->updateSelectedDesktop();
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
-		}
-		Sleep(300);
 	}
+		Sleep(300);
+}
 }
 
 // 업데이트 쓰레드// 변화될 경우 참을 반환한다.
@@ -223,8 +232,8 @@ bool E_Global::onUpdate()
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
 	//selectedDesktop->clearWindow();
 	//윈도우 추가
-	lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
-	//Sleep(2000);
+
+	Sleep(2000);
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
 	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
@@ -257,7 +266,7 @@ bool E_Global::onUpdate()
 				}
 			}
 			if (findWindow == NULL){
-				E_Window* window = new E_Window(*iter);
+		E_Window* window = new E_Window(*iter);
 				noChangeList.push_back(window);
 			}
 

@@ -20,12 +20,13 @@ private:
 	static E_Global* singleton;
 	E_Global();
 	~E_Global();
-
+	double mapsize;
+	double iconsize;
 	//스레드
 	thread* currentThread;
 public:
 	static const wchar_t* testFrameName;
-	
+
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
@@ -45,7 +46,8 @@ public:
 	E_ISwitcherUpdator* dragSwitcher;
 	E_ISwitcherUpdator* windowSwitcher;
 public:
-
+	double getIconsize();
+	double getMapsize();
 	static E_Global* getSingleton();
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
