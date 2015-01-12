@@ -1,9 +1,9 @@
 #include "E_Desktop.h"
 #include "E_EnvironmentManager.h"
-//#include <hash_map>
-//using namespace stdext;
+#include <hash_map>
+using namespace stdext;
 
-class E_DesktopSwitcher : public CWnd
+class E_DesktopSwitcher : public CWnd, E_ISwitcherUpdator
 {
 private:
 	//singleton variable
@@ -30,6 +30,8 @@ public:
 	double main_desktop_width, main_desktop_height;
 
 public:
+
+	virtual void updateSelectedDesktop();
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
 	{
@@ -58,16 +60,21 @@ public:
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //	bool moveWindow(E_Window* target, E_Desktop* dest);
 //private:
-	// 선택된 desktop 영역내의 rect 및 HTHUMBNAIL만 관리
-	std::list<RECT*> window_desktop_rect_list;
-	std::list<HTHUMBNAIL> window_desktop_hthumbnail_list;
+	
 
 	double swappoint_h;	
-	std::list<HTHUMBNAIL> desktop_hthumbnail_list, window_hthumbnail_list;
+//	std::list<HTHUMBNAIL> desktop_hthumbnail_list, window_hthumbnail_list;
 	std::list<RECT*> desktop_area_list_rect;
-	std::list<HWND> desktop_area_list_hwnd;
+//	std::list<HWND> desktop_area_list_hwnd;
 	std::list<RECT*> window_area_list_rect;
-	std::list<HWND> window_area_list_hwnd;
+//	std::list<HWND> window_area_list_hwnd;
+	std::list<RECT*> window_desktop_rect_list;
+
+	std::hash_map<RECT*,HTHUMBNAIL> desktop_RECT_hthumbnail_map, window_RECT_hthumbnail_map, window_desktop_RECT_hthumbnail_map;
+	std::hash_map<RECT*,HWND> desktop_area_map_RECT_HWND;
+	std::hash_map<RECT*,E_Window*> window_area_map_RECT_EWindow;
+
+
 	//hash_map<CRect, HWND> desktop_area_list;
 	//hash_map<CRect, HWND> window_area_list;
 	DECLARE_MESSAGE_MAP()

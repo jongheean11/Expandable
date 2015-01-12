@@ -37,6 +37,9 @@
     <Filter Include="Map">
       <UniqueIdentifier>{cec9e148-089f-449d-954f-0ffb026f2841}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{424ef4b6-040a-4cb4-ace5-f9567beb0c5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -84,9 +87,6 @@
     <ClInclude Include="E_EnvironmentManager.h">
       <Filter>EnvironmentManager</Filter>
     </ClInclude>
-    <ClInclude Include="E_GlobalUpdater.h">
-      <Filter>GlobalWindow</Filter>
-    </ClInclude>
     <ClInclude Include="E_WindowSwitcher.h">
       <Filter>WindowSwitcher</Filter>
     </ClInclude>
@@ -116,6 +116,15 @@
     </ClInclude>
     <ClInclude Include="E_IGlobal.h">
       <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Mutex.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="E_ISwitcherUpdator.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="E_GlobalUpdater.h">
+      <Filter>Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,9 +164,6 @@
     <ClCompile Include="E_EnvironmentManager.cpp">
       <Filter>EnvironmentManager</Filter>
     </ClCompile>
-    <ClCompile Include="E_GlobalUpdater.cpp">
-      <Filter>GlobalWindow</Filter>
-    </ClCompile>
     <ClCompile Include="E_WindowSwitcher.cpp">
       <Filter>WindowSwitcher</Filter>
     </ClCompile>
@@ -184,6 +190,15 @@
     </ClCompile>
     <ClCompile Include="E_IGlobal.cpp">
       <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Mutex.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_ISwitcherUpdator.cpp">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="E_GlobalUpdater.cpp">
+      <Filter>Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

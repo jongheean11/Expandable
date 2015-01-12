@@ -12,6 +12,10 @@ const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(0xcf, 0xdc, 0xdc
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
 
+void E_WindowSwitcher::updateSelectedDesktop()
+{
+	//업데이트가 발생한 경우 자동으로 호출됨
+}
 E_WindowSwitcher::E_WindowSwitcher() : running(false)
 {
 	envManager = E_EnvironmentManager::getSingleton();

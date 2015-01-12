@@ -1,6 +1,7 @@
 #include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 #include "E_IGlobal.h"
+#include "E_Mutex.h"
 
 /*
 객체 생성 후
@@ -19,9 +20,11 @@ private:
 	E_Global();
 	~E_Global();
 
+	//스레드
+	thread* currentThread;
 public:
 	static const wchar_t* testFrameName;
-
+	
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
 	bool ExpandableRunningFlag;
@@ -36,6 +39,7 @@ public:
 
 	virtual void OnDualMonitorMode(bool result);
 public:
+
 	static E_Global* getSingleton();
 	// 카카오톡 핸들
 	static CWnd* getKakaoWindow();
@@ -54,7 +58,9 @@ public:
 	// 업데이트 쓰레드
 	void onUpdate();
 	// 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
-	void stopUpdate();
+	bool stopUpdate();
+	// 실시간으로 윈도우 업데이트
+	void loopUpdate();
 	bool getUpdateMode();
 	// 리스트의 끝에 데스크탑 추가
 	bool addOneDesktop();

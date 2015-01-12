@@ -1,7 +1,7 @@
 
 #include "E_EnvironmentManager.h"
 
-class E_Map : public CWnd
+class E_Map : public CWnd, E_ISwitcherUpdator
 {
 private:
 	static E_Map* singleton;
@@ -20,6 +20,8 @@ private:
 	int time;
 	int settingTimer;
 public:
+
+	virtual void updateSelectedDesktop();
 	E_Map();
 	~E_Map();
 	std::list<RECT*> iconRectList;

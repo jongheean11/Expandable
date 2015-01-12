@@ -118,7 +118,9 @@
     <ClInclude Include="E_GlobalUpdater.h" />
     <ClInclude Include="E_Hotkey.h" />
     <ClInclude Include="E_IGlobal.h" />
+    <ClInclude Include="E_ISwitcherUpdator.h" />
     <ClInclude Include="E_Map.h" />
+    <ClInclude Include="E_Mutex.h" />
     <ClInclude Include="E_Util.h" />
     <ClInclude Include="E_UtilTest.h" />
     <ClInclude Include="E_Window.h" />
@@ -145,7 +147,9 @@
     <ClCompile Include="E_GlobalUpdater.cpp" />
     <ClCompile Include="E_Hotkey.cpp" />
     <ClCompile Include="E_IGlobal.cpp" />
+    <ClCompile Include="E_ISwitcherUpdator.cpp" />
     <ClCompile Include="E_Map.cpp" />
+    <ClCompile Include="E_Mutex.cpp" />
     <ClCompile Include="E_Util.cpp" />
     <ClCompile Include="E_UtilTest.cpp" />
     <ClCompile Include="E_Window.cpp" />

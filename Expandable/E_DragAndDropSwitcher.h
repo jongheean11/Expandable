@@ -1,12 +1,14 @@
+#include "E_ISwitcherUpdator.h"
 #pragma once
-class E_DragAndDropSwitcher : CWnd
+class E_DragAndDropSwitcher : CWnd, E_ISwitcherUpdator
 {
 private:
 	static E_DragAndDropSwitcher* singleton;
 	int nextDesktopIndex;
-public:
 	E_DragAndDropSwitcher();
 	~E_DragAndDropSwitcher();
+public:
+	virtual void updateSelectedDesktop();
 	static E_DragAndDropSwitcher* getSingleton();
 	void startSwitcher();
 	void terminateSwitcher();

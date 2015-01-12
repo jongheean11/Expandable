@@ -5,10 +5,10 @@
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
-class E_WindowSwitcher :
-	public CWnd
+class E_WindowSwitcher : public CWnd, E_ISwitcherUpdator
 {
 private:
+	void updateSelectedDesktop();
 	static E_WindowSwitcher* singleton;
 	E_WindowSwitcher();
 	~E_WindowSwitcher();
