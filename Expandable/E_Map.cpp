@@ -479,7 +479,10 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	trect.right = trect.left + iconSize/2;
 	trect.bottom = trect.top + iconSize/2;
 	
-	
+	int mapWidth = e_global->getDesktopWidth();
+	int mapHeight = e_global->getDesktopHeight();
+	int desktop = 0;
+	int bre = 0;
 	std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 	for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_hwnd != iconHwndList.end(); itr_hwnd++, itr_rect++)	//각 데스크탑 별로출력
 	{
@@ -500,14 +503,48 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			iconRectList.push_front(&trect);
 			selectIconHwnd = NULL;
 
+			for (int i = 1; i < mapHeight + 1; i++)
+			{
+				for (int j = 1; j < mapWidth + 1; j++)
+				{
+					desktop++;
+					if (j == upindexx && i == upindexy)
+					{	//여기서 윈도우를 해당 desktop으로 집어 넣음
+						bre = 1;
+						break;
+					}
+				}
+				if (bre)
+					break;
+			}
 			break;
 		}
 	}
+	
+	
+
 
 	Invalidate(0);
 	CWnd::OnLButtonUp(nFlags, point);
 	if (!in && clickindexx == upindexx && clickindexy == upindexy)
+	{
+		for (int i = 1; i < mapHeight + 1; i++)
+		{
+			for (int j = 1; j < mapWidth + 1; j++)
+			{
+				desktop++;
+				if (j == upindexx && i == upindexy)
+				{	//여기서 윈도우를 해당 desktop으로 집어 넣음
+					bre = 1;
+					break;
+				}
+			}
+			if (bre)
+				break;
+		}
+		e_global->setSelectedIndex(desktop-1);
 		terminateMap();
+	}
 }
 
 
