@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "E_Hooking.h"
-//5바이트 ShowWindow를 위한 핫 패치
+//5바이트 ShowWindow를 위한 핫 패치 7652F2A9
 BOOL hook_by_hotpatch_ShowWindow() {
+	OutputDebugStringA("[CALL] hook_by_hotpatch_ShowWindow");
+
 	PROC pShowWindowHook = (PROC)ShowWindowHook;
 	FARPROC pShowWindow = NULL;
 	LPCSTR dllName = "user32.dll";
@@ -35,6 +37,8 @@ BOOL hook_by_hotpatch_ShowWindow() {
 //5바이트 ShowWindow를 위한 핫 패치 복원
 BOOL unhook_by_hotpatch_ShowWindow()
 {
+	OutputDebugStringA("[CALL] unhook_by_hotpatch_ShowWindow");
+
 	PROC pShowWindowHook = (PROC)ShowWindowHook;
 	FARPROC pShowWindow = NULL;
 	LPCSTR dllName = "user32.dll";
@@ -199,9 +203,7 @@ BOOL hook_by_hotpatch(FARPROC pFunc, PROC pfnNew)
 BOOL WINAPI ShowWindowHook(
 	_In_  HWND hWnd,
 	_In_  int nCmdShow){
-
-
-	OutputDebugStringA("ShowWindow Called");
+	OutputDebugStringA("[ShowWindow] Called");
 
 	FARPROC pShowWindow = NULL;
 	BOOL result = FALSE;

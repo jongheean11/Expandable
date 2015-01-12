@@ -149,7 +149,18 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar == 'K'){
 		E_DragAndDropSwitcher::getSingleton()->startSwitcher();
 	}
-	
+	//if (nChar == 'Q'){
+	//	//스레드 테스트
+	//	E_Global::getSingleton()->startUpdate();
+	//}
+	//if (nChar == 'W'){
+
+	//	E_Global::getSingleton()->stopUpdate();
+	//}
+	//if (nChar == 'E'){
+	//	E_Desktop* d = E_Global::getSingleton()->getSelectedDesktop();
+	//	d->getWindowList();
+	//}
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 

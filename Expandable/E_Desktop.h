@@ -1,4 +1,5 @@
 #include "E_Window.h"
+#include "E_Mutex.h"
 using namespace Gdiplus;
 
 #pragma once

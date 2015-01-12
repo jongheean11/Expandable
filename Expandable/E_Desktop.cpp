@@ -11,8 +11,11 @@ E_Desktop::~E_Desktop()
 	
 }
 
+//OnUpdate()와 동기화 테스트 통과
 list<E_Window*> E_Desktop::getWindowList()
 {
+	lock_guard<mutex> updateMutext(E_Mutex::updateMutex);
+	//TRACE_WIN32A("[E_Desktop::getWindowList] enter the thread");
 	return windowList;
 }
 

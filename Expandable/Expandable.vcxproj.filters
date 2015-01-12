@@ -117,6 +117,9 @@
     <ClInclude Include="E_IGlobal.h">
       <Filter>GlobalWindow</Filter>
     </ClInclude>
+    <ClInclude Include="E_Mutex.h">
+      <Filter>GlobalWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -183,6 +186,9 @@
       <Filter>GlobalWindow</Filter>
     </ClCompile>
     <ClCompile Include="E_IGlobal.cpp">
+      <Filter>GlobalWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Mutex.cpp">
       <Filter>GlobalWindow</Filter>
     </ClCompile>
   </ItemGroup>

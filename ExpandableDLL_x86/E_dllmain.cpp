@@ -13,6 +13,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	{
 	case DLL_PROCESS_ATTACH:
 		OutputDebugStringA("[Attach] ExpandableDLL");
+		//MessageBoxA(NULL, "[Attach] ExpandableDLL", NULL, 0);
 		//hook_by_hotpatch_ShowWindow();
 		if (hook_by_hotpatch_SetProgressValue())
 			OutputDebugStringA("[Success] hook_by_hotpatch_SetProgressValue");

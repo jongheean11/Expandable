@@ -7,8 +7,7 @@ E_Global* E_Global::singleton = NULL;
 
 const wchar_t* E_Global::testFrameName = L"expandable";
 
-
-E_Global::E_Global() : selectedDesktop(NULL), updateMode(false)
+E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
 	desktopwidth = 3;
 	desktopheight = 2;
@@ -112,7 +111,6 @@ E_Global* E_Global::getSingleton()
 CWnd* E_Global::getKakaoWindow()
 {
 	HWND hkakao = FindWindow(NULL, L"카카오톡");
-	
 	return CWnd::FromHandle(hkakao);
 }
 
@@ -120,6 +118,7 @@ CWnd* E_Global::getKakaoWindow()
 list<HWND> E_Global::getAllWindows()
 {
 	E_Global* object = E_Global::getSingleton();
+	object->windowListForUpdate.clear();	//초기화
 	EnumWindows(E_Global::EnumCallBack, 0);
 	return object->windowListForUpdate;
 }
@@ -175,7 +174,7 @@ E_Desktop* E_Global::getSelectedDesktop()
 // 주기적 업데이트를 위한 타이머
 void E_Global::startTimer()
 {
-
+	updateMode = true;
 }
 
 
@@ -183,36 +182,62 @@ void E_Global::onTimer()
 {
 }
 
-
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
-	
+	TRACE_WIN32A("E_Global::startUpdate()");
+	if (currentThread == NULL && updateMode != true){
+		updateMode = true;
+		thread* t = new thread{ &E_Global::loopUpdate, this };
+		currentThread = t;
+		return true;
+	}
 	return false;
 }
 
+// 실시간으로 윈도우 업데이트
+void E_Global::loopUpdate()
+{
+	//TRACE_WIN32A("E_Global::loopUpdate()");
+	while (updateMode){
+		onUpdate();
+		Sleep(1000);
+	}
+}
 
 // 업데이트 쓰레드
 void E_Global::onUpdate()
 {
+	TRACE_WIN32A("E_Global::onUpdate()");
 	//뮤텍스
-
-	windowListForUpdate.clear();	//초기화
+	lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
+	//윈도우 리스트 업데이트
 	list<HWND> wlist = getAllWindows();
 	selectedDesktop->clearWindow();
 	//윈도우 추가
+
+	Sleep(2000);
+	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
 		E_Window* window = new E_Window(*iter);
 		selectedDesktop->insertWindow(window);
 	}
-
+	TRACE_WIN32A("E_Global::onUpdateEnd()");
 }
 
 
 // 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
-void E_Global::stopUpdate()
+bool E_Global::stopUpdate()
 {
-
+	TRACE_WIN32A("E_Global::stopUpdate()");
+	if (currentThread != NULL && updateMode == true){
+		updateMode = false;
+		currentThread->join();	//스레드가 끝날때까지 대기
+		delete currentThread;
+		currentThread = NULL;
+		return true;
+	}
+	return false;
 }
 
 
