@@ -3,12 +3,15 @@
 #include "E_Map.h"
 #include "E_Global.h"
 
-const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
+const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
-	Invalidate(0);
-	TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
+	if (!ison){
+		//this->Invalidate(0);
+		//Invalidate(0);
+		//TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
+	}
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
@@ -37,19 +40,19 @@ void E_Map::drawMap()
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->onUpdate();
-	e_global->startUpdate();
+	//e_global->startUpdate();
 	if (!ison)
 	{
 		int mapWidth = e_global->getDesktopWidth();
 		int mapHeight = e_global->getDesktopHeight();
-		
+
 		long w = enManager->getWidth();
 		long h = enManager->getHeight();
 		long th = enManager->getTaskbarHeight();
-		
+
 		double mapunit = w*e_global->getMapsize();
-		
-		
+
+
 		CBrush brush_map;
 		UINT nClassStyle_map = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		brush_map.CreateSolidBrush(RGB(255, 255, 255));
@@ -66,7 +69,7 @@ void E_Map::drawMap()
 		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
 		hwnd_cwnd_emap->SetWindowPos(NULL, w - mapunit*mapWidth, (h - th) - mapunit*mapHeight, mapunit*mapWidth, mapunit*mapHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-		
+
 		E_Window::setIconInvisible(hwnd_cwnd_emap->m_hWnd);
 		//cwnd_map->UpdateWindow();
 	}
@@ -82,7 +85,7 @@ void E_Map::drawMap()
 void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->stopUpdate();
+	//e_global->stopUpdate();
 	iconRectList.clear();
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
@@ -126,28 +129,59 @@ void E_Map::OnPaint()
 	long iconSize = w*e_global->getMapsize() / 4 * e_global->getIconsize();
 	CBrush brush;
 	brush.CreateSolidBrush(RGB(255, 255, 255));   // Blue brush.
+	double mapsize = e_global->getMapsize();
+	if (forSelectMap)
+	{
+		drawable = true;
+		int indexx = iconClick.x / (mapsize*w) + 1;
+		int indexy = iconClick.y / (mapsize*w) + 1;
 
-	if (!ison || clicked )
+		CRect tmprect;
+		//CBrush brush;
+		//brush.CreateSolidBrush(RGB(255, 170, 85));    
+
+		//memDC.Rectangle(indexx*mapsize*w, indexy*mapsize*w, indexx*mapsize*w + mapsize*w, indexy*mapsize*w+mapsize*w);
+		tmprect.left = (indexx - 1)*mapsize*w;
+		tmprect.top = (indexy - 1)*mapsize*w;
+		tmprect.right = tmprect.left + mapsize*w;
+		tmprect.bottom = tmprect.top + mapsize*w;
+		CPen pen;
+		pen.CreatePen(PS_SOLID, 5, RGB(255, 170, 85));
+		memDC.SelectObject(pen);
+		memDC.MoveTo(tmprect.left , tmprect.top  );
+		memDC.LineTo(tmprect.right , tmprect.top  );
+		memDC.MoveTo(tmprect.right , tmprect.top  );
+		memDC.LineTo(tmprect.right  , tmprect.bottom  );
+		memDC.MoveTo(tmprect.left  , tmprect.top  );
+		memDC.LineTo(tmprect.left  , tmprect.bottom  );
+		memDC.MoveTo(tmprect.left  , tmprect.bottom  );
+		memDC.LineTo(tmprect.right  , tmprect.bottom );
+		//memDC.Rectangle(tmprect.left, tmprect.top, tmprect.right, tmprect.bottom);
+		//memDC.FillRect(&tmprect, &brush);
+		pen.DeleteObject();
+		forSelectMap = false;
+	}
+	if (!ison || clicked)
 	{
 		drawable = true;
 		iconRectList.clear();
 		iconHwndList.clear();
 		ison = true;
-		 // device context for painting
-	
+		// device context for painting
+
 		long x1, y1, x2, y2;
 		//long tmp1 = (h - th)*0.25 / mapHeight;
-		double tmp1 = e_global->getMapsize()* w;
+		double tmp1 = mapsize* w;
 		//long tmp2 = 0.15*w / mapWidth;
-		double tmp2 = e_global->getMapsize() * w;
+		double tmp2 = mapsize * w;
 		RECT rectForIcon;
-	
+
 		HWND tmphwnd;
-			
+
 		//test 현재 바탕화면의 프로그램 맵에 그리기
 		for (int i = 0; i < mapHeight; i++)
 		{
-			y1 =  i*tmp1;
+			y1 = i*tmp1;
 			y2 = y1 + tmp1;
 			for (int j = 0; j < mapWidth; j++)
 			{
@@ -164,7 +198,7 @@ void E_Map::OnPaint()
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
-				
+
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
 				long iconPosstx = rectForIcon.left*e_global->getMapsize();
@@ -196,18 +230,15 @@ void E_Map::OnPaint()
 					cdc.DeleteDC();
 				}
 			}
-			
+
 		}
 		redraw = false;
 		//test 현재 바탕화면의 프로그램 맵에 그리기
 	}
-	if (forSelectMap)
+	
+	if (iconMoveMode == 1)// Lbutton down
 	{
-		int indexx = iconClick.x / e_global->getMapsize()*w;
-	}
-	if (iconMoveMode==1)// Lbutton down
-	{
-		
+
 		drawable = true;
 		std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 		for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_rect != iconRectList.end(); itr_rect++, itr_hwnd++)	//각 데스크탑 별로출력
@@ -221,12 +252,12 @@ void E_Map::OnPaint()
 				foreRect.bottom = (*itr_rect)->bottom;
 				foreRect.top = (*itr_rect)->top;
 
-				CBitmap icon ;
+				CBitmap icon;
 				int width = E_Util::getSystemSmallIconSize();
 				HICON hicon = E_Util::getIconHandle(selectIconHwnd);
 				HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
 				icon.Attach(bitmap);
-				
+
 				BITMAP icon_info;
 				icon.GetBitmap(&icon_info);
 				memDC.SetStretchBltMode(COLORONCOLOR);
@@ -238,7 +269,7 @@ void E_Map::OnPaint()
 
 
 				memDC.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-				
+
 				break;
 
 			}
@@ -246,7 +277,7 @@ void E_Map::OnPaint()
 	}
 	if (clicked && iconMoveMode == 2)
 	{
-		
+
 		drawable = true;
 		memDC.FillRect(&foreRect, &brush);//이전것 지우기
 		CBitmap icon;
@@ -265,11 +296,11 @@ void E_Map::OnPaint()
 		cdc.SetBkColor(E_Map::backgroundColor);
 
 		memDC.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-		foreRect.left = iconClick.x ;
+		foreRect.left = iconClick.x;
 		foreRect.right = iconClick.x + iconSize;
-		foreRect.top = iconClick.y ;
-		foreRect.bottom = iconClick.y + iconSize ;
-		
+		foreRect.top = iconClick.y;
+		foreRect.bottom = iconClick.y + iconSize;
+
 		RECT rectForMove;
 		long newxpoint = iconClick.x / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*iconClick.y / w / e_global->getMapsize() / mapHeight*mapHeight;
@@ -283,21 +314,21 @@ void E_Map::OnPaint()
 		{
 			::ShowWindow(selectIconHwnd, SW_HIDE);
 		}
-		
-		
+
+
 		//CWnd* pChild = GetWindow(GW_CHILD);
 		//long xc = iconClick.x * 100 / 15 * mapWidth;
 		//long yc = iconClick.y * 100 / 25 * mapHeight;
-	
+
 		//while (pChild)
-	//	{
+		//	{
 		//	::MoveWindow(pChild->m_hWnd, xc+rectForMove.right-rectForMove.left, yc+rectForMove.bottom - rectForMove.top, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 		//	pChild = pChild->GetNextWindow();
 		//	::GetWindowRect(pChild->m_hWnd, &rectForMove);
 		//}
-		
-		
-		
+
+
+
 		::BringWindowToTop(selectIconHwnd);
 
 		//SetWindowPos(CWnd::FromHandle(selectIconHwnd),rectForMove.left,rectForMove.top, rectForMove.right -rectForMove.left, rectForMove.bottom - rectForMove.top, SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -311,11 +342,13 @@ void E_Map::OnPaint()
 		BITMAP icon_info;
 		icon.GetBitmap(&icon_info);
 		dc.StretchBlt(iconClick.x, iconClick.y, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-*/
+		*/
 
 	}
 	if (drawable)
 		dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
+	memDC.DeleteDC();
+	bmp.DeleteObject();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
@@ -332,7 +365,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	forSelectMap = true;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	std::list<HWND>::iterator itr_hwnd = iconHwndList.begin();
-	for (std::list<RECT*>::iterator itr_rect = iconRectList.begin(); itr_rect != iconRectList.end(); itr_rect++,itr_hwnd++)	//각 데스크탑 별로출력
+	for (std::list<RECT*>::iterator itr_rect = iconRectList.begin(); itr_rect != iconRectList.end(); itr_rect++, itr_hwnd++)	//각 데스크탑 별로출력
 	{
 		if ((*itr_rect)->left < point.x && (*itr_rect)->right > point.x && (*itr_rect)->top < point.y && (*itr_rect)->bottom > point.y)
 		{
@@ -380,6 +413,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	time = settingTimer;
 	mouse = iconClick = point;
 	iconMoveMode = 2;
+	if (clicked)
 	Invalidate(0);
 	CWnd::OnMouseMove(nFlags, point);
 }
@@ -394,9 +428,8 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 		if (time < 0)
 		{
 			KillTimer(1);
-			//terminateMap();
 			time = settingTimer;
-			terminateMap();
+			//terminateMap();
 		}
 	}
 	CWnd::OnTimer(nIDEvent);

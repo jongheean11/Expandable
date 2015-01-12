@@ -12,7 +12,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	mapsize = 0.06;
 	iconsize = 1;
 	desktopwidth = 4;
-	desktopheight = 2;
+	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	
@@ -362,10 +362,10 @@ void E_Global::setSelectedIndex(int index)
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
 	TRACE_WIN32A("HELL");
-	window->updateSelectedDesktop();
+	/*window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();
-	drag->updateSelectedDesktop();
+	drag->updateSelectedDesktop();*/
 	this->windowSwitcher = window;
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;

@@ -23,7 +23,7 @@ private:
 	int time;
 	int settingTimer;
 public:
-
+	
 	virtual void updateSelectedDesktop();
 	E_Map();
 	~E_Map();
