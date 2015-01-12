@@ -51,7 +51,7 @@ public:
 	int getPaddingSize(int res_width);
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
-	void E_WindowSwitcher::drawIcon();
+	//void E_WindowSwitcher::drawIcon();
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();

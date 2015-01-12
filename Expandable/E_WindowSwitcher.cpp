@@ -44,11 +44,12 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 // UI를 보여주고 입력을 받는 창을 활성화 시킴
 void E_WindowSwitcher::startSwitcher()
 {
-	running = true;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
-	RECT r={ 0, 0, 0, 0};
+	global->startUpdate();
+	running = true;
 
+	RECT r={ 0, 0, 0, 0};
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
 
@@ -84,6 +85,8 @@ void E_WindowSwitcher::terminateSwitcher()
 {
 	//크리티컬 세션?
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
+	E_Global::getSingleton()->stopUpdate();
+
 	HRESULT result;
 	running = false;
 	this->ShowWindow(SW_HIDE);
@@ -132,32 +135,31 @@ void E_WindowSwitcher::OnPaint()
 			static long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
 			static long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
 			TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
-
-			// 더블 버퍼링을 위한 코드
-			//메모리 DC를 생성한다. (버퍼 메모리 할당)
-			CDC memDC;
-			//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
-			CBitmap bmp;
-			//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
-			memDC.CreateCompatibleDC(&dc);
-			//주어진 dc에 호환하는 비트맵을 생성한다.
-			bmp.CreateCompatibleBitmap(&dc, resWidth, resHeight);
-			//이제 memDC에 생성된 비트맵을 연결한다.
-			memDC.SelectObject(bmp);
-
-			CBrush brush;   // Must initialize!
-			brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
-
-			RECT rect;
-			rect.left = 0;
-			rect.top = 0;
-			rect.right = resWidth;
-			rect.bottom = resHeight;
-			memDC.FillRect(&rect, &brush);
-
-			brush.DeleteObject();
-			
 			{
+				// 더블 버퍼링을 위한 코드
+				//메모리 DC를 생성한다. (버퍼 메모리 할당)
+				CDC memDC;
+				//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
+				CBitmap bmp;
+				//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
+				memDC.CreateCompatibleDC(&dc);
+				//주어진 dc에 호환하는 비트맵을 생성한다.
+				bmp.CreateCompatibleBitmap(&dc, resWidth, resHeight);
+				//이제 memDC에 생성된 비트맵을 연결한다.
+				memDC.SelectObject(bmp);
+
+				CBrush brush;   // Must initialize!
+				brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+
+				RECT rect;
+				rect.left = 0;
+				rect.top = 0;
+				rect.right = resWidth;
+				rect.bottom = resHeight;
+				memDC.FillRect(&rect, &brush);
+
+				brush.DeleteObject();
+
 				//첫번째 데스크탑 계산
 				long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
 				long tempAeroHeightCount = 1;	//임시 높이는 1개
@@ -203,7 +205,7 @@ void E_WindowSwitcher::OnPaint()
 					cwnd->GetWindowTextW(windowName);
 					
 					TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
-					
+
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 					
@@ -222,7 +224,7 @@ void E_WindowSwitcher::OnPaint()
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-
+				
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
@@ -339,7 +341,7 @@ void E_WindowSwitcher::OnPaint()
 						icon->GetBitmap(&icon_info);
 						CDC cdc;
 						cdc.CreateCompatibleDC(this->GetWindowDC());
-						cdc.SelectObject((*iter)->getIcon());
+						cdc.SelectObject(icon);
 						memDC.SetStretchBltMode(COLORONCOLOR);
 						memDC.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 						cdc.DeleteDC();
@@ -358,8 +360,6 @@ void E_WindowSwitcher::OnPaint()
 					if (count >= 14)
 						break;
 
-					//dc 해제
-
 					
 					brush1.DeleteObject();
 					pen.DeleteObject();
@@ -367,6 +367,10 @@ void E_WindowSwitcher::OnPaint()
 
 				//버퍼에 있는 내용 한번에 그리기
 				dc.StretchBlt(0, 0, resWidth, resHeight, &memDC, 0, 0, resWidth, resHeight, SRCCOPY);
+
+				//dc 해제
+				memDC.DeleteDC();
+				bmp.DeleteObject();
 			}
 		}
 	}
@@ -380,20 +384,20 @@ void E_WindowSwitcher::OnPaint()
 
 /*
 test code*/
-void E_WindowSwitcher::drawIcon(){
-
-	CPaintDC dc(this); // device context for painting
-	E_Window * temp = new E_Window(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
-	
-	CBitmap* icon = temp->getIcon();
-	BITMAP icon_info;
-	icon->GetBitmap(&icon_info);
-	CDC cdc;
-	cdc.CreateCompatibleDC(this->GetWindowDC());
-	cdc.SelectObject(icon);
-	dc.SetStretchBltMode(COLORONCOLOR);
-	dc.StretchBlt(0,0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-}
+//void E_WindowSwitcher::drawIcon(){
+//
+//	CPaintDC dc(this); // device context for painting
+//	E_Window * temp = new E_Window(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
+//	
+//	CBitmap* icon = temp->getIcon();
+//	BITMAP icon_info;
+//	icon->GetBitmap(&icon_info);
+//	CDC cdc;
+//	cdc.CreateCompatibleDC(this->GetWindowDC());
+//	cdc.SelectObject(icon);
+//	dc.SetStretchBltMode(COLORONCOLOR);
+//	dc.StretchBlt(0,0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+//}
 
 // 현재 Switcher가 동작중인가?
 bool E_WindowSwitcher::isRunning()
