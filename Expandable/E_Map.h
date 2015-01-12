@@ -17,6 +17,8 @@ private:
 	bool ison;
 	bool redraw;
 	int transparent;
+	int time;
+	int settingTimer;
 public:
 
 	virtual void updateSelectedDesktop();
@@ -29,20 +31,15 @@ public:
 	static volatile bool isThreadRunning ;
 	void drawMap();
 	void terminateMap();
-	void onMouseLButtonDown(int x, int y);
-	void onMouseMove();
-	void OnMouseLButtonUp(int x, int y);
-	void startTimer();
-	void stopTimer();
 	void setTransparent(int value);
 	UINT checkTime(LPVOID param);
 	static const wchar_t* caption;
-	
+	void setTimer(int value);
 	
 	DECLARE_MESSAGE_MAP()
-//	afx_msg void OnPaint();
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

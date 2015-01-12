@@ -11,6 +11,8 @@ void E_Map::updateSelectedDesktop()
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
+	settingTimer = 5;
+	time = settingTimer;
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
 	ison = false;
@@ -31,6 +33,7 @@ void E_Map::drawMap()
 {
 	if (!ison)
 	{
+		
 		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 		E_Global* e_global = E_Global::getSingleton();
 
@@ -47,7 +50,7 @@ void E_Map::drawMap()
 		CString szClassName_map = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
 		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
 		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
-
+		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 		::SetLayeredWindowAttributes(hwnd_cwnd_emap->m_hWnd, 0, transparent, LWA_ALPHA); //창투명
@@ -65,32 +68,7 @@ void E_Map::drawMap()
 
 }
 
-void E_Map::onMouseLButtonDown(int x, int y)
-{
 
-}
-
-void E_Map::onMouseMove()
-{
-
-}
-
-void E_Map::OnMouseLButtonUp(int x, int y)
-{
-
-}
-
-void E_Map::startTimer()
-{
-
-
-}
-
-void E_Map::stopTimer()
-{
-
-
-}
 
 void E_Map::terminateMap()
 {
@@ -109,6 +87,7 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -248,6 +227,7 @@ void E_Map::OnPaint()
 	}
 	if (clicked && iconMoveMode == 2)
 	{
+		
 		drawable = true;
 		memDC.FillRect(&foreRect, &brush);//이전것 지우기
 		CBitmap icon;
@@ -274,7 +254,21 @@ void E_Map::OnPaint()
 		RECT rectForMove;
 		::GetWindowRect(selectIconHwnd, &rectForMove);
 		::MoveWindow(selectIconHwnd, iconClick.x *100/15*mapWidth, iconClick.y *100/25*mapHeight, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+		CWnd* pChild = GetWindow(GW_CHILD);
+		long xc = iconClick.x * 100 / 15 * mapWidth;
+		long yc = iconClick.y * 100 / 25 * mapHeight;
+	
+		while (pChild)
+		{
+			::MoveWindow(pChild->m_hWnd, xc+rectForMove.right-rectForMove.left, yc+rectForMove.bottom - rectForMove.top, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+			pChild = pChild->GetNextWindow();
+			::GetWindowRect(pChild->m_hWnd, &rectForMove);
+		}
+		
+		
+		
 		::BringWindowToTop(selectIconHwnd);
+
 		//SetWindowPos(CWnd::FromHandle(selectIconHwnd),rectForMove.left,rectForMove.top, rectForMove.right -rectForMove.left, rectForMove.bottom - rectForMove.top, SWP_NOSIZE | SWP_SHOWWINDOW);
 		/*CDC cdc;
 		cdc.CreateCompatibleDC(this->GetWindowDC());
@@ -317,6 +311,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 			break;
 		}
 	}
+	time = settingTimer;
 	Invalidate(0);
 	CWnd::OnLButtonDown(nFlags, point);
 }
@@ -327,7 +322,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	iconMoveMode = 0;
 	clicked = false;
-	
+	time = settingTimer;
 	std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 	for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_hwnd != iconHwndList.end(); itr_hwnd++, itr_rect++)	//각 데스크탑 별로출력
 	{
@@ -349,8 +344,33 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	time = settingTimer;
 	iconClick = point;
 	iconMoveMode = 2;
 	Invalidate(0);
 	CWnd::OnMouseMove(nFlags, point);
+}
+
+
+void E_Map::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	if (nIDEvent == 1)
+	{
+		time--;
+		if (time < 0)
+		{
+			KillTimer(1);
+			//terminateMap();
+			time = settingTimer;
+			terminateMap();
+		}
+	}
+	CWnd::OnTimer(nIDEvent);
+}
+
+void E_Map::setTimer(int value)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	settingTimer = value;
 }
