@@ -9,7 +9,9 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
-	desktopwidth = 3;
+	mapsize = 0.06;
+	iconsize = 1;
+	desktopwidth = 4;
 	desktopheight = 2;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
@@ -30,7 +32,14 @@ E_Global::~E_Global()
 {
 
 }
-
+double E_Global::getMapsize()
+{
+	return mapsize;
+}
+double E_Global::getIconsize()
+{
+	return iconsize;
+}
 CWnd* E_Global::getBackgroundWindow(){
 	HWND background = GetShellWindow();
 
@@ -200,8 +209,8 @@ void E_Global::loopUpdate()
 {
 	//TRACE_WIN32A("E_Global::loopUpdate()");
 	while (updateMode){
-		onUpdate();
 		Sleep(1000);
+		onUpdate();
 	}
 }
 
@@ -216,7 +225,7 @@ void E_Global::onUpdate()
 	selectedDesktop->clearWindow();
 	//윈도우 추가
 
-	Sleep(2000);
+	
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
 		E_Window* window = new E_Window(*iter);

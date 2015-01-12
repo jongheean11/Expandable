@@ -7,6 +7,7 @@ const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
+	Invalidate(0);
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
@@ -31,16 +32,20 @@ E_Map::~E_Map()
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+	//e_global->onUpdate();
+	//e_global->startUpdate();
 	if (!ison)
 	{
+		int mapWidth = e_global->getDesktopWidth();
+		int mapHeight = e_global->getDesktopHeight();
 		
-		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-		E_Global* e_global = E_Global::getSingleton();
-
 		long w = enManager->getWidth();
 		long h = enManager->getHeight();
 		long th = enManager->getTaskbarHeight();
 		
+		double mapunit = w*e_global->getMapsize();
 		
 		
 		CBrush brush_map;
@@ -49,13 +54,15 @@ void E_Map::drawMap()
 		brush_map.CreateStockObject(NULL_BRUSH);
 		CString szClassName_map = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
 		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
-		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
+		//hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
+		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight), CWnd::GetDesktopWindow(), 0);
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 		::SetLayeredWindowAttributes(hwnd_cwnd_emap->m_hWnd, 0, transparent, LWA_ALPHA); //창투명
 		hwnd_cwnd_emap->UpdateWindow();
-		hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
+		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
+		hwnd_cwnd_emap->SetWindowPos(NULL, w - mapunit*mapWidth, (h - th) - mapunit*mapHeight, mapunit*mapWidth, mapunit*mapHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
 		
 		E_Window::setIconInvisible(hwnd_cwnd_emap->m_hWnd);
@@ -72,6 +79,8 @@ void E_Map::drawMap()
 
 void E_Map::terminateMap()
 {
+	E_Global* e_global = E_Global::getSingleton();
+	//e_global->stopUpdate();
 	iconRectList.clear();
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
@@ -94,12 +103,14 @@ END_MESSAGE_MAP()
 
 void E_Map::OnPaint()
 {
+	//e_global->onUpdate();
 	bool drawable = false;
 	CPaintDC dc(this);
 	CDC memDC;
 	CBitmap bmp;
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
+	//e_global->onUpdate();
 	long w = enManager->getWidth();
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
@@ -109,7 +120,8 @@ void E_Map::OnPaint()
 	int mapWidth = e_global->getDesktopWidth();
 	int mapHeight = e_global->getDesktopHeight();
 	int desktopCount = e_global->getDesktopCount();
-	long iconSize = 0.15*w / 6 / mapWidth;
+	//long iconSize = e_global->getMapsize()*mapWidth*w / mapWidth * e_global->getMapsize() *3 ;
+	long iconSize = w*e_global->getMapsize() / 4 * e_global->getIconsize();
 	CBrush brush;
 	brush.CreateSolidBrush(RGB(255, 255, 255));   // Blue brush.
 
@@ -119,12 +131,13 @@ void E_Map::OnPaint()
 		iconRectList.clear();
 		iconHwndList.clear();
 		ison = true;
-		 // device context for painting
+		// device context for painting
 	
 		long x1, y1, x2, y2;
-		long tmp1 = (h - th)*0.25 / mapHeight;
-		long tmp2 = 0.15*w / mapWidth;
-		
+		//long tmp1 = (h - th)*0.25 / mapHeight;
+		double tmp1 = e_global->getMapsize()* w;
+		//long tmp2 = 0.15*w / mapWidth;
+		double tmp2 = e_global->getMapsize() * w;
 		RECT rectForIcon;
 	
 		HWND tmphwnd;
@@ -152,8 +165,8 @@ void E_Map::OnPaint()
 				
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
-				long iconPosstx = rectForIcon.left*0.15 / mapWidth;
-				long icpnPossty = rectForIcon.top*0.25 / mapHeight;
+				long iconPosstx = rectForIcon.left*e_global->getMapsize();
+				long icpnPossty = rectForIcon.top*e_global->getMapsize();
 				//rect 가로사이즈는 미니맵 크기의 1/8
 				//rect 시작 위치는 rectForIcon 의 x1,y1
 				//rectForIcon.left = iconPosstx1 + rectForIcon.left*0.15; //비율값 더하기
@@ -252,18 +265,30 @@ void E_Map::OnPaint()
 		foreRect.bottom = iconClick.y + iconSize ;
 		
 		RECT rectForMove;
-		::GetWindowRect(selectIconHwnd, &rectForMove);
-		::MoveWindow(selectIconHwnd, iconClick.x *100/15*mapWidth, iconClick.y *100/25*mapHeight, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
-		CWnd* pChild = GetWindow(GW_CHILD);
-		long xc = iconClick.x * 100 / 15 * mapWidth;
-		long yc = iconClick.y * 100 / 25 * mapHeight;
-	
-		while (pChild)
+		long newxpoint = iconClick.x / e_global->getMapsize()*mapWidth / mapWidth;
+		long newypoint = (h - th)*iconClick.y / w / e_global->getMapsize() / mapHeight*mapHeight;
+		if (newxpoint < w && newypoint < h)
 		{
-			::MoveWindow(pChild->m_hWnd, xc+rectForMove.right-rectForMove.left, yc+rectForMove.bottom - rectForMove.top, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
-			pChild = pChild->GetNextWindow();
-			::GetWindowRect(pChild->m_hWnd, &rectForMove);
+			::ShowWindow(selectIconHwnd, SW_SHOW);
+			::GetWindowRect(selectIconHwnd, &rectForMove);
+			::MoveWindow(selectIconHwnd, newxpoint, newypoint, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 		}
+		else
+		{
+			::ShowWindow(selectIconHwnd, SW_HIDE);
+		}
+		
+		
+		//CWnd* pChild = GetWindow(GW_CHILD);
+		//long xc = iconClick.x * 100 / 15 * mapWidth;
+		//long yc = iconClick.y * 100 / 25 * mapHeight;
+	
+		//while (pChild)
+	//	{
+		//	::MoveWindow(pChild->m_hWnd, xc+rectForMove.right-rectForMove.left, yc+rectForMove.bottom - rectForMove.top, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+		//	pChild = pChild->GetNextWindow();
+		//	::GetWindowRect(pChild->m_hWnd, &rectForMove);
+		//}
 		
 		
 		
