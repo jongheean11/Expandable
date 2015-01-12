@@ -4,6 +4,10 @@
 #include "E_Global.h"
 
 const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
+void E_Map::updateSelectedDesktop()
+{
+	//업데이트가 발생한 경우 자동으로 호출됨
+}
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {

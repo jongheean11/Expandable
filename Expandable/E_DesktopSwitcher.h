@@ -3,7 +3,7 @@
 #include <hash_map>
 using namespace stdext;
 
-class E_DesktopSwitcher : public CWnd
+class E_DesktopSwitcher : public CWnd, E_ISwitcherUpdator
 {
 private:
 	//singleton variable
@@ -30,6 +30,8 @@ public:
 	double main_desktop_width, main_desktop_height;
 
 public:
+
+	virtual void updateSelectedDesktop();
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
 	{

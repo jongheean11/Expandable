@@ -7,6 +7,11 @@
 #include <string>
 #include "E_WindowSwitcher.h"
 
+void E_DesktopSwitcher::updateSelectedDesktop()
+{
+	//업데이트가 발생한 경우 자동으로 호출됨
+}
+
 
 void getWindowText(HWND hwnd)
 {
