@@ -216,7 +216,7 @@ void E_Global::loopUpdate()
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
 	}
-		Sleep(300);
+		Sleep(10);
 }
 }
 

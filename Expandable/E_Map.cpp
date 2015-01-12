@@ -7,11 +7,13 @@ const COLORREF E_Map::backgroundColor = RGB(0, 0,0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
+	Invalidate(0);
 	TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
+	forSelectMap = false;
 	settingTimer = 5;
 	time = settingTimer;
 	iconMoveMode = 0;
@@ -35,7 +37,7 @@ void E_Map::drawMap()
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->onUpdate();
-	//e_global->startUpdate();
+	e_global->startUpdate();
 	if (!ison)
 	{
 		int mapWidth = e_global->getDesktopWidth();
@@ -80,7 +82,7 @@ void E_Map::drawMap()
 void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	//e_global->stopUpdate();
+	e_global->stopUpdate();
 	iconRectList.clear();
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
@@ -157,7 +159,7 @@ void E_Map::OnPaint()
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
-			std::list<E_Window*> desktop_window = (*itr_desktop)->windowList;
+			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
@@ -199,9 +201,13 @@ void E_Map::OnPaint()
 		redraw = false;
 		//test 현재 바탕화면의 프로그램 맵에 그리기
 	}
-
+	if (forSelectMap)
+	{
+		int indexx = iconClick.x / e_global->getMapsize()*w;
+	}
 	if (iconMoveMode==1)// Lbutton down
 	{
+		
 		drawable = true;
 		std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 		for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_rect != iconRectList.end(); itr_rect++, itr_hwnd++)	//각 데스크탑 별로출력
@@ -270,7 +276,7 @@ void E_Map::OnPaint()
 		if (newxpoint < w && newypoint < h)
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
-		::GetWindowRect(selectIconHwnd, &rectForMove);
+			::GetWindowRect(selectIconHwnd, &rectForMove);
 			::MoveWindow(selectIconHwnd, newxpoint, newypoint, rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 		}
 		else
@@ -323,6 +329,7 @@ E_Map* E_Map::getSingleton()
 
 void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	forSelectMap = true;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	std::list<HWND>::iterator itr_hwnd = iconHwndList.begin();
 	for (std::list<RECT*>::iterator itr_rect = iconRectList.begin(); itr_rect != iconRectList.end(); itr_rect++,itr_hwnd++)	//각 데스크탑 별로출력
@@ -344,6 +351,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 
 void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	forSelectMap = false;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	iconMoveMode = 0;
 	clicked = false;
@@ -370,7 +378,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	time = settingTimer;
-	iconClick = point;
+	mouse = iconClick = point;
 	iconMoveMode = 2;
 	Invalidate(0);
 	CWnd::OnMouseMove(nFlags, point);
