@@ -200,7 +200,7 @@ bool E_Window::takeScreenshot()
 		return FALSE;
 
 	hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
-
+	
 	if (!::PrintWindow(hTargetWnd, hMemDC, 0))
 		bSuccess = FALSE;
 	else
