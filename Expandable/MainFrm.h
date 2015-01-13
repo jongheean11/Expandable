@@ -44,6 +44,9 @@ protected:
 	afx_msg LRESULT OnTrayNotification(WPARAM, LPARAM);
 	DECLARE_MESSAGE_MAP()
 
+public:
+	afx_msg void On32775();
+	afx_msg void OnDestroy();
 };
 
 
