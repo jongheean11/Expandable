@@ -11,8 +11,8 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 {
 	mapsize = 0.06;
 	iconsize = 1;
-	desktopwidth = 2;
-	desktopheight = 2;
+	desktopwidth = 3;
+	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	
@@ -359,6 +359,7 @@ void E_Global::setSelectedIndex(int index)
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
+	TRACE_WIN32A("HELL");
 	window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();

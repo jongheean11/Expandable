@@ -22,8 +22,11 @@ private:
 	int transparent;
 	int time;
 	int settingTimer;
+	bool select;
+	bool up;
 public:
-
+	int clickindexx,clickindexy;
+	int upindexx,upindexy;
 	virtual void updateSelectedDesktop();
 	E_Map();
 	~E_Map();
