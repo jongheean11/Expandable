@@ -364,7 +364,7 @@ void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwi
 	window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();
-	drag->updateSelectedDesktop();*/
+	drag->updateSelectedDesktop();
 	this->windowSwitcher = window;
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;
