@@ -17,6 +17,7 @@ private:
 	bool updateMode;
 	list<HWND> windowList;			//임시 사용 윈도우 리스트
 	list<HWND> windowListForUpdate;	//업데이트시에 사용 업데이트 전 항상 초기화 필요
+	list<HWND> windowListForZIndex;	//업데이트시에 사용 업데이트 전 항상 초기화 필요
 	static E_Global* singleton;
 	E_Global();
 	~E_Global();
@@ -26,6 +27,8 @@ private:
 	thread* currentThread;
 public:
 	static const wchar_t* testFrameName;
+
+	E_Window* backgroundWindow;
 
 	list<E_Desktop*> desktopList;
 	list<E_Window*> dockedWindowList;
@@ -37,7 +40,9 @@ public:
 	CWnd* getBackgroundWindow();
 	CWnd* getTaskbarWindow();
 	static list<HWND> getAllWindows();
+	static list<HWND> getAllWindowsForZIndex();
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
+	static BOOL CALLBACK EnumCallBackForZIndex(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
 	//인터페이스 호출을 위한 함수
@@ -99,4 +104,6 @@ public:
 	void moveDesktopUp();
 	// 아래쪽 데스크탑으로 이동
 	void moveDesktopDown();
+	// 리스트를 Z-Index로 정렬해서 반환하는 함수
+	void E_Global::sortZIndexWindowList(list<E_Window*>& target);
 };

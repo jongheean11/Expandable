@@ -70,5 +70,6 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	// 스위처를 재시작하는 함수
 	void restartSwitcher();
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
