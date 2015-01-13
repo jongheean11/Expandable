@@ -131,6 +131,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
+
 // 현재 데스크탑 반환
 E_Desktop* E_Global::getSelectedDesktop()
 {
@@ -183,13 +184,9 @@ void E_Global::loopUpdate()
 bool E_Global::onUpdate()
 {
 	bool result = false;
-	//TRACE_WIN32A("E_Global::onUpdate()");
-	//뮤텍스
-	//lock_guard<mutex> lockGuard(E_Mutex::updateMutex);//데드락
 	//윈도우 리스트 업데이트
 	list<HWND> wlist = getAllWindows();
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
-	//selectedDesktop->clearWindow();
 	//윈도우 추가
 	int wlistSize = wlist.size();
 	int selectedSize = selectedWindows.size();
@@ -327,11 +324,10 @@ void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwi
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;
 	this->desktopSwitcher = desktop;
-	/*list<HWND> wlist = getAllWindows();
-	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
-		E_Window* window = new E_Window(*iter);
-		selectedDesktop->insertWindow(window);
-	}*/
+
+	//배경 윈도우
+	backgroundWindow = new E_Window(getBackgroundWindow()->GetSafeHwnd());
+
 	onUpdate();
 }
 
@@ -585,4 +581,44 @@ void E_Global::moveDesktopDown()
 			selectedDesktop = last; //포인터 업데이트
 		}
 	}
+}
+
+// 리스트를 Z-Index로 정렬해서 반환하는 함수
+void E_Global::sortZIndexWindowList(list<E_Window*>& target)
+{
+	list<HWND> allWindows = getAllWindowsForZIndex();
+	list<E_Window*> result;
+	for (list<HWND>::reverse_iterator iterWindows = allWindows.rbegin(); iterWindows != allWindows.rend(); iterWindows++){
+		for (list<E_Window*>::iterator iter = target.begin(); iter != target.end(); iter++){
+			if (*iterWindows == (*iter)->getWindow()){
+				result.push_back(*iter);
+			}
+		}
+	}
+	target.clear();
+	target = result;
+}
+
+//Z-Index를 위한 모든 윈도우를 가져온다.
+list<HWND> E_Global::getAllWindowsForZIndex()
+{
+	E_Global* object = E_Global::getSingleton();
+	object->windowListForZIndex.clear();	//초기화
+	EnumWindows(E_Global::EnumCallBackForZIndex, 0);
+	return object->windowListForZIndex;
+}
+
+//Z-Index 정렬을 위한 콜백
+BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
+{
+	E_Global *global = E_Global::getSingleton();
+
+	WCHAR Cap[255];
+	int length;
+	::GetWindowText(hwnd, Cap, 254);
+	length = ::GetWindowTextLength(hwnd);
+	
+	global->windowListForZIndex.push_back(hwnd);
+
+	return TRUE;
 }

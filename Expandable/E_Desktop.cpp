@@ -191,8 +191,17 @@ void E_Desktop::clearWindow()
 }
 
 
-
-
 void E_Desktop::takeAllWindowScreenshot()
 {
+}
+
+
+void E_Desktop::setAllMinimize()
+{
+	E_Window::SetMinimizeMaximizeAnimation(false);
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		ShowWindow((*itr)->getWindow(), SW_MINIMIZE);
+	}
+	E_Window::SetMinimizeMaximizeAnimation(true);
 }
