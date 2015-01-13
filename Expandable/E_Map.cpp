@@ -188,6 +188,30 @@ void E_Map::OnPaint()
 				//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
 			}
 		}
+		RECT rectForSelectDesktop;
+		int selectx = e_global->getSelectedIndex()%mapWidth;
+		int selecty = e_global->getSelectedIndex() / mapHeight;;
+		
+		rectForSelectDesktop.left = selectx*w*mapsize;
+		rectForSelectDesktop.top = selecty*w*mapsize;
+		rectForSelectDesktop.right = rectForSelectDesktop.left + w*mapsize;
+		rectForSelectDesktop.bottom = rectForSelectDesktop.top + w*mapsize;
+
+		pen.DeleteObject();
+		pen.CreatePen(PS_SOLID, 5, RGB(118, 35, 220));
+		memDC.SelectObject(pen);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
+		memDC.MoveTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
+		//memDC.Rectangle(tmprect.left, tmprect.top, tmprect.right, tmprect.bottom);
+		//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
+		//memdc.fillrect(&tmprect, &brush);
+		pen.DeleteObject();
 
 		if (up)
 		{
@@ -248,9 +272,10 @@ void E_Map::OnPaint()
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					if (selectIconHwnd != (*itr_window)->getWindow())
 					{
-						if (iconPosstx < iconSize / 2 && icpnPossty < iconSize /2)
-							memDC.StretchBlt(2 , 2 , iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-						else
+						if (iconPosstx < iconSize / 2 )
+							iconPosstx = iconSize / 2;
+						if (icpnPossty < iconSize / 2)
+							icpnPossty = iconSize / 2;
 						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					}
 					RECT *iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize/2, iconPosstx + 3 + iconSize, icpnPossty + 3 + iconSize };
@@ -520,10 +545,6 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			break;
 		}
 	}
-	
-	
-
-
 	Invalidate(0);
 	CWnd::OnLButtonUp(nFlags, point);
 	if (!in && clickindexx == upindexx && clickindexy == upindexy)
