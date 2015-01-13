@@ -152,8 +152,9 @@ void E_Global::onTimer()
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
-	TRACE_WIN32A("E_Global::startUpdate()");
+	lock_guard<mutex> start(E_Mutex::updateStartStopMutex);
 	if (currentThread == NULL && updateMode != true){
+		TRACE_WIN32A("E_Global::startUpdate()");
 		updateMode = true;
 		thread* t = new thread{ &E_Global::loopUpdate, this };
 		currentThread = t;
@@ -174,7 +175,7 @@ void E_Global::loopUpdate()
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
 		}
-		Sleep(100);
+		Sleep(200);
 	}
 }
 
@@ -190,13 +191,13 @@ bool E_Global::onUpdate()
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
 	//selectedDesktop->clearWindow();
 	//윈도우 추가
+	int wlistSize = wlist.size();
+	int selectedSize = selectedWindows.size();
 
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
-	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
+	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
-		int wlistSize = wlist.size();
-		int selectedSize = selectedWindows.size();
 		list<E_Window*> noChangeList;
 		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
 			HWND findWindow = 0;
@@ -227,7 +228,7 @@ bool E_Global::onUpdate()
 				noChangeList.push_back(window);
 			}
 		}
-
+		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
 		//실제 리스트에 업데이트
@@ -248,8 +249,9 @@ bool E_Global::onUpdate()
 // 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
 bool E_Global::stopUpdate()
 {
-	TRACE_WIN32A("E_Global::stopUpdate()");
+	lock_guard<mutex> stop(E_Mutex::updateStartStopMutex);
 	if (currentThread != NULL && updateMode == true){
+		TRACE_WIN32A("E_Global::stopUpdate()");
 		updateMode = false;
 		currentThread->join();	//스레드가 끝날때까지 대기
 		delete currentThread;
@@ -317,7 +319,6 @@ void E_Global::setSelectedIndex(int index)
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
-	TRACE_WIN32A("HELL");
 	window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();
