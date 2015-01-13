@@ -6,7 +6,7 @@
 #include "Expandable.h"
 
 #include "MainFrm.h"
-
+#include "E_Global.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -41,6 +41,11 @@ CMainFrame::CMainFrame()
 
 CMainFrame::~CMainFrame()
 {
+	E_Global* e_global = E_Global::getSingleton();
+
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	
+		(*itr_desk)->setAllShow();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
