@@ -139,7 +139,7 @@ void E_WindowSwitcher::restartSwitcher()
 	RECT r = { 0, 0, 0, 0 };
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
-
+	 
 	E_Desktop* desktop = global->getSelectedDesktop();
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
@@ -183,8 +183,11 @@ void E_WindowSwitcher::OnPaint()
 			 long aeroWidth = getAeroWidthSize(resWidth);	//패딩 포함 aero크기
 			 long aeroHeight = getAeroHeightSize(resHeight); // 패딩 포함 aero크기
 			 long paddingSize = getPaddingSize(resWidth);	// 패딩의 크기
+			 long titleSize = paddingSize * 3;				// 타이틀바 크기
+			 long titleFontSize = paddingSize * 2;				// 글씨 높이 크기
 			 long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
 			 long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
+			 
 			//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
 			{
 				// 더블 버퍼링을 위한 코드
@@ -199,8 +202,9 @@ void E_WindowSwitcher::OnPaint()
 				//이제 memDC에 생성된 비트맵을 연결한다.
 				memDC.SelectObject(bmp);
 
-				CBrush brush;   // Must initialize!
-				brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);   // Blue brush.
+				//배경 색
+				CBrush brush;
+				brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
 
 				RECT rect;
 				rect.left = 0;
@@ -211,10 +215,17 @@ void E_WindowSwitcher::OnPaint()
 
 				brush.DeleteObject();
 
+				//타이틀 바
+				CFont* pOldFont;
+				CFont font;
+				LOGFONT lf;
+				::ZeroMemory(&lf, sizeof(lf));
+				wsprintf(lf.lfFaceName, TEXT("%s"), TEXT("Arial"));
+				lf.lfHeight = titleFontSize;
+				//폰트 생성
+				font.CreateFontIndirectW(&lf);
+				
 				//첫번째 데스크탑 계산
-				long tempWindowCount = 1;	//최고 너비는 1개 너비는 최고 7개
-				long tempAeroHeightCount = 1;	//임시 높이는 1개
-
 				long maxWidthCount = 1;
 				long maxHeightCount = 1;
 
@@ -232,7 +243,7 @@ void E_WindowSwitcher::OnPaint()
 					maxHeightCount = 1;
 
 				long switcherWidth = aeroWidth * maxWidthCount + paddingSize * 2;
-				long switcherHeight = aeroHeight * maxHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
+				long switcherHeight = titleSize + aeroHeight * maxHeightCount + paddingSize * 2; //스위치 이름 높이 나중에 추가 필요
 				long switcherLeft = resWidth / 2 - switcherWidth / 2;
 				long switcherTop = resHeight / 2 - switcherHeight / 2;
 				//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]데스크탑 계산 switcherWidth: %d switcherHeight: %d switcherLeft: %d, switcherTop: %d", switcherWidth, switcherHeight, switcherLeft, switcherTop);
@@ -240,7 +251,7 @@ void E_WindowSwitcher::OnPaint()
 				//크기 계산을 위한 카운트 변수
 				int count = 0;
 				int widthCount = 0;//0~6 까지 반복
-				int heightCount = 0;
+				int heightCount = 0;//0~1 까지 반복
 				WINDOWPLACEMENT windowState;
 				
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
@@ -253,14 +264,13 @@ void E_WindowSwitcher::OnPaint()
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
 					cwnd->GetWindowPlacement(&windowState);
 
-					//
 					CString windowName;
 					cwnd->GetWindowTextW(windowName);
 
 					//TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
 
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
-					long aeroTopoffset = paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
+					long aeroTopoffset = titleSize + paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 
 
 					//Aero 내부 사각형 브러쉬
@@ -305,6 +315,18 @@ void E_WindowSwitcher::OnPaint()
 						memDC.LineTo(temprect.left + padding, temprect.bottom - padding);
 						memDC.MoveTo(temprect.left + padding, temprect.bottom - padding);
 						memDC.LineTo(temprect.right - padding, temprect.bottom - padding);
+					}
+
+					//타이틀 그리기
+					if (mode == UPDATE_TOUCH){
+						RECT fontRect;
+						fontRect.top = paddingSize;
+						fontRect.left = paddingSize;
+						fontRect.right = switcherWidth - fontRect.left * 2;
+						fontRect.bottom = fontRect.top + titleFontSize;
+						SetBkMode(memDC, TRANSPARENT);
+						memDC.SelectObject(font);
+						memDC.DrawText(windowName, &fontRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
 					}
 
 					//aero 기준 오프셋
@@ -423,6 +445,7 @@ void E_WindowSwitcher::OnPaint()
 				dc.StretchBlt(0, 0, resWidth, resHeight, &memDC, 0, 0, resWidth, resHeight, SRCCOPY);
 
 				//dc 해제
+				font.DeleteObject();
 				memDC.DeleteDC();
 				bmp.DeleteObject();
 			}
