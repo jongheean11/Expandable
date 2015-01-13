@@ -11,7 +11,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 {
 	mapsize = 0.06;
 	iconsize = 1;
-	desktopwidth = 4;
+	desktopwidth = 3;
 	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
@@ -59,48 +59,6 @@ CWnd* E_Global::getTaskbarWindow(){
 
 	return CWnd::FromHandle(taskbar);
 }
-
-/*
-void E_Global::setresolutionWidth(int paramWidth)
-{
-	resolutionWidth = paramWidth;
-}
-
-double E_Global::getresolutionWidth()
-{
-	return resolutionWidth;
-}
-
-void E_Global::setresolutionHeight(int paramHeight)
-{
-	resolutionHeight = paramHeight;
-}
-
-double E_Global::getresolutionHeight()
-{
-	return resolutionHeight;
-}
-
-void E_Global:: setVirtualWidth(int paramWidth)
-{
-	virtualWidth = paramWidth;
-}
-
-double E_Global::getVirtualWidth()
-{
-	return virtualWidth;
-}
-
-void E_Global::setVirtualHeight(int paramHeight)
-{
-	virtualHeight = paramHeight;
-}
-
-double E_Global::getVirtualHeight()
-{
-	return virtualHeight;
-}
-*/
 
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
@@ -173,6 +131,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
+
 // 현재 데스크탑 반환
 E_Desktop* E_Global::getSelectedDesktop()
 {
@@ -194,8 +153,9 @@ void E_Global::onTimer()
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
-	TRACE_WIN32A("E_Global::startUpdate()");
+	lock_guard<mutex> start(E_Mutex::updateStartStopMutex);
 	if (currentThread == NULL && updateMode != true){
+		TRACE_WIN32A("E_Global::startUpdate()");
 		updateMode = true;
 		thread* t = new thread{ &E_Global::loopUpdate, this };
 		currentThread = t;
@@ -216,7 +176,7 @@ void E_Global::loopUpdate()
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
 	}
-		Sleep(100);
+		Sleep(200);
 }
 }
 
@@ -224,22 +184,17 @@ void E_Global::loopUpdate()
 bool E_Global::onUpdate()
 {
 	bool result = false;
-	//TRACE_WIN32A("E_Global::onUpdate()");
-	//뮤텍스
-	//lock_guard<mutex> lockGuard(E_Mutex::updateMutex);//데드락
 	//윈도우 리스트 업데이트
 	list<HWND> wlist = getAllWindows();
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
-	//selectedDesktop->clearWindow();
 	//윈도우 추가
+	int wlistSize = wlist.size();
+	int selectedSize = selectedWindows.size();
 
-	Sleep(2000);
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
-	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
+	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
-		int wlistSize = wlist.size();
-		int selectedSize = selectedWindows.size();
 		list<E_Window*> noChangeList;
 		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
 			HWND findWindow = 0;
@@ -270,7 +225,7 @@ bool E_Global::onUpdate()
 				noChangeList.push_back(window);
 			}
 		}
-
+		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
 		//실제 리스트에 업데이트
@@ -291,8 +246,9 @@ bool E_Global::onUpdate()
 // 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
 bool E_Global::stopUpdate()
 {
-	TRACE_WIN32A("E_Global::stopUpdate()");
+	lock_guard<mutex> stop(E_Mutex::updateStartStopMutex);
 	if (currentThread != NULL && updateMode == true){
+	TRACE_WIN32A("E_Global::stopUpdate()");
 		updateMode = false;
 		currentThread->join();	//스레드가 끝날때까지 대기
 		delete currentThread;
@@ -360,7 +316,6 @@ void E_Global::setSelectedIndex(int index)
 // 생성자에서 초기화 하지 못하는 것들을 초기화 하는 함수
 void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwitcherUpdator* drag, E_ISwitcherUpdator* window)
 {
-	TRACE_WIN32A("HELL");
 	window->updateSelectedDesktop();
 	desktop->updateSelectedDesktop();
 	map->updateSelectedDesktop();
@@ -369,11 +324,11 @@ void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwi
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;
 	this->desktopSwitcher = desktop;
-	list<HWND> wlist = getAllWindows();
-	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
-		E_Window* window = new E_Window(*iter);
-		selectedDesktop->insertWindow(window);
-	}
+
+	//배경 윈도우
+	backgroundWindow = new E_Window(getBackgroundWindow()->GetSafeHwnd());
+
+	onUpdate();
 }
 
 int E_Global::getDesktopWidth()
@@ -626,4 +581,44 @@ void E_Global::moveDesktopDown()
 			selectedDesktop = last; //포인터 업데이트
 		}
 	}
+}
+
+// 리스트를 Z-Index로 정렬해서 반환하는 함수
+void E_Global::sortZIndexWindowList(list<E_Window*>& target)
+{
+	list<HWND> allWindows = getAllWindowsForZIndex();
+	list<E_Window*> result;
+	for (list<HWND>::reverse_iterator iterWindows = allWindows.rbegin(); iterWindows != allWindows.rend(); iterWindows++){
+		for (list<E_Window*>::iterator iter = target.begin(); iter != target.end(); iter++){
+			if (*iterWindows == (*iter)->getWindow()){
+				result.push_back(*iter);
+			}
+		}
+	}
+	target.clear();
+	target = result;
+}
+
+//Z-Index를 위한 모든 윈도우를 가져온다.
+list<HWND> E_Global::getAllWindowsForZIndex()
+{
+	E_Global* object = E_Global::getSingleton();
+	object->windowListForZIndex.clear();	//초기화
+	EnumWindows(E_Global::EnumCallBackForZIndex, 0);
+	return object->windowListForZIndex;
+	}
+
+//Z-Index 정렬을 위한 콜백
+BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
+{
+	E_Global *global = E_Global::getSingleton();
+
+	WCHAR Cap[255];
+	int length;
+	::GetWindowText(hwnd, Cap, 254);
+	length = ::GetWindowTextLength(hwnd);
+	
+	global->windowListForZIndex.push_back(hwnd);
+
+	return TRUE;
 }
