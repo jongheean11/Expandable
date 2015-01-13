@@ -25,8 +25,10 @@ private:
 	bool select;
 	bool up;
 public:
+	int getdesktop(int indexx, int indexy);
 	int clickindexx,clickindexy;
 	int upindexx,upindexy;
+	int movindexx, movindexy;
 	virtual void updateSelectedDesktop();
 	E_Map();
 	~E_Map();
