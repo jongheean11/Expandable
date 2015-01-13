@@ -401,7 +401,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 					else{
 						CDC cdc;
-						cdc.CreateCompatibleDC(this->GetWindowDC());
+						cdc.CreateCompatibleDC(&dc);
 						cdc.SelectObject(screenshot->GetSafeHandle());
 						cdc.SetBkMode(1);
 						cdc.SetBkColor(E_WindowSwitcher::backgroundColor);
@@ -416,7 +416,7 @@ void E_WindowSwitcher::OnPaint()
 					if (icon->m_hObject != NULL){
 						icon->GetBitmap(&icon_info);
 						CDC cdc;
-						cdc.CreateCompatibleDC(this->GetWindowDC());
+						cdc.CreateCompatibleDC(&dc);
 						cdc.SelectObject(icon);
 						memDC.SetStretchBltMode(COLORONCOLOR);
 						memDC.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
