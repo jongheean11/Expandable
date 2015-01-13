@@ -233,7 +233,6 @@ bool E_Global::onUpdate()
 	//selectedDesktop->clearWindow();
 	//윈도우 추가
 
-	Sleep(2000);
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
 	if (wlist.size() != selectedWindows.size() || ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow())){
