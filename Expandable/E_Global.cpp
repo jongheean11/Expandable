@@ -15,11 +15,11 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
-	
+
 	//데스크탑 생성
 	for (int i = 0; i < desktopCount; i++)
 		desktopList.push_back(new E_Desktop(i));
-	
+
 	//초기 데스크탑 
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
@@ -60,51 +60,9 @@ CWnd* E_Global::getTaskbarWindow(){
 	return CWnd::FromHandle(taskbar);
 }
 
-/*
-void E_Global::setresolutionWidth(int paramWidth)
-{
-	resolutionWidth = paramWidth;
-}
-
-double E_Global::getresolutionWidth()
-{
-	return resolutionWidth;
-}
-
-void E_Global::setresolutionHeight(int paramHeight)
-{
-	resolutionHeight = paramHeight;
-}
-
-double E_Global::getresolutionHeight()
-{
-	return resolutionHeight;
-}
-
-void E_Global:: setVirtualWidth(int paramWidth)
-{
-	virtualWidth = paramWidth;
-}
-
-double E_Global::getVirtualWidth()
-{
-	return virtualWidth;
-}
-
-void E_Global::setVirtualHeight(int paramHeight)
-{
-	virtualHeight = paramHeight;
-}
-
-double E_Global::getVirtualHeight()
-{
-	return virtualHeight;
-}
-*/
-
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
-	
+
 }
 
 
@@ -165,11 +123,11 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 				if (!already_exist)
 				{
 					global->windowListForUpdate.push_front(hwnd);
+				}
+			}
 		}
 	}
-		}
-	}
-	
+
 	return TRUE;
 }
 
@@ -215,9 +173,9 @@ void E_Global::loopUpdate()
 			desktopSwitcher->updateSelectedDesktop();
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
-	}
+		}
 		Sleep(100);
-}
+	}
 }
 
 // 업데이트 쓰레드// 변화될 경우 참을 반환한다.
@@ -243,17 +201,17 @@ bool E_Global::onUpdate()
 		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
 			HWND findWindow = 0;
 			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
-				if (*iter == (*iter_window)->getWindow()){
-					noChangeList.push_back(*iter_window);
-					selectedDesktop->excludeWindow(*iter_window);
-					findWindow = *iter;
-				}
+			if (*iter == (*iter_window)->getWindow()){
+			noChangeList.push_back(*iter_window);
+			selectedDesktop->excludeWindow(*iter_window);
+			findWindow = *iter;
+			}
 			}
 			if (findWindow == NULL){
-				E_Window* window = new E_Window(findWindow);
-				noChangeList.push_back(window);
+			E_Window* window = new E_Window(findWindow);
+			noChangeList.push_back(window);
 			}
-		}*/
+			}*/
 		//리스트 업데이트
 		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
 			HWND findWindow = NULL;
@@ -265,7 +223,7 @@ bool E_Global::onUpdate()
 				}
 			}
 			if (findWindow == NULL){
-		E_Window* window = new E_Window(*iter);
+				E_Window* window = new E_Window(*iter);
 				noChangeList.push_back(window);
 			}
 		}
@@ -280,7 +238,7 @@ bool E_Global::onUpdate()
 		result = true;
 	}
 	else{
-		
+
 	}
 	//TRACE_WIN32A("E_Global::onUpdateEnd()");
 	return result;
@@ -368,11 +326,12 @@ void E_Global::init(E_ISwitcherUpdator* desktop, E_ISwitcherUpdator* map, E_ISwi
 	this->dragSwitcher = drag;
 	this->mapSwitcher = map;
 	this->desktopSwitcher = desktop;
-	list<HWND> wlist = getAllWindows();
+	/*list<HWND> wlist = getAllWindows();
 	for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++) {
 		E_Window* window = new E_Window(*iter);
 		selectedDesktop->insertWindow(window);
-	}
+	}*/
+	onUpdate();
 }
 
 int E_Global::getDesktopWidth()
@@ -439,7 +398,7 @@ void E_Global::moveTopWindowRight(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-	
+
 	TRACE_WIN32A("[E_Global::moveTopWindowRight] 윈도우 이름: %s", targetWindow->getWindowName());
 
 	if (desktopCount == 1)
