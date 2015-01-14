@@ -71,8 +71,10 @@ void EnviromnmentDialog::OnBnClickedOk()
 	e_global->setIconsize(iconSize);
 	if (swapflag)
 	{
-		e_global->changeDesktop((mapwidth.GetCurSel() + 1) * (mapHeight.GetCurSel() + 1));
-		e_map->terminateMap();
+		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);
+		e_global->desktopheight = (mapHeight.GetCurSel() + 1);
+		e_global->changeDesktop(pastdesktopnum, (mapwidth.GetCurSel() + 1) * (mapHeight.GetCurSel() + 1));
+		e_map->terminateMap(); // ÀÌ°Ô Àß¾ÈµÊ
 	}
 
 	CDialog::OnOK();
@@ -127,6 +129,8 @@ BOOL EnviromnmentDialog::OnInitDialog()
 	E_Global* e_global = E_Global::getSingleton();
 	E_Map* e_map = E_Map::getSingleton();
 	
+	pastdesktopnum = e_global->desktopwidth * e_global->desktopheight;
+
 	mapwidth.AddString(_T("1"));
 	mapwidth.AddString(_T("2"));
 	mapwidth.AddString(_T("3"));

@@ -21,14 +21,14 @@ E_Map::E_Map()
 	up = false;
 	select = false;
 	forSelectMap = false;
-	
-	
+
+
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
 	ison = false;
 	redraw = false;
 	clicked = false;
-	
+
 }
 E_Map::~E_Map()
 {
@@ -42,7 +42,7 @@ E_Map::~E_Map()
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
-	
+
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
@@ -67,7 +67,7 @@ void E_Map::drawMap()
 		CString szClassName_map = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
 		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
 		//hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
-		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight ), CWnd::GetDesktopWindow(), 0);
+		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight), CWnd::GetDesktopWindow(), 0);
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -116,10 +116,10 @@ void E_Map::OnPaint()
 	CPaintDC dc(this);
 	CDC memDC;
 	CBitmap bmp;
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); 
-	E_Global* e_global = E_Global::getSingleton(); 
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
 	//e_global->onUpdate();
-	long w = enManager->getWidth(); 
+	long w = enManager->getWidth();
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
 	memDC.CreateCompatibleDC(&dc);
@@ -191,9 +191,11 @@ void E_Map::OnPaint()
 			}
 		}
 		RECT rectForSelectDesktop;
-		int selectx = e_global->getSelectedIndex()%mapWidth;
-		int selecty = e_global->getSelectedIndex() / mapHeight;;
+		int nowselect = e_global->getSelectedIndex();
+		int selectx = e_global->getSelectedIndex() % mapWidth;
+		int selecty = e_global->getSelectedIndex() / mapWidth;
 		
+
 		rectForSelectDesktop.left = selectx*w*mapsize;
 		rectForSelectDesktop.top = selecty*w*mapsize;
 		rectForSelectDesktop.right = rectForSelectDesktop.left + w*mapsize;
@@ -240,23 +242,23 @@ void E_Map::OnPaint()
 		{
 			(*itr_desktop)->getIndex();
 			int idx = (*itr_desktop)->getIndex() % mapWidth;
-			int idy = (*itr_desktop)->getIndex() / mapHeight;;
+			int idy = (*itr_desktop)->getIndex() / mapWidth;
 			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
 			for (std::list<E_Window*>::reverse_iterator itr_window = desktop_window.rbegin(); itr_window != desktop_window.rend(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
-				
-				
+
+
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
 				long iconPosstx = rectForIcon.left*e_global->getMapsize() + idx*w*mapsize;
-				long icpnPossty = rectForIcon.top*e_global->getMapsize()*w/(h-th) + idy*w*mapsize;
+				long iconPossty = rectForIcon.top*e_global->getMapsize()*w / (h - th) + idy*w*mapsize;
 				//rect 가로사이즈는 미니맵 크기의 1/8
 				//rect 시작 위치는 rectForIcon 의 x1,y1
 
 				//rectForIcon.left = iconPosstx1 + rectForIcon.left*0.15; //비율값 더하기
-				//rectForIcon.top = icpnPossty1 + rectForIcon.top * 0.25;// 비율값 더하기
+				//rectForIcon.top = iconPossty1 + rectForIcon.top * 0.25;// 비율값 더하기
 				//rectForIcon.right = rectForIcon.left + iconSize;	//x2
 				//rectForIcon.bottom = rectForIcon.top + iconSize;	//y2
 				//아직 데스크탑 2 3 4 5 ... 에 대해서는 관여하지 못하고 1번만 그림
@@ -274,15 +276,20 @@ void E_Map::OnPaint()
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					if (selectIconHwnd != (*itr_window)->getWindow())
 					{
-						if (iconPosstx < iconSize / 2 )
+						if (iconPosstx < iconSize / 2)
 							iconPosstx = iconSize / 2;
-						if (icpnPossty < iconSize / 2 )
-							icpnPossty = iconSize / 2;
-						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-						
-						}
-					RECT *iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconPosstx + 2 + iconSize / 2, icpnPossty + 2 + iconSize / 2 };
+
+						if (iconPossty < iconSize / 2)
+							iconPossty = iconSize / 2;
+						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, iconPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+
+					}
 					
+					//if (iconPosstx - iconSize / 2 < w*mapsize*(upindexx - 1))
+					//	iconPosstx = iconSize / 2 + w*mapsize*(upindexx - 1);
+						
+					RECT* iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, iconPossty + 2 - iconSize / 2, iconPosstx + 2 + iconSize / 2, iconPossty + 2 + iconSize / 2 };
+
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
 					cdc.DeleteDC();
@@ -306,14 +313,14 @@ void E_Map::OnPaint()
 		{
 			if ((*itr_hwnd) == selectIconHwnd)
 			{
-				
+
 				std::list<E_Window*> desktop_window = e_global->getSelectedDesktop()->getWindowList();
 				for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 				{
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-								
+
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
 				foreRect.left = (*itr_rect)->left;
@@ -337,7 +344,7 @@ void E_Map::OnPaint()
 				cdc.SetBkColor(E_Map::backgroundColor);
 
 
-				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize/2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 
 				break;
 
@@ -364,12 +371,12 @@ void E_Map::OnPaint()
 		cdc.SetBkMode(1);
 		cdc.SetBkColor(E_Map::backgroundColor);
 
-		memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize/2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-		foreRect.left = iconClick.x - iconSize/2;
-		foreRect.right = iconClick.x + iconSize /2;
-		foreRect.top = iconClick.y - iconSize/2;
+		memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+		foreRect.left = iconClick.x - iconSize / 2;
+		foreRect.right = iconClick.x + iconSize / 2;
+		foreRect.top = iconClick.y - iconSize / 2;
 		foreRect.bottom = iconClick.y + iconSize / 2;
-		
+
 		RECT rectForMove;
 		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
@@ -381,18 +388,18 @@ void E_Map::OnPaint()
 			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
-				if ( (*itr_window)->getWindow() == selectIconHwnd)
-					windowindext = (*itr_desktop)->getIndex() ;
+				if ((*itr_window)->getWindow() == selectIconHwnd)
+					windowindext = (*itr_desktop)->getIndex();
 			}
 		}
 
 		//if ( (newxpoint < w && newypoint < h && e_global->getSelectedIndex() == windowindext) || e_global->getSelectedIndex() == getdesktop(movindexx,movindexy)-1)
-		if ( e_global->getSelectedIndex() == getdesktop(movindexx, movindexy) - 1)
+		if (e_global->getSelectedIndex() == getdesktop(movindexx, movindexy) - 1)
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
-			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx-1), newypoint-(h-th)*(movindexy-1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
-			
+			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1), newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+
 		}
 		else
 		{
@@ -427,7 +434,7 @@ void E_Map::OnPaint()
 		//memdc.fillrect(&tmprect, &brush);
 		pen.DeleteObject();
 
-		
+
 
 
 	}
@@ -449,9 +456,9 @@ E_Map* E_Map::getSingleton()
 
 void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	E_Global* e_global = E_Global::getSingleton(); 
+	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-	long w = enManager->getWidth(); 
+	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
 
 	up = true;
@@ -486,7 +493,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-	
+
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
 	long w = enManager->getWidth();
@@ -501,13 +508,13 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	iconMoveMode = 0;
 	clicked = false;
 	time = e_global->getTimer();
-	
+
 	RECT trect;
-	trect.left = point.x - iconSize/2;
-	trect.top = point.y - iconSize/2;
+	trect.left = point.x - iconSize / 2;
+	trect.top = point.y - iconSize / 2;
 	trect.right = trect.left + iconSize;
 	trect.bottom = trect.top + iconSize;
-	
+
 	int mapWidth = e_global->getDesktopWidth();
 	int mapHeight = e_global->getDesktopHeight();
 	int desktop = 0;
@@ -519,7 +526,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		{
 			RECT trect2;
 			int fromdesktop = getdesktop(clickindexx, clickindexy);
-			
+
 			int todesktop = getdesktop(upindexx, upindexy);
 			long xp = point.x - (upindexx - 1)*w*mapsize;
 			long yp = point.y - (upindexy - 1)*w*mapsize;
@@ -537,8 +544,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 			::GetWindowRect(selectIconHwnd, &trect2);
 			//pWnd->SetWindowPos(NULL, (upindexx - 1)*w + point.x, (upindexy - 1)*(h - th) + point.y, trect2.right - trect2.left, trect2.bottom - trect2.top, SWP_NOZORDER | SWP_SHOWWINDOW);
-			::MoveWindow(selectIconHwnd, xp/mapsize , yp*(h-th)/w/mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
-						
+			::MoveWindow(selectIconHwnd, xp / mapsize, yp*(h - th) / w / mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
+
 			in = true;
 			iconHwndList.remove((*itr_hwnd));
 			iconRectList.remove((*itr_rect));
@@ -573,7 +580,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			{
 				desktop++;
 				if (j == upindexx && i == upindexy)
-				{	
+				{
 					e_global->setSelectedIndex(desktop - 1);
 					//여기서 윈도우를 해당 desktop으로 집어 넣음
 					//TODO
@@ -585,7 +592,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			if (bre)
 				break;
 		}
-		
+
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
 		std::list<E_Desktop*> desklist = e_global->desktopList;
@@ -594,26 +601,26 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
 			{
 				(*itr_desk)->setAllShow();
-				continue; 
+				continue;
 			}
 			(*itr_desk)->setAllHide();
 		}
 		//e_global->getSelectedDesktop()->setAllShow(); 
-		
-		
+
+
 		terminateMap();
 	}
 }
-int E_Map::getdesktop(int indexx,int indexy)
+int E_Map::getdesktop(int indexx, int indexy)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	int mapWidth = e_global->getDesktopWidth();
 	int mapHeight = e_global->getDesktopHeight();
 	int desktop = 0;
 	int bre = 0;
-	for (int i = 1; i < mapHeight + 1; i++)
+	for (int i = 1; i < mapHeight+1 ; i++)
 	{
-		for (int j = 1; j < mapWidth + 1; j++)
+		for (int j = 1; j < mapWidth+1 ; j++)
 		{
 			desktop++;
 			if (j == indexx && i == indexy)
@@ -632,7 +639,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
-	E_Global* e_global = E_Global::getSingleton(); 
+	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
 	time = e_global->getTimer();

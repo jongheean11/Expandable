@@ -29,7 +29,7 @@ private:
 	int settingTimer;
 	
 public:
-	void changeDesktop(int value);
+	void changeDesktop(int pastvalue, int newvalue);
 	static const wchar_t* testFrameName;
 	void setTimer(int value);
 	int getTimer();

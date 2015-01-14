@@ -21,6 +21,7 @@ public:
 	double mapSize;
 	int settingTimer;
 	bool swapflag;
+	int pastdesktopnum;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
