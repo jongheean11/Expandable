@@ -6,7 +6,8 @@
 #include "Expandable.h"
 
 #include "MainFrm.h"
-
+#include "EnviromnmentDialog.h"
+#include "E_Global.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -22,6 +23,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_MESSAGE(WM_TRAY_NOTIFICATION, OnTrayNotification)
+	ON_COMMAND(ID_32775, &CMainFrame::On32775)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -41,6 +44,7 @@ CMainFrame::CMainFrame()
 
 CMainFrame::~CMainFrame()
 {
+	
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -50,16 +54,23 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.uID = 0;
+	nid.uID = IDR_MAINFRAME;
 	nid.hWnd = GetSafeHwnd();
 
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
 	nid.hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	lstrcpy(nid.szTip, TEXT("Naw Menu"));
+	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+	
+	//SendMessage(WM_SETICON, (WPARAM)TRUE, (LPARAM)nid.hIcon);//트레이화면에 붙이기(UI측면)
 
 	//tray 아이콘 생성
+	
+	
+	
+	
+	
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -289,9 +300,32 @@ void CMainFrame::DestroyTrayIcon()
 	BOOL bRet;
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.uID = 0;
+	nid.uID = IDR_MAINFRAME;
 	nid.hWnd = GetSafeHwnd();
 	bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
 
 	
+}
+
+void CMainFrame::On32775()
+{
+	EnviromnmentDialog aboutDlg;
+
+	aboutDlg.DoModal();
+	
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+}
+
+
+void CMainFrame::OnDestroy()
+{
+	CFrameWndEx::OnDestroy();
+	DestroyTrayIcon();
+	E_Global* e_global = E_Global::getSingleton();
+
+
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
+		(*itr_desk)->setAllShow();
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }

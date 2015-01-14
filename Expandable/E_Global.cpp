@@ -15,11 +15,11 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
-
+	
 	//데스크탑 생성
 	for (int i = 0; i < desktopCount; i++)
 		desktopList.push_back(new E_Desktop(i));
-
+	
 	//초기 데스크탑 
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
@@ -62,7 +62,7 @@ CWnd* E_Global::getTaskbarWindow(){
 
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
-
+	
 }
 
 
@@ -123,11 +123,11 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 				if (!already_exist)
 				{
 					global->windowListForUpdate.push_front(hwnd);
-				}
-			}
 		}
 	}
-
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -175,9 +175,9 @@ void E_Global::loopUpdate()
 			desktopSwitcher->updateSelectedDesktop();
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
-		}
-		Sleep(200);
 	}
+		Sleep(200);
+}
 }
 
 // 업데이트 쓰레드// 변화될 경우 참을 반환한다.
@@ -199,17 +199,17 @@ bool E_Global::onUpdate()
 		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
 			HWND findWindow = 0;
 			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
-			if (*iter == (*iter_window)->getWindow()){
-			noChangeList.push_back(*iter_window);
-			selectedDesktop->excludeWindow(*iter_window);
-			findWindow = *iter;
-			}
+				if (*iter == (*iter_window)->getWindow()){
+					noChangeList.push_back(*iter_window);
+					selectedDesktop->excludeWindow(*iter_window);
+					findWindow = *iter;
+				}
 			}
 			if (findWindow == NULL){
-			E_Window* window = new E_Window(findWindow);
-			noChangeList.push_back(window);
+				E_Window* window = new E_Window(findWindow);
+				noChangeList.push_back(window);
 			}
-			}*/
+		}*/
 		//리스트 업데이트
 		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
 			HWND findWindow = NULL;
@@ -221,7 +221,7 @@ bool E_Global::onUpdate()
 				}
 			}
 			if (findWindow == NULL){
-				E_Window* window = new E_Window(*iter);
+		E_Window* window = new E_Window(*iter);
 				noChangeList.push_back(window);
 			}
 		}
@@ -236,7 +236,7 @@ bool E_Global::onUpdate()
 		result = true;
 	}
 	else{
-
+		
 	}
 	//TRACE_WIN32A("E_Global::onUpdateEnd()");
 	return result;
@@ -248,7 +248,7 @@ bool E_Global::stopUpdate()
 {
 	lock_guard<mutex> stop(E_Mutex::updateStartStopMutex);
 	if (currentThread != NULL && updateMode == true){
-		TRACE_WIN32A("E_Global::stopUpdate()");
+	TRACE_WIN32A("E_Global::stopUpdate()");
 		updateMode = false;
 		currentThread->join();	//스레드가 끝날때까지 대기
 		delete currentThread;
@@ -395,7 +395,7 @@ void E_Global::moveTopWindowRight(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	
 	TRACE_WIN32A("[E_Global::moveTopWindowRight] 윈도우 이름: %s", targetWindow->getWindowName());
 
 	if (desktopCount == 1)
@@ -606,7 +606,7 @@ list<HWND> E_Global::getAllWindowsForZIndex()
 	object->windowListForZIndex.clear();	//초기화
 	EnumWindows(E_Global::EnumCallBackForZIndex, 0);
 	return object->windowListForZIndex;
-}
+	}
 
 //Z-Index 정렬을 위한 콜백
 BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)

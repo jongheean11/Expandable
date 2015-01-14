@@ -53,30 +53,33 @@ public:
 	void switchDesktop(E_Desktop* selection);
 	double getMainDesktopSize();
 	void setMainDesktopSize(double size);
-	//
-//	bool moveWindow(E_Window* target, E_Desktop* dest);
-//	bool moveWindow(E_Window* target, E_Desktop* dest);
-//private:
-	
 
-	double swappoint_h;	
-//	std::list<HTHUMBNAIL> desktop_hthumbnail_list, window_hthumbnail_list;
+
+	double swappoint_h;
 	std::list<RECT*> desktop_area_list_rect; // Desktop 영역
-//	std::list<HWND> desktop_area_list_hwnd;
 	std::list<RECT*> window_area_list_rect; // 메인 Desktop 내의 window들
-//	std::list<HWND> window_area_list_hwnd;
-	std::list<RECT*> window_desktop_rect_list; // 위 Desktop 중에서 해당 selected Desktop에 속한 window들
 
-	// No Update
+	std::hash_map<RECT*, HTHUMBNAIL> window_RECT_hthumbnail_map;
+	std::hash_map<RECT*, E_Window*> window_area_map_RECT_EWindow;
+
 	std::hash_map<RECT*, HTHUMBNAIL> desktop_RECT_hthumbnail_map;
 
-	// Update
-	std::hash_map<RECT*, HTHUMBNAIL> window_RECT_hthumbnail_map, window_desktop_RECT_hthumbnail_map;
-	std::hash_map<RECT*,E_Window*> window_area_map_RECT_EWindow;
+	std::hash_map<int,hash_map<RECT*, HTHUMBNAIL>> window_desktop_RECT_hthumbnail_map;
+	std::hash_map<int, list<RECT*>> window_desktop_rect_map;
 
-
-	//hash_map<CRect, HWND> desktop_area_list;
-	//hash_map<CRect, HWND> window_area_list;
+public:
+	double ratio_wh, ratio_hw,
+		initial_padding_width, initial_padding_height,
+		padding_width, padding_height,
+		switch_width, switch_height,
+		ratio_ww, ratio_hh,
+		background_left, background_right, background_top, background_bottom,
+		taskbar_top;
+	RECT *main_backgroundRECT, *main_taskbarRECT;
+	HTHUMBNAIL main_backgroundHTHUMBNAIL, main_taskbarHTHUMBNAIL;
+	HWND hShellWnd, hTaskbarWnd;
+	CRect sizeRect_background, sizeRect_taskbar;
+	
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
