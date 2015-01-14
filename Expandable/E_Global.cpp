@@ -668,7 +668,7 @@ void E_Global::moveDesktop(int index)
 	}
 }
 
-void E_Global::changeDesktop()
+void E_Global::changeDesktop(int value)
 {
 
 

@@ -276,11 +276,13 @@ void E_Map::OnPaint()
 					{
 						if (iconPosstx < iconSize / 2 )
 							iconPosstx = iconSize / 2;
-						if (icpnPossty < iconSize / 2)
+						if (icpnPossty < iconSize / 2 )
 							icpnPossty = iconSize / 2;
 						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-					}
-					RECT *iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize/2, iconPosstx + 3 + iconSize, icpnPossty + 3 + iconSize };
+						
+						}
+					RECT *iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, icpnPossty + 2 - iconSize / 2, iconPosstx + 2 + iconSize / 2, icpnPossty + 2 + iconSize / 2 };
+					
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
 					cdc.DeleteDC();
@@ -304,7 +306,14 @@ void E_Map::OnPaint()
 		{
 			if ((*itr_hwnd) == selectIconHwnd)
 			{
-				//::ShowWindow(selectIconHwnd, SW_NORMAL);
+				
+				std::list<E_Window*> desktop_window = e_global->getSelectedDesktop()->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+				{
+					if ((*itr_window)->getWindow() == selectIconHwnd)
+						::ShowWindow(selectIconHwnd, SW_NORMAL);
+				}
+								
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
 				foreRect.left = (*itr_rect)->left;
@@ -359,8 +368,8 @@ void E_Map::OnPaint()
 		foreRect.left = iconClick.x - iconSize/2;
 		foreRect.right = iconClick.x + iconSize /2;
 		foreRect.top = iconClick.y - iconSize/2;
-		foreRect.bottom = iconClick.y + iconSize/2;
-
+		foreRect.bottom = iconClick.y + iconSize / 2;
+		
 		RECT rectForMove;
 		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
@@ -496,8 +505,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	RECT trect;
 	trect.left = point.x - iconSize/2;
 	trect.top = point.y - iconSize/2;
-	trect.right = trect.left + iconSize/2;
-	trect.bottom = trect.top + iconSize/2;
+	trect.right = trect.left + iconSize;
+	trect.bottom = trect.top + iconSize;
 	
 	int mapWidth = e_global->getDesktopWidth();
 	int mapHeight = e_global->getDesktopHeight();

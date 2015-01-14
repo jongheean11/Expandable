@@ -20,11 +20,12 @@ private:
 	bool ison;
 	bool redraw;
 	
-	int time;
+	
 	
 	bool select;
 	bool up;
 public:
+	int time;
 	int getdesktop(int indexx, int indexy);
 	int clickindexx,clickindexy;
 	int upindexx,upindexy;
