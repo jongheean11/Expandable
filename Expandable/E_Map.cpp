@@ -587,7 +587,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
 			{
 				(*itr_desk)->setAllShow();
-				continue;
+				continue; 
 			}
 			(*itr_desk)->setAllHide();
 		}
