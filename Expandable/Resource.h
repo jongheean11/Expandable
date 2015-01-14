@@ -33,6 +33,8 @@
 #define IDC_SLIDER3                     1019
 #define IDC_SLIDER4                     1021
 #define IDC_SLIDER5                     1022
+#define IDC_COMBO1                      1026
+#define IDC_COMBO2                      1027
 #define ID_32775                        32775
 
 // Next default values for new objects
@@ -41,7 +43,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        319
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1023
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

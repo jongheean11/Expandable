@@ -25,9 +25,16 @@ private:
 	double iconsize;
 	//스레드
 	thread* currentThread;
+	int transparent;
+	int settingTimer;
+	
 public:
+	void changeDesktop();
 	static const wchar_t* testFrameName;
-
+	void setTimer(int value);
+	int getTimer();
+	void setTransparent(int value);
+	int getTransparent();
 	E_Window* backgroundWindow;
 
 	list<E_Desktop*> desktopList;
@@ -52,6 +59,8 @@ public:
 	E_ISwitcherUpdator* windowSwitcher;
 public:
 	double getIconsize();
+	void setIconsize(double value);
+	void setMapsize(double value);
 	double getMapsize();
 	static E_Global* getSingleton();
 	// 카카오톡 핸들

@@ -17,17 +17,18 @@ void E_Map::updateSelectedDesktop()
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
+	E_Global* e_global = E_Global::getSingleton();
 	up = false;
 	select = false;
 	forSelectMap = false;
-	settingTimer = 5;
-	time = settingTimer;
+	
+	
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
 	ison = false;
 	redraw = false;
 	clicked = false;
-	transparent = 160;
+	
 }
 E_Map::~E_Map()
 {
@@ -37,15 +38,14 @@ E_Map::~E_Map()
 		hwnd_cwnd_emap = NULL;
 	}
 }
-int E_Map::getTransparent()
-{
-	return transparent;
-}
+
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
+	
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
+	time = e_global->getTimer();
 	//e_global->onUpdate();
 	//e_global->startUpdate();
 	if (!ison)
@@ -71,7 +71,7 @@ void E_Map::drawMap()
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-		::SetLayeredWindowAttributes(hwnd_cwnd_emap->m_hWnd, 0, transparent, LWA_ALPHA); //창투명
+		::SetLayeredWindowAttributes(hwnd_cwnd_emap->m_hWnd, 0, e_global->getTransparent(), LWA_ALPHA); //창투명
 		hwnd_cwnd_emap->UpdateWindow();
 		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
 		hwnd_cwnd_emap->SetWindowPos(NULL, w - mapunit*mapWidth, (h - th) - mapunit*mapHeight, mapunit*mapWidth, mapunit*mapHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -97,10 +97,7 @@ void E_Map::terminateMap()
 	ison = false;
 }
 
-void E_Map::setTransparent(int value)
-{
-	transparent = value;
-}
+
 BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
@@ -245,7 +242,7 @@ void E_Map::OnPaint()
 			int idx = (*itr_desktop)->getIndex() % mapWidth;
 			int idy = (*itr_desktop)->getIndex() / mapHeight;;
 			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
-			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+			for (std::list<E_Window*>::reverse_iterator itr_window = desktop_window.rbegin(); itr_window != desktop_window.rend(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
@@ -307,6 +304,7 @@ void E_Map::OnPaint()
 		{
 			if ((*itr_hwnd) == selectIconHwnd)
 			{
+				//::ShowWindow(selectIconHwnd, SW_NORMAL);
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
 				foreRect.left = (*itr_rect)->left;
@@ -465,7 +463,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	clickindexx = mouse.x / (mapsize*w) + 1;
 	clickindexy = mouse.y / (mapsize*w) + 1;
-	time = settingTimer;
+	time = e_global->getTimer();
 	//e_global->setSelectedIndex(getdesktop(clickindexx, clickindexy) - 1);
 
 
@@ -493,7 +491,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	iconMoveMode = 0;
 	clicked = false;
-	time = settingTimer;
+	time = e_global->getTimer();
 	
 	RECT trect;
 	trect.left = point.x - iconSize/2;
@@ -591,6 +589,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 			(*itr_desk)->setAllHide();
 		}
+		//e_global->getSelectedDesktop()->setAllShow(); 
+		
 		
 		terminateMap();
 	}
@@ -626,7 +626,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	E_Global* e_global = E_Global::getSingleton(); 
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
-	time = settingTimer;
+	time = e_global->getTimer();
 	mouse = iconClick = point;
 	movindexx = point.x / (mapsize*w) + 1;
 	movindexy = point.y / (mapsize*w) + 1;
@@ -645,21 +645,12 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 		time--;
 		if (time < 0)
 		{
+			E_Global* e_global = E_Global::getSingleton();
 			KillTimer(1);
-			time = settingTimer;
+			time = e_global->getTimer();
 			terminateMap();
 		}
 	}
 	CWnd::OnTimer(nIDEvent);
 }
 
-void E_Map::setTimer(int value)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	settingTimer = value;
-}
-int E_Map::getTimer()
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	return settingTimer;
-}
