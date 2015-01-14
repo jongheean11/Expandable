@@ -40,10 +40,11 @@ public:
 	void drawMap();
 	void terminateMap();
 	void setTransparent(int value);
+	int getTransparent();
 	UINT checkTime(LPVOID param);
 	static const wchar_t* caption;
 	void setTimer(int value);
-	
+	int getTimer();
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

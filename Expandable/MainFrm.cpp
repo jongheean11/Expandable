@@ -44,11 +44,7 @@ CMainFrame::CMainFrame()
 
 CMainFrame::~CMainFrame()
 {
-	E_Global* e_global = E_Global::getSingleton();
-
-	std::list<E_Desktop*> desklist = e_global->desktopList;
-	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	
-		(*itr_desk)->setAllShow();
+	
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -58,14 +54,16 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.uID = 0;
+	nid.uID = IDR_MAINFRAME;
 	nid.hWnd = GetSafeHwnd();
 
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
 	nid.hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	lstrcpy(nid.szTip, TEXT("Naw Menu"));
+	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+	
+	//SendMessage(WM_SETICON, (WPARAM)TRUE, (LPARAM)nid.hIcon);//트레이화면에 붙이기(UI측면)
 
 	//tray 아이콘 생성
 	
@@ -302,7 +300,7 @@ void CMainFrame::DestroyTrayIcon()
 	BOOL bRet;
 	ZeroMemory(&nid, sizeof(nid));
 	nid.cbSize = sizeof(nid);
-	nid.uID = 0;
+	nid.uID = IDR_MAINFRAME;
 	nid.hWnd = GetSafeHwnd();
 	bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
 
@@ -312,7 +310,9 @@ void CMainFrame::DestroyTrayIcon()
 void CMainFrame::On32775()
 {
 	EnviromnmentDialog aboutDlg;
+
 	aboutDlg.DoModal();
+	
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
 
@@ -321,5 +321,11 @@ void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
 	DestroyTrayIcon();
+	E_Global* e_global = E_Global::getSingleton();
+
+
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
+		(*itr_desk)->setAllShow();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }

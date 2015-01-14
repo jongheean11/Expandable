@@ -37,6 +37,10 @@ E_Map::~E_Map()
 		hwnd_cwnd_emap = NULL;
 	}
 }
+int E_Map::getTransparent()
+{
+	return transparent;
+}
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
@@ -647,4 +651,9 @@ void E_Map::setTimer(int value)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	settingTimer = value;
+}
+int E_Map::getTimer()
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	return settingTimer;
 }
