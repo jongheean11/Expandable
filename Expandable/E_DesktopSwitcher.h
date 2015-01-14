@@ -17,6 +17,10 @@ private:
 	E_Window* clickedWindow;
 	bool ison;
 
+	// property for doubleclick
+	SYSTEMTIME doubleClickTimer, __doubleClickTimer;
+	bool doubleclick_first, doubleclick_second;
+
 	// property for arrow button
 	bool leftarrow_pressed, rightarrow_pressed;
 
@@ -87,4 +91,5 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+//	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 };

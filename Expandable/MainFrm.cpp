@@ -331,8 +331,8 @@ void CMainFrame::OnDestroy()
 	std::list<E_Desktop*> desklist = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
 	{
-		(*itr_desk)->setAllShow();
 		(*itr_desk)->setAllOpaque();
+		(*itr_desk)->setAllShow();
 	}
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
