@@ -6,6 +6,7 @@
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};
+enum GROUP2{SELECTEDDESKTOP, OTHERDESKTOP};
 class E_WindowSwitcher : public CWnd, public E_ISwitcherUpdator
 {
 private:
@@ -15,10 +16,13 @@ private:
 	E_EnvironmentManager* envManager;
 	bool running;
 	bool updateFlag;
+	int tabIndex;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;
 	unordered_map<HWND, RECT> rect_map;	//	rect
 	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
+	unordered_map<HWND, GROUP2> group_map;	//	rect
+	unordered_map<HWND, E_Desktop*> desktop_map;	//	rect
 
 protected:
 	
@@ -71,5 +75,8 @@ public:
 	// 스위처를 재시작하는 함수
 	void restartSwitcher();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };
 

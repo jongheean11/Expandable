@@ -79,6 +79,9 @@ void E_Hotkey::init(E_IGlobal* iglobal)
 	if (!RegisterHotKey(this->m_hWnd, IDDESKTOPDOWN, MODIFIERDESKTOPDOWN, CHARDESKTOPDOWN)){
 		TRACE_WIN32A("[E_Hotkey::init]HOTKEY %d INIT FAIL", IDDESKTOPDOWN);
 	}
+	//if (!RegisterHotKey(this->m_hWnd, 111, MOD_ALT, VK_TAB)){
+	//	TRACE_WIN32A("[E_Hotkey::init]HOTKEY %d INIT FAIL", 111);
+	//}
 }
 
 
@@ -141,6 +144,10 @@ void E_Hotkey::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 									 iglobal->moveDesktopDown();
 									 //TRACE_WIN32A("[E_Hotkey::OnHotKey]MOVE WINDOW TO DOWN");
 									 break;
+	}
+	case 111:{
+				 TRACE_WIN32A("[E_Hotkey::OnHotKey]ALT TAB");
+				 
 	}
 	}
 	CWnd::OnHotKey(nHotKeyId, nKey1, nKey2);
