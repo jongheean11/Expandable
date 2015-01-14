@@ -69,6 +69,8 @@ void EnviromnmentDialog::OnBnClickedOk()
 	e_global->setTransparent(transparent);
 	e_global->setTimer(settingTimer);
 	e_global->setIconsize(iconSize);
+	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
+	e_global->desktopheight = mapwidth.GetCurSel() + 1;
 	if (swapflag)
 	{
 		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);
@@ -192,7 +194,6 @@ BOOL EnviromnmentDialog::OnInitDialog()
 void EnviromnmentDialog::mapHeightset()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
 	swapflag = true;
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
@@ -201,7 +202,6 @@ void EnviromnmentDialog::mapHeightset()
 void EnviromnmentDialog::mapWidthset()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->desktopheight = mapwidth.GetCurSel() + 1;
 	swapflag = true;
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
