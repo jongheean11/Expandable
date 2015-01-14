@@ -583,9 +583,12 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
+				continue;
 			(*itr_desk)->setAllHide();
-				
-		e_global->getSelectedDesktop()->setAllShow();
+		}
+		
 		terminateMap();
 	}
 }
