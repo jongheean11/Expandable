@@ -49,4 +49,5 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg HRESULT OnUserEvent(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnMouseLeave();
 };

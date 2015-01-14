@@ -22,7 +22,7 @@ E_Map::E_Map()
 	up = false;
 	select = false;
 	forSelectMap = false;
-	hwnd = GetSafeHwnd();
+	hwnd = this->GetSafeHwnd();
 
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
@@ -43,7 +43,6 @@ E_Map::~E_Map()
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
-
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
@@ -106,12 +105,14 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_TIMER()
 	ON_MESSAGE(WM_USER_EVENT, OnUserEvent)
+	ON_WM_MOUSELEAVE()
 END_MESSAGE_MAP()
 
 
 
 void E_Map::OnPaint()
 {
+	//::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
 	//e_global->onUpdate();
 	CRect tmprect;
 	bool drawable = false;
@@ -677,4 +678,11 @@ HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
 	// TODO: Your Code
 	Invalidate(0);
 	return TRUE;
+}
+
+void E_Map::OnMouseLeave()
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
+	__super::OnMouseLeave();
 }

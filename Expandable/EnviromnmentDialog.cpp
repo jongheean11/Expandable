@@ -87,11 +87,11 @@ void EnviromnmentDialog::mapSIze(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	E_Global* e_global = E_Global::getSingleton();
-	E_Map* e_map = E_Map::getSingleton();
+	//E_Global* e_global = E_Global::getSingleton();
+	//E_Map* e_map = E_Map::getSingleton();
 	mapSize = minimapsize.GetPos();
-	e_global->setMapsize(mapSize);
-	::SendMessage(e_map->hwnd, WM_USER_EVENT, 0, 0);
+	//e_global->setMapsize(mapSize);
+	///::SendMessage(e_map->hwnd, WM_USER_EVENT, 0, 0);
 	*pResult = 0;
 }
 
