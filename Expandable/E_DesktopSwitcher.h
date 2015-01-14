@@ -72,7 +72,13 @@ public:
 		initial_padding_width, initial_padding_height,
 		padding_width, padding_height,
 		switch_width, switch_height,
-		ratio_ww, ratio_hh;
+		ratio_ww, ratio_hh,
+		background_left, background_right, background_top, background_bottom,
+		taskbar_top;
+	RECT *main_backgroundRECT, *main_taskbarRECT;
+	HTHUMBNAIL main_backgroundHTHUMBNAIL, main_taskbarHTHUMBNAIL;
+	HWND hShellWnd, hTaskbarWnd;
+	CRect sizeRect_background, sizeRect_taskbar;
 	
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
