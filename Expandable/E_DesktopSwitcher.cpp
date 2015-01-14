@@ -408,12 +408,10 @@ void E_DesktopSwitcher::startSwitcher()
 void E_DesktopSwitcher::terminateSwitcher()
 {
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
-	/*for (std::list<HTHUMBNAIL>::iterator itr = window_hthumbnail_list.begin(); itr != window_hthumbnail_list.end(); itr++)
-	{
-		e_aeropeekcontroller->unregisterAero(*itr);
-	}*/
-	//window_hthumbnail_list.clear();
-	aeController->unregisterAllAreo();
+	
+	eraseDesktopList();
+	eraseWindowS();
+
 	E_Window::setIconVisible(this->m_hWnd);
 	DestroyWindow();
 	ison = false;
