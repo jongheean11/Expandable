@@ -210,6 +210,8 @@ BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
 	ON_WM_KILLFOCUS()
+	ON_WM_SYSKEYDOWN()
+	ON_WM_SYSKEYUP()
 END_MESSAGE_MAP()
 
 /*창을 새로 그리는 함수*/
@@ -1108,6 +1110,7 @@ void E_WindowSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		TRACE_WIN32A("VK_TAB");
 		
 	}
+
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -1125,4 +1128,20 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 	terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+}
+
+
+void E_WindowSwitcher::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	__super::OnSysKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	
+	__super::OnSysKeyUp(nChar, nRepCnt, nFlags);
 }

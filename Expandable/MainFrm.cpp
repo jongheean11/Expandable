@@ -25,6 +25,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(WM_TRAY_NOTIFICATION, OnTrayNotification)
 	ON_COMMAND(ID_32775, &CMainFrame::On32775)
 	ON_WM_DESTROY()
+	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
+	ON_WM_SYSKEYDOWN()
+	ON_WM_SYSKEYUP()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -328,4 +332,84 @@ void CMainFrame::OnDestroy()
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
 		(*itr_desk)->setAllShow();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+}
+
+
+void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("frame on key down %c", nChar);
+	E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
+	switcher->startSwitcher();
+	keydown = 1;
+	startChecking();
+	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	TRACE_WIN32A("frame on key up");
+	CFrameWndEx::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+void CMainFrame::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("OnSysKeyDown");
+	CFrameWndEx::OnSysKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CMainFrame::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("OnSysKeyUp");
+	CFrameWndEx::OnSysKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+// alt up 체킹
+int CMainFrame::startChecking()
+{
+	if (keydown == 0){
+		return 0;
+	}
+	if (isCheckRunning == false && t == NULL){
+		isCheckRunning = true;
+		t = new thread{ &CMainFrame::onChecking, this };
+	}
+	return 0;
+}
+
+
+int CMainFrame::stopChecking()
+{
+	keydown = 0;
+	isCheckRunning = false;
+	t = NULL;
+	return 0;
+}
+
+
+int CMainFrame::onChecking()
+{
+	while (isCheckRunning){
+		//TRACE_WIN32A("onChecking()");
+		//Sleep(1000);
+		if (GetKeyState(VK_MENU) < 0)
+		{
+			//TRACE_WIN32A("ALT KEY DOWN\n");
+		}				
+		else
+		{
+			TRACE_WIN32A("ALT KEY UP\n");
+			stopChecking();
+			E_WindowSwitcher::getSingleton()->terminateSwitcher();
+		}
+	}
+	return 0;
 }
