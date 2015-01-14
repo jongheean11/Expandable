@@ -3,6 +3,7 @@
 #include "E_Map.h"
 #include "E_Global.h"
 
+
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
@@ -21,7 +22,7 @@ E_Map::E_Map()
 	up = false;
 	select = false;
 	forSelectMap = false;
-
+	hwnd = GetSafeHwnd();
 
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
@@ -104,6 +105,7 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_TIMER()
+	ON_MESSAGE(WM_USER_EVENT, OnUserEvent)
 END_MESSAGE_MAP()
 
 
@@ -670,3 +672,9 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 	CWnd::OnTimer(nIDEvent);
 }
 
+HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
+{
+	// TODO: Your Code
+	Invalidate(0);
+	return TRUE;
+}

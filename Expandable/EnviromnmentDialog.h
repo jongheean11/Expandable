@@ -4,6 +4,7 @@
 
 
 // EnviromnmentDialog 대화 상자입니다.
+#define WM_USER_EVENT (WM_USER + 2)
 #define WM_TRAY_ICON_NOTIFY_MESSAGE ( WM_USER+1)
 class EnviromnmentDialog : public CDialog
 {
