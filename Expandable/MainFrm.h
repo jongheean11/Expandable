@@ -2,6 +2,8 @@
 // MainFrm.h : CMainFrame 클래스의 인터페이스
 //
 
+#include "E_WindowSwitcher.h"
+
 #pragma once
 class CMainFrame : public CFrameWndEx
 {
@@ -12,7 +14,9 @@ protected: // serialization에서만 만들어집니다.
 
 // 특성입니다.
 public:
-
+	int keydown = 0;
+	int isCheckRunning = false;
+	thread* t = NULL;
 // 작업입니다.
 public:
 
@@ -47,6 +51,14 @@ protected:
 public:
 	afx_msg void On32775();
 	afx_msg void OnDestroy();
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	// alt up 체킹
+	int startChecking();
+	int stopChecking();
+	int onChecking();
 };
 
 

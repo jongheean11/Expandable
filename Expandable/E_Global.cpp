@@ -9,6 +9,8 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	settingTimer = 5;
+	transparent = 160;
 	mapsize = 0.06;
 	iconsize = 1;
 	desktopwidth = 3;
@@ -27,10 +29,28 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	//윈도우 리스트 초기화 // 생성자 안이라 초기화 불가능
 	//
 }
+void E_Global::setTimer(int value)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	settingTimer = value;
+}
+int E_Global::getTimer()
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	return settingTimer;
+}
 
 E_Global::~E_Global()
 {
 
+}
+void E_Global::setTransparent(int value)
+{
+	transparent = value;
+}
+int  E_Global::getTransparent()
+{
+	return transparent ;
 }
 double E_Global::getMapsize()
 {
@@ -39,6 +59,14 @@ double E_Global::getMapsize()
 double E_Global::getIconsize()
 {
 	return iconsize;
+}
+void E_Global::setIconsize(double value)
+{
+	iconsize = value / 10;
+}
+void E_Global::setMapsize(double value)
+{
+	mapsize = value / 100;
 }
 CWnd* E_Global::getBackgroundWindow(){
 	HWND background = GetShellWindow();
@@ -638,4 +666,11 @@ void E_Global::moveDesktop(int index)
 			selectedDesktop = last; //포인터 업데이트
 		}
 	}
+}
+
+void E_Global::changeDesktop()
+{
+
+
+
 }

@@ -31,6 +31,8 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_KEYUP()
 	ON_WM_TIMER()
 	ON_WM_CREATE()
+	ON_WM_SYSKEYDOWN()
+	ON_WM_SYSKEYUP()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
@@ -111,6 +113,7 @@ CExpandableDoc* CExpandableView::GetDocument() const // 디버그되지 않은 버전은 �
 
 void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
+	TRACE_WIN32A("OnKeyDown");
 	if (nChar == 'D')
 	{
 		desktopSwitcher_bool = true;
@@ -157,6 +160,7 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	//	E_Desktop* d = E_Global::getSingleton()->getSelectedDesktop();
 	//	d->getWindowList();
 	//}
+
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -173,6 +177,8 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 		
 		e_map.drawMap();
 	}
+	TRACE_WIN32A("OnKeyUp");
+
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
 
@@ -207,4 +213,21 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 
 	return 0;
+}
+
+
+void CExpandableView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	TRACE_WIN32A("OnSysKeyDown");
+	CView::OnSysKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CExpandableView::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("OnSysKeyUp");
+	CView::OnSysKeyUp(nChar, nRepCnt, nFlags);
 }

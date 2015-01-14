@@ -1,5 +1,6 @@
 #pragma once
 #include "afxcmn.h"
+#include "afxwin.h"
 
 
 // EnviromnmentDialog 대화 상자입니다.
@@ -19,7 +20,7 @@ public:
 	double iconSize;
 	double mapSize;
 	int settingTimer;
-	
+	bool swapflag;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
 
@@ -36,5 +37,9 @@ public:
 	CSliderCtrl minimapiconsize;
 	CSliderCtrl minimaptimer;
 	virtual BOOL OnInitDialog();
-	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	//afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	CComboBox mapwidth;
+	CComboBox mapHeight;
+	afx_msg void mapHeightset();
+	afx_msg void mapWidthset();
 };
