@@ -585,7 +585,10 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
 			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
+			{
+				(*itr_desk)->setAllShow();
 				continue;
+			}
 			(*itr_desk)->setAllHide();
 		}
 		
