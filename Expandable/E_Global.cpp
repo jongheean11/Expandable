@@ -622,3 +622,20 @@ BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
 
 	return TRUE;
 }
+
+void E_Global::moveDesktop(int index)
+{
+	onUpdate();
+	if (0<= index && index < desktopCount){
+		
+		int index = selectedIndex + 1;
+		E_Desktop* last = getDesktop(index);
+		if (last != NULL){
+			selectedDesktop->setAllHide();//숨김
+			last->setAllShow();	//보여줌
+
+			selectedIndex = index;	//인덱스 업데이트
+			selectedDesktop = last; //포인터 업데이트
+		}
+	}
+}

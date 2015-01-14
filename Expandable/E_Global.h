@@ -106,4 +106,5 @@ public:
 	void moveDesktopDown();
 	// 리스트를 Z-Index로 정렬해서 반환하는 함수
 	void E_Global::sortZIndexWindowList(list<E_Window*>& target);
+	void moveDesktop(int index);
 };

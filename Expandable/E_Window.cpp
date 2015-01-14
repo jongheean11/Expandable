@@ -214,6 +214,7 @@ bool E_Window::takeScreenshot()
 	::DeleteDC(hMemDC);
 	::ReleaseDC(hTargetWnd, hDC);
 
+	screenshot.DeleteObject();
 	screenshot.Attach(hBitmap);
 
 	if (notShowing == true){
