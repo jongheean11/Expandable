@@ -40,6 +40,9 @@
     <Filter Include="Interfaces">
       <UniqueIdentifier>{424ef4b6-040a-4cb4-ace5-f9567beb0c5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Dialog">
+      <UniqueIdentifier>{834ac04d-8d16-436d-b7d3-71d9a88a117a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -126,6 +129,9 @@
     <ClInclude Include="E_GlobalUpdater.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="EnviromnmentDialog.h">
+      <Filter>Dialog</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -199,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="E_GlobalUpdater.cpp">
       <Filter>Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="EnviromnmentDialog.cpp">
+      <Filter>Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -105,6 +105,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EnviromnmentDialog.h" />
     <ClInclude Include="E_AeroPeekController.h" />
     <ClInclude Include="Expandable.h" />
     <ClInclude Include="ExpandableDoc.h" />
@@ -134,6 +135,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EnviromnmentDialog.cpp" />
     <ClCompile Include="E_AeroPeekController.cpp" />
     <ClCompile Include="Expandable.cpp" />
     <ClCompile Include="ExpandableDoc.cpp" />
