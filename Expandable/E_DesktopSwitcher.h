@@ -17,6 +17,9 @@ private:
 	E_Window* clickedWindow;
 	bool ison;
 
+	// property for arrow button
+	bool leftarrow_pressed, rightarrow_pressed;
+
 	// property for moving desktop
 	bool desktop_selected;
 
@@ -25,7 +28,7 @@ public:
 
 private:
 	// property for moving window
-	bool window_selected, window_squeezed;
+	bool window_selected, window_squeezed, desktop_inrange;
 	E_Window* window_ptr;
 	CPoint window_leftdown_point;
 	RECT *window_RECT, *window_RECT_copy, *window_RECT_from_desktop;
