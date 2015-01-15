@@ -255,14 +255,14 @@ CAPTION " 사용법"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "확인",IDOK,127,179,63,23
-    LTEXT           "Expandable, 버전 1.0",IDC_STATIC,118,38,80,9,SS_NOPREFIX
-    LTEXT           "Copyright ParkJH, KimJH, ChoiCW",IDC_STATIC,103,55,117,9
-    LTEXT           "- 단축키 -",IDC_STATIC,138,92,49,9
-    LTEXT           "1. 다른 방향의 Desktop 으로 이동",IDC_STATIC,85,110,133,9
-    LTEXT           "2. 다른 방향의 Desktop 으로 Window 이동",IDC_STATIC,85,144,178,9
-    LTEXT           "Ctrl + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,99,123,187,9,SS_NOPREFIX
-    LTEXT           "Alt + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,100,157,149,9,SS_NOPREFIX
-    LTEXT           "보다 넓은 바탕화면을 누리세요 !",IDC_STATIC,101,20,119,9,SS_NOPREFIX
+    LTEXT           "Expandable, 버전 1.0",IDC_STATIC,156,38,80,9,SS_NOPREFIX
+    LTEXT           "Copyright   ParkJH, KimJH, ChoiCW",IDC_STATIC,138,55,117,9
+    LTEXT           "- 단축키 -",IDC_STATIC,176,92,49,9
+    LTEXT           "1. 다른 방향의 Desktop 으로 이동",IDC_STATIC,123,110,133,9
+    LTEXT           "2. 다른 방향의 Desktop 으로 Window 이동",IDC_STATIC,123,144,178,9
+    LTEXT           "Ctrl + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,137,123,156,9,SS_NOPREFIX
+    LTEXT           "Alt + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,138,157,149,9,SS_NOPREFIX
+    LTEXT           "보다 넓은 바탕화면을 누리세요 !",IDC_STATIC,139,17,119,9,SS_NOPREFIX
 END
 
 
