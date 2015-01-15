@@ -7,7 +7,13 @@ private:
 	int nextDesktopIndex;
 	E_DragAndDropSwitcher();
 	~E_DragAndDropSwitcher();
+
+	bool ison;
 public:
+	bool cursor_left, cursor_right, cursor_top, cursor_bottom;
+	HWND hShellWnd, hTaskbarWnd;
+	CRect sizeRect_background, sizeRect_taskbar;
+
 	virtual void updateSelectedDesktop();
 	static E_DragAndDropSwitcher* getSingleton();
 	void startSwitcher();
