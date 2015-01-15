@@ -2,6 +2,7 @@
 #include "E_Global.h"
 #pragma once
 #include <list>
+#include "E_Map.h"
 
 E_Global* E_Global::singleton = NULL;
 
@@ -9,6 +10,7 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	hotkeyinvalidate = false;
 	settingTimer = 5;
 	transparent = 160;
 	mapsize = 0.06;
@@ -414,6 +416,14 @@ void E_Global::moveTopWindowLeft(){
 		desktop->insertWindow(targetWindow);	//윈도우 추가
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		//
+		if (hwnd_cwnd->m_hWnd != NULL)
+		{
+			hotkeyinvalidate = true;
+			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+		}
+		//
+
 	}
 }
 
@@ -445,9 +455,19 @@ void E_Global::moveTopWindowRight(){
 	else{
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex + 1);
+		E_Global* e_global = E_Global::getSingleton();
 		desktop->insertWindow(targetWindow);	//윈도우 추가
 		targetWindow->setHide();//윈도우 숨기기
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+
+		//
+		if (hwnd_cwnd->m_hWnd != NULL)
+		{
+			hotkeyinvalidate = true;
+			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+		}
+		//
+
 	}
 }
 
@@ -480,6 +500,13 @@ void E_Global::moveTopWindowDown(){
 		desktop->insertWindow(targetWindow);	//윈도우 추가
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		//
+		if (hwnd_cwnd->m_hWnd != NULL)
+		{
+			hotkeyinvalidate = true;
+			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+		}
+		//
 	}
 }
 
@@ -513,6 +540,13 @@ void E_Global::moveTopWindowUp(){
 		desktop->insertWindow(targetWindow);	//윈도우 추가
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		//
+		if (hwnd_cwnd->m_hWnd != NULL)
+		{
+			hotkeyinvalidate = true;
+			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+		}
+		//
 	}
 }
 
@@ -541,6 +575,14 @@ void E_Global::moveDesktopLeft()
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
+			//
+			if (hwnd_cwnd->m_hWnd != NULL)
+			{
+				hotkeyinvalidate = true;
+				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			}
+			//
+
 		}
 	}
 }
@@ -563,14 +605,30 @@ void E_Global::moveDesktopRight()
 	else{
 		int index = selectedIndex + 1;
 		E_Desktop* last = getDesktop(index);
+		
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
+			//
+			if (hwnd_cwnd->m_hWnd != NULL)
+			{
+				hotkeyinvalidate = true;
+				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			}
+			//
 		}
 	}
+}
+bool E_Global::gethotkey()
+{
+	return hotkeyinvalidate;
+}
+void E_Global::sethotkey(bool value)
+{
+	hotkeyinvalidate = value;
 }
 // 위쪽 데스크탑으로 이동 (TEST OK)
 void E_Global::moveDesktopUp()
@@ -588,6 +646,13 @@ void E_Global::moveDesktopUp()
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
+			//
+			if (hwnd_cwnd->m_hWnd != NULL)
+			{
+				hotkeyinvalidate = true;
+				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			}
+			//
 		}
 	}
 }
@@ -607,6 +672,13 @@ void E_Global::moveDesktopDown()
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
+			//
+			if (hwnd_cwnd->m_hWnd != NULL)
+			{
+				hotkeyinvalidate = true;
+				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			}
+			//
 		}
 	}
 }

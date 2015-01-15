@@ -14,7 +14,6 @@
 
 #include "E_WindowTest.h"
 
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -81,7 +80,7 @@ void CExpandableView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 void CExpandableView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
 #ifndef SHARED_HANDLERS
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
+	//theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 #endif
 
 }
@@ -233,7 +232,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 						e_map.drawMap();
 				}
 			}
-		}
+	}
 	}
 
 	else if (nIDEvent == 4) // left

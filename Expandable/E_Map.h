@@ -20,9 +20,13 @@ private:
 	bool redraw;
 	bool select;
 	bool up;
+	bool m_bTrack;
+	bool leave;
+	bool leave2;
 public:
 	bool ison;
 	HWND hwnd;
+	CWnd* getmapwindow();
 	int time;
 	int getdesktop(int indexx, int indexy);
 	int clickindexx,clickindexy;
@@ -50,4 +54,5 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg HRESULT OnUserEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMouseLeave();
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };

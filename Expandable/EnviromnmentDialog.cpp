@@ -69,8 +69,8 @@ void EnviromnmentDialog::OnBnClickedOk()
 	e_global->setTransparent(transparent);
 	e_global->setTimer(settingTimer);
 	e_global->setIconsize(iconSize);
-	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
-	e_global->desktopheight = mapwidth.GetCurSel() + 1;
+	e_global->desktopwidth = mapwidth.GetCurSel() + 1;
+	e_global->desktopheight = mapHeight.GetCurSel() + 1;
 	if (swapflag)
 	{
 		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);
@@ -94,7 +94,6 @@ void EnviromnmentDialog::mapSIze(NMHDR *pNMHDR, LRESULT *pResult)
 	///::SendMessage(e_map->hwnd, WM_USER_EVENT, 0, 0);
 	*pResult = 0;
 }
-
 
 void EnviromnmentDialog::mapTransparent(NMHDR *pNMHDR, LRESULT *pResult)
 {

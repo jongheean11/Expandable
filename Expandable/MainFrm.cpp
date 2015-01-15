@@ -66,9 +66,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
-	
+	E_Global* e_global = E_Global::getSingleton();
+	//::SetFocus(e_global->getTaskbarWindow()->m_hWnd);
+	//::SetFocus(this->GetSafeHwnd());
 	//SendMessage(WM_SETICON, (WPARAM)TRUE, (LPARAM)nid.hIcon);//트레이화면에 붙이기(UI측면)
-
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
 	//tray 아이콘 생성
 	
 	
@@ -284,6 +286,9 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 		id = pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD, MousePos.x, MousePos.y, this);
 		switch (id)
 		{
+		case ID_32775:
+			On32775();
+			break;
 		case ID_APP_EXIT:
 			PostMessage(WM_QUIT);
 			break;

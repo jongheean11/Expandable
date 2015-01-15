@@ -238,7 +238,7 @@ void CExpandableApp::PreLoadState()
 	CString strName;
 	bNameValid = strName.LoadString(IDS_EDIT_MENU);
 	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+	//GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
 }
 
 void CExpandableApp::LoadCustomState()
