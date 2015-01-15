@@ -22,8 +22,9 @@ private:
 	bool up;
 	bool m_bTrack;
 	bool leave;
-	bool leave2;
+	
 public:
+	bool leave2;
 	bool ison;
 	HWND hwnd;
 	CWnd* getmapwindow();
