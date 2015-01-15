@@ -501,6 +501,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		point.x = mouse.x;
 		point.y = mouse.y;
+		leave = false;
 	}
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
