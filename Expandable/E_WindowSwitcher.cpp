@@ -239,7 +239,6 @@ void E_WindowSwitcher::OnPaint()
 
 			//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
 			{
-
 				//타이틀 바
 				CFont* pOldFont;
 				CFont font;
@@ -247,6 +246,7 @@ void E_WindowSwitcher::OnPaint()
 				::ZeroMemory(&lf, sizeof(lf));
 				wsprintf(lf.lfFaceName, TEXT("%s"), TEXT("Arial"));
 				lf.lfHeight = titleFontSize;
+				//lf.lfWeight = 550;
 				//폰트 생성
 				font.CreateFontIndirectW(&lf);
 

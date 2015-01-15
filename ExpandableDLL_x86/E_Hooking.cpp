@@ -2,8 +2,6 @@
 #include "E_Hooking.h"
 //5바이트 ShowWindow를 위한 핫 패치 7652F2A9
 BOOL hook_by_hotpatch_ShowWindow() {
-	OutputDebugStringA("[CALL] hook_by_hotpatch_ShowWindow");
-
 	PROC pShowWindowHook = (PROC)ShowWindowHook;
 	FARPROC pShowWindow = NULL;
 	LPCSTR dllName = "user32.dll";
@@ -13,11 +11,25 @@ BOOL hook_by_hotpatch_ShowWindow() {
 	BYTE pShortJump[5] = { 0xEB, 0xF9, 0x90, 0x90, 0x90 };
 	BYTE pOriginalCodeShowWindow[5] = { 0xB8, 0x4F, 0x12, 0x00, 0x00 };
 
+
+
 	//1)원래 함수 주소 저장
-	pShowWindow = GetProcAddress(GetModuleHandleA(dllName), funcName);
+	//pShowWindow = GetProcAddress(GetModuleHandleA(dllName), funcName);
+	//pShowWindow = GetProcAddress(userModule, funcName);
+	pShowWindow = (FARPROC)ShowWindow;
+
+	TRACE_WIN32A("[CALL] hook_by_hotpatch_ShowWindow [%x]", (void*)pShowWindow);
+
+	if (((BYTE*)pShowWindow)[0] == 0xEB){
+		TRACE_WIN32A("[hook_by_hotpatch_ShowWindow] Already hotpatch", (void*)pShowWindow);
+		return FALSE;
+	}
 
 	//2)읽기 쓰기 권한 부여
-	VirtualProtect((LPVOID)((DWORD)pShowWindow - 5), 10, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+	if (!VirtualProtect((LPVOID)((DWORD)pShowWindow - 5), 10, PAGE_EXECUTE_READWRITE, &dwOldProtect)){
+		TRACE_WIN32A("[hook_by_hotpatch_ShowWindow] VirtualProtect 실패");
+		return FALSE;
+	}
 
 	//3)Short Jump 코드 복사(hot fix
 	memcpy(pShowWindow, pShortJump, 5);
@@ -68,7 +80,6 @@ BOOL unhook_by_hotpatch_ShowWindow()
 BOOL hook_by_hotpatch_SetProgressValue()
 {
 	OutputDebugStringA("[CALL] hook_by_hotpatch_SetProgressValue");
-
 	BOOL result = TRUE;
 	HRESULT hresult = NULL;
 	DWORD* ptr;
@@ -93,19 +104,24 @@ BOOL hook_by_hotpatch_SetProgressValue()
 		//char dbgmsg[255] = { 0, };
 		//sprintf_s(dbgmsg, "ptr %x", (DWORD)ptr);
 		//OutputDebugStringA(dbgmsg);
-		//	pTaskList3->Release();
+		//pTaskList3->Release();
 	}
 	else {
+		pTaskList3->Release();
 		return FALSE;
 	}
 
+	//TRACE_WIN32A("[CALL] hook_by_hotpatch_SetProgressValue [%x]",(void*)pfSetProgressValue);
+
 	//2)후킹 (PVOID)(&(PVOID&)HookingClass::HookingFu
 	if (!hook_by_hotpatch(pfSetProgressValue, (PROC)((DWORD)SetProgressValueHook))) {
+		pTaskList3->Release();
 		return FALSE;
 	}
 
 	//3)SetProgresssValue 함수주소 유지를 위해 인터페이스 객체를 해제하지 않는다.
 
+	//pTaskList3->Release();
 	return result;
 }
 
@@ -154,8 +170,9 @@ BOOL hook_by_hotpatch(LPCSTR szDllName, LPCSTR szFuncName, PROC pfnNew)
 
 	pFunc = (FARPROC)GetProcAddress(GetModuleHandleA(szDllName), szFuncName);
 	pByte = (PBYTE)pFunc;
-	if (pByte[0] == 0xEB)
+	if (pByte[0] == 0xEB){
 		return FALSE;
+	}
 
 	VirtualProtect((LPVOID)((DWORD)pFunc - 5), 7, PAGE_EXECUTE_READWRITE, &dwOldProtect);
 
@@ -181,8 +198,12 @@ BOOL hook_by_hotpatch(FARPROC pFunc, PROC pfnNew)
 	PBYTE pByte;
 
 	pByte = (PBYTE)pFunc;
-	if (pByte[0] == 0xEB)
+
+	//이미 후킹 되었으면
+	if (pByte[0] == 0xEB){
+		TRACE_WIN32A("[hook_by_hotpatch] Already hotpatch");
 		return FALSE;
+	}
 
 	VirtualProtect((LPVOID)((DWORD)pFunc - 5), 7, PAGE_EXECUTE_READWRITE, &dwOldProtect);
 
@@ -203,7 +224,7 @@ BOOL hook_by_hotpatch(FARPROC pFunc, PROC pfnNew)
 BOOL WINAPI ShowWindowHook(
 	_In_  HWND hWnd,
 	_In_  int nCmdShow){
-	OutputDebugStringA("[ShowWindow] Called");
+	TRACE_WIN32A("[CALL] ShowWindowHook (%d)", nCmdShow);
 
 	FARPROC pShowWindow = NULL;
 	BOOL result = FALSE;
@@ -216,7 +237,7 @@ BOOL WINAPI ShowWindowHook(
 	//2) inline asm
 	__asm
 	{
-		MOV EAX, 0x124F; BOOL USER32.ShowWindow(hWnd, Show); 후킹 전 ShowWindow 5바이트 명령 실행
+			MOV EAX, 0x124F; BOOL USER32.ShowWindow(hWnd, Show); 후킹 전 ShowWindow 5바이트 명령 실행
 
 			PUSH DWORD PTR SS : [EBP + 0x0C]; _In_  int nCmdShow
 			PUSH DWORD PTR SS : [EBP + 0x8]; _In_  HWND hWnd
@@ -225,14 +246,14 @@ BOOL WINAPI ShowWindowHook(
 
 	return result;
 }
+
 //후킹SetProgressValueHook
 HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	_In_  HWND hwnd,
 	_In_  ULONGLONG ullCompleted,
 	_In_  ULONGLONG ullTotal)
 {
-	TRACE_WIN32A("[CALL] SetProgressValueHook (%d, %d)", ullCompleted, ullTotal);
-	//OutputDebugStringA("[CALL] SetProgressValueHook");
+	TRACE_WIN32A("[CALL] SetProgressValueHook (%I64u, %I64u)", ullCompleted, ullTotal);
 
 	PFSETPROGRESSVALUE pfProgressValue;
 	ITaskbarList3* pTaskList3 = NULL;
@@ -245,6 +266,8 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 
 		//hresult = pTaskList3->SetProgressValue(hwnd, ullCompleted, ullTotal);
 		//	pTaskList3->Release();
+
+		// 실제 인터페이스 위치 가져오기 위한
 		__asm
 		{
 			PUSH DWORD PTR SS : [EBP + 0x1C]
