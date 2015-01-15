@@ -126,34 +126,35 @@ void drawDesktopList()
 		std::list<E_Window*> window_list_topmost;
 		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
 		{
-			(*itr_window)->setShow();
-			if (IsWindow((*itr_window)->getWindow()))
-				break;
+			if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
+			{
+				(*itr_window)->setShow();
 
-			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
-			if ((dwExStyle & WS_EX_TOPMOST) != 0)
-			{
-				window_list_topmost.push_front(*itr_window);
-			}
-			else
-			{
-				CRect getSize;
-				GetWindowRect((*itr_window)->getWindow(), &getSize);
-				double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
-					window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
-				double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
-					window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
-				RECT *windowRECT = new RECT
+				DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
+				if ((dwExStyle & WS_EX_TOPMOST) != 0)
 				{
-					window_left,
-					window_top,
-					window_right,
-					window_bottom
-				};
-				aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+					window_list_topmost.push_front(*itr_window);
+				}
+				else
+				{
+					CRect getSize;
+					GetWindowRect((*itr_window)->getWindow(), &getSize);
+					double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
+						window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
+					double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
+						window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+					RECT *windowRECT = new RECT
+					{
+						window_left,
+						window_top,
+						window_right,
+						window_bottom
+					};
+					aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
 
-				windowRECT_List.push_front(windowRECT);
-				pushThumbnail_Map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+					windowRECT_List.push_front(windowRECT);
+					pushThumbnail_Map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+				}
 			}
 		}
 		for (std::list<E_Window*>::iterator itr_window = window_list_topmost.begin(); itr_window != window_list_topmost.end(); itr_window++) // iterating backward
@@ -265,7 +266,7 @@ void drawWindowS()
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if ((*itr_window)->isAeroPossible() && IsWindow((*itr_window)->getWindow()))
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)

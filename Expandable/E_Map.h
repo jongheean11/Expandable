@@ -21,8 +21,13 @@ private:
 	bool redraw;
 	bool select;
 	bool up;
+	bool m_bTrack;
+	bool leave;
+	
 public:
+	
 	HWND hwnd;
+	CWnd* getmapwindow();
 	int time;
 	int getdesktop(int indexx, int indexy);
 	int clickindexx,clickindexy;
