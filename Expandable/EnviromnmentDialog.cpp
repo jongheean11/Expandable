@@ -69,8 +69,8 @@ void EnviromnmentDialog::OnBnClickedOk()
 	e_global->setTransparent(transparent);
 	e_global->setTimer(settingTimer);
 	e_global->setIconsize(iconSize);
-	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
-	e_global->desktopheight = mapwidth.GetCurSel() + 1;
+	e_global->desktopwidth = mapwidth.GetCurSel() + 1;
+	e_global->desktopheight = mapHeight.GetCurSel() + 1;
 	if (swapflag)
 	{
 		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);
