@@ -207,6 +207,7 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	SetCapture();
 	//SetTimer(1, 3000, NULL);
 	//SetTimer(2, 5000, NULL);
 

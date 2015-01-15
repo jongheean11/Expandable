@@ -127,6 +127,8 @@ void drawDesktopList()
 		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
 		{
 			(*itr_window)->setShow();
+			if (IsWindow((*itr_window)->getWindow()))
+				break;
 
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -156,7 +158,6 @@ void drawDesktopList()
 		}
 		for (std::list<E_Window*>::iterator itr_window = window_list_topmost.begin(); itr_window != window_list_topmost.end(); itr_window++) // iterating backward
 		{
-
 			CRect getSize;
 			GetWindowRect((*itr_window)->getWindow(), &getSize);
 			double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
@@ -264,7 +265,7 @@ void drawWindowS()
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if ((*itr_window)->isAeroPossible())
+		if ((*itr_window)->isAeroPossible() && IsWindow((*itr_window)->getWindow()))
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -543,11 +544,6 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					hash_map<RECT*, HTHUMBNAIL>::iterator itr_window_hthumbnail = window_RECT_hthumbnail_map.find(*itr_window_area);
 					hash_map<RECT*, HTHUMBNAIL> window_desktop_RECT_hthumbnail_map__ = window_desktop_RECT_hthumbnail_map.find(e_global->getSelectedIndex())->second;
 					hash_map<RECT*, HTHUMBNAIL>::iterator itr_window_desktop_hthumbnail = window_desktop_RECT_hthumbnail_map__.find(*itr_window_desktop_area);
-
-					if (!IsWindow(itr_window_EWindow->second->getWindow()))
-					{
-
-					}
 
 					window_selected = true;
 					window_leftdown_point = point;
