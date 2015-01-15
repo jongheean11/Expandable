@@ -195,10 +195,151 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 	else if (nIDEvent == 2)
 	{
 		return;
-	}
-	*/
+	}*/
+	if (nIDEvent == 3)
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
 
-	//KillTimer(1);
+		if (!(GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		{
+			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+			{
+				KillTimer(3);
+				SetTimer(4, 50, NULL);
+			}
+			else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+			{
+				KillTimer(3);
+				SetTimer(5, 50, NULL);
+			}
+			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
+			{
+				KillTimer(3);
+				SetTimer(6, 50, NULL);
+			}
+			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
+			{
+				KillTimer(3);
+				SetTimer(7, 50, NULL);
+			}
+			else
+			{
+				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
+				if (mapCRect.PtInRect(point))
+				{
+					if(!e_map.ison)
+						e_map.drawMap();
+				}
+			}
+		}
+	}
+
+	else if (nIDEvent == 4) // left
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
+
+		if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+		{
+			if ((GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+			{
+				E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
+				{
+					KillTimer(4);
+					drSwitcher->cursor_left = true;
+					drSwitcher->startSwitcher();
+				}
+			}
+		}
+		else
+		{
+			KillTimer(4);
+			SetTimer(3, 80, NULL);
+		}
+	}
+
+	else if (nIDEvent == 5) // right
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
+
+		if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+		{
+			if ((GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+			{
+				E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
+				{
+					KillTimer(5);
+					drSwitcher->cursor_right = true;
+					drSwitcher->startSwitcher();
+				}
+			}
+		}
+		else
+		{
+			KillTimer(5);
+			SetTimer(3, 80, NULL);
+		}
+	}
+
+	else if (nIDEvent == 6) // top
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
+
+		if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
+		{
+			if ((GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+			{
+				E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
+				{
+					KillTimer(6);
+					drSwitcher->cursor_top = true;
+					drSwitcher->startSwitcher();
+				}
+			}
+		}
+		else
+		{
+			KillTimer(6);
+			SetTimer(3, 80, NULL);
+		}
+	}
+
+	else if (nIDEvent == 7) // bottom
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
+
+		if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
+		{
+			if ((GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+			{
+				E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
+				{
+					KillTimer(7);
+					drSwitcher->cursor_bottom = true;
+					drSwitcher->startSwitcher();
+				}
+			}
+		}
+		else
+		{
+			KillTimer(7);
+			SetTimer(3, 80, NULL);
+		}
+	}
+
 	CView::OnTimer(nIDEvent);
 }
 
@@ -207,8 +348,8 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	SetCapture();
-	//SetTimer(1, 3000, NULL);
+	//SetCapture();
+	SetTimer(3, 80, NULL);
 	//SetTimer(2, 5000, NULL);
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.

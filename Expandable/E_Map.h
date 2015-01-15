@@ -17,11 +17,11 @@ private:
 	int iconMoveMode;
 	bool forSelectMap;
 	bool clicked;
-	bool ison;
 	bool redraw;
 	bool select;
 	bool up;
 public:
+	bool ison;
 	HWND hwnd;
 	int time;
 	int getdesktop(int indexx, int indexy);

@@ -26,6 +26,7 @@ public:
 	void setOpaque();
 	void setHide();
 	void setShow();
+	void setNormal();
 	// 윈도우 세팅
 	void setWindow(HWND window);
 	HWND getWindow();

@@ -126,10 +126,9 @@ void drawDesktopList()
 		std::list<E_Window*> window_list_topmost;
 		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
 		{
+			(*itr_window)->setShow();
 			if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
 			{
-				(*itr_window)->setShow();
-
 				DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 				if ((dwExStyle & WS_EX_TOPMOST) != 0)
 				{
@@ -330,7 +329,6 @@ void drawDesktopSwitcher()
 	
 	PAINTSTRUCT ps;
 	HDC hdc;
-	HTHUMBNAIL pushThumbnail;
 	
 	deSwitcher->hShellWnd = GetShellWindow(); // 바탕화면 hwnd
 	GetWindowRect(deSwitcher->hShellWnd, &(deSwitcher->sizeRect_background)); // 바탕화면 크기 얻기
@@ -402,7 +400,7 @@ void E_DesktopSwitcher::startSwitcher()
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
-		CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0); 
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0); 
 		E_Window::setIconInvisible(this->m_hWnd);
 		
 		drawDesktopSwitcher();

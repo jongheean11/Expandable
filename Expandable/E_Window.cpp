@@ -238,6 +238,10 @@ void E_Window::setShow()
 	ShowWindow(window, SW_SHOW);
 }
 
+void E_Window::setNormal()
+{
+	ShowWindow(window, SW_NORMAL);
+}
 
 CBitmap* E_Window::getScreenshot()
 {
