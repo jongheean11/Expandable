@@ -40,7 +40,10 @@ E_Map::~E_Map()
 		hwnd_cwnd_emap = NULL;
 	}
 }
-
+CWnd* E_Map::getmapwindow()
+{
+	return hwnd_cwnd_emap;
+}
 const wchar_t* E_Map::caption = L"Map";
 void E_Map::drawMap()
 {
@@ -69,6 +72,9 @@ void E_Map::drawMap()
 		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
 		//hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
 		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight), CWnd::GetDesktopWindow(), 0);
+		//
+		e_global->hwnd_cwnd = hwnd_cwnd_emap;
+		//
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -160,8 +166,9 @@ void E_Map::OnPaint()
 		//forSelectMap = false;
 	}
 
-	if (!ison || clicked || forSelectMap || up)
+	if (!ison || clicked || forSelectMap || up || e_global->gethotkey())
 	{
+		e_global->sethotkey(false);
 		drawable = true;
 		forSelectMap = false;
 		iconRectList.clear();
@@ -697,7 +704,9 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
+	E_Global* e_global = E_Global::getSingleton();
 	Invalidate(0);
+	time = e_global->getTimer();
 	return TRUE;
 }
 
@@ -706,19 +715,12 @@ void E_Map::OnMouseLeave()
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	OutputDebugString(L"OnMouseLeave star");
 		
-	
 	TRACKMOUSEEVENT MouseEvent;
-	
 	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
-	
 	MouseEvent.cbSize = sizeof(MouseEvent);
-	
 	MouseEvent.dwFlags = TME_CANCEL;
-	
 	MouseEvent.hwndTrack = m_hWnd;
-	
 	::_TrackMouseEvent(&MouseEvent);
-
 	m_bTrack = false;
 	if (clicked)
 	{

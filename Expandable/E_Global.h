@@ -27,8 +27,14 @@ private:
 	thread* currentThread;
 	int transparent;
 	int settingTimer;
+	bool hotkeyinvalidate;
 	
 public:
+	bool gethotkey();
+	void sethotkey(bool value);
+	CWnd* hwnd_cwnd;
+
+
 	void changeDesktop(int pastvalue, int newvalue);
 	static const wchar_t* testFrameName;
 	void setTimer(int value);
