@@ -457,6 +457,7 @@ void CMainFrame::On32777()
 void CMainFrame::changetray(int num)
 {
 	DestroyTrayIcon();
+	::BringWindowToTop(this->GetSafeHwnd());
 	//this->ShowWindow(SW_HIDE);
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(nid));

@@ -30,6 +30,7 @@ private:
 	bool hotkeyinvalidate;
 	
 public:
+	bool mapopen ;
 	HWND hwnd_frame;
 	bool gethotkey();
 	void sethotkey(bool value);

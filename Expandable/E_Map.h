@@ -42,7 +42,7 @@ public:
 	static volatile bool isThreadRunning ;
 	void drawMap();
 	void terminateMap();
-	
+	HWND maphwnd;
 	UINT checkTime(LPVOID param);
 	static const wchar_t* caption;
 	

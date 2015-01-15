@@ -10,6 +10,7 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 #define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	mapopen = false;
 	hotkeyinvalidate = false;
 	settingTimer = 5;
 	transparent = 160;
@@ -417,7 +418,7 @@ void E_Global::moveTopWindowLeft(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (hwnd_cwnd->m_hWnd != NULL)
+		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -461,7 +462,7 @@ void E_Global::moveTopWindowRight(){
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
 		//
-		if (hwnd_cwnd->m_hWnd != NULL)
+		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -501,7 +502,7 @@ void E_Global::moveTopWindowDown(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (hwnd_cwnd->m_hWnd != NULL)
+		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -541,7 +542,7 @@ void E_Global::moveTopWindowUp(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (hwnd_cwnd->m_hWnd != NULL)
+		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -576,7 +577,7 @@ void E_Global::moveDesktopLeft()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (hwnd_cwnd->m_hWnd != NULL)
+			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -613,7 +614,7 @@ void E_Global::moveDesktopRight()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (hwnd_cwnd->m_hWnd != NULL)
+			if (mapopen && hwnd_cwnd->m_hWnd != NULL )
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -650,7 +651,7 @@ void E_Global::moveDesktopUp()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (hwnd_cwnd->m_hWnd != NULL)
+			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -677,7 +678,7 @@ void E_Global::moveDesktopDown()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (hwnd_cwnd->m_hWnd != NULL)
+			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);

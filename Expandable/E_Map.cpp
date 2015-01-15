@@ -19,6 +19,7 @@ E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	maphwnd = this->GetSafeHwnd();
 	leave2 = false;
 	leave = false;
 	up = false;
@@ -51,6 +52,7 @@ void E_Map::drawMap()
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
+	e_global->mapopen = true;
 	//e_global->onUpdate();
 	//e_global->startUpdate();
 	if (!ison)
