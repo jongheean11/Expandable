@@ -309,7 +309,8 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 			On32775();
 			break;
 		case ID_APP_EXIT:
-			PostMessage(WM_QUIT);
+			OnDestroy();
+			//PostMessage(WM_QUIT);
 			break;
 		case ID_32777:
 			On32777();
@@ -363,6 +364,7 @@ void CMainFrame::OnDestroy()
 		(*itr_desk)->setAllOpaque();
 		(*itr_desk)->setAllShow();
 	}
+	PostMessage(WM_QUIT);
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 

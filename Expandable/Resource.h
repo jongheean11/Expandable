@@ -28,7 +28,6 @@
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   218
 #define ID_VIEW_APPLOOK_WINDOWS_7       219
 #define IDS_EDIT_MENU                   306
-#define _APS_NEXT_SYMED_VALUE           310
 #define IDD_DIALOG1                     311
 #define IDD_DIALOG2                     320
 #define IDI_ICON1                       321
@@ -47,7 +46,6 @@
 #define IDI_ICON15                      335
 #define IDI_ICON16                      336
 #define IDI_ICON11                      339
-#define _APS_NEXT_RESOURCE_VALUE        339
 #define IDC_SLIDER2                     1018
 #define IDC_SLIDER3                     1019
 #define IDC_SLIDER4                     1021
@@ -55,10 +53,8 @@
 #define IDC_COMBO1                      1026
 #define IDC_COMBO2                      1027
 #define IDCANCEL                        1028
-#define _APS_NEXT_CONTROL_VALUE         1029
 #define ID_32775                        32775
 #define ID_32777                        32777
-#define _APS_NEXT_COMMAND_VALUE         32778
 
 // Next default values for new objects
 // 
