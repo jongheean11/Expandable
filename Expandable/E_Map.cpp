@@ -647,7 +647,8 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
 	E_Global* e_global = E_Global::getSingleton();
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); long w = enManager->getWidth();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); 
+	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
 	time = e_global->getTimer();
 	mouse = iconClick = point;
