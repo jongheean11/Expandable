@@ -19,6 +19,7 @@ E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	leave = false;
 	up = false;
 	select = false;
 	forSelectMap = false;
@@ -496,7 +497,11 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-
+	if (leave)
+	{
+		point.x = mouse.x;
+		point.y = mouse.y;
+	}
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
 	long w = enManager->getWidth();
@@ -652,6 +657,21 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	iconMoveMode = 2;
 	if (clicked)
 		Invalidate(0);
+
+
+	TRACKMOUSEEVENT MouseEvent;
+	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
+	MouseEvent.cbSize = sizeof(MouseEvent);
+	MouseEvent.dwFlags = TME_LEAVE;
+	MouseEvent.hwndTrack = m_hWnd;
+	MouseEvent.dwHoverTime = 0;
+
+	m_bTrack = ::_TrackMouseEvent(&MouseEvent);
+	if (m_bTrack)
+	{
+		SetWindowText(_T("Tracking"));
+	}
+	
 	CWnd::OnMouseMove(nFlags, point);
 }
 
@@ -683,6 +703,26 @@ HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
 void E_Map::OnMouseLeave()
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
+	OutputDebugString(L"OnMouseLeave star");
+		
+	
+	TRACKMOUSEEVENT MouseEvent;
+	
+	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
+	
+	MouseEvent.cbSize = sizeof(MouseEvent);
+	
+	MouseEvent.dwFlags = TME_CANCEL;
+	
+	MouseEvent.hwndTrack = m_hWnd;
+	
+	::_TrackMouseEvent(&MouseEvent);
+
+	m_bTrack = false;
+	if (clicked)
+	{
+		leave = true;
+		::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
+	}
 	__super::OnMouseLeave();
 }

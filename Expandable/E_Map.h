@@ -21,6 +21,8 @@ private:
 	bool redraw;
 	bool select;
 	bool up;
+	bool m_bTrack;
+	bool leave;
 public:
 	HWND hwnd;
 	int time;
