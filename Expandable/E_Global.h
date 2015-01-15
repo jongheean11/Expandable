@@ -30,6 +30,7 @@ private:
 	bool hotkeyinvalidate;
 	
 public:
+	HWND hwnd_frame;
 	bool gethotkey();
 	void sethotkey(bool value);
 	CWnd* hwnd_cwnd;

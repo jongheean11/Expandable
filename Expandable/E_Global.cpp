@@ -7,7 +7,7 @@
 E_Global* E_Global::singleton = NULL;
 
 const wchar_t* E_Global::testFrameName = L"expandable";
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
 	hotkeyinvalidate = false;
@@ -582,7 +582,7 @@ void E_Global::moveDesktopLeft()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
-
+			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 		}
 	}
 }
@@ -619,6 +619,9 @@ void E_Global::moveDesktopRight()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
+			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+
+			//
 		}
 	}
 }
@@ -653,6 +656,7 @@ void E_Global::moveDesktopUp()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
+			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 		}
 	}
 }
@@ -679,6 +683,7 @@ void E_Global::moveDesktopDown()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
+			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 		}
 	}
 }

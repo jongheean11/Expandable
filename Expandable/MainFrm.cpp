@@ -7,7 +7,9 @@
 
 #include "MainFrm.h"
 #include "EnviromnmentDialog.h"
+#include "ShowMenu.h"
 #include "E_Global.h"
+#include "E_Map.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -29,6 +31,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_KEYUP()
 	ON_WM_SYSKEYDOWN()
 	ON_WM_SYSKEYUP()
+	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
+	ON_COMMAND(ID_32777, &CMainFrame::On32777)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -44,15 +48,26 @@ CMainFrame::CMainFrame()
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
+	
 }
 
 CMainFrame::~CMainFrame()
 {
 	
 }
+HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
+{
+	// TODO: Your Code
+	changetray((int)wParam+1);
+	return TRUE;
+}
+
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	E_Global* e_global = E_Global::getSingleton();
+	e_global->hwnd_frame = this->GetSafeHwnd();
+
 	//tray 아이콘 생성
 	this->ShowWindow(SW_HIDE);
 	NOTIFYICONDATA nid;
@@ -62,11 +77,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	nid.hWnd = GetSafeHwnd();
 
 	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
-	nid.hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
 	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
-	E_Global* e_global = E_Global::getSingleton();
+	//E_Global* e_global = E_Global::getSingleton();
 	//::SetFocus(e_global->getTaskbarWindow()->m_hWnd);
 	//::SetFocus(this->GetSafeHwnd());
 	//SendMessage(WM_SETICON, (WPARAM)TRUE, (LPARAM)nid.hIcon);//트레이화면에 붙이기(UI측면)
@@ -275,6 +290,7 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 	POINT MousePos;
 	CMenu menu, *pPopup;
 	UINT id;
+	E_Map* e_map = E_Map::getSingleton();
 	switch (uMouseMsg)
 	{
 	case WM_RBUTTONDOWN:
@@ -292,11 +308,16 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 		case ID_APP_EXIT:
 			PostMessage(WM_QUIT);
 			break;
+		case ID_32777:
+			On32777();
+			break;
+		
 		}
 		break;
 	case WM_LBUTTONDBLCLK:
-		DestroyTrayIcon();
-		ShowWindow(SW_SHOW);
+		//DestroyTrayIcon();
+		//changetray(1);
+		e_map->drawMap();
 		break;
 	}
 	return 1;
@@ -319,7 +340,7 @@ void CMainFrame::DestroyTrayIcon()
 void CMainFrame::On32775()
 {
 	EnviromnmentDialog aboutDlg;
-
+	
 	aboutDlg.DoModal();
 	
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
@@ -420,4 +441,82 @@ int CMainFrame::onChecking()
 		}
 	}
 	return 0;
+}
+
+
+
+void CMainFrame::On32777()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	ShowMenu menu;
+
+	menu.DoModal();
+}
+
+
+void CMainFrame::changetray(int num)
+{
+	DestroyTrayIcon();
+	//this->ShowWindow(SW_HIDE);
+	NOTIFYICONDATA nid;
+	ZeroMemory(&nid, sizeof(nid));
+	nid.cbSize = sizeof(nid);
+	nid.uID = IDR_MAINFRAME;
+	nid.hWnd = GetSafeHwnd();
+
+	nid.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+	switch (num)
+	{
+	case 1:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+		break;
+	case 2:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON2);
+		break;
+	case 3:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON3);
+		break;
+	case 4:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON4);
+		break;
+	case 5:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON5);
+		break;
+	case 6:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON6);
+		break;
+	case 7:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON7);
+		break;
+	case 8:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON8);
+		break;
+	case 9:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON9);
+		break;
+	case 10:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON10);
+		break;
+	case 11:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON11);
+		break;
+	case 12:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON12);
+		break;
+	case 13:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON13);
+		break;
+	case 14:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON14);
+		break;
+	case 15:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON15);
+		break;
+	case 16:
+		nid.hIcon = AfxGetApp()->LoadIcon(IDI_ICON16);
+		break;
+	}
+	lstrcpy(nid.szTip, TEXT("Expandable"));
+	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
+	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
 }

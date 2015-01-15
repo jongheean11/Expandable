@@ -3,7 +3,7 @@
 #include "E_Map.h"
 #include "E_Global.h"
 
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
@@ -589,6 +589,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				if (j == upindexx && i == upindexy)
 				{
 					e_global->setSelectedIndex(desktop - 1);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 					//여기서 윈도우를 해당 desktop으로 집어 넣음
 					bre = 1;
 					break;

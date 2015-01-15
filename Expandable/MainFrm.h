@@ -3,7 +3,7 @@
 //
 
 #include "E_WindowSwitcher.h"
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 #pragma once
 class CMainFrame : public CFrameWndEx
 {
@@ -55,10 +55,14 @@ public:
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	// alt up üŷ
 	int startChecking();
 	int stopChecking();
 	int onChecking();
+	
+	afx_msg void On32777();
+	void changetray(int num);
 };
 
 
