@@ -23,7 +23,7 @@ private:
 	bool up;
 	bool m_bTrack;
 	bool leave;
-	
+	bool leave2;
 public:
 	
 	HWND hwnd;
@@ -55,4 +55,5 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg HRESULT OnUserEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMouseLeave();
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };
