@@ -55,9 +55,7 @@ END_MESSAGE_MAP()
 
 void EnviromnmentDialog::On32775()
 {
-	int a = 10;
 	
-
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
 
@@ -66,12 +64,20 @@ void EnviromnmentDialog::OnBnClickedOk()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	E_Global* e_global = E_Global::getSingleton();
+	E_Map* e_map = E_Map::getSingleton();
 	e_global->setMapsize(mapSize);
 	e_global->setTransparent(transparent);
 	e_global->setTimer(settingTimer);
 	e_global->setIconsize(iconSize);
+	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
+	e_global->desktopheight = mapwidth.GetCurSel() + 1;
 	if (swapflag)
-		e_global->changeDesktop();
+	{
+		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);
+		e_global->desktopheight = (mapHeight.GetCurSel() + 1);
+		e_global->changeDesktop(pastdesktopnum, (mapwidth.GetCurSel() + 1) * (mapHeight.GetCurSel() + 1));
+		e_map->terminateMap(); // 이게 잘안됨
+	}
 
 	CDialog::OnOK();
 }
@@ -81,8 +87,11 @@ void EnviromnmentDialog::mapSIze(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//E_Global* e_global = E_Global::getSingleton();
+	//E_Map* e_map = E_Map::getSingleton();
 	mapSize = minimapsize.GetPos();
-	
+	//e_global->setMapsize(mapSize);
+	///::SendMessage(e_map->hwnd, WM_USER_EVENT, 0, 0);
 	*pResult = 0;
 }
 
@@ -125,6 +134,8 @@ BOOL EnviromnmentDialog::OnInitDialog()
 	E_Global* e_global = E_Global::getSingleton();
 	E_Map* e_map = E_Map::getSingleton();
 	
+	pastdesktopnum = e_global->desktopwidth * e_global->desktopheight;
+
 	mapwidth.AddString(_T("1"));
 	mapwidth.AddString(_T("2"));
 	mapwidth.AddString(_T("3"));
@@ -182,20 +193,16 @@ BOOL EnviromnmentDialog::OnInitDialog()
 //	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 //}
 
-
 void EnviromnmentDialog::mapHeightset()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->desktopwidth = mapHeight.GetCurSel() + 1;
 	swapflag = true;
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
-
 void EnviromnmentDialog::mapWidthset()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->desktopheight = mapwidth.GetCurSel() + 1;
 	swapflag = true;
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }

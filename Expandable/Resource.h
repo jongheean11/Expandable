@@ -36,7 +36,6 @@
 #define IDC_COMBO1                      1026
 #define IDC_COMBO2                      1027
 #define ID_32775                        32775
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

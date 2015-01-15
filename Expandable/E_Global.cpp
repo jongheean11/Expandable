@@ -668,9 +668,42 @@ void E_Global::moveDesktop(int index)
 	}
 }
 
-void E_Global::changeDesktop()
+void E_Global::changeDesktop(int pastvalue,int newvalue)
 {
+	int pastdesknum = pastvalue;
+	int newdesknum = newvalue;
+	//일단 모든 Desktop의 리스트를 가져와서 복사후 지역변수로 저장후 다시 글로벌로
+	
+	if (pastdesknum > newdesknum)	//기존의 Desktop이 더많은경우 ex) 9->6
+	{
+		list<E_Desktop*> newdesktopList = desktopList;
+		desktopList.clear();
+		E_Desktop* tmpDesk;
+		int i = 0;
+		for (std::list<E_Desktop*>::iterator itr_desktopto = newdesktopList.begin(); itr_desktopto != newdesktopList.end(); itr_desktopto++,i++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+		{
+			if (i < newdesknum)// 기존의 Desktop의 해당 6개 전까지의 경우
+			{
+				desktopList.push_back(*itr_desktopto);
+				tmpDesk = (*itr_desktopto);	//tmpDesk는 가장 마지막 Desktop
+			}
+			else				//6개 이후
+			{
+				//마지막 Desktop 인 tmpDesk 에다가 나머지 (*itr_desktopto) 인 데스크 탑들의 모든 윈도우 넣음
+				list<E_Window*> tmpwindow = (*itr_desktopto)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_tmpwindow = tmpwindow.begin(); itr_tmpwindow != tmpwindow.end(); itr_tmpwindow++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+				{
+					tmpDesk->insertWindow((*itr_tmpwindow));
+				}
+			}
+		}
 
+	}
+	else // 새로운 데스크탑이 더 많은경우
+	{
+		for (int i = pastvalue; i < newvalue ; i++)
+			desktopList.push_back(new E_Desktop(i));
+	}
 
 
 }
