@@ -24,6 +24,7 @@ private:
 	bool leave;
 	
 public:
+	bool ison2;
 	bool leave2;
 	bool ison;
 	HWND hwnd;

@@ -58,9 +58,13 @@ CMainFrame::~CMainFrame()
 HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
+	OutputDebugString(L"OnTrayEvent ");
 	E_Map* e_map = E_Map::getSingleton();
-	if (!(e_map->ison))
+	if (!(e_map->ison2))
+	{
+		OutputDebugString(L"OnTrayEvent ifenter ");
 		e_map->drawMap();
+	}
 	changetray((int)wParam+1);
 	return TRUE;
 }

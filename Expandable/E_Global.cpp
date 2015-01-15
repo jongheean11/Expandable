@@ -422,6 +422,7 @@ void E_Global::moveTopWindowLeft(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 
@@ -466,6 +467,7 @@ void E_Global::moveTopWindowRight(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 
@@ -506,6 +508,7 @@ void E_Global::moveTopWindowDown(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 	}
@@ -546,6 +549,7 @@ void E_Global::moveTopWindowUp(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 	}
@@ -584,6 +588,7 @@ void E_Global::moveDesktopLeft()
 			}
 			//
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 	}
 }
@@ -621,7 +626,7 @@ void E_Global::moveDesktopRight()
 			}
 			//
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
-
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 			//
 		}
 	}
@@ -658,6 +663,7 @@ void E_Global::moveDesktopUp()
 			}
 			//
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 	}
 }
@@ -685,6 +691,7 @@ void E_Global::moveDesktopDown()
 			}
 			//
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 	}
 }
@@ -748,8 +755,11 @@ void E_Global::moveDesktop(int index)
 
 void E_Global::changeDesktop(int pastvalue,int newvalue)
 {
+	E_Global* e_global = E_Global::getSingleton();
+	E_Map* e_map = E_Map::getSingleton(); 
 	int pastdesknum = pastvalue;
 	int newdesknum = newvalue;
+	setSelectedIndex(0);
 	//일단 모든 Desktop의 리스트를 가져와서 복사후 지역변수로 저장후 다시 글로벌로
 	
 	if (pastdesknum > newdesknum)	//기존의 Desktop이 더많은경우 ex) 9->6
@@ -782,6 +792,17 @@ void E_Global::changeDesktop(int pastvalue,int newvalue)
 		for (int i = pastvalue; i < newvalue ; i++)
 			desktopList.push_back(new E_Desktop(i));
 	}
-
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
+		{
+			(*itr_desk)->setAllShow();
+			continue;
+		}
+		(*itr_desk)->setAllHide();
+	}
+	e_map->leave2 = false;
+	::BringWindowToTop(e_map->maphwnd);
 
 }

@@ -19,6 +19,7 @@ E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	ison2 = false;
 	maphwnd = this->GetSafeHwnd();
 	leave2 = false;
 	leave = false;
@@ -53,10 +54,12 @@ void E_Map::drawMap()
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
 	e_global->mapopen = true;
+	ison2 = true;
 	//e_global->onUpdate();
 	//e_global->startUpdate();
 	if (!ison)
 	{
+		//ison = true;
 		int mapWidth = e_global->getDesktopWidth();
 		int mapHeight = e_global->getDesktopHeight();
 
@@ -102,6 +105,7 @@ void E_Map::terminateMap()
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
 	ison = false;
+	ison2 = false;
 }
 
 

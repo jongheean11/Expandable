@@ -78,7 +78,6 @@ void EnviromnmentDialog::OnBnClickedOk()
 		e_global->changeDesktop(pastdesktopnum, (mapwidth.GetCurSel() + 1) * (mapHeight.GetCurSel() + 1));
 		e_map->terminateMap(); // 이게 잘안됨
 	}
-
 	CDialog::OnOK();
 }
 
