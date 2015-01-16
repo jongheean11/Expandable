@@ -13,6 +13,7 @@
 #include <Shobjidl.h>
 #include <stdio.h>
 #include "changlib.h"
+#include "..\\NetFX\\easyhook.h"
 
 
 
