@@ -425,7 +425,8 @@ void E_Global::moveTopWindowLeft(){
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-		if (!mapopen)
+		E_Global* e_global = E_Global::getSingleton();
+		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
@@ -473,13 +474,13 @@ void E_Global::moveTopWindowRight(){
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
-		if (!mapopen)
+		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
 		}
 		//
-
+		
 	}
 }
 
@@ -519,7 +520,8 @@ void E_Global::moveTopWindowDown(){
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
-		if (!mapopen)
+		E_Global* e_global = E_Global::getSingleton();
+		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
@@ -567,7 +569,8 @@ void E_Global::moveTopWindowUp(){
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-		if (!mapopen)
+		E_Global* e_global= E_Global::getSingleton();
+		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();

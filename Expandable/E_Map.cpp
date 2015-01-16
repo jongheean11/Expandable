@@ -331,7 +331,7 @@ void E_Map::OnPaint()
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-				//leave2 = false;
+				
 				::BringWindowToTop(this->GetSafeHwnd());
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
@@ -391,7 +391,7 @@ void E_Map::OnPaint()
 		RECT rectForMove;
 		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
-		//if (e_global->getSelectedDesktop()->getIndex == )
+		
 		int windowindext;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
@@ -638,24 +638,35 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
+
+		//EnumWindows(E_Map::EnumCallHide, 0);
+		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
-			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
+			if ((*itr_desk)->getIndex() == index)
 			{
 				(*itr_desk)->setAllShow();
 				continue;
 			}
 			(*itr_desk)->setAllHide();
 		}
-		//leave2 = false;
+		
 		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
 
-
-		//terminateMap();
 	}
 }
+BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
+{
+	///WCHAR name[10];
+	//if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))
+	//	::ShowWindow(hwnd, SW_HIDE);
+	//	
+	return true;
+}
+
+
 int E_Map::getdesktop(int indexx, int indexy)
 {
 	E_Global* e_global = E_Global::getSingleton();
