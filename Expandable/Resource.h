@@ -52,7 +52,7 @@
 #define IDC_SLIDER5                     1022
 #define IDC_COMBO1                      1026
 #define IDC_COMBO2                      1027
-#define IDCANCEL                        1028
+//#define IDCANCEL                        1028
 #define ID_32775                        32775
 #define ID_32777                        32777
 
