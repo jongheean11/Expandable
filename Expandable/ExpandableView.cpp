@@ -209,23 +209,26 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			{
 				KillTimer(3);
 				SetTimer(4, 50, NULL);
-				ReleaseCapture();
+				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			
 			else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
 				KillTimer(3);
 				SetTimer(5, 50, NULL);
+				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
 			{
 				KillTimer(3);
 				SetTimer(6, 50, NULL);
+				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
 			{
 				KillTimer(3);
 				SetTimer(7, 50, NULL);
+				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else
 			{
@@ -254,6 +257,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
 				{
 					KillTimer(4);
+					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_left = true;
 					drSwitcher->startSwitcher();
 					SetTimer(3, 80, NULL);
@@ -263,6 +267,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		else
 		{
 			KillTimer(4);
+			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 			SetTimer(3, 80, NULL);
 		}
 	}
@@ -281,6 +286,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
 				{
 					KillTimer(5);
+					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_right = true;
 					drSwitcher->startSwitcher();
 					SetTimer(3, 80, NULL);
@@ -290,6 +296,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		else
 		{
 			KillTimer(5);
+			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 			SetTimer(3, 80, NULL);
 		}
 	}
@@ -308,6 +315,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
 				{
 					KillTimer(6);
+					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_top = true;
 					drSwitcher->startSwitcher();
 					SetTimer(3, 80, NULL);
@@ -317,6 +325,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		else
 		{
 			KillTimer(6);
+			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 			SetTimer(3, 80, NULL);
 		}
 	}
@@ -335,6 +344,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				if (!((drSwitcher->cursor_left) || (drSwitcher->cursor_right) || (drSwitcher->cursor_top) || (drSwitcher->cursor_bottom)))
 				{
 					KillTimer(7);
+					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_bottom = true;
 					drSwitcher->startSwitcher();
 					SetTimer(3, 80, NULL);
@@ -344,6 +354,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		else
 		{
 			KillTimer(7);
+			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 			SetTimer(3, 80, NULL);
 		}
 	}
