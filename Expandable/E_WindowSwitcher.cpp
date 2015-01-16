@@ -898,7 +898,6 @@ void E_WindowSwitcher::OnPaint()
 		Invalidate(0);
 		updateFlag = false;
 		}*/
-	int a;
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 
