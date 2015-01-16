@@ -385,6 +385,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 {
 	if (!ison)
 	{
+		E_Global::getSingleton()->onUpdate();
 		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 		
 		UINT nClassStyle_window = 0;
@@ -430,7 +431,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 		ShowWindow(SW_SHOWMAXIMIZED);
 		
-		//E_Global::getSingleton()->startUpdate();
+		
 	}
 	else
 	{
@@ -448,6 +449,14 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 	cursor_top = false;
 	cursor_bottom = false;
 
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+	
+	for (hash_map<RECT*, HTHUMBNAIL>::iterator itr_current = current_RECT_HTHUMBNAIL_map.begin(); itr_current != current_RECT_HTHUMBNAIL_map.end(); itr_current++)
+		aeController->unregisterAero(itr_current->second);
+	for (hash_map<RECT*, HTHUMBNAIL>::iterator itr_switch = switch_RECT_HTHUMBNAIL_map.begin(); itr_switch != switch_RECT_HTHUMBNAIL_map.end(); itr_switch++)
+		aeController->unregisterAero(itr_switch->second);
+	aeController->unregisterAero(currentDesktopThumbnail);
+	aeController->unregisterAero(switchDesktopThumbnail);
 
 	current_RECT_HTHUMBNAIL_map.clear();
 	switch_RECT_HTHUMBNAIL_map.clear();
@@ -461,26 +470,31 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 	DestroyWindow();
 }
 
-void E_DragAndDropSwitcher::OnResize()
+void E_DragAndDropSwitcher::turnUpdateOn()
 {
+	E_Global::getSingleton()->startUpdate();
+}
 
+void E_DragAndDropSwitcher::turnUpdateOff()
+{
+	E_Global::getSingleton()->stopUpdate();
 }
 
 BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
-	ON_WM_RBUTTONUP()
-	ON_WM_MOUSEMOVE()
-	ON_WM_RBUTTONDOWN()
+//	ON_WM_RBUTTONUP()
+//	ON_WM_MOUSEMOVE()
+//	ON_WM_RBUTTONDOWN()
 	ON_WM_CREATE()
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
-void E_DragAndDropSwitcher::OnRButtonUp(UINT nFlags, CPoint point)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
-	__super::OnRButtonUp(nFlags, point);
-}
+//void E_DragAndDropSwitcher::OnRButtonUp(UINT nFlags, CPoint point)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//
+//	__super::OnRButtonUp(nFlags, point);
+//}
 
 void invalidateSwitcher(LONG diff_x, LONG diff_y)
 {
@@ -603,53 +617,53 @@ void invalidateSwitcher(LONG diff_x, LONG diff_y)
 	}
 }
 
-void E_DragAndDropSwitcher::OnMouseMove(UINT nFlags, CPoint point)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	//if (nFlags & MK_RBUTTON)
-	//{
-	/*
-		LONG diff_x = point.x - prev_point.x,
-			diff_y = point.y - prev_point.y;
-		
-		invalidateSwitcher(diff_x, diff_y);
-		prev_point = point;
-		*/
-		/*if ((cursor_left) || (cursor_right))
-		{
-			//main_left += diff_x;
-			//main_right += diff_x;
-			//this->SetWindowPos(&wndTopMost, main_left + diff_x, main_top, main_right + diff_x, main_bottom, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
-			movingCRect.left += diff_x;
-			movingCRect.right += diff_x;
-			this->MoveWindow(movingCRect, TRUE);
-		}
-		else
-		{
-			if (abs(diff_y) < 5)
-				return;
-			//main_top += diff_y;
-			//main_bottom += diff_y;
-			//this->SetWindowPos(&wndTopMost, main_left, main_top + diff_y, main_right, main_bottom + diff_y, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
-			movingCRect.top += diff_y;
-			movingCRect.bottom += diff_y;
-			this->MoveWindow(movingCRect, TRUE);
-		}*/
-		
+//void E_DragAndDropSwitcher::OnMouseMove(UINT nFlags, CPoint point)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//	//if (nFlags & MK_RBUTTON)
+//	//{
+//	/*
+//		LONG diff_x = point.x - prev_point.x,
+//			diff_y = point.y - prev_point.y;
+//		
+//		invalidateSwitcher(diff_x, diff_y);
+//		prev_point = point;
+//		*/
+//		/*if ((cursor_left) || (cursor_right))
+//		{
+//			//main_left += diff_x;
+//			//main_right += diff_x;
+//			//this->SetWindowPos(&wndTopMost, main_left + diff_x, main_top, main_right + diff_x, main_bottom, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+//			movingCRect.left += diff_x;
+//			movingCRect.right += diff_x;
+//			this->MoveWindow(movingCRect, TRUE);
+//		}
+//		else
+//		{
+//			if (abs(diff_y) < 5)
+//				return;
+//			//main_top += diff_y;
+//			//main_bottom += diff_y;
+//			//this->SetWindowPos(&wndTopMost, main_left, main_top + diff_y, main_right, main_bottom + diff_y, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW);
+//			movingCRect.top += diff_y;
+//			movingCRect.bottom += diff_y;
+//			this->MoveWindow(movingCRect, TRUE);
+//		}*/
+//		
 //		UpdateWindow();
-		//Invalidate();
-		//InvalidateRect(CRect(0, 0, enManager->getWidth(), enManager->getHeight()), true);
-	//}
-	__super::OnMouseMove(nFlags, point);
-}
+//		//Invalidate();
+//		//InvalidateRect(CRect(0, 0, enManager->getWidth(), enManager->getHeight()), true);
+//	//}
+//	__super::OnMouseMove(nFlags, point);
+//}
 
 
-void E_DragAndDropSwitcher::OnRButtonDown(UINT nFlags, CPoint point)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-
-	__super::OnRButtonDown(nFlags, point);
-}
+//void E_DragAndDropSwitcher::OnRButtonDown(UINT nFlags, CPoint point)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//
+//	__super::OnRButtonDown(nFlags, point);
+//}
 
 void stealFocus()
 {
@@ -684,6 +698,8 @@ int E_DragAndDropSwitcher::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//SetFocus();
 	
 	stealFocus();
+	BringWindowToTop();
+	UpdateWindow();
 	SetTimer(1, 12, NULL);
 
 	return 0;
@@ -709,6 +725,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			E_Global* e_global = E_Global::getSingleton();
 			if (cursor_left)
 			{
+				prev_point.x = currentDesktopRECT->left;
 				if (prev_point.x * 100 / enManager->getWidth() >= 33)
 				{
 					while (prev_point.x <= enManager->getWidth())
@@ -729,11 +746,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					switchDesktop->setAllHide();
 				}
 				
-				Sleep(300);
+				Sleep(200);
 				terminateSwitcher();
 			}
 			else if (cursor_right)
 			{
+				prev_point.x = currentDesktopRECT->right;
 				if ((enManager->getWidth() - prev_point.x) * 100 / enManager->getWidth() >= 33)
 				{
 					while (prev_point.x >= 0)
@@ -754,11 +772,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					switchDesktop->setAllHide();
 				}
 
-				Sleep(300);
+				Sleep(200);
 				terminateSwitcher();
 			}
 			else if (cursor_top)
 			{
+				prev_point.y = currentDesktopRECT->top;
 				if (prev_point.y * 100 / enManager->getHeight() >= 33)
 				{
 					while (prev_point.y <= enManager->getHeight())
@@ -779,11 +798,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					switchDesktop->setAllHide();
 				}
 
-				Sleep(300);
+				Sleep(200);
 				terminateSwitcher();
 			}
 			else
 			{
+				prev_point.y = currentDesktopRECT->bottom;
 				if ((enManager->getHeight() - prev_point.y) * 100 / enManager->getHeight() >= 33)
 				{
 					while (prev_point.y >= 0)
@@ -805,7 +825,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					switchDesktop->setAllHide();
 				}
 
-				Sleep(300);
+				Sleep(200);
 				terminateSwitcher();
 			}
 		}

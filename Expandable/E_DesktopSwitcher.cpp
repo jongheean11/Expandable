@@ -387,6 +387,7 @@ void E_DesktopSwitcher::startSwitcher()
 	if (!ison)
 	{	
 		E_Global* e_global = E_Global::getSingleton();
+		//e_global->startUpdate();
 		if (e_global->desktopList.size() <= 4)
 			desktoplist_startindex = 0;
 		else
@@ -403,13 +404,15 @@ void E_DesktopSwitcher::startSwitcher()
 		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0); 
 		E_Window::setIconInvisible(this->m_hWnd);
 		
+
+		//e_global->stopUpdate();
 		drawDesktopSwitcher();
 		UpdateWindow();
 		ison = true;
 		
 		ShowWindow(SW_SHOWMAXIMIZED);
 
-		//e_global->startUpdate();
+		
 	}
 	else
 	{

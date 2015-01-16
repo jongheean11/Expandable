@@ -159,7 +159,7 @@ void E_Desktop::setIndex(int newindex)
 // ¸ðµçÃ¢ SW_SHOW
 void E_Desktop::setAllShow()
 {
-	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::reverse_iterator itr = windowList.rbegin(); itr != windowList.rend(); itr++)
 	{
 		(*itr)->setShow();
 	}
