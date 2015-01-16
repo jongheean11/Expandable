@@ -366,6 +366,7 @@ void CMainFrame::OnDestroy()
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
 	{
 		(*itr_desk)->setAllOpaque();
+		(*itr_desk)->setAllIconVisible();
 		(*itr_desk)->setAllShow();
 	}
 	PostMessage(WM_QUIT);

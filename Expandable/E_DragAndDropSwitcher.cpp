@@ -14,11 +14,6 @@ void E_DragAndDropSwitcher::updateSelectedDesktop()
 	TRACE_WIN32A("[E_DragAndDropSwitcher::updateSelectedDesktop()]");
 }
 
-void eraseDesktopAnimation()
-{
-
-}
-
 void drawCurrentDesktop()
 {
 	E_Global* e_global = E_Global::getSingleton();
@@ -58,7 +53,7 @@ void drawCurrentDesktop()
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
+		if ((*itr_window)->isAeroPossible())
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -114,7 +109,7 @@ void drawSwitchDesktop()
 
 	HTHUMBNAIL pushThumbnail;
 
-	E_Desktop* switchDesktop;
+	drSwitcher->switchDesktop;
 
 	LONG width = 0, height = 0;
 
@@ -139,19 +134,22 @@ void drawSwitchDesktop()
 		};
 		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
 
+		drSwitcher->switchIndex = 0;
 		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
 		for (int p = 0; p < e_global->getSelectedIndex() - 1; p++)
 		{
 			itr_desktop++;
+			drSwitcher->switchIndex++;
 		}
 		if ((e_global->getSelectedIndex() % e_global->getDesktopWidth()) == 0)
 		{
 			for (int p = 0; p != (e_global->getDesktopWidth() - 1); p++)
 			{
 				itr_desktop++;
+				drSwitcher->switchIndex++;
 			}
 		}
-		switchDesktop = *itr_desktop;
+		drSwitcher->switchDesktop = *itr_desktop;
 	}
 	else if (drSwitcher->cursor_right)
 	{
@@ -175,6 +173,7 @@ void drawSwitchDesktop()
 		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
 
 		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
 		if (!(e_global->getSelectedIndex() == (e_global->getDesktopWidth() - 1)))
 		{
 			if (e_global->getSelectedIndex() > (e_global->getDesktopWidth() - 1))
@@ -182,14 +181,16 @@ void drawSwitchDesktop()
 				for (int p = 0; p != ((((e_global->getSelectedIndex() + 1) / e_global->getDesktopHeight())) * e_global->getDesktopWidth()); p++)
 				{
 					itr_desktop++;
+					drSwitcher->switchIndex++;
 				}
 			}
 			if ((e_global->getSelectedIndex() % e_global->getDesktopWidth()) != (e_global->getDesktopWidth() - 1))
 			{
 				itr_desktop++;
+				drSwitcher->switchIndex++;
 			}
 		}
-		switchDesktop = *itr_desktop;
+		drSwitcher->switchDesktop = *itr_desktop;
 	}
 	else if (drSwitcher->cursor_top)
 	{
@@ -213,11 +214,13 @@ void drawSwitchDesktop()
 		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
 
 		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
 		if ((e_global->getSelectedIndex() / e_global->getDesktopWidth()) == 0)
 		{
 			for (int p = 0; p != (e_global->getDesktopCount() - (e_global->getDesktopWidth() - e_global->getSelectedIndex())); p++)
 			{
 				itr_desktop++;
+				drSwitcher->switchIndex++;
 			}
 		}
 		else
@@ -225,9 +228,10 @@ void drawSwitchDesktop()
 			for (int p = 0; p != (e_global->getSelectedIndex() - e_global->getDesktopWidth()); p++)
 			{
 				itr_desktop++; 
+				drSwitcher->switchIndex++;
 			}
 		}
-		switchDesktop = *itr_desktop;
+		drSwitcher->switchDesktop = *itr_desktop;
 	}
 	else
 	{
@@ -251,11 +255,13 @@ void drawSwitchDesktop()
 		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
 
 		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
 		if ((e_global->getSelectedIndex() / e_global->getDesktopWidth()) == e_global->getDesktopWidth() - 1)
 		{
 			for (int p = 0; p != (e_global->getSelectedIndex() % e_global->getDesktopWidth()); p++)
 			{
 				itr_desktop++;
+				drSwitcher->switchIndex++;
 			}
 		}
 		else
@@ -263,16 +269,17 @@ void drawSwitchDesktop()
 			for (int p = 0; p != e_global->getSelectedIndex() + e_global->getDesktopWidth(); p++)
 			{
 				itr_desktop++;
+				drSwitcher->switchIndex++;
 			}
 		}
-		switchDesktop = *itr_desktop;
+		drSwitcher->switchDesktop = *itr_desktop;
 	}
 	
-	std::list<E_Window*> window_list = switchDesktop->getWindowList();
+	std::list<E_Window*> window_list = drSwitcher->switchDesktop->getWindowList();
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		(*itr_window)->setNormal();
+		(*itr_window)->setShow();
 		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
@@ -423,9 +430,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 		ShowWindow(SW_SHOWMAXIMIZED);
 		
-		BringWindowToTop();
-		
-		//e_global->startUpdate();
+		//E_Global::getSingleton()->startUpdate();
 	}
 	else
 	{
@@ -435,7 +440,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 void E_DragAndDropSwitcher::terminateSwitcher()
 {
-	eraseDesktopAnimation();
+	//E_Global::getSingleton()->stopUpdate();
 
 	ison = false;
 	cursor_left = false;
@@ -443,7 +448,14 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 	cursor_top = false;
 	cursor_bottom = false;
 
-	//e_global->stopUpdate();
+
+	current_RECT_HTHUMBNAIL_map.clear();
+	switch_RECT_HTHUMBNAIL_map.clear();
+	current_RECT_list.clear();
+	switch_RECT_list.clear();
+	current_RECT_EWindow_map.clear();
+	switch_RECT_EWindow_map.clear();
+	
 
 	E_Window::setIconVisible(this->m_hWnd);
 	DestroyWindow();
@@ -458,6 +470,8 @@ BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_RBUTTONDOWN()
+	ON_WM_CREATE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -488,7 +502,7 @@ void invalidateSwitcher(LONG diff_x, LONG diff_y)
 
 		list<RECT*> copy_current_RECT_list, copy_switch_RECT_list;
 		hash_map<RECT*, HTHUMBNAIL> copy_current_RECT_HTHUMBNAIL_map, copy_switch_RECT_HTHUMBNAIL_map;
-		for (list<RECT*>::reverse_iterator ritr_current_RECT = drSwitcher->current_RECT_list.rbegin(); ritr_current_RECT != drSwitcher->current_RECT_list.rend(); ritr_current_RECT++)
+		for (list<RECT*>::iterator ritr_current_RECT = drSwitcher->current_RECT_list.begin(); ritr_current_RECT != drSwitcher->current_RECT_list.end(); ritr_current_RECT++)
 		{
 			RECT *pushRECT = *ritr_current_RECT;
 			hash_map<RECT*, HTHUMBNAIL>::iterator itr_current_RECT_HTHUMBNAIL = drSwitcher->current_RECT_HTHUMBNAIL_map.find(*ritr_current_RECT);
@@ -594,13 +608,13 @@ void E_DragAndDropSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	//if (nFlags & MK_RBUTTON)
 	//{
-		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-		E_Global* e_global = E_Global::getSingleton();
+	/*
 		LONG diff_x = point.x - prev_point.x,
 			diff_y = point.y - prev_point.y;
 		
 		invalidateSwitcher(diff_x, diff_y);
 		prev_point = point;
+		*/
 		/*if ((cursor_left) || (cursor_right))
 		{
 			//main_left += diff_x;
@@ -635,4 +649,167 @@ void E_DragAndDropSwitcher::OnRButtonDown(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 
 	__super::OnRButtonDown(nFlags, point);
+}
+
+void stealFocus()
+{
+	DWORD dwCurrentThread = GetCurrentThreadId();
+	DWORD dwFGThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, TRUE);
+
+	HWND hwnd = E_DragAndDropSwitcher::getSingleton()->m_hWnd;
+	// Possible actions you may wan to bring the window into focus.
+	SetForegroundWindow(hwnd);
+	SetCapture(hwnd);
+	SetFocus(hwnd);
+	SetActiveWindow(hwnd);
+	EnableWindow(hwnd, TRUE);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
+}
+
+
+int E_DragAndDropSwitcher::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (__super::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+	/*BringWindowToTop();
+	GetFocus();
+	
+	UpdateWindow();
+	SetCapture();*/
+	//SetFocus();
+	
+	stealFocus();
+	SetTimer(1, 12, NULL);
+
+	return 0;
+}
+
+
+void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	if (nIDEvent == 1)
+	{
+		if ((GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		{
+			POINT point;
+			GetCursorPos(&point);
+			invalidateSwitcher(point.x - prev_point.x, point.y - prev_point.y);
+			prev_point = point;
+		}
+		else
+		{
+			KillTimer(1);
+			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+			E_Global* e_global = E_Global::getSingleton();
+			if (cursor_left)
+			{
+				if (prev_point.x * 100 / enManager->getWidth() >= 33)
+				{
+					while (prev_point.x <= enManager->getWidth())
+					{
+						invalidateSwitcher(2, 0);
+						prev_point.x += 2;
+					}
+					e_global->getSelectedDesktop()->setAllHide();
+					e_global->setSelectedIndex(switchIndex);
+				}
+				else
+				{
+					while (prev_point.x >= 0)
+					{
+						invalidateSwitcher(-2, 0);
+						prev_point.x -= 2;
+					}
+					switchDesktop->setAllHide();
+				}
+				
+				Sleep(300);
+				terminateSwitcher();
+			}
+			else if (cursor_right)
+			{
+				if ((enManager->getWidth() - prev_point.x) * 100 / enManager->getWidth() >= 33)
+				{
+					while (prev_point.x >= 0)
+					{
+						invalidateSwitcher(-2, 0);
+						prev_point.x -= 2;
+					}
+					e_global->getSelectedDesktop()->setAllHide();
+					e_global->setSelectedIndex(switchIndex);
+				}
+				else
+				{
+					while (prev_point.x <= enManager->getWidth())
+					{
+						invalidateSwitcher(2, 0);
+						prev_point.x += 2;
+					}
+					switchDesktop->setAllHide();
+				}
+
+				Sleep(300);
+				terminateSwitcher();
+			}
+			else if (cursor_top)
+			{
+				if (prev_point.y * 100 / enManager->getHeight() >= 33)
+				{
+					while (prev_point.y <= enManager->getHeight())
+					{
+						invalidateSwitcher(0, 2);
+						prev_point.y += 2;
+					}
+					e_global->getSelectedDesktop()->setAllHide();
+					e_global->setSelectedIndex(switchIndex);
+				}
+				else
+				{
+					while (prev_point.y >= 0)
+					{
+						invalidateSwitcher(0, -2);
+						prev_point.y -= 2;
+					}
+					switchDesktop->setAllHide();
+				}
+
+				Sleep(300);
+				terminateSwitcher();
+			}
+			else
+			{
+				if ((enManager->getHeight() - prev_point.y) * 100 / enManager->getHeight() >= 33)
+				{
+					while (prev_point.y >= 0)
+					{
+						invalidateSwitcher(0, -2);
+						prev_point.y -= 2;
+					}
+					
+					e_global->getSelectedDesktop()->setAllHide();
+					e_global->setSelectedIndex(switchIndex);
+				}
+				else
+				{
+					while (prev_point.y <= enManager->getHeight())
+					{
+						invalidateSwitcher(0, 2);
+						prev_point.y += 2;
+					}
+					switchDesktop->setAllHide();
+				}
+
+				Sleep(300);
+				terminateSwitcher();
+			}
+		}
+	}
+
+	__super::OnTimer(nIDEvent);
 }

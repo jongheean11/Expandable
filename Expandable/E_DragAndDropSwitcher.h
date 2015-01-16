@@ -29,6 +29,9 @@ public:
 	list<RECT*> current_RECT_list, switch_RECT_list;
 	hash_map<RECT*, E_Window*> current_RECT_EWindow_map, switch_RECT_EWindow_map;
 
+	E_Desktop* switchDesktop;
+	int switchIndex;
+
 	const static COLORREF backgroundColor;
 
 	virtual void updateSelectedDesktop();
@@ -40,5 +43,7 @@ public:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 

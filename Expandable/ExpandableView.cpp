@@ -207,10 +207,6 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
-				if (!checking)
-					checking = true;
-				else
-					return;
 				KillTimer(3);
 				SetTimer(4, 50, NULL);
 				ReleaseCapture();
@@ -259,6 +255,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					KillTimer(4);
 					drSwitcher->cursor_left = true;
 					drSwitcher->startSwitcher();
+					SetTimer(3, 80, NULL);
 				}
 			}
 		}
@@ -285,6 +282,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					KillTimer(5);
 					drSwitcher->cursor_right = true;
 					drSwitcher->startSwitcher();
+					SetTimer(3, 80, NULL);
 				}
 			}
 		}
@@ -311,6 +309,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					KillTimer(6);
 					drSwitcher->cursor_top = true;
 					drSwitcher->startSwitcher();
+					SetTimer(3, 80, NULL);
 				}
 			}
 		}
@@ -337,6 +336,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					KillTimer(7);
 					drSwitcher->cursor_bottom = true;
 					drSwitcher->startSwitcher();
+					SetTimer(3, 80, NULL);
 				}
 			}
 		}
