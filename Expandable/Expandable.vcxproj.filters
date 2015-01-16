@@ -43,9 +43,6 @@
     <Filter Include="Dialog">
       <UniqueIdentifier>{834ac04d-8d16-436d-b7d3-71d9a88a117a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Menual">
-      <UniqueIdentifier>{cd83bbaf-487d-403a-80c1-5b8b236e658a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -133,7 +130,7 @@
       <Filter>Dialog</Filter>
     </ClInclude>
     <ClInclude Include="ShowMenu.h">
-      <Filter>Menual</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -213,7 +210,7 @@
       <Filter>Dialog</Filter>
     </ClCompile>
     <ClCompile Include="ShowMenu.cpp">
-      <Filter>Menual</Filter>
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -240,6 +237,27 @@
     <Image Include="res\icon1.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="res\icon10.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon11.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon12.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon13.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon14.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon15.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="res\icon16.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
     <Image Include="res\icon2.ico">
       <Filter>리소스 파일</Filter>
     </Image>
@@ -262,27 +280,6 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\icon9.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon10.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon11.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon12.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon13.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon14.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon15.ico">
-      <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="res\icon16.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
