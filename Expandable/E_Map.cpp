@@ -3,7 +3,7 @@
 #include "E_Map.h"
 #include "E_Global.h"
 
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
@@ -19,6 +19,9 @@ E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	ison2 = false;
+	maphwnd = this->GetSafeHwnd();
+	//leave2 = false;
 	leave = false;
 	up = false;
 	select = false;
@@ -30,7 +33,7 @@ E_Map::E_Map()
 	ison = false;
 	redraw = false;
 	clicked = false;
-
+	alreadyin=false;
 }
 E_Map::~E_Map()
 {
@@ -50,10 +53,14 @@ void E_Map::drawMap()
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
+	e_global->mapopen = true;
+	//leave2 = false;
+	ison2 = true;
 	//e_global->onUpdate();
 	//e_global->startUpdate();
 	if (!ison)
 	{
+		//ison = true;
 		int mapWidth = e_global->getDesktopWidth();
 		int mapHeight = e_global->getDesktopHeight();
 
@@ -69,8 +76,6 @@ void E_Map::drawMap()
 		brush_map.CreateSolidBrush(RGB(255, 255, 255));
 		brush_map.CreateStockObject(NULL_BRUSH);
 		CString szClassName_map = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
-		//hwnd_cwnd_emap->Create(szClassName_map, _T("map"), WS_SIZEBOX, CRect(enManager->getWidth()*0.85, enManager->getHeight()*0.75, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1235);
-		//hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, w*0.15, (h - th)*0.25), CWnd::GetDesktopWindow(), 0);
 		hwnd_cwnd_emap->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_map, E_Map::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, mapunit*mapWidth, mapunit*mapHeight), CWnd::GetDesktopWindow(), 0);
 		//
 		e_global->hwnd_cwnd = hwnd_cwnd_emap;
@@ -83,14 +88,13 @@ void E_Map::drawMap()
 		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
 		hwnd_cwnd_emap->SetWindowPos(NULL, w - mapunit*mapWidth, (h - th) - mapunit*mapHeight, mapunit*mapWidth, mapunit*mapHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
+		GetWindowRect(getSize);
 		E_Window::setIconInvisible(hwnd_cwnd_emap->m_hWnd);
 		//cwnd_map->UpdateWindow();
 	}
 	else
 		terminateMap();
-	//this->ShowWindow(SW_SHOWMAXIMIZED);
-	//Invalidate(0);
+	
 
 }
 
@@ -102,6 +106,7 @@ void E_Map::terminateMap()
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
 	ison = false;
+	ison2 = false;
 }
 
 
@@ -113,6 +118,8 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_TIMER()
 	ON_MESSAGE(WM_USER_EVENT, OnUserEvent)
 	ON_WM_MOUSELEAVE()
+	ON_WM_KILLFOCUS()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -186,8 +193,6 @@ void E_Map::OnPaint()
 		pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 		memDC.SelectObject(pen);
 		HWND tmphwnd;
-		//pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-		//memDC.SelectObject(pen);
 		//test 현재 바탕화면의 프로그램 맵에 그리기
 		for (int i = 0; i < mapHeight; i++)
 		{
@@ -241,9 +246,6 @@ void E_Map::OnPaint()
 				memDC.LineTo(tmprect.left, tmprect.bottom);
 				memDC.MoveTo(tmprect.left, tmprect.bottom);
 				memDC.LineTo(tmprect.right, tmprect.bottom);
-				//memDC.Rectangle(tmprect.left, tmprect.top, tmprect.right, tmprect.bottom);
-				//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
-				//memdc.fillrect(&tmprect, &brush);
 				pen.DeleteObject();
 			}
 		}
@@ -296,9 +298,7 @@ void E_Map::OnPaint()
 
 					}
 					
-					//if (iconPosstx - iconSize / 2 < w*mapsize*(upindexx - 1))
-					//	iconPosstx = iconSize / 2 + w*mapsize*(upindexx - 1);
-						
+							
 					RECT* iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, iconPossty + 2 - iconSize / 2, iconPosstx + 2 + iconSize / 2, iconPossty + 2 + iconSize / 2 };
 
 					iconRectList.push_front(iconRect);
@@ -331,7 +331,8 @@ void E_Map::OnPaint()
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-
+				//leave2 = false;
+				::BringWindowToTop(this->GetSafeHwnd());
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
 				foreRect.left = (*itr_rect)->left;
@@ -364,7 +365,6 @@ void E_Map::OnPaint()
 	}
 	if (clicked && iconMoveMode == 2)
 	{
-
 		drawable = true;
 		memDC.FillRect(&foreRect, &brush);//이전것 지우기
 		CBitmap icon;
@@ -440,9 +440,6 @@ void E_Map::OnPaint()
 		memDC.LineTo(tmprect.left, tmprect.bottom);
 		memDC.MoveTo(tmprect.left, tmprect.bottom);
 		memDC.LineTo(tmprect.right, tmprect.bottom);
-		//memDC.Rectangle(tmprect.left, tmprect.top, tmprect.right, tmprect.bottom);
-		//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
-		//memdc.fillrect(&tmprect, &brush);
 		pen.DeleteObject();
 
 
@@ -471,7 +468,8 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
-
+	//leave2 = false;
+	::BringWindowToTop(this->GetSafeHwnd());
 	up = true;
 	forSelectMap = true;
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
@@ -510,6 +508,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		point.y = mouse.y;
 		leave = false;
 	}
+	//leave2 = false;
+	::BringWindowToTop(this->GetSafeHwnd());
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
 	long w = enManager->getWidth();
@@ -559,7 +559,6 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 
 			::GetWindowRect(selectIconHwnd, &trect2);
-			//pWnd->SetWindowPos(NULL, (upindexx - 1)*w + point.x, (upindexy - 1)*(h - th) + point.y, trect2.right - trect2.left, trect2.bottom - trect2.top, SWP_NOZORDER | SWP_SHOWWINDOW);
 			::MoveWindow(selectIconHwnd, xp / mapsize, yp*(h - th) / w / mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
 
 			in = true;
@@ -598,9 +597,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				if (j == upindexx && i == upindexy)
 				{
 					e_global->setSelectedIndex(desktop - 1);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 					//여기서 윈도우를 해당 desktop으로 집어 넣음
-					//TODO
-					//e_global->getSelectedDesktop()->insertWindow()
 					bre = 1;
 					break;
 				}
@@ -621,10 +619,12 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 			(*itr_desk)->setAllHide();
 		}
+		//leave2 = false;
+		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
 
 
-		terminateMap();
+		//terminateMap();
 	}
 }
 int E_Map::getdesktop(int indexx, int indexy)
@@ -656,7 +656,8 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
 	E_Global* e_global = E_Global::getSingleton();
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); long w = enManager->getWidth();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); 
+	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
 	time = e_global->getTimer();
 	mouse = iconClick = point;
@@ -665,8 +666,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	iconMoveMode = 2;
 	if (clicked)
 		Invalidate(0);
-
-
+	//leave2 = false;
 	TRACKMOUSEEVENT MouseEvent;
 	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
 	MouseEvent.cbSize = sizeof(MouseEvent);
@@ -698,6 +698,24 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 			terminateMap();
 		}
 	}
+	else if (nIDEvent == 10)
+	{
+		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		{
+			GetCursorPos(&pt);
+			if (getSize.PtInRect(pt))
+				alreadyin = true;
+			if (GetForegroundWindow() != hwnd_cwnd_emap && !alreadyin)
+			{
+				KillTimer(10);
+				//::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
+				terminateMap();
+			}
+		}
+		else
+			alreadyin = false;
+		
+	}
 	CWnd::OnTimer(nIDEvent);
 }
 
@@ -722,10 +740,34 @@ void E_Map::OnMouseLeave()
 	MouseEvent.hwndTrack = m_hWnd;
 	::_TrackMouseEvent(&MouseEvent);
 	m_bTrack = false;
+	//leave2 = true;
 	if (clicked)
 	{
 		leave = true;
 		::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
 	}
 	__super::OnMouseLeave();
+}
+
+
+//void E_Map::OnKillFocus(CWnd* pNewWnd)
+//{
+//	__super::OnKillFocus(pNewWnd);
+//	OutputDebugString(L"kill focus");
+//	//if (leave2)
+//	//	terminateMap();
+//	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+//}
+
+
+int E_Map::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (__super::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+
+	SetTimer(10, 15, NULL);
+
+	return 0;
 }

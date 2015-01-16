@@ -7,7 +7,7 @@ class E_Map : public CWnd, virtual E_ISwitcherUpdator
 private:
 	static E_Map* singleton;
 	int visibleTime=3000;
-	CWnd* hwnd_cwnd_emap;
+
 	E_Window* draggingWindow;
 	clock_t sTime, nTime;
 	CPoint iconClick;
@@ -17,15 +17,19 @@ private:
 	int iconMoveMode;
 	bool forSelectMap;
 	bool clicked;
-	bool ison;
 	bool redraw;
 	bool select;
 	bool up;
 	bool m_bTrack;
 	bool leave;
-	
+	bool alreadyin;
+	CRect getSize;
+	POINT pt;
 public:
-	
+	CWnd* hwnd_cwnd_emap;
+	bool ison2;
+//	bool leave2;
+	bool ison;
 	HWND hwnd;
 	CWnd* getmapwindow();
 	int time;
@@ -43,7 +47,7 @@ public:
 	static volatile bool isThreadRunning ;
 	void drawMap();
 	void terminateMap();
-	
+	HWND maphwnd;
 	UINT checkTime(LPVOID param);
 	static const wchar_t* caption;
 	
@@ -55,4 +59,6 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg HRESULT OnUserEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMouseLeave();
+	//afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

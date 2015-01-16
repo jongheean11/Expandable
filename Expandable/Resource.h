@@ -29,20 +29,40 @@
 #define ID_VIEW_APPLOOK_WINDOWS_7       219
 #define IDS_EDIT_MENU                   306
 #define IDD_DIALOG1                     311
+#define IDD_DIALOG2                     320
+#define IDI_ICON1                       321
+#define IDI_ICON2                       322
+#define IDI_ICON3                       323
+#define IDI_ICON4                       324
+#define IDI_ICON5                       325
+#define IDI_ICON6                       326
+#define IDI_ICON7                       327
+#define IDI_ICON8                       328
+#define IDI_ICON9                       329
+#define IDI_ICON10                      330
+#define IDI_ICON12                      332
+#define IDI_ICON13                      333
+#define IDI_ICON14                      334
+#define IDI_ICON15                      335
+#define IDI_ICON16                      336
+#define IDI_ICON11                      339
 #define IDC_SLIDER2                     1018
 #define IDC_SLIDER3                     1019
 #define IDC_SLIDER4                     1021
 #define IDC_SLIDER5                     1022
 #define IDC_COMBO1                      1026
 #define IDC_COMBO2                      1027
+//#define IDCANCEL                        1028
 #define ID_32775                        32775
+#define ID_32777                        32777
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        319
-#define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1028
+#define _APS_NEXT_RESOURCE_VALUE        339
+#define _APS_NEXT_COMMAND_VALUE         32778
+#define _APS_NEXT_CONTROL_VALUE         1029
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
