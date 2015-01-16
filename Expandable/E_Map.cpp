@@ -2,7 +2,7 @@
 #include "E_Window.h"
 #include "E_Map.h"
 #include "E_Global.h"
-
+#include <stdint.h>
 #define WM_TRAY_EVENT (WM_USER + 3)
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
@@ -409,12 +409,21 @@ void E_Map::OnPaint()
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
+			rectForChildMove = rectForMove;
 			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1), newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
-
+			//여기에 자식 프로그램 또는 비슷한 프로그램까지 같이 움직여야함
+			//부모 핸들로 윈도우 프로세스 얻어오고
+			//그 이후에 얻어온 프로세스 아이디로 모든 창들 이동!
+			childmovx = newxpoint - w*(movindexx - 1);
+			childmovy = newypoint - (h - th)*(movindexy - 1);
+			parentprocessId = GetWindowThreadProcessId(selectIconHwnd, NULL);
+			EnumWindows(E_Map::EnumCallBackMap, 1);
+			
 		}
 		else
 		{
 			::ShowWindow(selectIconHwnd, SW_HIDE);
+			EnumWindows(E_Map::EnumCallBackMap, 0);
 		}
 
 		::BringWindowToTop(selectIconHwnd);
@@ -442,9 +451,6 @@ void E_Map::OnPaint()
 		memDC.LineTo(tmprect.right, tmprect.bottom);
 		pen.DeleteObject();
 
-
-
-
 	}
 
 	if (drawable)
@@ -455,6 +461,29 @@ void E_Map::OnPaint()
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 
+BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->parentprocessId)
+		{
+			if (lParam)
+			{
+				RECT rectforchildmov;
+				::ShowWindow(hwnd, SW_SHOW);
+				::GetWindowRect(hwnd, &rectforchildmov);
+				::MoveWindow(hwnd, e_map->childmovx, e_map->childmovy, rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
+			}
+			else
+				::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	return true;
+}
 E_Map* E_Map::getSingleton()
 {
 	if (singleton == NULL)
@@ -700,7 +729,7 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 	}
 	else if (nIDEvent == 10)
 	{
-		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000) || (GetAsyncKeyState(VK_RBUTTON) && 0x8000))
 		{
 			GetCursorPos(&pt);
 			if (getSize.PtInRect(pt))

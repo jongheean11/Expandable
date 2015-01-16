@@ -69,9 +69,7 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 	changetray((int)wParam+1);
 	
 	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
-	
-
-	::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
+	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
 	//e_map->leave2 = true;
 	return TRUE;
 }
