@@ -23,14 +23,14 @@ public:
 // 재정의입니다.
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-
+	void DestroyTrayIcon();
 // 구현입니다.
 public:
 	virtual ~CMainFrame();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
-	void DestroyTrayIcon();
+	
 #endif
 
 protected:  // 컨트롤 모음이 포함된 멤버입니다.

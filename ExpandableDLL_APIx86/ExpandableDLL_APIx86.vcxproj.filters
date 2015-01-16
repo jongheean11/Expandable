@@ -13,14 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{f6c993ee-8b1f-4fd0-8989-cf606531eac4}</UniqueIdentifier>
+    <Filter Include="main">
+      <UniqueIdentifier>{93327656-b7fe-47c6-a1e6-35c9345b0cf0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Hook">
-      <UniqueIdentifier>{7e4e210f-7bd8-4688-8ee0-d73f71e4cbeb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Main">
-      <UniqueIdentifier>{d58ca851-d0b0-4a95-ad14-c1e6e2d918db}</UniqueIdentifier>
+      <UniqueIdentifier>{435b0393-a56e-435f-85c0-5956c178c015}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -28,7 +25,6 @@
     <Text Include="E_HookingAssembly.txt">
       <Filter>Hook</Filter>
     </Text>
-    <Text Include="..\Expandable\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -40,9 +36,6 @@
     <ClInclude Include="E_Hooking.h">
       <Filter>Hook</Filter>
     </ClInclude>
-    <ClInclude Include="E_DLLClient.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="changlib.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -51,20 +44,14 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="E_ExpandableDLL_x86.cpp">
+    <ClCompile Include="ExpandableDLL_APIx86.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="E_dllmain.cpp">
-      <Filter>Main</Filter>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="E_Hooking.cpp">
       <Filter>Hook</Filter>
     </ClCompile>
-    <ClCompile Include="E_DLLClient.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Expandable\ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

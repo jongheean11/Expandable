@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "E_Hooking.h"
+
+BYTE g_pZWRT[5] = { 0, };
+BYTE g_pICW[5] = { 0, };
+
 //5바이트 ShowWindow를 위한 핫 패치 7652F2A9
 BOOL hook_by_hotpatch_ShowWindow() {
 	PROC pShowWindowHook = (PROC)ShowWindowHook;
@@ -220,6 +224,389 @@ BOOL hook_by_hotpatch(FARPROC pFunc, PROC pfnNew)
 	return TRUE;
 }
 
+
+
+BOOL hook_by_code(LPCSTR szDllName, LPCSTR szFuncName, PROC pfnNew, PBYTE pOrgBytes)
+{
+	FARPROC pFunc = NULL;
+	DWORD dwOldProtect = 0, dwAddress = 0;
+	BYTE pBuf[5] = { 0xE9, 0, };
+	PBYTE pByte = NULL;
+	HMODULE hMod = NULL;
+
+	hMod = GetModuleHandleA(szDllName);
+	if (hMod == NULL)
+	{
+		TRACE_WIN32A("hook_by_code() : GetModuleHandle(\"%s\") failed!!! [%d]\n",
+			szDllName, GetLastError());
+		return FALSE;
+	}
+
+	pFunc = (FARPROC)GetProcAddress(hMod, szFuncName);
+	if (pFunc == NULL)
+	{
+		TRACE_WIN32A("hook_by_code() : GetProcAddress(\"%s\") failed!!! [%d]\n",
+			szFuncName, GetLastError());
+		return FALSE;
+	}
+
+	pByte = (PBYTE)pFunc;
+	if (pByte[0] == 0xE9)
+	{
+		TRACE_WIN32A("hook_by_code() : The API is hooked already!!!\n");
+		return FALSE;
+	}
+
+	if (!VirtualProtect((LPVOID)pFunc, 5, PAGE_EXECUTE_READWRITE, &dwOldProtect))
+	{
+		TRACE_WIN32A("hook_by_code() : VirtualProtect(#1) failed!!! [%d]\n", GetLastError());
+		return FALSE;
+	}
+
+	memcpy(pOrgBytes, pFunc, 5);
+
+	dwAddress = (DWORD)pfnNew - (DWORD)pFunc - 5;
+	memcpy(&pBuf[1], &dwAddress, 4);
+
+	memcpy(pFunc, pBuf, 5);
+
+	if (!VirtualProtect((LPVOID)pFunc, 5, dwOldProtect, &dwOldProtect))
+	{
+		TRACE_WIN32A("hook_by_code() : VirtualProtect(#2) failed!!! [%d]\n", GetLastError());
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL unhook_by_code(LPCSTR szDllName, LPCSTR szFuncName, PBYTE pOrgBytes)
+{
+	FARPROC pFunc = NULL;
+	DWORD dwOldProtect = 0;
+	PBYTE pByte = NULL;
+	HMODULE hMod = NULL;
+
+	hMod = GetModuleHandleA(szDllName);
+	if (hMod == NULL)
+	{
+		TRACE_WIN32A("unhook_by_code() : GetModuleHandle(\"%s\") failed!!! [%d]\n",
+			szDllName, GetLastError());
+		return FALSE;
+	}
+
+	pFunc = (FARPROC)GetProcAddress(hMod, szFuncName);
+	if (pFunc == NULL)
+	{
+		TRACE_WIN32A("unhook_by_code() : GetProcAddress(\"%s\") failed!!! [%d]\n",
+			szFuncName, GetLastError());
+		return FALSE;
+	}
+
+	pByte = (PBYTE)pFunc;
+	if (pByte[0] != 0xE9)
+	{
+		TRACE_WIN32A("unhook_by_code() : The API is unhooked already!!!");
+		return FALSE;
+	}
+
+	if (!VirtualProtect((LPVOID)pFunc, 5, PAGE_EXECUTE_READWRITE, &dwOldProtect))
+	{
+		TRACE_WIN32A("unhook_by_code() : VirtualProtect(#1) failed!!! [%d]\n", GetLastError());
+		return FALSE;
+	}
+
+	memcpy(pFunc, pOrgBytes, 5);
+
+	if (!VirtualProtect((LPVOID)pFunc, 5, dwOldProtect, &dwOldProtect))
+	{
+		TRACE_WIN32A("unhook_by_code() : VirtualProtect(#2) failed!!! [%d]\n", GetLastError());
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+BOOL MyCreateRemoteThread(HANDLE hProcess, LPTHREAD_START_ROUTINE pThreadProc, LPVOID pRemoteBuf)
+{
+	HANDLE      hThread = NULL;
+	FARPROC     pFunc = NULL;
+
+	if (IsVistaLater())    // Vista, 7, Server2008
+	{
+		pFunc = GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtCreateThreadEx");
+		if (pFunc == NULL)
+		{
+			TRACE_WIN32A("MyCreateRemoteThread() : GetProcAddress() failed!!! [%d]\n",
+				GetLastError());
+			return FALSE;
+		}
+
+		((PFNTCREATETHREADEX)pFunc)(&hThread,
+			0x1FFFFF,
+			NULL,
+			hProcess,
+			pThreadProc,
+			pRemoteBuf,
+			FALSE,
+			NULL,
+			NULL,
+			NULL,
+			NULL);
+		if (hThread == NULL)
+		{
+			TRACE_WIN32A("MyCreateRemoteThread() : NtCreateThreadEx() failed!!! [%d]\n", GetLastError());
+			return FALSE;
+		}
+	}
+	else                    // 2000, XP, Server2003
+	{
+		hThread = CreateRemoteThread(hProcess, NULL, 0,
+			pThreadProc, pRemoteBuf, 0, NULL);
+		if (hThread == NULL)
+		{
+			TRACE_WIN32A("MyCreateRemoteThread() : CreateRemoteThread() failed!!! [%d]\n", GetLastError());
+			return FALSE;
+		}
+	}
+
+	if (WAIT_FAILED == WaitForSingleObject(hThread, INFINITE))
+	{
+		TRACE_WIN32A("MyCreateRemoteThread() : WaitForSingleObject() failed!!! [%d]\n", GetLastError());
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+BOOL InjectDll(DWORD dwPID, LPCTSTR szDllPath)
+{
+	HANDLE                  hProcess = NULL;
+	HANDLE                  hThread = NULL;
+	LPVOID                  pRemoteBuf = NULL;
+	DWORD                   dwBufSize = (DWORD)(wcslen(szDllPath) + 1) * sizeof(TCHAR);
+	LPTHREAD_START_ROUTINE  pThreadProc = NULL;
+	BOOL                    bRet = FALSE;
+	HMODULE                 hMod = NULL;
+
+	if (!(hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID)))
+	{
+		TRACE_WIN32A("InjectDll() : OpenProcess(%d) failed!!! [%d]\n", dwPID, GetLastError());
+		goto INJECTDLL_EXIT;
+	}
+
+	pRemoteBuf = VirtualAllocEx(hProcess, NULL, dwBufSize,
+		MEM_COMMIT, PAGE_READWRITE);
+	if (pRemoteBuf == NULL)
+	{
+		TRACE_WIN32A("InjectDll() : VirtualAllocEx() failed!!! [%d]\n", GetLastError());
+		goto INJECTDLL_EXIT;
+	}
+
+	if (!WriteProcessMemory(hProcess, pRemoteBuf,
+		(LPVOID)szDllPath, dwBufSize, NULL))
+	{
+		TRACE_WIN32A("InjectDll() : WriteProcessMemory() failed!!! [%d]\n", GetLastError());
+		goto INJECTDLL_EXIT;
+	}
+
+	hMod = GetModuleHandle(L"kernel32.dll");
+	if (hMod == NULL)
+	{
+		TRACE_WIN32A("InjectDll() : GetModuleHandle() failed!!! [%d]\n", GetLastError());
+		goto INJECTDLL_EXIT;
+	}
+
+	pThreadProc = (LPTHREAD_START_ROUTINE)GetProcAddress(hMod, "LoadLibraryW");
+	if (pThreadProc == NULL)
+	{
+		TRACE_WIN32A("InjectDll() : GetProcAddress() failed!!! [%d]\n", GetLastError());
+		goto INJECTDLL_EXIT;
+	}
+
+	if (!MyCreateRemoteThread(hProcess, pThreadProc, pRemoteBuf))
+	{
+		TRACE_WIN32A("InjectDll() : MyCreateRemoteThread() failed!!!\n");
+		goto INJECTDLL_EXIT;
+	}
+
+	bRet = TRUE;
+
+INJECTDLL_EXIT:
+
+	if (pRemoteBuf)
+		VirtualFreeEx(hProcess, pRemoteBuf, 0, MEM_RELEASE);
+
+	if (hThread)
+		CloseHandle(hThread);
+
+	if (hProcess)
+		CloseHandle(hProcess);
+
+	return bRet;
+}
+
+BOOL IsVistaLater()
+{
+	OSVERSIONINFO osvi;
+
+	/*ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+	GetVersionEx(&osvi);
+
+	if (osvi.dwMajorVersion >= 6)
+	return TRUE;*/
+
+	return TRUE;
+	//return FALSE;
+}
+
+
+BOOL SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+{
+	TOKEN_PRIVILEGES tp;
+	HANDLE hToken;
+	LUID luid;
+
+	if (!OpenProcessToken(GetCurrentProcess(),
+		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+		&hToken))
+	{
+		TRACE_WIN32A("OpenProcessToken error: %u\n", GetLastError());
+		return FALSE;
+	}
+
+	if (!LookupPrivilegeValue(NULL,             // lookup privilege on local system
+		lpszPrivilege,    // privilege to lookup 
+		&luid))          // receives LUID of privilege
+	{
+		TRACE_WIN32A("LookupPrivilegeValue error: %u\n", GetLastError());
+		return FALSE;
+	}
+
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Luid = luid;
+	if (bEnablePrivilege)
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	else
+		tp.Privileges[0].Attributes = 0;
+
+	// Enable the privilege or disable all privileges.
+	if (!AdjustTokenPrivileges(hToken,
+		FALSE,
+		&tp,
+		sizeof(TOKEN_PRIVILEGES),
+		(PTOKEN_PRIVILEGES)NULL,
+		(PDWORD)NULL))
+	{
+		TRACE_WIN32A("AdjustTokenPrivileges error: %u\n", GetLastError());
+		return FALSE;
+	}
+
+	if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+	{
+		TRACE_WIN32A("The token does not have the specified privilege. \n");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+NTSTATUS WINAPI NewZwResumeThread(HANDLE ThreadHandle, PULONG SuspendCount)
+{
+	NTSTATUS status, statusThread;
+	FARPROC pFunc = NULL, pFuncThread = NULL;
+	DWORD dwPID = 0;
+	static DWORD dwPrevPID = 0;
+	THREAD_BASIC_INFORMATION tbi;
+	HMODULE hMod = NULL;
+	TCHAR szModPath[MAX_PATH] = { 0, };
+
+	TRACE_WIN32A("NewZwResumeThread() : start!!!\n");
+
+	hMod = GetModuleHandle(L"ntdll.dll");
+	if (hMod == NULL)
+	{
+		TRACE_WIN32A("NewZwResumeThread() : GetModuleHandle() failed!!! [%d]\n",
+			GetLastError());
+		return NULL;
+	}
+
+	// call ntdll!ZwQueryInformationThread()
+	pFuncThread = GetProcAddress(hMod, "ZwQueryInformationThread");
+	if (pFuncThread == NULL)
+	{
+		TRACE_WIN32A("NewZwResumeThread() : GetProcAddress() failed!!! [%d]\n",
+			GetLastError());
+		return NULL;
+	}
+
+	statusThread = ((PFZWQUERYINFORMATIONTHREAD)pFuncThread)
+		(ThreadHandle, 0, &tbi, sizeof(tbi), NULL);
+	if (statusThread != STATUS_SUCCESS)
+	{
+		TRACE_WIN32A("NewZwResumeThread() : pFuncThread() failed!!! [%d]\n",
+			GetLastError());
+		return NULL;
+	}
+
+	dwPID = (DWORD)tbi.ClientId.UniqueProcess;
+	if ((dwPID != GetCurrentProcessId()) && (dwPID != dwPrevPID))
+	{
+		//TRACE_WIN32A("NewZwResumeThread() => call InjectDll()\n");
+
+		//dwPrevPID = dwPID;
+
+		//// change privilege
+		//if (!SetPrivilege(SE_DEBUG_NAME, TRUE))
+		//	TRACE_WIN32A("NewZwResumeThread() : SetPrivilege() failed!!!\n");
+
+		//// get injection dll path
+		//GetModuleFileName(GetModuleHandleA("ExpandableDLL_x86"),
+		//	szModPath,
+		//	MAX_PATH);
+
+		//if (!InjectDll(dwPID, szModPath))
+		//	TRACE_WIN32A("NewZwResumeThread() : InjectDll(%d) failed!!!\n", dwPID);
+	}
+
+	// call ntdll!ZwResumeThread()
+	if (!unhook_by_code("ntdll.dll", "ZwResumeThread", g_pZWRT))
+	{
+		TRACE_WIN32A("NewZwResumeThread() : unhook_by_code() failed!!!\n");
+		return NULL;
+	}
+
+	pFunc = GetProcAddress(hMod, "ZwResumeThread");
+	if (pFunc == NULL)
+	{
+		TRACE_WIN32A("NewZwResumeThread() : GetProcAddress() failed!!! [%d]\n",
+			GetLastError());
+		goto __NTRESUMETHREAD_END;
+	}
+
+	status = ((PFZWRESUMETHREAD)pFunc)(ThreadHandle, SuspendCount);
+	if (status != STATUS_SUCCESS)
+	{
+		TRACE_WIN32A("NewZwResumeThread() : pFunc() failed!!! [%d]\n", GetLastError());
+		goto __NTRESUMETHREAD_END;
+	}
+
+__NTRESUMETHREAD_END:
+
+	if (!hook_by_code("ntdll.dll", "ZwResumeThread",
+		(PROC)NewZwResumeThread, g_pZWRT))
+	{
+		TRACE_WIN32A("NewZwResumeThread() : hook_by_code() failed!!!\n");
+	}
+
+	TRACE_WIN32A("NewZwResumeThread() : end!!!\n");
+
+	return status;
+}
+
 //후킹ShowWindow API
 BOOL WINAPI ShowWindowHook(
 	_In_  HWND hWnd,
@@ -283,10 +670,8 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 				ADD EDX, 2; 숏 점프+2	-	실제SetProgressValue 함수 호출
 				CALL EDX;	
 		}
-
 		pTaskList3->Release();
 	}
-
 	return hresult;
 }
 //CPU Disasm

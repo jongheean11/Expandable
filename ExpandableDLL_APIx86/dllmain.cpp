@@ -50,14 +50,6 @@ void startInterfaceHook(){
 		OutputDebugStringA("[Fail] hook_by_hotpatch_SetProgressValue");
 
 }
-
-void startGlobalHook(){
-	// hook
-	OutputDebugStringA("startGlobalHook");
-	hook_by_code("ntdll.dll", "ZwResumeThread",
-		(PROC)NewZwResumeThread, g_pZWRT);
-}
-
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
@@ -78,7 +70,6 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		case DLL_PROCESS_ATTACH:
 			TRACE_WIN32A("[Attach] DLL_PROCESS_ATTACH");
 			startHook();
-			startGlobalHook();
 			break;
 		case DLL_THREAD_ATTACH:
 			OutputDebugStringA("[Attach] DLL_THREAD_ATTACH");
@@ -91,6 +82,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 			OutputDebugStringA("[Attach] DLL_PROCESS_DETACH");
 			break;
 		}
+		return TRUE;
 	}
 	return TRUE;
 }
