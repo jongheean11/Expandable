@@ -285,7 +285,7 @@
     <Image Include="res\icon9.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="a.bmp">
+    <Image Include="res\bitmap1.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

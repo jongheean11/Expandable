@@ -98,6 +98,7 @@ IDI_ICON11              ICON                    "res\\icon11.ico"
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+IDB_BITMAP1             BITMAP                  "res\\bitmap1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -263,6 +264,7 @@ BEGIN
     LTEXT           "Ctrl + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,137,123,156,9,SS_NOPREFIX
     LTEXT           "Alt + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,138,157,149,9,SS_NOPREFIX
     LTEXT           "보다 넓은 바탕화면을 누리세요 !",IDC_STATIC,139,17,119,9,SS_NOPREFIX
+    CONTROL         IDB_BITMAP1,IDC_EXLogo, "Static", SS_BITMAP, 20,29,74,138,NOT WS_GROUP
 END
 
 
