@@ -60,12 +60,19 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 	// TODO: Your Code
 	OutputDebugString(L"OnTrayEvent ");
 	E_Map* e_map = E_Map::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
 	if (!(e_map->ison2))
 	{
 		OutputDebugString(L"OnTrayEvent ifenter ");
 		e_map->drawMap();
 	}
 	changetray((int)wParam+1);
+	
+	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
+	
+
+	::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
+	//e_map->leave2 = true;
 	return TRUE;
 }
 
@@ -467,7 +474,7 @@ void CMainFrame::On32777()
 void CMainFrame::changetray(int num)
 {
 	DestroyTrayIcon();
-	::BringWindowToTop(this->GetSafeHwnd());
+	//::BringWindowToTop(this->GetSafeHwnd());
 	//this->ShowWindow(SW_HIDE);
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(nid));
@@ -530,4 +537,7 @@ void CMainFrame::changetray(int num)
 	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+	//E_Map* e_map = E_Map::getSingleton();
+	//e_map->leave2 = true;
+	//::BringWindowToTop(e_map->maphwnd);
 }
