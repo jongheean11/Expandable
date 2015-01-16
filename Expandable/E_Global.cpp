@@ -422,7 +422,7 @@ void E_Global::moveTopWindowLeft(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
-			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 
@@ -467,7 +467,7 @@ void E_Global::moveTopWindowRight(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
-			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 
@@ -508,7 +508,7 @@ void E_Global::moveTopWindowDown(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
-			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 	}
@@ -549,7 +549,7 @@ void E_Global::moveTopWindowUp(){
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
-			E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
 	}
@@ -587,9 +587,11 @@ void E_Global::moveDesktopLeft()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
-			E_Map* e_map = E_Map::getSingleton();
-			e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton();
+			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			//::BringWindowToTop(e_map->maphwnd);
+			//
 		}
 	}
 }
@@ -627,9 +629,10 @@ void E_Global::moveDesktopRight()
 				
 			}
 			//
-			E_Map* e_map = E_Map::getSingleton();
-			e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton();
+			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			//::BringWindowToTop(e_map->maphwnd);
 			//
 		}
 	}
@@ -665,9 +668,10 @@ void E_Global::moveDesktopUp()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
-			E_Map* e_map = E_Map::getSingleton();
-			e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton();
+			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			//::BringWindowToTop(e_map->maphwnd);
 		}
 	}
 }
@@ -694,9 +698,10 @@ void E_Global::moveDesktopDown()
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			}
 			//
-			E_Map* e_map = E_Map::getSingleton();
-			e_map->leave2 = false;
+			//E_Map* e_map = E_Map::getSingleton();
+			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
+			//::BringWindowToTop(e_map->maphwnd);
 		}
 	}
 }
@@ -807,7 +812,7 @@ void E_Global::changeDesktop(int pastvalue,int newvalue)
 		}
 		(*itr_desk)->setAllHide();
 	}
-	e_map->leave2 = false;
+	//e_map->leave2 = false;
 	::BringWindowToTop(e_map->maphwnd);
 
 }

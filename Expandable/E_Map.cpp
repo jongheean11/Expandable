@@ -21,7 +21,7 @@ E_Map::E_Map()
 	E_Global* e_global = E_Global::getSingleton();
 	ison2 = false;
 	maphwnd = this->GetSafeHwnd();
-	leave2 = false;
+	//leave2 = false;
 	leave = false;
 	up = false;
 	select = false;
@@ -54,7 +54,7 @@ void E_Map::drawMap()
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
 	e_global->mapopen = true;
-	leave2 = false;
+	//leave2 = false;
 	ison2 = true;
 	//e_global->onUpdate();
 	//e_global->startUpdate();
@@ -119,6 +119,7 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_MESSAGE(WM_USER_EVENT, OnUserEvent)
 	ON_WM_MOUSELEAVE()
 	ON_WM_KILLFOCUS()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -330,7 +331,7 @@ void E_Map::OnPaint()
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-				leave2 = false;
+				//leave2 = false;
 				::BringWindowToTop(this->GetSafeHwnd());
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
@@ -467,7 +468,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
-	leave2 = false;
+	//leave2 = false;
 	::BringWindowToTop(this->GetSafeHwnd());
 	up = true;
 	forSelectMap = true;
@@ -507,7 +508,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		point.y = mouse.y;
 		leave = false;
 	}
-	leave2 = false;
+	//leave2 = false;
 	::BringWindowToTop(this->GetSafeHwnd());
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
@@ -618,7 +619,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 			(*itr_desk)->setAllHide();
 		}
-		leave2 = false;
+		//leave2 = false;
 		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
 
@@ -665,7 +666,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	iconMoveMode = 2;
 	if (clicked)
 		Invalidate(0);
-	leave2 = false;
+	//leave2 = false;
 	TRACKMOUSEEVENT MouseEvent;
 	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
 	MouseEvent.cbSize = sizeof(MouseEvent);
@@ -697,6 +698,18 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 			terminateMap();
 		}
 	}
+	else if (nIDEvent == 10)
+	{
+		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		{
+			if (GetForegroundWindow() != hwnd_cwnd_emap)
+			{
+		
+				KillTimer(10);
+				terminateMap();
+			}
+		}
+	}
 	CWnd::OnTimer(nIDEvent);
 }
 
@@ -721,7 +734,7 @@ void E_Map::OnMouseLeave()
 	MouseEvent.hwndTrack = m_hWnd;
 	::_TrackMouseEvent(&MouseEvent);
 	m_bTrack = false;
-	leave2 = true;
+	//leave2 = true;
 	if (clicked)
 	{
 		leave = true;
@@ -731,10 +744,24 @@ void E_Map::OnMouseLeave()
 }
 
 
-void E_Map::OnKillFocus(CWnd* pNewWnd)
+//void E_Map::OnKillFocus(CWnd* pNewWnd)
+//{
+//	__super::OnKillFocus(pNewWnd);
+//	OutputDebugString(L"kill focus");
+//	//if (leave2)
+//	//	terminateMap();
+//	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+//}
+
+
+int E_Map::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	__super::OnKillFocus(pNewWnd);
-	if (leave2)
-		terminateMap();
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+	if (__super::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+
+	SetTimer(10, 15, NULL);
+
+	return 0;
 }
