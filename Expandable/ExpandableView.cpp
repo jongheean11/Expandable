@@ -173,8 +173,8 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'A')
 	{
-		
-		e_map.drawMap();
+		E_Map* e_map = E_Map::getSingleton();
+		e_map->drawMap();
 	}
 	TRACE_WIN32A("OnKeyUp");
 
@@ -236,8 +236,9 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
 				if (mapCRect.PtInRect(point))
 				{
-					if(!e_map.ison)
-						e_map.drawMap();
+					E_Map* e_map = E_Map::getSingleton();
+					if(!e_map->ison)
+						e_map->drawMap();
 				}
 			}
 		}
