@@ -33,7 +33,7 @@ E_Map::E_Map()
 	ison = false;
 	redraw = false;
 	clicked = false;
-
+	alreadyin=false;
 }
 E_Map::~E_Map()
 {
@@ -88,7 +88,7 @@ void E_Map::drawMap()
 		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
 		hwnd_cwnd_emap->SetWindowPos(NULL, w - mapunit*mapWidth, (h - th) - mapunit*mapHeight, mapunit*mapWidth, mapunit*mapHeight, SWP_NOZORDER | SWP_SHOWWINDOW);
 
-
+		GetWindowRect(getSize);
 		E_Window::setIconInvisible(hwnd_cwnd_emap->m_hWnd);
 		//cwnd_map->UpdateWindow();
 	}
@@ -702,13 +702,21 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 	{
 		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
 		{
-			if (GetForegroundWindow() != hwnd_cwnd_emap)
+			
+			POINT pt; 
+			GetCursorPos(&pt);
+			if (getSize.PtInRect(pt))
+				alreadyin = true;
+			if (GetForegroundWindow() != hwnd_cwnd_emap && !alreadyin)
 			{
-		
 				KillTimer(10);
+				//::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
 				terminateMap();
 			}
 		}
+		else
+			alreadyin = false;
+		
 	}
 	CWnd::OnTimer(nIDEvent);
 }

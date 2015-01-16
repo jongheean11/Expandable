@@ -22,7 +22,8 @@ private:
 	bool up;
 	bool m_bTrack;
 	bool leave;
-	
+	bool alreadyin;
+	CRect getSize;
 public:
 	CWnd* hwnd_cwnd_emap;
 	bool ison2;
