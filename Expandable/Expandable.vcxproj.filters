@@ -43,6 +43,9 @@
     <Filter Include="Dialog">
       <UniqueIdentifier>{834ac04d-8d16-436d-b7d3-71d9a88a117a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ShowMenu">
+      <UniqueIdentifier>{7a5bc3c1-c701-44ef-aaaa-f45fc1e0a446}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -130,7 +133,7 @@
       <Filter>Dialog</Filter>
     </ClInclude>
     <ClInclude Include="ShowMenu.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>ShowMenu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -210,7 +213,7 @@
       <Filter>Dialog</Filter>
     </ClCompile>
     <ClCompile Include="ShowMenu.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>ShowMenu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +283,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\icon9.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="a.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
