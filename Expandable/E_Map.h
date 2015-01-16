@@ -24,6 +24,7 @@ private:
 	bool leave;
 	bool alreadyin;
 	CRect getSize;
+	POINT pt;
 public:
 	CWnd* hwnd_cwnd_emap;
 	bool ison2;

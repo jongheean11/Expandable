@@ -702,8 +702,6 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 	{
 		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
 		{
-			
-			POINT pt; 
 			GetCursorPos(&pt);
 			if (getSize.PtInRect(pt))
 				alreadyin = true;
