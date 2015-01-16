@@ -25,7 +25,7 @@ IMPLEMENT_DYNCREATE(CExpandableView, CView)
 
 BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_CONTEXTMENU()
-	ON_WM_RBUTTONUP()
+//	ON_WM_RBUTTONUP()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
 	ON_WM_TIMER()
@@ -71,11 +71,11 @@ void CExpandableView::OnDraw(CDC* /*pDC*/)
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 }
 
-void CExpandableView::OnRButtonUp(UINT /* nFlags */, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
+//void CExpandableView::OnRButtonUp(UINT /* nFlags */, CPoint point)
+//{
+//	ClientToScreen(&point);
+//	OnContextMenu(this, point);
+//}
 
 void CExpandableView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
@@ -181,6 +181,8 @@ void CExpandableView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
 
+
+bool checking = false;
 void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
@@ -205,9 +207,15 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
+				if (!checking)
+					checking = true;
+				else
+					return;
 				KillTimer(3);
 				SetTimer(4, 50, NULL);
+				ReleaseCapture();
 			}
+			
 			else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
 				KillTimer(3);
@@ -232,7 +240,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 						e_map.drawMap();
 				}
 			}
-	}
+		}
 	}
 
 	else if (nIDEvent == 4) // left

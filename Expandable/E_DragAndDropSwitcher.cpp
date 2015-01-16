@@ -206,9 +206,9 @@ void drawSwitchDesktop()
 		drSwitcher->switchTaskbarRECT = new RECT
 		{
 			drSwitcher->sizeRect_taskbar.left,
-			drSwitcher->sizeRect_taskbar.bottom + drSwitcher->sizeRect_taskbar.top,
+			-(drSwitcher->sizeRect_taskbar.bottom) + drSwitcher->sizeRect_taskbar.top,
 			drSwitcher->sizeRect_taskbar.right,
-			drSwitcher->sizeRect_taskbar.bottom + drSwitcher->sizeRect_taskbar.bottom
+			-(drSwitcher->sizeRect_taskbar.bottom) + drSwitcher->sizeRect_taskbar.bottom
 		};
 		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
 
@@ -419,12 +419,12 @@ void E_DragAndDropSwitcher::startSwitcher()
 		
 		E_Window::setIconInvisible(this->m_hWnd);
 
-		UpdateWindow();
 		ison = true;
 
 		ShowWindow(SW_SHOWMAXIMIZED);
-
+		
 		BringWindowToTop();
+		
 		//e_global->startUpdate();
 	}
 	else
