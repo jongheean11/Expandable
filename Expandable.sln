@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Expandable", "Expandable\Ex
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExpandableDLL_x86", "ExpandableDLL_x86\ExpandableDLL_x86.vcxproj", "{255EC0C5-DE0C-4292-9565-A0E1115B900D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExpandableDLL_APIx86", "ExpandableDLL_APIx86\ExpandableDLL_APIx86.vcxproj", "{85245FDE-AF13-4528-BA5A-14C330A17A2E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -49,18 +47,6 @@ Global
 		{255EC0C5-DE0C-4292-9565-A0E1115B900D}.Release64|Win32.Build.0 = Release64|Win32
 		{255EC0C5-DE0C-4292-9565-A0E1115B900D}.Release64|x64.ActiveCfg = Release64|x64
 		{255EC0C5-DE0C-4292-9565-A0E1115B900D}.Release64|x64.Build.0 = Release64|x64
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug|Win32.Build.0 = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug|x64.ActiveCfg = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug64|Win32.ActiveCfg = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug64|Win32.Build.0 = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Debug64|x64.ActiveCfg = Debug|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release|Win32.ActiveCfg = Release|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release|Win32.Build.0 = Release|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release|x64.ActiveCfg = Release|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release64|Win32.ActiveCfg = Release|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release64|Win32.Build.0 = Release|Win32
-		{85245FDE-AF13-4528-BA5A-14C330A17A2E}.Release64|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

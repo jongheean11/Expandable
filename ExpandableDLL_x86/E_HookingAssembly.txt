@@ -38,7 +38,6 @@ Address   Hex dump          Command                                  Comments
 00DD7FD0  |.  FF15 BC52DE00 CALL DWORD PTR DS:[<&ole32.CoCreateInsta ; \ole32.CoCreateInstance
 
 CoCreateInstance의 출력으로 나오는 포인터는 인터페이스의 객체이다. 이 객체의 주소의 역참조의 + 24 위치에 저장된 주소는 SetProgressValue가 된다. (함수 테이블 접근)
-
 다음 코드는 SetProgressValue()를 호출하는 코드이다. ECX에는 SetProgressValue의 주소가 담기게 된다. 해당 주소에 7바이트 핫 패치를 사용하면 후킹에 성공한다.
 
 CPU Disasm
@@ -128,3 +127,176 @@ Address   Hex dump          Command                                  Comments
 6AA5211B | .  5E            POP ESI
 6AA5211C | .C9            LEAVE
 6AA5211D | .C2 1800       RETN 18
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+SetProgressState를 호출할때 Instance의 0x28에 함수 포인터가 존재한다.
+
+CPU Disasm
+Address   Hex dump           Command                                  Comments
+00F521D7    6A 00            PUSH 0
+00F521D9    6A 00            PUSH 0
+00F521DB    8B85 40FFFFFF    MOV EAX,DWORD PTR SS:[EBP-0C0]
+00F521E1    8B08             MOV ECX,DWORD PTR DS:[EAX]
+00F521E3    8B95 40FFFFFF    MOV EDX,DWORD PTR SS:[EBP-0C0]
+00F521E9    52               PUSH EDX
+00F521EA    8B41 28          MOV EAX,DWORD PTR DS:[ECX+28]
+00F521ED    FFD0             CALL EAX
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+후킹 함수에서 호출할때 사용할 어셈 코드.. 
+CPU Disasm
+Address   Hex dump           Command                                  Comments
+00EC2866    6A 00            PUSH 0
+00EC2868    8B45 0C          MOV EAX,DWORD PTR SS:[EBP+0C]
+00EC286B    50               PUSH EAX
+00EC286C    8B4D F8          MOV ECX,DWORD PTR SS:[EBP-8]
+00EC286F    8B11             MOV EDX,DWORD PTR DS:[ECX]
+00EC2871    8B45 F8          MOV EAX,DWORD PTR SS:[EBP-8]
+00EC2874    50               PUSH EAX
+00EC2875    8B4A 28          MOV ECX,DWORD PTR DS:[EDX+28]
+00EC2878    FFD1             CALL ECX
+
+하지만 실제로 위 어셈대로 적성하면 DLL에서 this 포인터를 다르게 다른 주소를 가르키게된다.
+따라서 SetProgressValue와 SetProgressState 모두 EBP-0xC를 사용하면 된다.
+00EC2866    6A 00            PUSH 0
+00EC2868    8B45 0C          MOV EAX,DWORD PTR SS:[EBP+0C]
+00EC286B    50               PUSH EAX
+00EC286C    8B4D F8          MOV ECX,DWORD PTR SS:[EBP-0C]
+00EC286F    8B11             MOV EDX,DWORD PTR DS:[ECX]
+00EC2871    8B45 F8          MOV EAX,DWORD PTR SS:[EBP-0C]
+00EC2874    50               PUSH EAX
+00EC2875    8B4A 28          MOV ECX,DWORD PTR DS:[EDX+28]
+00EC2878    FFD1             CALL ECX
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+HRESULT SetProgressState(
+  [in]  HWND hwnd,
+  [in]  TBPFLAG tbpFlags
+);
+
+CPU Disasm
+Address   Hex dump           Command                                  Comments
+6A79215C    90               NOP
+6A79215D    90               NOP
+6A79215E    90               NOP
+6A79215F    90               NOP
+6A792160    90               NOP
+6A792161    8BFF             MOV EDI,EDI
+6A792163    55               PUSH EBP
+6A792164    8BEC             MOV EBP,ESP
+6A792166    8B4D 08          MOV ECX,DWORD PTR SS:[EBP+8]
+6A792169    E8 272D0000      CALL 6A794E95
+6A79216E    85C0             TEST EAX,EAX
+6A792170    74 12            JE SHORT 6A792184
+6A792172    FF75 10          PUSH DWORD PTR SS:[EBP+10]
+6A792175    FF75 0C          PUSH DWORD PTR SS:[EBP+0C]
+6A792178    68 41040000      PUSH 441
+6A79217D    50               PUSH EAX
+6A79217E    FF15 EC15726A    CALL DWORD PTR DS:[6A7215EC]
+6A792184    33C0             XOR EAX,EAX
+6A792186    5D               POP EBP
+6A792187    C2 0C00          RETN 0C
+6A79218A    57               PUSH EDI
+6A79218B    8365 FC 00       AND DWORD PTR SS:[EBP-4],00000000
+6A79218F    33C0             XOR EAX,EAX
+6A792191    8D7D E8          LEA EDI,[EBP-18]
+6A792194    AB               STOS DWORD PTR ES:[EDI]
+6A792195    AB               STOS DWORD PTR ES:[EDI]
+6A792196    AB               STOS DWORD PTR ES:[EDI]
+6A792197    AB               STOS DWORD PTR ES:[EDI]
+6A792198    8D45 FC          LEA EAX,[EBP-4]
+6A79219B    50               PUSH EAX
+6A79219C    68 F0FC726A      PUSH OFFSET 6A72FCF0
+6A7921A1    FF75 0C          PUSH DWORD PTR SS:[EBP+0C]
+6A7921A4    FF15 DC16726A    CALL DWORD PTR DS:[6A7216DC]
+6A7921AA    8B3D 10D0816A    MOV EDI,DWORD PTR DS:[6A81D010]
+6A7921B0    8BD8             MOV EBX,EAX
+6A7921B2    85DB             TEST EBX,EBX
+6A7921B4    0F8C 93000000    JL 6A79224D
+6A7921BA    8B45 FC          MOV EAX,DWORD PTR SS:[EBP-4]
+6A7921BD    8B08             MOV ECX,DWORD PTR DS:[EAX]
+6A7921BF    56               PUSH ESI
+6A7921C0    8D55 E8          LEA EDX,[EBP-18]
+6A7921C3    52               PUSH EDX
+6A7921C4    BE 6855796A      MOV ESI,OFFSET 6A795568
+6A7921C9    56               PUSH ESI
+6A7921CA    50               PUSH EAX
+6A7921CB    FF51 14          CALL DWORD PTR DS:[ECX+14]
+6A7921CE    85C0             TEST EAX,EAX
+6A7921D0    7C 23            JL SHORT 6A7921F5
+6A7921D2    66:837D E8 13    CMP WORD PTR SS:[EBP-18],13
+6A7921D7    75 1C            JNE SHORT 6A7921F5
+6A7921D9    8B45 08          MOV EAX,DWORD PTR SS:[EBP+8]
+6A7921DC    3945 F0          CMP DWORD PTR SS:[EBP-10],EAX
+6A7921DF    75 14            JNE SHORT 6A7921F5
+6A7921E1    8D45 E8          LEA EAX,[EBP-18]
+6A7921E4    50               PUSH EAX
+6A7921E5    FFD7             CALL EDI
+6A7921E7    8B45 FC          MOV EAX,DWORD PTR SS:[EBP-4]
+6A7921EA    8B08             MOV ECX,DWORD PTR DS:[EAX]
+6A7921EC    8D55 E8          LEA EDX,[EBP-18]
+6A7921EF    52               PUSH EDX
+6A7921F0    56               PUSH ESI
+6A7921F1    50               PUSH EAX
+6A7921F2    FF51 18          CALL DWORD PTR DS:[ECX+18]
+6A7921F5    8D45 E8          LEA EAX,[EBP-18]
+6A7921F8    50               PUSH EAX
+6A7921F9    FFD7             CALL EDI
+6A7921FB    8B45 FC          MOV EAX,DWORD PTR SS:[EBP-4]
+6A7921FE    8B08             MOV ECX,DWORD PTR DS:[EAX]
+6A792200    8D55 E8          LEA EDX,[EBP-18]
+6A792203    52               PUSH EDX
+6A792204    BE 784F796A      MOV ESI,OFFSET 6A794F78
+6A792209    56               PUSH ESI
+6A79220A    50               PUSH EAX
+6A79220B    FF51 14          CALL DWORD PTR DS:[ECX+14]
+6A79220E    8BD8             MOV EBX,EAX
+6A792210    85DB             TEST EBX,EBX
+6A792212    7C 38            JL SHORT 6A79224C
+6A792214    FF75 08          PUSH DWORD PTR SS:[EBP+8]
+6A792217    8B4D F8          MOV ECX,DWORD PTR SS:[EBP-8]
+6A79221A    8D45 E8          LEA EAX,[EBP-18]
+6A79221D    50               PUSH EAX
+6A79221E    E8 80310000      CALL 6A7953A3
+6A792223    85C0             TEST EAX,EAX
+6A792225    7C 25            JL SHORT 6A79224C
+6A792227    8B4D F0          MOV ECX,DWORD PTR SS:[EBP-10]
+6A79222A    8D51 FF          LEA EDX,[ECX-1]
+6A79222D    52               PUSH EDX
+6A79222E    50               PUSH EAX
+6A79222F    51               PUSH ECX
+6A792230    FF75 F4          PUSH DWORD PTR SS:[EBP-0C]
+6A792233    8B4D F8          MOV ECX,DWORD PTR SS:[EBP-8]
+6A792236    E8 E72E0000      CALL 6A795122
+6A79223B    8B45 FC          MOV EAX,DWORD PTR SS:[EBP-4]
+6A79223E    FF4D F0          DEC DWORD PTR SS:[EBP-10]
+6A792241    8B08             MOV ECX,DWORD PTR DS:[EAX]
+6A792243    8D55 E8          LEA EDX,[EBP-18]
+6A792246    52               PUSH EDX
+6A792247    56               PUSH ESI
+6A792248    50               PUSH EAX
+6A792249    FF51 18          CALL DWORD PTR DS:[ECX+18]
+6A79224C    5E               POP ESI
+6A79224D    8B45 FC          MOV EAX,DWORD PTR SS:[EBP-4]
+6A792250    85C0             TEST EAX,EAX
+6A792252    74 06            JE SHORT 6A79225A
+6A792254    8B08             MOV ECX,DWORD PTR DS:[EAX]
+6A792256    50               PUSH EAX
+6A792257    FF51 08          CALL DWORD PTR DS:[ECX+8]
+6A79225A    8D45 E8          LEA EAX,[EBP-18]
+6A79225D    50               PUSH EAX
+6A79225E    FFD7             CALL EDI
+6A792260    5F               POP EDI
+6A792261    E9 832D0000      JMP 6A794FE9
+6A792266    90               NOP
+6A792267    90               NOP
+6A792268    90               NOP
+6A792269    90               NOP
+6A79226A    90               NOP
+6A79226B    8BFF             MOV EDI,EDI
+6A79226D    51               PUSH ECX
+6A79226E    E8 83A2FDFF      CALL 6A76C4F6
+6A792273    8325 68D5816A 00 AND DWORD PTR DS:[6A81D568],00000000
+6A79227A    C3               RETN

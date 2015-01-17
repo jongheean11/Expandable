@@ -15,11 +15,7 @@ BOOL hook_by_hotpatch_ShowWindow() {
 	BYTE pShortJump[5] = { 0xEB, 0xF9, 0x90, 0x90, 0x90 };
 	BYTE pOriginalCodeShowWindow[5] = { 0xB8, 0x4F, 0x12, 0x00, 0x00 };
 
-
-
 	//1)원래 함수 주소 저장
-	//pShowWindow = GetProcAddress(GetModuleHandleA(dllName), funcName);
-	//pShowWindow = GetProcAddress(userModule, funcName);
 	pShowWindow = (FARPROC)ShowWindow;
 
 	TRACE_WIN32A("[CALL] hook_by_hotpatch_ShowWindow [%x]", (void*)pShowWindow);
@@ -81,6 +77,53 @@ BOOL unhook_by_hotpatch_ShowWindow()
 }
 
 //7바이트 SetProgressValue를 위한 핫 패치 (인터페이스)
+BOOL hook_by_hotpatch_SetProgressState()
+{
+	OutputDebugStringA("[CALL] hook_by_hotpatch_SetProgressState");
+	BOOL result = TRUE;
+	HRESULT hresult = NULL;
+	DWORD* ptr;
+	FARPROC pfSetProgressState = NULL;;
+	ITaskbarList3 *pTaskList3 = NULL;
+
+	hresult = CoInitialize(NULL);
+	//1)인터페이스 생성
+	if (SUCCEEDED(hresult)) {
+		hresult = CoCreateInstance(CLSID_TaskbarList, NULL,
+			CLSCTX_SERVER, IID_ITaskbarList3,
+			(LPVOID *)&pTaskList3);
+	}
+	else {
+		return FALSE;
+	}
+
+	if (SUCCEEDED(hresult)) {
+		ptr = (DWORD*)pTaskList3;
+		ptr = (DWORD*)*ptr;
+		ptr = (DWORD*)*(ptr + 10); // 0x28 == 40
+		pfSetProgressState = (FARPROC)ptr;
+		//char dbgmsg[255] = { 0, };
+		//sprintf_s(dbgmsg, "ptr %x", (DWORD)ptr);
+		//OutputDebugStringA(dbgmsg);
+		//pTaskList3->Release();
+	}
+	else {
+		pTaskList3->Release();
+		return FALSE;
+	}
+	//2)후킹 (PVOID)(&(PVOID&)HookingClass::HookingFu
+	if (!hook_by_hotpatch(pfSetProgressState, (PROC)((DWORD)SetProgressStateHook))) {
+		pTaskList3->Release();
+		return FALSE;
+	}
+
+	//3)SetProgresssValue 함수주소 유지를 위해 인터페이스 객체를 해제하지 않는다.
+	//pTaskList3->Release();
+
+	return result;
+}
+
+//7바이트 SetProgressValue를 위한 핫 패치 (인터페이스)
 BOOL hook_by_hotpatch_SetProgressValue()
 {
 	OutputDebugStringA("[CALL] hook_by_hotpatch_SetProgressValue");
@@ -103,6 +146,52 @@ BOOL hook_by_hotpatch_SetProgressValue()
 	if (SUCCEEDED(hresult)) {
 		ptr = (DWORD*)pTaskList3;
 		ptr = (DWORD*)*ptr;
+		ptr = (DWORD*)*(ptr + 9); // 0x24 == 36
+		pfSetProgressValue = (FARPROC)ptr;
+		//char dbgmsg[255] = { 0, };
+		//sprintf_s(dbgmsg, "ptr %x", (DWORD)ptr);
+		//OutputDebugStringA(dbgmsg); 
+		//pTaskList3->Release();
+	}
+	else {
+		pTaskList3->Release();
+		return FALSE;
+	}
+	//2)후킹 (PVOID)(&(PVOID&)HookingClass::HookingFu
+	if (!hook_by_hotpatch(pfSetProgressValue, (PROC)((DWORD)SetProgressValueHook))) {
+		pTaskList3->Release();
+		return FALSE;
+	}
+
+	//3)SetProgresssValue 함수주소 유지를 위해 인터페이스 객체를 해제하지 않는다.
+	//pTaskList3->Release();
+
+	return result;
+}
+
+BOOL unhook_by_hotpatch_SetProgressValue()
+{
+	OutputDebugStringA("[CALL] unhook_by_hotpatch_SetProgressValue");
+	BOOL result = TRUE;
+	HRESULT hresult = NULL;
+	DWORD* ptr;
+	FARPROC pfSetProgressValue = NULL;;
+	ITaskbarList3 *pTaskList3 = NULL;
+
+	hresult = CoInitialize(NULL);
+	//1)인터페이스 생성
+	if (SUCCEEDED(hresult)) {
+		hresult = CoCreateInstance(CLSID_TaskbarList, NULL,
+			CLSCTX_SERVER, IID_ITaskbarList3,
+			(LPVOID *)&pTaskList3);
+	}
+	else {
+		return FALSE;
+	}
+
+	if (SUCCEEDED(hresult)) {
+		ptr = (DWORD*)pTaskList3;
+		ptr = (DWORD*)*ptr;
 		ptr = (DWORD*)*(ptr + 9);
 		pfSetProgressValue = (FARPROC)ptr;
 		//char dbgmsg[255] = { 0, };
@@ -115,24 +204,14 @@ BOOL hook_by_hotpatch_SetProgressValue()
 		return FALSE;
 	}
 
-	//TRACE_WIN32A("[CALL] hook_by_hotpatch_SetProgressValue [%x]",(void*)pfSetProgressValue);
-
-	//2)후킹 (PVOID)(&(PVOID&)HookingClass::HookingFu
-	if (!hook_by_hotpatch(pfSetProgressValue, (PROC)((DWORD)SetProgressValueHook))) {
+	//2)언후킹
+	if (!unhook_by_hotpatch(pfSetProgressValue)){
 		pTaskList3->Release();
 		return FALSE;
 	}
 
-	//3)SetProgresssValue 함수주소 유지를 위해 인터페이스 객체를 해제하지 않는다.
-
-	//pTaskList3->Release();
-	return result;
-}
-
-BOOL unhook_by_hotpatch_SetProgressValue()
-{
-
-	return FALSE;
+	pTaskList3->Release();
+	return TRUE;
 }
 
 //7바이트 핫 패치 복원
@@ -146,6 +225,30 @@ BOOL unhook_by_hotpatch(LPCSTR szDllName, LPCSTR szFuncName)
 
 
 	pFunc = (FARPROC)GetProcAddress(GetModuleHandleA(szDllName), szFuncName);
+	pByte = (PBYTE)pFunc;
+	if (pByte[0] != 0xEB)
+		return FALSE;
+
+	VirtualProtect((LPVOID)pFunc, 5, PAGE_EXECUTE_READWRITE, &dwOldProtect);
+
+	// 1. NOP (0x90)
+	memcpy((LPVOID)((DWORD)pFunc - 5), pBuf, 5);
+
+	// 2. MOV EDI, EDI (0x8BFF)
+	memcpy(pFunc, pBuf2, 2);
+
+	VirtualProtect((LPVOID)pFunc, 5, dwOldProtect, &dwOldProtect);
+
+	return TRUE;
+}
+//7바이트 핫 패치
+BOOL unhook_by_hotpatch(FARPROC pFunc)
+{
+	DWORD dwOldProtect;
+	PBYTE pByte;
+	BYTE pBuf[5] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	BYTE pBuf2[2] = { 0x8B, 0xFF };
+
 	pByte = (PBYTE)pFunc;
 	if (pByte[0] != 0xEB)
 		return FALSE;
@@ -555,21 +658,21 @@ NTSTATUS WINAPI NewZwResumeThread(HANDLE ThreadHandle, PULONG SuspendCount)
 	dwPID = (DWORD)tbi.ClientId.UniqueProcess;
 	if ((dwPID != GetCurrentProcessId()) && (dwPID != dwPrevPID))
 	{
-		//TRACE_WIN32A("NewZwResumeThread() => call InjectDll()\n");
+		TRACE_WIN32A("NewZwResumeThread() => call InjectDll()\n");
 
-		//dwPrevPID = dwPID;
+		dwPrevPID = dwPID;
 
-		//// change privilege
-		//if (!SetPrivilege(SE_DEBUG_NAME, TRUE))
-		//	TRACE_WIN32A("NewZwResumeThread() : SetPrivilege() failed!!!\n");
+		// change privilege
+		if (!SetPrivilege(SE_DEBUG_NAME, TRUE))
+			TRACE_WIN32A("NewZwResumeThread() : SetPrivilege() failed!!!\n");
 
-		//// get injection dll path
-		//GetModuleFileName(GetModuleHandleA("ExpandableDLL_x86"),
-		//	szModPath,
-		//	MAX_PATH);
+		// get injection dll path
+		GetModuleFileName(GetModuleHandleA("ExpandableDLL_x86.dll"),
+			szModPath,
+			MAX_PATH);
 
-		//if (!InjectDll(dwPID, szModPath))
-		//	TRACE_WIN32A("NewZwResumeThread() : InjectDll(%d) failed!!!\n", dwPID);
+		if (!InjectDll(dwPID, szModPath))
+			TRACE_WIN32A("NewZwResumeThread() : InjectDll(%d) failed!!!\n", dwPID);
 	}
 
 	// call ntdll!ZwResumeThread()
@@ -674,6 +777,44 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	}
 	return hresult;
 }
+
+//후킹SetProgressValueHook
+HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
+	HWND hwnd,
+	TBPFLAG tbpFlags
+	)
+{
+	TRACE_WIN32A("[CALL] SetProgressStateHook (%d, %d)", hwnd, tbpFlags);
+
+	PFSETPROGRESSSTATE pfProgressState;
+	ITaskbarList3* pTaskList3 = NULL;
+
+	HRESULT hresult = CoCreateInstance(CLSID_TaskbarList, NULL,
+		CLSCTX_SERVER, IID_ITaskbarList3,
+		(LPVOID *)&pTaskList3);
+
+	if (SUCCEEDED(hresult)) {
+		//hresult = pTaskList3->SetProgressState(hwnd, TBPF_NOPROGRESS);
+		//	pTaskList3->Release();
+
+		//실제 함수의 +2를 호출하기 위한 코드
+		__asm
+		{
+			PUSH	DWORD PTR SS : [EBP + 0x10]
+				PUSH DWORD PTR SS : [EBP + 0x0C]
+				MOV EDX, DWORD PTR SS : [EBP - 0x0c]
+				MOV EAX, DWORD PTR DS : [EDX]
+				MOV ECX, DWORD PTR SS : [EBP - 0x0c]
+				PUSH ECX
+				MOV EDX, DWORD PTR DS : [EAX + 0x28]
+				ADD EDX, 2; 숏 점프 + 2 - 실제SetProgressState 함수 호출
+				CALL EDX;
+		}
+		pTaskList3->Release();
+	}
+	return hresult;
+}
+
 //CPU Disasm
 //Address   Hex dump          Command                                  Comments
 //633814AB | .  8B45 1C       MOV EAX, DWORD PTR SS : [EBP + 1C]
@@ -692,3 +833,5 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 //633814C7 | .  51            PUSH ECX
 //633814C8      8B50 24       MOV EDX, DWORD PTR DS : [EAX + 24]
 //633814CB | .FFD2          CALL EDX
+
+
