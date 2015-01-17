@@ -46,6 +46,9 @@
     <Filter Include="ShowMenu">
       <UniqueIdentifier>{7a5bc3c1-c701-44ef-aaaa-f45fc1e0a446}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Notify">
+      <UniqueIdentifier>{8a442dc6-04bb-4611-a334-8d29b2b68037}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -135,6 +138,9 @@
     <ClInclude Include="ShowMenu.h">
       <Filter>ShowMenu</Filter>
     </ClInclude>
+    <ClInclude Include="E_Notify.h">
+      <Filter>Notify</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -214,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="ShowMenu.cpp">
       <Filter>ShowMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Notify.cpp">
+      <Filter>Notify</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

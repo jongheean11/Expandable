@@ -54,7 +54,6 @@ void E_Map::drawMap()
 	E_Global* e_global = E_Global::getSingleton();
 	time = e_global->getTimer();
 	e_global->mapopen = true;
-	//leave2 = false;
 	ison2 = true;
 	//e_global->onUpdate();
 	//e_global->startUpdate();
