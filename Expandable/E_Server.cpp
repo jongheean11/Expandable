@@ -51,71 +51,86 @@ void E_Server::onServer()
 	}
 	if (serverSocket.Listen() == FALSE)
 		return;
-	CSocket* client = new CSocket;
+	E_MyCSocket* client = new E_MyCSocket;
 	while (serverSocket.Accept(*client) && stopFlag == false){
 		TRACE_WIN32A("[E_Server::onServer] 클라이언트 접속");
 		std::thread* th_client = new std::thread{ &E_Server::onClient, this, client};
 		
 		//맵에 추가
 		threadState.insert(std::unordered_map<std::thread*, STATE>::value_type(th_client, RUNNING));
-		socketMap.insert(std::unordered_map<std::thread*, CSocket*>::value_type(th_client, client));
+		socketMap.insert(std::unordered_map<std::thread*, E_MyCSocket*>::value_type(th_client, client));
 
-		client = new CSocket;
+		client = new E_MyCSocket;
 
 		garbageCollect();
 	}
 }
 
-void E_Server::onClient(CSocket* client)
+void E_Server::onClient(E_MyCSocket* client)
 {
 	CString clientName = L"";
 	UINT clientPort = 0;
-
 	client->GetPeerName(clientName, clientPort);
 	TRACE_WIN32A("[E_Server::onClient] 클라이언트: %s, 포트: %d", clientName, clientPort);
 
-	char buff[MAXBUFFERSIZE];
-	memset(buff, 0, sizeof(buff));
+	while (client->closeFlag == false)
+	{
+		char buff[MAXBUFFERSIZE];
+		memset(buff, 0, sizeof(buff));
 
-	//클라이언트로부터 메시지 읽기 
-	int received = client->Receive(buff, sizeof(buff));
-	TRACE_WIN32A("[E_Server::onClient] %d 바이트를 수신함", received);
+		//클라이언트로부터 메시지 읽기 
+		int received = client->Receive(buff, sizeof(buff));
+		TRACE_WIN32A("[E_Server::onClient] %d 바이트를 수신함 %s", received, buff);
 
-	//받은 메시지를 다시 클라이언트로 메아리 치기
-	int sent = client->Send(buff, received);
-	TRACE_WIN32A("[E_Server::onClient] %d 바이트를 송신함", sent);
+		////받은 메시지를 다시 클라이언트로 메아리 치기
+		//int sent = client->Send(buff, received);
+		//TRACE_WIN32A("[E_Server::onClient] %d 바이트를 송신함", sent);
+	}
+	
+	//소켓 다운
+	client->ShutDown(2);
 
-	//클라이언트 소켓 담기
-	((CAsyncSocket*)client)->ShutDown(2);
-
-	for (std::unordered_map<std::thread*, CSocket*>::iterator iter = socketMap.begin(); iter != socketMap.end(); iter++){
+	//소켓 닫음
+	for (std::unordered_map<std::thread*, E_MyCSocket*>::iterator iter = socketMap.begin(); iter != socketMap.end(); iter++){
 		if (iter->second == client){
 			std::thread* target = iter->first;
 			threadState.find(target)->second = NOTRUNNING;
+			return;
 		}
 	}
 }
 
 void E_Server::garbageCollect()
 {
+	std::list<std::thread*> list;
 	for (std::unordered_map<std::thread*, STATE>::iterator iter = threadState.begin(); iter != threadState.end(); iter++){
 		if (iter->second == NOTRUNNING)
 		{
-			CSocket* socket;
+			E_MyCSocket* socket;
+			std::thread* th;
 			if (socketMap.find(iter->first) != socketMap.end())
 			{
 				socket = socketMap.find(iter->first)->second;
-				socket->Close();//소켓 닫음 ( UI 스레드 )
-				delete socket;	//소켓 삭제
-				iter->first->detach();
-				delete iter->first;	//스레드 삭제
-				TRACE_WIN32A("소켓 및 스레드 삭제");
+				socket->Close();		//소켓 닫음 ( UI 스레드에서만 삭제됨/ 프레임워크 )
+				delete socket;		//소켓 삭제
+				iter->first->detach();	//스레드 삭제 전 호출
+				th = iter->first;	
+				list.push_back(th);
+				TRACE_WIN32A("소켓 및 스레드 정리");
 			}
 			else{
 				TRACE_WIN32A("소켓 삭제 중.. 자료구조 불일치 발견...");
 			}
 		}
 	}
+
+	for (std::list<std::thread*>::iterator iter = list.begin(); iter != list.end(); iter++){
+		threadState.erase(*iter);
+		socketMap.erase(*iter);
+		delete *iter;//스레드 삭제
+		TRACE_WIN32A("소켓 및 스레드 자료구조 정리");
+	}
+	
 }
 bool E_Server::stopServer()
 {

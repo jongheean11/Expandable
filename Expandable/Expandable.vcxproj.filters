@@ -46,6 +46,9 @@
     <Filter Include="ShowMenu">
       <UniqueIdentifier>{7a5bc3c1-c701-44ef-aaaa-f45fc1e0a446}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Notification">
+      <UniqueIdentifier>{8dc7efd4-bba2-4759-8590-274e5d7603ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -135,8 +138,14 @@
     <ClInclude Include="ShowMenu.h">
       <Filter>ShowMenu</Filter>
     </ClInclude>
+    <ClInclude Include="E_DLLClient.h">
+      <Filter>Notification</Filter>
+    </ClInclude>
     <ClInclude Include="E_Server.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Notification</Filter>
+    </ClInclude>
+    <ClInclude Include="E_MyCSocket.h">
+      <Filter>Notification</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,8 +227,14 @@
     <ClCompile Include="ShowMenu.cpp">
       <Filter>ShowMenu</Filter>
     </ClCompile>
+    <ClCompile Include="E_DLLClient.cpp">
+      <Filter>Notification</Filter>
+    </ClCompile>
     <ClCompile Include="E_Server.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Notification</Filter>
+    </ClCompile>
+    <ClCompile Include="E_MyCSocket.cpp">
+      <Filter>Notification</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

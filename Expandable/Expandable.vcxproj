@@ -160,6 +160,7 @@
     <ClInclude Include="ExpandableView.h" />
     <ClInclude Include="E_Desktop.h" />
     <ClInclude Include="E_DesktopSwitcher.h" />
+    <ClInclude Include="E_DLLClient.h" />
     <ClInclude Include="E_DragAndDropSwitcher.h" />
     <ClInclude Include="E_EnvironmentManager.h" />
     <ClInclude Include="E_Global.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="E_WindowTest.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="memdc-redsusia.h" />
+    <ClInclude Include="E_MyCSocket.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShowMenu.h" />
     <ClInclude Include="stdafx.h" />
@@ -192,6 +194,7 @@
     <ClCompile Include="ExpandableView.cpp" />
     <ClCompile Include="E_Desktop.cpp" />
     <ClCompile Include="E_DesktopSwitcher.cpp" />
+    <ClCompile Include="E_DLLClient.cpp" />
     <ClCompile Include="E_DragAndDropSwitcher.cpp" />
     <ClCompile Include="E_EnvironmentManager.cpp" />
     <ClCompile Include="E_Global.cpp" />
@@ -210,6 +213,7 @@
     <ClCompile Include="E_WindowSwitcherTest.cpp" />
     <ClCompile Include="E_WindowTest.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="E_MyCSocket.cpp" />
     <ClCompile Include="ShowMenu.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -1,3 +1,5 @@
+#include "E_MyCSocket.h"
+
 #pragma once
 #define PORT 8888
 #define MAXBUFFERSIZE 1024
@@ -11,13 +13,13 @@ private:
 	~E_Server();
 	std::thread* th;
 	std::unordered_map<std::thread*, STATE> threadState;
-	std::unordered_map<std::thread*, CSocket*> socketMap;
+	std::unordered_map<std::thread*, E_MyCSocket*> socketMap;
 public:
-	CSocket serverSocket;
+	E_MyCSocket serverSocket;
 	bool startServer();
 	bool stopServer();
 	void onServer();
-	void onClient(CSocket* client);
+	void onClient(E_MyCSocket* client);
 	void garbageCollect();
 	bool stopFlag;
 public:
