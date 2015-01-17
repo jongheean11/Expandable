@@ -31,7 +31,8 @@ private:
 	
 public:
 	E_Window* twForHide;
-	
+	int nowActiveNotify;
+	int nextActiveNotify;
 	bool mapopen ;
 	HWND hwnd_frame;
 	bool gethotkey();

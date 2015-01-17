@@ -10,6 +10,8 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 #define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	nowActiveNotify = 0;
+	nextActiveNotify = 0;
 	mapopen = false;
 	hotkeyinvalidate = false;
 	settingTimer = 5;
