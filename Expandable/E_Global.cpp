@@ -284,7 +284,7 @@ bool E_Global::stopUpdate()
 		TRACE_WIN32A("E_Global::stopUpdate()");
 		updateMode = false;
 		currentThread->join();	//스레드가 끝날때까지 대기
-		currentThread->detach();
+		//currentThread->detach();
 		delete currentThread;
 		currentThread = NULL;
 		return true;

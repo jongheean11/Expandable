@@ -29,7 +29,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -59,8 +59,8 @@
     <IntDir>../../build/vs71/debug/lib_json\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>../../build/vs71/release/lib_json\</OutDir>
-    <IntDir>../../build/vs71/release/lib_json\</IntDir>
+    <OutDir>../../build/vs71/release/lib_json/</OutDir>
+    <IntDir>../../build/vs71/release/lib_json/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='dummy|Win32'">
     <OutDir>$(Configuration)\</OutDir>
