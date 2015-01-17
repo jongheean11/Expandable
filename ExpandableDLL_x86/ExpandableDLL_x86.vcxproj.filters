@@ -46,6 +46,15 @@
     <ClInclude Include="changlib.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="E_Util.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="E_IHooking.h">
+      <Filter>Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="E_TestDLLClient.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -61,6 +70,15 @@
       <Filter>Hook</Filter>
     </ClCompile>
     <ClCompile Include="E_DLLClient.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Util.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="E_IHooking.cpp">
+      <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="E_TestDLLClient.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
