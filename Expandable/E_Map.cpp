@@ -467,8 +467,11 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 	WCHAR name[10];
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"Microsoft Spy++";
+	//WCHAR name5[16];
 	::GetWindowText(hwnd, name2, 4);
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)
+	//::GetWindowText(hwnd, name5,16);
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD childprocessId;
@@ -679,8 +682,12 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	WCHAR name[10];
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"Microsoft Spy++";
+	//WCHAR name5[16];
 	::GetWindowText(hwnd, name2, 4);
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)
+	//::GetWindowText(hwnd, name5, 16);
+	
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD pidforchild;
