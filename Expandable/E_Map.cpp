@@ -464,7 +464,11 @@ void E_Map::OnPaint()
 BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
-	if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))
+	
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	::GetWindowText(hwnd, name2, 4);
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD childprocessId;
@@ -674,11 +678,9 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
 	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
 	::GetWindowText(hwnd, name2, 4);
-	if (name2 == TEXT("스티커"))
-	{
-	}
-	if ( (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || name2 == TEXT("스티커"))
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD pidforchild;
