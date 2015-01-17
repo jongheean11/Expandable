@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "E_IHooking.h"
 #include "E_Util.h"
+#include "E_DLLClient.h"
 #include <thread>
 
 //#if defined(_AMD64_)
@@ -43,6 +44,8 @@ static wchar_t wprocessList[PROCESSSIZE][255] = { L"chrome.exe", L"iexplore.exe"
 static const char* EXPLORER = "explorer.exe";
 static const wchar_t* WEXPLORER = L"explorer.exe";
 
+
+#define TEST_EXECUTABLE
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
 	LPVOID lpReserved
@@ -54,7 +57,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		processName = processName + 1;
 		TRACE_WIN32A("[DLLMain] %s", processName);
 	}
-	
+
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -77,30 +80,30 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		break;
 	case DLL_THREAD_ATTACH:
 	{
-		TRACE_WIN32A("[Attach] DLL_THREAD_ATTACH");
-		
-		//Interface Hook은 iexplore와 메인 윈도우의 공간에 후킹
-		if ((interfacestatehook == false || interfacehook == false) && processName != NULL){
-			for (int i = 0; i < PROCESSSIZE; i++){
-				if (!_stricmp(processName, processList[i])
-					){
-					DWORD current = GetCurrentProcessId();
-					DWORD parentPID = getppid(wprocessList[i], current);	//현재 PID의 부모
-					DWORD explorerPID = GetProcessID(WEXPLORER);	//Explorer.exe
-					TRACE_WIN32(L"[PROCESS] target: %s, parent: %u, explorer: %u", wprocessList[i], parentPID, explorerPID);
+							  TRACE_WIN32A("[Attach] DLL_THREAD_ATTACH");
 
-					if (interfacehook == false && parentPID == explorerPID && isVisible(NULL)){
-						startInterfaceHook();	//크롬, 익스플로러 .. 후킹
-					}
-					if (interfacestatehook == false && parentPID == explorerPID && isVisible(NULL)){
-						startInterfaceStateHook(); //마지막 상태.. 후킹
-					}
+							  //Interface Hook은 iexplore와 메인 윈도우의 공간에 후킹
+							  if ((interfacestatehook == false || interfacehook == false) && processName != NULL){
+								  for (int i = 0; i < PROCESSSIZE; i++){
+									  if (!_stricmp(processName, processList[i])
+										  ){
+										  DWORD current = GetCurrentProcessId();
+										  DWORD parentPID = getppid(wprocessList[i], current);	//현재 PID의 부모
+										  DWORD explorerPID = GetProcessID(WEXPLORER);	//Explorer.exe
+										  TRACE_WIN32(L"[PROCESS] target: %s, parent: %u, explorer: %u", wprocessList[i], parentPID, explorerPID);
 
-				}
-			}
-		}
+										  if (interfacehook == false && parentPID == explorerPID && isVisible(NULL)){
+											  startInterfaceHook();	//크롬, 익스플로러 .. 후킹
+										  }
+										  if (interfacestatehook == false && parentPID == explorerPID && isVisible(NULL)){
+											  startInterfaceStateHook(); //마지막 상태.. 후킹
+										  }
+
+									  }
+								  }
+							  }
 	}
-	break;
+		break;
 	case DLL_THREAD_DETACH:
 		//OutputDebugStringA("[Attach] DLL_THREAD_DETACH");
 		break;
@@ -136,3 +139,19 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 }
 
 
+// NT32Debug-Executable configuration인 경우,
+// WinMain을 둬서, 실행가능한 DLL 형태가 되도록 한다.
+#ifdef TEST_EXECUTABLE
+#include <stdio.h>
+#include <stdlib.h>
+#include "E_TestDLLClient.h"
+//int __stdcall WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in_opt LPSTR lpCmdLine, __in int nShowCmd)
+//{
+//}
+int main(int argc, char* argv[]){
+	testWriteJSON();
+	testSocket();
+	return 0;
+
+}
+#endif // DEBUG_EXECUTABLE

@@ -52,6 +52,9 @@
     <ClInclude Include="E_IHooking.h">
       <Filter>Hook</Filter>
     </ClInclude>
+    <ClInclude Include="E_TestDLLClient.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -74,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="E_IHooking.cpp">
       <Filter>Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="E_TestDLLClient.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
