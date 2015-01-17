@@ -30,6 +30,9 @@ private:
 	bool hotkeyinvalidate;
 	
 public:
+	
+	CWnd* notifyHwnd[5];
+	int notifyAblePos[5];
 	E_Window* twForHide;
 	int nowActiveNotify;
 	int nextActiveNotify;
