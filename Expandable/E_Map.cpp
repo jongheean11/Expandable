@@ -2,7 +2,7 @@
 #include "E_Window.h"
 #include "E_Map.h"
 #include "E_Global.h"
-
+#include <stdint.h>
 #define WM_TRAY_EVENT (WM_USER + 3)
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
@@ -102,6 +102,7 @@ void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->stopUpdate();
+	e_global->mapopen = false;
 	iconRectList.clear();
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
@@ -331,7 +332,7 @@ void E_Map::OnPaint()
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-				//leave2 = false;
+				
 				::BringWindowToTop(this->GetSafeHwnd());
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
@@ -391,7 +392,7 @@ void E_Map::OnPaint()
 		RECT rectForMove;
 		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
-		//if (e_global->getSelectedDesktop()->getIndex == )
+		
 		int windowindext;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
@@ -409,12 +410,21 @@ void E_Map::OnPaint()
 		{
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
+			rectForChildMove = rectForMove;
 			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1), newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
-
+			//여기에 자식 프로그램 또는 비슷한 프로그램까지 같이 움직여야함
+			//부모 핸들로 윈도우 프로세스 얻어오고
+			//그 이후에 얻어온 프로세스 아이디로 모든 창들 이동!
+			childmovx = newxpoint - w*(movindexx - 1);
+			childmovy = newypoint - (h - th)*(movindexy - 1);
+			parentprocessId = GetWindowThreadProcessId(selectIconHwnd, NULL);
+			EnumWindows(E_Map::EnumCallBackMap, 1);
+			
 		}
 		else
 		{
 			::ShowWindow(selectIconHwnd, SW_HIDE);
+			EnumWindows(E_Map::EnumCallBackMap, 0);
 		}
 
 		::BringWindowToTop(selectIconHwnd);
@@ -442,9 +452,6 @@ void E_Map::OnPaint()
 		memDC.LineTo(tmprect.right, tmprect.bottom);
 		pen.DeleteObject();
 
-
-
-
 	}
 
 	if (drawable)
@@ -455,6 +462,35 @@ void E_Map::OnPaint()
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
 
+BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"Microsoft Spy++";
+	//WCHAR name5[16];
+	::GetWindowText(hwnd, name2, 4);
+	//::GetWindowText(hwnd, name5,16);
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->parentprocessId)
+		{
+			if (lParam)
+			{
+				RECT rectforchildmov;
+				::ShowWindow(hwnd, SW_SHOW);
+				::GetWindowRect(hwnd, &rectforchildmov);
+				::MoveWindow(hwnd, e_map->childmovx  , e_map->childmovy  , rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
+			}
+			else
+				::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	return true;
+}
 E_Map* E_Map::getSingleton()
 {
 	if (singleton == NULL)
@@ -609,24 +645,65 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
+			
+		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
-			if ((*itr_desk)->getIndex() == e_global->getSelectedDesktop()->getIndex())
+			if ((*itr_desk)->getIndex() == index)
 			{
 				(*itr_desk)->setAllShow();
+
+				std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					EnumWindows(E_Map::EnumCallHide, 0);
+				}
 				continue;
 			}
 			(*itr_desk)->setAllHide();
+
+			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+			{
+				pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+				EnumWindows(E_Map::EnumCallHide, 1);
+			}
 		}
-		//leave2 = false;
+		
 		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
 
-
-		//terminateMap();
 	}
 }
+BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"Microsoft Spy++";
+	//WCHAR name5[16];
+	::GetWindowText(hwnd, name2, 4);
+	//::GetWindowText(hwnd, name5, 16);
+	
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD pidforchild;
+		pidforchild = GetWindowThreadProcessId(hwnd, NULL);
+		if (pidforchild == e_map->pidforhide)
+		{
+			if (lParam)
+				::ShowWindow(hwnd, SW_HIDE);
+			else
+				::ShowWindow(hwnd, SW_SHOW);
+		}
+	}
+	return true;
+}
+
+
 int E_Map::getdesktop(int indexx, int indexy)
 {
 	E_Global* e_global = E_Global::getSingleton();
@@ -700,7 +777,7 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 	}
 	else if (nIDEvent == 10)
 	{
-		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		if ((GetAsyncKeyState(VK_LBUTTON) && 0x8000) || (GetAsyncKeyState(VK_RBUTTON) && 0x8000))
 		{
 			GetCursorPos(&pt);
 			if (getSize.PtInRect(pt))

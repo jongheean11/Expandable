@@ -46,13 +46,14 @@
 #define IDI_ICON15                      335
 #define IDI_ICON16                      336
 #define IDI_ICON11                      339
+#define IDB_BITMAP1                     339
 #define IDC_SLIDER2                     1018
 #define IDC_SLIDER3                     1019
 #define IDC_SLIDER4                     1021
 #define IDC_SLIDER5                     1022
 #define IDC_COMBO1                      1026
 #define IDC_COMBO2                      1027
-//#define IDCANCEL                        1028
+#define IDC_EXLogo                      1029
 #define ID_32775                        32775
 #define ID_32777                        32777
 
@@ -60,9 +61,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        339
+#define _APS_NEXT_RESOURCE_VALUE        340
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

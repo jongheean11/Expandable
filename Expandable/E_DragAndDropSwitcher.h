@@ -39,10 +39,12 @@ public:
 	void startSwitcher();
 	void terminateSwitcher();
 	void OnResize();
+	void turnUpdateOn();
+	void turnUpdateOff();
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+//	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+//	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+//	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

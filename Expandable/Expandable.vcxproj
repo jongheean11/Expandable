@@ -169,6 +169,7 @@
     <ResourceCompile Include="Expandable.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
     <Image Include="res\Expandable.ico" />
     <Image Include="res\ExpandableDoc.ico" />
     <Image Include="res\icon1.ico" />

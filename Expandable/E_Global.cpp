@@ -20,11 +20,11 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
-	
+
 	//데스크탑 생성
 	for (int i = 0; i < desktopCount; i++)
 		desktopList.push_back(new E_Desktop(i));
-	
+
 	//초기 데스크탑 
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
@@ -53,7 +53,7 @@ void E_Global::setTransparent(int value)
 }
 int  E_Global::getTransparent()
 {
-	return transparent ;
+	return transparent;
 }
 double E_Global::getMapsize()
 {
@@ -93,7 +93,7 @@ CWnd* E_Global::getTaskbarWindow(){
 
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
-	
+
 }
 
 
@@ -154,11 +154,11 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 				if (!already_exist)
 				{
 					global->windowListForUpdate.push_front(hwnd);
+				}
+			}
 		}
 	}
-		}
-	}
-	
+
 	return TRUE;
 }
 
@@ -206,9 +206,9 @@ void E_Global::loopUpdate()
 			desktopSwitcher->updateSelectedDesktop();
 			mapSwitcher->updateSelectedDesktop();
 			dragSwitcher->updateSelectedDesktop();
-	}
+		}
 		Sleep(200);
-}
+	}
 }
 
 // 업데이트 쓰레드// 변화될 경우 참을 반환한다.
@@ -230,17 +230,17 @@ bool E_Global::onUpdate()
 		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
 			HWND findWindow = 0;
 			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
-				if (*iter == (*iter_window)->getWindow()){
-					noChangeList.push_back(*iter_window);
-					selectedDesktop->excludeWindow(*iter_window);
-					findWindow = *iter;
-				}
+			if (*iter == (*iter_window)->getWindow()){
+			noChangeList.push_back(*iter_window);
+			selectedDesktop->excludeWindow(*iter_window);
+			findWindow = *iter;
+			}
 			}
 			if (findWindow == NULL){
-				E_Window* window = new E_Window(findWindow);
-				noChangeList.push_back(window);
+			E_Window* window = new E_Window(findWindow);
+			noChangeList.push_back(window);
 			}
-		}*/
+			}*/
 		//리스트 업데이트
 		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
 			HWND findWindow = NULL;
@@ -252,7 +252,7 @@ bool E_Global::onUpdate()
 				}
 			}
 			if (findWindow == NULL){
-		E_Window* window = new E_Window(*iter);
+				E_Window* window = new E_Window(*iter);
 				noChangeList.push_back(window);
 			}
 		}
@@ -267,7 +267,7 @@ bool E_Global::onUpdate()
 		result = true;
 	}
 	else{
-		
+
 	}
 	//TRACE_WIN32A("E_Global::onUpdateEnd()");
 	return result;
@@ -279,7 +279,7 @@ bool E_Global::stopUpdate()
 {
 	lock_guard<mutex> stop(E_Mutex::updateStartStopMutex);
 	if (currentThread != NULL && updateMode == true){
-	TRACE_WIN32A("E_Global::stopUpdate()");
+		TRACE_WIN32A("E_Global::stopUpdate()");
 		updateMode = false;
 		currentThread->join();	//스레드가 끝날때까지 대기
 		delete currentThread;
@@ -394,7 +394,7 @@ void E_Global::moveTopWindowLeft(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -415,17 +415,25 @@ void E_Global::moveTopWindowLeft(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex - 1);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-
+		if (!(e_global->mapopen))
+		{
+			E_Map* e_map = E_Map::getSingleton();
+			e_map->drawMap();
+		}
+		EnumWindows(E_Global::EnumHide, 0);
 	}
 }
 
@@ -435,7 +443,7 @@ void E_Global::moveTopWindowRight(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-	
+	twForHide = targetWindow;
 	TRACE_WIN32A("[E_Global::moveTopWindowRight] 윈도우 이름: %s", targetWindow->getWindowName());
 
 	if (desktopCount == 1)
@@ -459,18 +467,25 @@ void E_Global::moveTopWindowRight(){
 		E_Desktop* desktop = getDesktop(selectedIndex + 1);
 		E_Global* e_global = E_Global::getSingleton();
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();//윈도우 숨기기
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
-
+		
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
+		if (!(e_global->mapopen))
+		{
+			E_Map* e_map = E_Map::getSingleton();
+			e_map->drawMap();
+		}
 		//
-
+		EnumWindows(E_Global::EnumHide, 0);
+		
 	}
 }
 
@@ -480,7 +495,7 @@ void E_Global::moveTopWindowDown(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -501,15 +516,26 @@ void E_Global::moveTopWindowDown(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex + desktopwidth);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
+		
+		if (!(e_global->mapopen))
+		{
+			E_Map* e_map = E_Map::getSingleton();
+			e_map->drawMap();
+		}
+		EnumWindows(E_Global::EnumHide, 0);
+			
 		//
 	}
 }
@@ -521,7 +547,7 @@ void E_Global::moveTopWindowUp(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -542,16 +568,26 @@ void E_Global::moveTopWindowUp(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex - desktopwidth);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
+		
+		if (!(e_global->mapopen))
+		{
+			E_Map* e_map = E_Map::getSingleton();
+			e_map->drawMap();
+		}
+		EnumWindows(E_Global::EnumHide, 0);
 	}
 }
 
@@ -581,7 +617,8 @@ void E_Global::moveDesktopLeft()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -614,19 +651,20 @@ void E_Global::moveDesktopRight()
 	else{
 		int index = selectedIndex + 1;
 		E_Desktop* last = getDesktop(index);
-		
+
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
-			
+
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL )
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
-				
+
 			}
 			//
 			//E_Map* e_map = E_Map::getSingleton();
@@ -662,7 +700,8 @@ void E_Global::moveDesktopUp()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -692,7 +731,8 @@ void E_Global::moveDesktopDown()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -729,7 +769,7 @@ list<HWND> E_Global::getAllWindowsForZIndex()
 	object->windowListForZIndex.clear();	//초기화
 	EnumWindows(E_Global::EnumCallBackForZIndex, 0);
 	return object->windowListForZIndex;
-	}
+}
 
 //Z-Index 정렬을 위한 콜백
 BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
@@ -740,7 +780,7 @@ BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
 	int length;
 	::GetWindowText(hwnd, Cap, 254);
 	length = ::GetWindowTextLength(hwnd);
-	
+
 	global->windowListForZIndex.push_back(hwnd);
 
 	return TRUE;
@@ -749,8 +789,8 @@ BOOL CALLBACK  E_Global::EnumCallBackForZIndex(HWND hwnd, LPARAM lParam)
 void E_Global::moveDesktop(int index)
 {
 	onUpdate();
-	if (0<= index && index < desktopCount){
-		
+	if (0 <= index && index < desktopCount){
+
 		int index = selectedIndex + 1;
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
@@ -763,22 +803,22 @@ void E_Global::moveDesktop(int index)
 	}
 }
 
-void E_Global::changeDesktop(int pastvalue,int newvalue)
+void E_Global::changeDesktop(int pastvalue, int newvalue)
 {
 	E_Global* e_global = E_Global::getSingleton();
-	E_Map* e_map = E_Map::getSingleton(); 
+	E_Map* e_map = E_Map::getSingleton();
 	int pastdesknum = pastvalue;
 	int newdesknum = newvalue;
 	setSelectedIndex(0);
 	//일단 모든 Desktop의 리스트를 가져와서 복사후 지역변수로 저장후 다시 글로벌로
-	
+
 	if (pastdesknum > newdesknum)	//기존의 Desktop이 더많은경우 ex) 9->6
 	{
 		list<E_Desktop*> newdesktopList = desktopList;
 		desktopList.clear();
 		E_Desktop* tmpDesk;
 		int i = 0;
-		for (std::list<E_Desktop*>::iterator itr_desktopto = newdesktopList.begin(); itr_desktopto != newdesktopList.end(); itr_desktopto++,i++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+		for (std::list<E_Desktop*>::iterator itr_desktopto = newdesktopList.begin(); itr_desktopto != newdesktopList.end(); itr_desktopto++, i++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 		{
 			if (i < newdesknum)// 기존의 Desktop의 해당 6개 전까지의 경우
 			{
@@ -799,7 +839,7 @@ void E_Global::changeDesktop(int pastvalue,int newvalue)
 	}
 	else // 새로운 데스크탑이 더 많은경우
 	{
-		for (int i = pastvalue; i < newvalue ; i++)
+		for (int i = pastvalue; i < newvalue; i++)
 			desktopList.push_back(new E_Desktop(i));
 	}
 	std::list<E_Desktop*> desklist = e_global->desktopList;
@@ -815,4 +855,26 @@ void E_Global::changeDesktop(int pastvalue,int newvalue)
 	//e_map->leave2 = false;
 	::BringWindowToTop(e_map->maphwnd);
 
+}
+
+BOOL CALLBACK E_Global::EnumHide(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	::GetWindowText(hwnd, name2, 4);
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		E_Global* e_global = E_Global::getSingleton();
+		DWORD childprocessId, parentprocessId;
+		parentprocessId = GetWindowThreadProcessId(e_global->twForHide->getWindow(), NULL);
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->parentprocessId)
+		{
+			::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	
+	return true;
 }
