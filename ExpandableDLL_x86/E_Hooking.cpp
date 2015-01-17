@@ -626,8 +626,8 @@ NTSTATUS WINAPI NewZwResumeThread(HANDLE ThreadHandle, PULONG SuspendCount)
 	THREAD_BASIC_INFORMATION tbi;
 	HMODULE hMod = NULL;
 	TCHAR szModPath[MAX_PATH] = { 0, };
-
-	TRACE_WIN32A("NewZwResumeThread() : start!!!\n");
+	if (processName != NULL)
+	TRACE_WIN32A("[%s] NewZwResumeThread", processName);
 
 	hMod = GetModuleHandle(L"ntdll.dll");
 	if (hMod == NULL)
@@ -714,7 +714,9 @@ __NTRESUMETHREAD_END:
 BOOL WINAPI ShowWindowHook(
 	_In_  HWND hWnd,
 	_In_  int nCmdShow){
-	TRACE_WIN32A("[CALL] ShowWindowHook (%d)", nCmdShow);
+	if (processName != NULL)
+		TRACE_WIN32A("[%s] ShowWindowHook (%u, %d)", processName, hWnd, nCmdShow);
+	//nCmdShow = SW_HIDE;
 
 	FARPROC pShowWindow = NULL;
 	BOOL result = FALSE;
@@ -743,7 +745,8 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	_In_  ULONGLONG ullCompleted,
 	_In_  ULONGLONG ullTotal)
 {
-	TRACE_WIN32A("[CALL] SetProgressValueHook (%I64u, %I64u)", ullCompleted, ullTotal);
+	if (processName != NULL)
+	TRACE_WIN32A("[%s] SetProgressValueHook (%I64u, %I64u)", processName, ullCompleted, ullTotal);
 
 	PFSETPROGRESSVALUE pfProgressValue;
 	ITaskbarList3* pTaskList3 = NULL;
@@ -784,7 +787,8 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 	TBPFLAG tbpFlags
 	)
 {
-	TRACE_WIN32A("[CALL] SetProgressStateHook (%d, %d)", hwnd, tbpFlags);
+	if (processName != NULL)
+	TRACE_WIN32A("[%s] SetProgressStateHook (%d, %d)", processName, hwnd, tbpFlags);
 
 	PFSETPROGRESSSTATE pfProgressState;
 	ITaskbarList3* pTaskList3 = NULL;

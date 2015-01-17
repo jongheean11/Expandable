@@ -33,6 +33,8 @@ extern bool showhook;
 extern bool interfacehook;
 extern bool interfacestatehook;
 extern bool globalhook;
+char* processName = NULL;
+char fileName[255] = { 0, };
 
 //프로세스 리스트 변수
 #define PROCESSSIZE 2
@@ -46,28 +48,28 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	LPVOID lpReserved
 	)
 {
-
-	char fileName[255] = { 0, };
 	GetModuleFileNameA(NULL, fileName, 255);
-	char *name = strrchr(fileName, '\\');
+	if (processName == NULL){
+		processName = strrchr(fileName, '\\');
+		processName = processName + 1;
+		TRACE_WIN32A("[DLLMain] %s", processName);
+	}
 	
-	TRACE_WIN32A("[Process]%s", name + 1);
-
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
 		TRACE_WIN32A("[Attach] DLL_PROCESS_ATTACH");
 
 		//Gloal Hook은 Explorer 고유의 기능
-		if (name != NULL
-			&& !_stricmp(name + 1, EXPLORER)
+		if (processName != NULL
+			&& !_stricmp(processName, EXPLORER)
 			&& globalhook == false){
 			startGlobalHook();
 		}
 
 		//ShowHook은 Explorer를 제외한 메인 윈도우의 고유의 기능
-		if (name != NULL
-			&& _stricmp(name + 1, EXPLORER)
+		if (processName != NULL
+			&& _stricmp(processName, EXPLORER)
 			&& showhook == false){
 			startShowHook();
 		}
@@ -78,9 +80,9 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		TRACE_WIN32A("[Attach] DLL_THREAD_ATTACH");
 		
 		//Interface Hook은 iexplore와 메인 윈도우의 공간에 후킹
-		if ((interfacestatehook == false || interfacehook == false) && name != NULL){
+		if ((interfacestatehook == false || interfacehook == false) && processName != NULL){
 			for (int i = 0; i < PROCESSSIZE; i++){
-				if (!_stricmp(name + 1, processList[i])
+				if (!_stricmp(processName, processList[i])
 					){
 					DWORD current = GetCurrentProcessId();
 					DWORD parentPID = getppid(wprocessList[i], current);	//현재 PID의 부모
@@ -106,22 +108,22 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		OutputDebugStringA("[Attach] DLL_PROCESS_DETACH");
 
 		//Gloal Hook은 Explorer 고유의 기능
-		if (name != NULL
-			&& !_stricmp(name + 1, EXPLORER)
+		if (processName != NULL
+			&& !_stricmp(processName, EXPLORER)
 			&& globalhook == true){
 			stopGlobalHook();
 		}
 
 		//ShowHook은 Explorer를 제외한 메인 윈도우의 고유의 기능
-		if (name != NULL
-			&& _stricmp(name + 1, EXPLORER)
+		if (processName != NULL
+			&& _stricmp(processName, EXPLORER)
 			&& showhook == true){
 			stopShowHook();
 		}
 
-		if (name != NULL){
+		if (processName != NULL){
 			for (int i = 0; i < PROCESSSIZE; i++){
-				if (!_stricmp(name + 1, processList[i])
+				if (!_stricmp(processName, processList[i])
 					&& interfacehook == true){
 					stopInterfaceHook();	//크롬, 익스플로러 .. 후킹
 				}

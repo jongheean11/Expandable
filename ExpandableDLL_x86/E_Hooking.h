@@ -4,6 +4,7 @@
 #define STATUS_SUCCESS						(0x00000000L) 
 
 extern BYTE g_pZWRT[5];
+extern char* processName;
 
 BOOL hook_by_hotpatch_ShowWindow();
 BOOL unhook_by_hotpatch_ShowWindow();
