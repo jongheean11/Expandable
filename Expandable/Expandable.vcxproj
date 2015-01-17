@@ -207,6 +207,7 @@
     <ClCompile Include="E_Map.cpp" />
     <ClCompile Include="E_Mutex.cpp" />
     <ClCompile Include="E_Notify.cpp" />
+    <ClCompile Include="E_Server.cpp" />
     <ClCompile Include="E_Util.cpp" />
     <ClCompile Include="E_UtilTest.cpp" />
     <ClCompile Include="E_Window.cpp" />
