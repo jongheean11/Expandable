@@ -10,7 +10,7 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 #define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
-	nowActiveNotify = 0;
+	nowActiveNotify = -1;
 	nextActiveNotify = 0;
 	mapopen = false;
 	hotkeyinvalidate = false;
@@ -22,7 +22,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	desktopheight = 3;
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
-
+	notifyAblePos[0] = notifyAblePos[1] = notifyAblePos[2] = notifyAblePos[3] = notifyAblePos[4] = 0;
 	//데스크탑 생성
 	for (int i = 0; i < desktopCount; i++)
 		desktopList.push_back(new E_Desktop(i));

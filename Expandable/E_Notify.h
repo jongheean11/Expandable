@@ -4,7 +4,8 @@ class E_Notify : public CWnd
 private:
 	static E_Notify* singleton;
 	int notifywidth;
-	int notifyheight ;
+	int notifyheight;
+	int myPos;
 public:
 	E_Notify();
 	~E_Notify();

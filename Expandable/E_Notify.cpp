@@ -16,6 +16,7 @@ E_Notify::E_Notify()
 	time = 3;
 	notifywidth = w * 0.15;
 	notifyheight = h * 0.08;
+	myPos = 0;
 
 }
 
@@ -41,12 +42,30 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->nowActiveNotify++;
+	e_global->nextActiveNotify = e_global->nowActiveNotify % 5;
 	long w = enManager->getWidth();
 	long h = enManager->getHeight();
 	long th = enManager->getTaskbarHeight();
-	
-	
 	hwnd_cwnd_notify = this;
+	int notPos = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		if (e_global->notifyAblePos[i] == 0)
+		{
+			e_global->notifyAblePos[i] = 1;
+			myPos = i;
+			notPos = 1;	// notPos 가 1인경우 자리 있음 0인경우 5자리 다차있음
+			e_global->notifyHwnd[i] = hwnd_cwnd_notify;
+			break;
+		}
+	}
+	if (!notPos)
+	{
+		e_global->notifyHwnd[e_global->nextActiveNotify]->DestroyWindow();
+		myPos = e_global->nextActiveNotify;
+		e_global->notifyHwnd[myPos] = hwnd_cwnd_notify;
+	}
+	
 	CBrush brush_map;
 	UINT nClassStyle_map = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 	brush_map.CreateSolidBrush(RGB(255, 255, 255));
@@ -57,9 +76,9 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 	SetTimer(1, 1000, NULL);
 	hwnd_cwnd_notify->ShowWindow(SW_SHOW);
 	::SetWindowLongW(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-	::SetLayeredWindowAttributes(hwnd_cwnd_notify->m_hWnd, 0, 150, LWA_ALPHA); //창투명
+	::SetLayeredWindowAttributes(hwnd_cwnd_notify->m_hWnd, 0, e_global->getTransparent(), LWA_ALPHA); //창투명
 	hwnd_cwnd_notify->UpdateWindow();
-	hwnd_cwnd_notify->SetWindowPos(NULL, 0, (h - th) - notifyheight*(e_global->nowActiveNotify) , notifywidth, notifyheight, SWP_NOZORDER | SWP_SHOWWINDOW);
+	hwnd_cwnd_notify->SetWindowPos(NULL, 0, (h - th) - notifyheight*(myPos + 1), notifywidth, notifyheight, SWP_NOZORDER | SWP_SHOWWINDOW);
 	
 
 }
@@ -78,8 +97,9 @@ void E_Notify::OnPaint()
 	CBrush brush;
 	brush.CreateSolidBrush(RGB(230, 220, 50));
 	dc.SelectObject(brush);
-	dc.Rectangle(0, 0, notifywidth, notifyheight);
 	
+	dc.Rectangle(0, 0, notifywidth, notifyheight);
+	//dc.Rectangle(0, 0, (myPos+1) * 50, 20);
 
 }
 
@@ -103,8 +123,8 @@ void E_Notify::OnTimer(UINT_PTR nIDEvent)
 void E_Notify::terminateNotify()
 {
 	E_Global* e_global = E_Global::getSingleton();
-	e_global->nowActiveNotify--;
-
+	//e_global->nowActiveNotify--;
+	e_global->notifyAblePos[myPos] = 0;
 	
 	hwnd_cwnd_notify->DestroyWindow();
 	
