@@ -24,6 +24,41 @@ void readJSON(__out NOTIFICATION_ITEM& item, __in std::string& buffer)
 {
 	Json::Value root;
 	Json::Reader reader;
+	const char* buf = buffer.c_str();
+	if (reader.parse(buf, root) == false){
+		TRACE_WIN32A("[FAIL]reader.parse");
+		return;
+	}
+	item.type = (TYPE)root.get(type_key, "defaultvalue").asInt();
+	item.value = (VALUE)root.get(value_key, "defaultvalue").asUInt();
+	Json::Value ps = root.get(infomation_key,"defaultvalue");
+	
+	item.infomation.hwnd = ps.get(pid_key, "defaultvalue").asUInt();
+	std::string processName = ps.get(pname_key, "defaultvalue").asString();
+	item.infomation.pid = ps.get(hwnd_key, "defaultvalue").asUInt();
+	
+	strcpy(item.infomation.pname, processName.c_str());
+
+}
+void readJSON(__out NOTIFICATION_ITEM& item, __in char* buffer)
+{
+	Json::Value root;
+	Json::Reader reader;
+	const char* buf = buffer;
+	if (reader.parse(buf, root) == false){
+		TRACE_WIN32A("[FAIL]reader.parse");
+		return;
+	}
+	item.type = (TYPE)root.get(type_key, "defaultvalue").asInt();
+	item.value = (VALUE)root.get(value_key, "defaultvalue").asUInt();
+	Json::Value ps = root.get(infomation_key, "defaultvalue");
+
+	item.infomation.hwnd = ps.get(pid_key, "defaultvalue").asUInt();
+	std::string processName = ps.get(pname_key, "defaultvalue").asString();
+	item.infomation.pid = ps.get(hwnd_key, "defaultvalue").asUInt();
+
+	strcpy(item.infomation.pname, processName.c_str());
+
 }
 
 //╪рдо

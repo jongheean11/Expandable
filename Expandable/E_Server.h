@@ -1,4 +1,5 @@
 #include "E_MyCSocket.h"
+#include "E_DLLClient.h"
 
 #pragma once
 #define PORT 8888
