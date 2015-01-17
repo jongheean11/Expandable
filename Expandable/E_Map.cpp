@@ -638,8 +638,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
-
-		//EnumWindows(E_Map::EnumCallHide, 0);
+			
 		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
@@ -647,9 +646,23 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			if ((*itr_desk)->getIndex() == index)
 			{
 				(*itr_desk)->setAllShow();
+
+				std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					EnumWindows(E_Map::EnumCallHide, 0);
+				}
 				continue;
 			}
 			(*itr_desk)->setAllHide();
+
+			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+			{
+				pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+				EnumWindows(E_Map::EnumCallHide, 1);
+			}
 		}
 		
 		::BringWindowToTop(this->GetSafeHwnd());
@@ -659,10 +672,25 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 }
 BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 {
-	///WCHAR name[10];
-	//if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))
-	//	::ShowWindow(hwnd, SW_HIDE);
-	//	
+	WCHAR name[10];
+	WCHAR name2[4];
+	::GetWindowText(hwnd, name2, 4);
+	if (name2 == TEXT("스티커"))
+	{
+	}
+	if ( (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || name2 == TEXT("스티커"))
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD pidforchild;
+		pidforchild = GetWindowThreadProcessId(hwnd, NULL);
+		if (pidforchild == e_map->pidforhide)
+		{
+			if (lParam)
+				::ShowWindow(hwnd, SW_HIDE);
+			else
+				::ShowWindow(hwnd, SW_SHOW);
+		}
+	}
 	return true;
 }
 
