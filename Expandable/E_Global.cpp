@@ -394,7 +394,7 @@ void E_Global::moveTopWindowLeft(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -415,8 +415,10 @@ void E_Global::moveTopWindowLeft(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex - 1);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
 		E_Global* e_global = E_Global::getSingleton();
 		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -426,12 +428,12 @@ void E_Global::moveTopWindowLeft(){
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-		
 		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
 		}
+		EnumWindows(E_Global::EnumHide, 0);
 	}
 }
 
@@ -441,7 +443,7 @@ void E_Global::moveTopWindowRight(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	TRACE_WIN32A("[E_Global::moveTopWindowRight] 윈도우 이름: %s", targetWindow->getWindowName());
 
 	if (desktopCount == 1)
@@ -465,9 +467,10 @@ void E_Global::moveTopWindowRight(){
 		E_Desktop* desktop = getDesktop(selectedIndex + 1);
 		E_Global* e_global = E_Global::getSingleton();
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();//윈도우 숨기기
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
-
+		
 		//
 		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
@@ -481,6 +484,7 @@ void E_Global::moveTopWindowRight(){
 			e_map->drawMap();
 		}
 		//
+		EnumWindows(E_Global::EnumHide, 0);
 		
 	}
 }
@@ -491,7 +495,7 @@ void E_Global::moveTopWindowDown(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -512,8 +516,10 @@ void E_Global::moveTopWindowDown(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex + desktopwidth);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
 		E_Global* e_global = E_Global::getSingleton();
 		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -528,6 +534,7 @@ void E_Global::moveTopWindowDown(){
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
 		}
+		EnumWindows(E_Global::EnumHide, 0);
 			
 		//
 	}
@@ -540,7 +547,7 @@ void E_Global::moveTopWindowUp(){
 	list<E_Window*> windowList = selectedDesktop->getWindowList();
 	list<E_Window*>::reverse_iterator iter = windowList.rbegin();
 	E_Window* targetWindow = *iter;
-
+	twForHide = targetWindow;
 	if (desktopCount == 1)
 		return;
 
@@ -561,8 +568,10 @@ void E_Global::moveTopWindowUp(){
 		//안쪽 데스크탑
 		E_Desktop* desktop = getDesktop(selectedIndex - desktopwidth);
 		desktop->insertWindow(targetWindow);	//윈도우 추가
+		//twForHide = targetWindow;
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
+		
 		//
 		E_Global* e_global = E_Global::getSingleton();
 		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -578,6 +587,7 @@ void E_Global::moveTopWindowUp(){
 			E_Map* e_map = E_Map::getSingleton();
 			e_map->drawMap();
 		}
+		EnumWindows(E_Global::EnumHide, 0);
 	}
 }
 
@@ -845,4 +855,26 @@ void E_Global::changeDesktop(int pastvalue, int newvalue)
 	//e_map->leave2 = false;
 	::BringWindowToTop(e_map->maphwnd);
 
+}
+
+BOOL CALLBACK E_Global::EnumHide(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	::GetWindowText(hwnd, name2, 4);
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		E_Global* e_global = E_Global::getSingleton();
+		DWORD childprocessId, parentprocessId;
+		parentprocessId = GetWindowThreadProcessId(e_global->twForHide->getWindow(), NULL);
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->parentprocessId)
+		{
+			::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	
+	return true;
 }

@@ -483,7 +483,7 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 				RECT rectforchildmov;
 				::ShowWindow(hwnd, SW_SHOW);
 				::GetWindowRect(hwnd, &rectforchildmov);
-				::MoveWindow(hwnd, e_map->childmovx, e_map->childmovy, rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
+				::MoveWindow(hwnd, e_map->childmovx  , e_map->childmovy  , rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
 			}
 			else
 				::ShowWindow(hwnd, SW_HIDE);
