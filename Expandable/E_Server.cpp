@@ -66,33 +66,43 @@ void E_Server::onServer()
 	}
 }
 
-void E_Server::onClient(E_MyCSocket* client)
+void E_Server::onClient(E_MyCSocket* param)
 {
 	CString clientName = L"";
 	UINT clientPort = 0;
-	client->GetPeerName(clientName, clientPort);
+	E_MyCSocket client;
+	client.Attach(*param);
+	client.GetPeerName(clientName, clientPort);
 	TRACE_WIN32A("[E_Server::onClient] 클라이언트: %s, 포트: %d", clientName, clientPort);
 
-	while (client->closeFlag == false)
+	while (client.closeFlag == false)
 	{
 		char buff[MAXBUFFERSIZE];
 		memset(buff, 0, sizeof(buff));
 
 		//클라이언트로부터 메시지 읽기 
-		int received = client->Receive(buff, sizeof(buff));
+		int received = 0;
+		
+		received = client.Receive(buff, MAXBUFFERSIZE, 0);
+		if (received == 0)
+		{
+			break;
+		}
+		NOTIFICATION_ITEM item;
+		readJSON(item, buff);
+
 		TRACE_WIN32A("[E_Server::onClient] %d 바이트를 수신함 %s", received, buff);
 
 		////받은 메시지를 다시 클라이언트로 메아리 치기
 		//int sent = client->Send(buff, received);
 		//TRACE_WIN32A("[E_Server::onClient] %d 바이트를 송신함", sent);
 	}
-	
-	//소켓 다운
-	client->ShutDown(2);
 
-	//소켓 닫음
+	//소켓 다운
+	client.ShutDown(2);
+
 	for (std::unordered_map<std::thread*, E_MyCSocket*>::iterator iter = socketMap.begin(); iter != socketMap.end(); iter++){
-		if (iter->second == client){
+		if (iter->second == param){
 			std::thread* target = iter->first;
 			threadState.find(target)->second = NOTRUNNING;
 			return;

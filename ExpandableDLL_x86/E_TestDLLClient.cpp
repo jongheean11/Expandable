@@ -11,7 +11,7 @@ void testWriteJSON(){
 	item.value = 66;
 	item.infomation.hwnd = 50;
 	item.infomation.pid = 4500;
-	memcpy(item.infomation.pname, "chrome.exe",11);
+	memcpy(item.infomation.pname, "chrome.exe", 11);
 	writeJSON(item, buffer);
 	//TRACE_WIN32A("json1: %s", buffer.c_str());
 }
@@ -55,6 +55,8 @@ void testConnectServer(){
 		if (isConnected()){
 			sendData(buffer);
 		}
+	}
+	while (1){
 	}
 	disconnectExpandable();
 	clean();

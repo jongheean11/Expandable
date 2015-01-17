@@ -36,6 +36,7 @@ static const char* hwnd_key = "hwnd";
 
 void writeJSON(__in NOTIFICATION_ITEM& item, __out std::string& buffer);
 void readJSON(__in NOTIFICATION_ITEM& item, __out std::string& buffer);
+void readJSON(__out NOTIFICATION_ITEM& item, __in char* buffer);
 
 //╪рдо
 
