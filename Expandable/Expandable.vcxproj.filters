@@ -138,11 +138,11 @@
     <ClInclude Include="ShowMenu.h">
       <Filter>ShowMenu</Filter>
     </ClInclude>
-    <ClInclude Include="E_Server.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="E_Notify.h">
       <Filter>Notify</Filter>
+    </ClInclude>
+    <ClInclude Include="E_Server.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +223,9 @@
     </ClCompile>
     <ClCompile Include="ShowMenu.cpp">
       <Filter>ShowMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Notify.cpp">
+      <Filter>Notify</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
