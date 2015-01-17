@@ -9,6 +9,9 @@ private:
 	int pId;
 	char* pName;
 	HWND pHwnd;
+	bool click;
+	bool m_bTrack;
+	int colornum;
 public:
 	
 	E_Notify();
@@ -26,5 +29,8 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnPaint();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnMouseLeave();
 };
 
