@@ -102,6 +102,7 @@ void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->stopUpdate();
+	e_global->mapopen = false;
 	iconRectList.clear();
 	iconHwndList.clear();
 	hwnd_cwnd_emap->DestroyWindow();
@@ -464,7 +465,6 @@ void E_Map::OnPaint()
 BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
-	
 	WCHAR name2[4];
 	WCHAR name3[] = L"½ºÆ¼Ä¿";
 	::GetWindowText(hwnd, name2, 4);

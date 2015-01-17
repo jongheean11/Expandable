@@ -418,14 +418,15 @@ void E_Global::moveTopWindowLeft(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-		E_Global* e_global = E_Global::getSingleton();
+		
 		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
@@ -468,7 +469,7 @@ void E_Global::moveTopWindowRight(){
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -514,13 +515,14 @@ void E_Global::moveTopWindowDown(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
-		E_Global* e_global = E_Global::getSingleton();
+		
 		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
@@ -562,14 +564,15 @@ void E_Global::moveTopWindowUp(){
 		targetWindow->setHide();
 		selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 		//
-		if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+		E_Global* e_global = E_Global::getSingleton();
+		if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 		{
 			hotkeyinvalidate = true;
 			::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
 			//E_Map* e_map = E_Map::getSingleton(); e_map->leave2 = false;
 		}
 		//
-		E_Global* e_global= E_Global::getSingleton();
+		
 		if (!(e_global->mapopen))
 		{
 			E_Map* e_map = E_Map::getSingleton();
@@ -604,7 +607,8 @@ void E_Global::moveDesktopLeft()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -645,7 +649,8 @@ void E_Global::moveDesktopRight()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -685,7 +690,8 @@ void E_Global::moveDesktopUp()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
@@ -715,7 +721,8 @@ void E_Global::moveDesktopDown()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
-			if (mapopen && hwnd_cwnd->m_hWnd != NULL)
+			E_Global* e_global = E_Global::getSingleton();
+			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
 				::SendMessage(hwnd_cwnd->m_hWnd, WM_USER_EVENT, 0, 0);
