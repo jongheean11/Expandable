@@ -2,7 +2,7 @@
 #include "E_Notify.h"
 
 #include "E_Global.h"
-
+#include "E_Map.h"
 #pragma once
 
 //E_Notify* E_Notify::singleton = NULL;
@@ -39,6 +39,10 @@ E_Notify::~E_Notify()
 
 void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 {
+	pId = processId;
+	pName = processName;
+	//pHwnd = hwnd;
+	pHwnd = ::FindWindow(NULL, L"카카오톡");
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->nowActiveNotify++;
@@ -85,6 +89,7 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 BEGIN_MESSAGE_MAP(E_Notify, CWnd)
 	ON_WM_TIMER()
 	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -97,9 +102,22 @@ void E_Notify::OnPaint()
 	CBrush brush;
 	brush.CreateSolidBrush(RGB(230, 220, 50));
 	dc.SelectObject(brush);
-	
 	dc.Rectangle(0, 0, notifywidth, notifyheight);
-	//dc.Rectangle(0, 0, (myPos+1) * 50, 20);
+	CString s1,s2;
+	s1 = pName;
+	s2 = "작업 완료.";
+
+	CFont font;
+	// 폰트를 굴림체, 11포인트, 보통속성 크기로 생성
+	font.CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
+	CFont *pOld_Font = dc.SelectObject(&font);
+	dc.SetTextColor(RGB(0, 0, 0)); // 텍스트 검정색으로 설정
+	dc.SetBkColor(RGB(230, 220, 50));
+	dc.TextOutW(10, 10, s1);
+	font.DeleteObject(); 
+	font.CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
+	pOld_Font = dc.SelectObject(&font);
+	dc.TextOutW(10,  notifyheight/2+10, s2);
 
 }
 
@@ -125,8 +143,88 @@ void E_Notify::terminateNotify()
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->nowActiveNotify--;
 	e_global->notifyAblePos[myPos] = 0;
-	
 	hwnd_cwnd_notify->DestroyWindow();
 	
 }
 
+
+
+void E_Notify::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	E_Map* e_map = E_Map::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+	//선택된 핸들인 pHwnd핸들이 어떤 데스크탑인지 확인하고
+	//해당 데스크탑 show
+	int desDesk = e_global->getSelectedIndex();
+	int firstDesk = desDesk;
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_window)->getWindow() == pHwnd)
+			{
+				desDesk = (*itr_desk)->getIndex();
+				e_global->setSelectedIndex(desDesk);
+				break;
+			}
+		}
+		if (desDesk != e_global->getSelectedIndex())
+			break;
+	}
+	//해당 데스크탑 찾음
+	std::list<E_Desktop*> desklist2 = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		if ((*itr_desk)->getIndex() == desDesk)
+		{
+			(*itr_desk)->setAllShow();
+
+			std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+			{
+				e_global->pidforhideNotify = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+				EnumWindows(E_Notify::EnumCallHide, 0);
+			}
+			continue;
+		}
+		(*itr_desk)->setAllHide();
+
+		std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			e_global->pidforhideNotify = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+			EnumWindows(E_Notify::EnumCallHide, 1);
+		}
+	}
+	if (firstDesk != e_global->getSelectedIndex())
+		e_map->drawMap();
+	
+	::BringWindowToTop(pHwnd);
+	CWnd::OnLButtonDown(nFlags, point);
+}
+
+BOOL CALLBACK  E_Notify::EnumCallHide(HWND hwnd, LPARAM lParam)
+{
+	E_Global* e_global = E_Global::getSingleton();
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	::GetWindowText(hwnd, name2, 4);
+
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		DWORD pidforchild;
+		pidforchild = GetWindowThreadProcessId(hwnd, NULL);
+		if (pidforchild == e_global->pidforhideNotify)
+		{
+			if (lParam)
+				::ShowWindow(hwnd, SW_HIDE);
+			else
+				::ShowWindow(hwnd, SW_SHOW);
+		}
+	}
+	return true;
+}

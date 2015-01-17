@@ -152,7 +152,7 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//E_Notify* e_noti = E_Notify::getSingleton();
 		E_Notify* e_noti = new E_Notify();
 		HWND hwnd = this->m_hWnd;
-		char *name = "name";
+		char *name = "expandable.exe";
 		e_noti->showNotify(1,name,hwnd);
 	}
 	//if (nChar == 'Q'){
