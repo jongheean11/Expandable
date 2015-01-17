@@ -66,7 +66,7 @@
 #include <inttypes.h>
 #include <tchar.h> 
 #include <psapi.h> 
-
+#include <afxsock.h>
 //exclusive operation
 #include <mutex>
 #include <thread>

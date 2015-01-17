@@ -135,6 +135,9 @@
     <ClInclude Include="ShowMenu.h">
       <Filter>ShowMenu</Filter>
     </ClInclude>
+    <ClInclude Include="E_Server.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -214,6 +217,9 @@
     </ClCompile>
     <ClCompile Include="ShowMenu.cpp">
       <Filter>ShowMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="E_Server.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

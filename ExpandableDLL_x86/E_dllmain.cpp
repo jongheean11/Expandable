@@ -149,8 +149,9 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 //{
 //}
 int main(int argc, char* argv[]){
-	testWriteJSON();
-	testSocket();
+	//testWriteJSON();
+	//testSocket();
+	testConnectServer();
 	return 0;
 
 }
