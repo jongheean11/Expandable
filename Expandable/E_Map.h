@@ -1,6 +1,7 @@
 
 #include "E_EnvironmentManager.h"
 #include "E_ISwitcherUpdator.h"
+#pragma once
 #define WM_USER_EVENT (WM_USER + 2)
 class E_Map : public CWnd, virtual E_ISwitcherUpdator
 {
@@ -25,10 +26,18 @@ private:
 	bool alreadyin;
 	CRect getSize;
 	POINT pt;
+	
+	
 public:
+	
+	DWORD pidforhide;
+	static BOOL CALLBACK EnumCallBackMap(HWND hwnd, LPARAM lParam);
+	static BOOL CALLBACK EnumCallHide(HWND hwnd, LPARAM lParam);
+	DWORD parentprocessId;
+	long childmovx, childmovy;
+	RECT rectForChildMove;
 	CWnd* hwnd_cwnd_emap;
 	bool ison2;
-//	bool leave2;
 	bool ison;
 	HWND hwnd;
 	CWnd* getmapwindow();

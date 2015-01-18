@@ -63,7 +63,6 @@ void E_WindowSwitcher::startSwitcher()
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
 	global->startUpdate();
-	running = true;
 
 	RECT r = { 0, 0, 0, 0 };
 	HWND hwnd = NULL;
@@ -95,9 +94,11 @@ void E_WindowSwitcher::startSwitcher()
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
 	if (SUCCEEDED(aeroManager->registerAero(desktopWindow->getWindow(), this->GetSafeHwnd(), r, hthumbnail)) && desktopWindow->isAeroPossible()) {
 		thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(desktopWindow->getWindow(), hthumbnail));
+		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
 	this->ShowWindow(SW_SHOW);
+	running = true;
 }
 
 
@@ -105,12 +106,12 @@ void E_WindowSwitcher::startSwitcher()
 void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
+		running = false;
 		//크리티컬 세션?
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 		E_Global::getSingleton()->stopUpdate();
 
 		HRESULT result;
-		running = false;
 		this->ShowWindow(SW_HIDE);
 
 		//자원 정리
@@ -137,7 +138,6 @@ void E_WindowSwitcher::terminateSwitcher()
 	}
 }
 
-
 // 스위처를 재시작하는 함수
 void E_WindowSwitcher::restartSwitcher()
 {
@@ -154,7 +154,6 @@ void E_WindowSwitcher::restartSwitcher()
 			//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
 		}
 	}
-	//thumb_list.clear();
 	thumb_map.clear();
 	rect_map.clear();
 	mode_map.clear();
@@ -192,6 +191,7 @@ void E_WindowSwitcher::restartSwitcher()
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
 	if (SUCCEEDED(aeroManager->registerAero(desktopWindow->getWindow(), this->GetSafeHwnd(), r, hthumbnail)) && desktopWindow->isAeroPossible()) {
 		thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(desktopWindow->getWindow(), hthumbnail));
+		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
 }
@@ -1026,12 +1026,15 @@ HBRUSH E_WindowSwitcher::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
+	E_Global::getSingleton()->stopUpdate();
+	HWND hwnd = NULL;	//지역 변수 사용을 통해 iterating 제거 예외 우회
 	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
 		RECT rect = itr->second;
 		HWND hwnd = itr->first;
 		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
-			if (IsWindow(itr->first)){
+			if (IsWindow(itr->first) && group_map.find(itr->first) != group_map.end()){
 				if (group_map.find(itr->first)->second == SELECTEDDESKTOP){
 					WINDOWPLACEMENT windowState;
 
@@ -1040,14 +1043,16 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					::GetWindowPlacement(itr->first, &windowState);
 					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
+					hwnd = itr->first;	//지역 변수 사용
+
+					//LOSS FOCUS
 					if (strcmp(title, "Program Manager") == 0){
-						//TRACE_WIN32A("program manager");
 						E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
 					}
 					else{
 						if (windowState.showCmd != SW_MAXIMIZE)
-							::ShowWindow(itr->first, SW_RESTORE);
-						::BringWindowToTop(itr->first);
+							::ShowWindow(hwnd, SW_RESTORE);
+						::BringWindowToTop(hwnd);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1057,18 +1062,22 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					//그 데스크탑으로 이동
 					int index = 0;
 					E_Global* global = E_Global::getSingleton();
+
+					hwnd = itr->first;	//지역 변수 사용
+
+					//LOSS FOCUS
 					global->moveDesktop(desktop->getIndex());
 
 					WINDOWPLACEMENT windowState;
 
 					char title[255] = { 0, };
-					::GetWindowTextA(itr->first, title, 255);
-					::GetWindowPlacement(itr->first, &windowState);
+					::GetWindowTextA(hwnd, title, 255);
+					::GetWindowPlacement(hwnd, &windowState);
 					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
 					if (windowState.showCmd != SW_MAXIMIZE)
-						::ShowWindow(itr->first, SW_RESTORE);
-					::BringWindowToTop(itr->first);
+						::ShowWindow(hwnd, SW_RESTORE);
+					::BringWindowToTop(hwnd);
 				}
 				terminateSwitcher();
 				break;
@@ -1125,7 +1134,10 @@ void E_WindowSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 {
 	__super::OnKillFocus(pNewWnd);
-	terminateSwitcher();
+
+	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
+	if (running==true)
+		terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1143,4 +1155,68 @@ void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	
 	__super::OnSysKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+// 다음 윈도우로 이동
+void E_WindowSwitcher::selectNextWindow()
+{
+	E_Global* global = E_Global::getSingleton();
+
+	//두번째 데스크탑 윈도우 스위처 계산 //
+	list<E_Window*> secondWinlist;
+	E_Desktop* desktop = global->getSelectedDesktop();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop != desktop){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
+				secondWinlist.push_back(*iter);
+			}
+		}
+	}
+
+	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;//데스크탑 포함
+	int otherSize = secondWinlist.size();
+
+	tabIndex++;
+	if (tabIndex >= selectedSize){
+		tabIndex = 0;
+	}
+	Invalidate(0);
+}
+
+
+// 이전 윈도우로 이동
+void E_WindowSwitcher::selectPrevWindow()
+{
+	E_Global* global = E_Global::getSingleton();
+
+	//두번째 데스크탑 윈도우 스위처 계산 //
+	list<E_Window*> secondWinlist;
+	E_Desktop* desktop = global->getSelectedDesktop();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop != desktop){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
+				secondWinlist.push_back(*iter);
+			}
+		}
+	}
+
+	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;
+	int otherSize = secondWinlist.size();
+
+	tabIndex--;
+
+	if (tabIndex < 0){
+		tabIndex = selectedSize - 1;
+	}
+	Invalidate(0);
+}
+
+
+// 다른 데스크탑으로 토글
+void E_WindowSwitcher::selectOtherDesktop()
+{
+
 }

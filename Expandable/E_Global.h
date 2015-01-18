@@ -25,11 +25,21 @@ private:
 	double iconsize;
 	//스레드
 	thread* currentThread;
+	std::unordered_map<std::thread::id, bool> thread_map;
+	std::unordered_map<std::thread::id, bool> thread_inner_map;
+	std::unordered_map<std::thread::id, std::thread*> thread_pmap;
+	//
 	int transparent;
 	int settingTimer;
 	bool hotkeyinvalidate;
 	
 public:
+	DWORD pidforhideNotify;
+	CWnd* notifyHwnd[5];
+	int notifyAblePos[5];
+	E_Window* twForHide;
+	int nowActiveNotify;
+	int nextActiveNotify;
 	bool mapopen ;
 	HWND hwnd_frame;
 	bool gethotkey();
@@ -58,6 +68,7 @@ public:
 	static list<HWND> getAllWindowsForZIndex();
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackForZIndex(HWND hwnd, LPARAM lParam);
+	static BOOL CALLBACK EnumHide(HWND hwnd, LPARAM lParam);
 
 	virtual void OnDualMonitorMode(bool result);
 	//인터페이스 호출을 위한 함수

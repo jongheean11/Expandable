@@ -66,7 +66,9 @@
 #include <inttypes.h>
 #include <tchar.h> 
 #include <psapi.h> 
+#include <afxsock.h>
 
+#pragma comment(lib,"ws2_32")
 //exclusive operation
 #include <mutex>
 #include <thread>

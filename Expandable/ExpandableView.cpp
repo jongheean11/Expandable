@@ -13,11 +13,10 @@
 #include "ExpandableView.h"
 
 #include "E_WindowTest.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
+#define WM_USER_NOTIFY (WM_USER + 4)
 
 // CExpandableView
 
@@ -119,7 +118,8 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'A')
 	{
-		
+		E_Global* e_global = E_Global::getSingleton();
+		::SendMessage(e_global->hwnd_frame, WM_USER_NOTIFY, 0, 0);
 		
 	}
 	if (nChar == 'C'){
@@ -146,6 +146,15 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'K'){
 		E_DragAndDropSwitcher::getSingleton()->startSwitcher();
+	}
+	if (nChar == 'Z')
+	{
+		//E_Notify noti2;
+		//E_Notify* e_noti = E_Notify::getSingleton();
+		E_Notify* e_noti = new E_Notify();
+		HWND hwnd = this->m_hWnd;
+		char *name = "expandable.exe";
+		e_noti->showNotify(1,name,hwnd);
 	}
 	//if (nChar == 'Q'){
 	//	//스레드 테스트

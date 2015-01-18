@@ -16,6 +16,7 @@
 #include "E_Global.h"
 #include "E_WindowSwitcher.h"
 #include "E_Hotkey.h"
+#include "E_Server.h"
 
 #include "E_WindowSwitcherTest.h"
 #include "E_GlobalTest.h"
@@ -174,6 +175,10 @@ BOOL CExpandableApp::InitInstance()
 	E_Hotkey* key = E_Hotkey::getSingleton();
 	key->init((E_IGlobal*)cwnd_global);
 
+	//소켓 서버 시작
+	E_Server* server = E_Server::getSingleton();
+	if (server->startServer())
+		TRACE_WIN32A("서버가 정상적으로 시작하였습니다.");
 
 	//Unit Test
 	E_WindowSwitcherTest::testGetAeroSize();

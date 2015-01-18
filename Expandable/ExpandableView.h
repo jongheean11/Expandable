@@ -10,7 +10,7 @@
 #include "E_AeroPeekController.h"
 #include "E_WindowSwitcher.h"
 #include "E_DragAndDropSwitcher.h"
-
+#include "E_Notify.h"
 #pragma once
 
 
