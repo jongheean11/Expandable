@@ -1161,7 +1161,27 @@ void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 // 다음 윈도우로 이동
 void E_WindowSwitcher::selectNextWindow()
 {
+	E_Global* global = E_Global::getSingleton();
+
+	//두번째 데스크탑 윈도우 스위처 계산 //
+	list<E_Window*> secondWinlist;
+	E_Desktop* desktop = global->getSelectedDesktop();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop != desktop){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
+				secondWinlist.push_back(*iter);
+			}
+		}
+	}
+
+	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;//데스크탑 포함
+	int otherSize = secondWinlist.size();
+
 	tabIndex++;
+	if (tabIndex >= selectedSize){
+		tabIndex = 0;
+	}
 	Invalidate(0);
 }
 
@@ -1169,11 +1189,27 @@ void E_WindowSwitcher::selectNextWindow()
 // 이전 윈도우로 이동
 void E_WindowSwitcher::selectPrevWindow()
 {
+	E_Global* global = E_Global::getSingleton();
+
+	//두번째 데스크탑 윈도우 스위처 계산 //
+	list<E_Window*> secondWinlist;
+	E_Desktop* desktop = global->getSelectedDesktop();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop != desktop){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
+				secondWinlist.push_back(*iter);
+			}
+		}
+	}
+
+	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;
+	int otherSize = secondWinlist.size();
 
 	tabIndex--;
 
 	if (tabIndex < 0){
-		//tabIndex = 
+		tabIndex = selectedSize - 1;
 	}
 	Invalidate(0);
 }

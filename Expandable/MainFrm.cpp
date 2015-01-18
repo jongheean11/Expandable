@@ -58,7 +58,12 @@ CMainFrame::CMainFrame()
 HRESULT CMainFrame::OnUserNotify(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
-	
+	//if(noti->deleteAble();
+	NOTIFICATION_ITEM* item = (NOTIFICATION_ITEM*)wParam;
+	TRACE_WIN32A("OnUserNotify");
+	E_Notify* noti = new E_Notify();
+	noti->showNotify(item->infomation.pid, item->infomation.pname, (HWND)item->infomation.hwnd);
+	delete item;
 	return TRUE;
 }
 CMainFrame::~CMainFrame()
@@ -407,7 +412,13 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				else{
 					//½¬ÇÁÆ® ÅÇ
 					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
-					
+					if (shift == false){
+						E_WindowSwitcher::getSingleton()->selectNextWindow();
+					}
+					else{
+						E_WindowSwitcher::getSingleton()->selectPrevWindow();
+
+					}
 				}	
 	}
 		break;
