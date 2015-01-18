@@ -1045,7 +1045,6 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					hwnd = itr->first;	//지역 변수 사용
 
-
 					//LOSS FOCUS
 					if (strcmp(title, "Program Manager") == 0){
 						E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
@@ -1156,4 +1155,32 @@ void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	
 	__super::OnSysKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+// 다음 윈도우로 이동
+void E_WindowSwitcher::selectNextWindow()
+{
+	tabIndex++;
+	Invalidate(0);
+}
+
+
+// 이전 윈도우로 이동
+void E_WindowSwitcher::selectPrevWindow()
+{
+
+	tabIndex--;
+
+	if (tabIndex < 0){
+		//tabIndex = 
+	}
+	Invalidate(0);
+}
+
+
+// 다른 데스크탑으로 토글
+void E_WindowSwitcher::selectOtherDesktop()
+{
+
 }

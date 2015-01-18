@@ -55,7 +55,7 @@ void E_Map::drawMap()
 	time = e_global->getTimer();
 	e_global->mapopen = true;
 	ison2 = true;
-	//e_global->onUpdate();
+	e_global->onUpdate();
 	//e_global->startUpdate();
 	if (!ison)
 	{

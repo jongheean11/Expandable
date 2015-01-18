@@ -14,6 +14,7 @@ protected: // serialization에서만 만들어집니다.
 
 // 특성입니다.
 public:
+	list<thread*> thread_list;
 	int keydown = 0;
 	int isCheckRunning = false;
 	thread* t = NULL;

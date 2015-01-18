@@ -48,12 +48,12 @@ CMainFrame::CMainFrame()
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
-	
+
 }
 
 CMainFrame::~CMainFrame()
 {
-	
+
 }
 HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 {
@@ -66,8 +66,8 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 		OutputDebugString(L"OnTrayEvent ifenter ");
 		e_map->drawMap();
 	}
-	changetray((int)wParam+1);
-	
+	changetray((int)wParam + 1);
+
 	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
 	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
 	//e_map->leave2 = true;
@@ -99,11 +99,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//SendMessage(WM_SETICON, (WPARAM)TRUE, (LPARAM)nid.hIcon);//트레이화면에 붙이기(UI측면)
 	SetCursor(LoadCursor(NULL, IDC_ARROW));
 	//tray 아이콘 생성
-	
-	
-	
-	
-	
+
+
+
+
+
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -142,7 +142,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("상태 표시줄을 만들지 못했습니다.\n");
 		return -1;      // 만들지 못했습니다.
 	}
-	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 
 	// TODO: 도구 모음 및 메뉴 모음을 도킹할 수 없게 하려면 이 다섯 줄을 삭제하십시오.
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -170,7 +170,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if( !CFrameWndEx::PreCreateWindow(cs) )
+	if (!CFrameWndEx::PreCreateWindow(cs))
 		return FALSE;
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
@@ -201,9 +201,9 @@ void CMainFrame::OnViewCustomize()
 	pDlgCust->Create();
 }
 
-LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
+LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp, LPARAM lp)
 {
-	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp,lp);
+	LRESULT lres = CFrameWndEx::OnToolbarCreateNew(wp, lp);
 	if (lres == 0)
 	{
 		return 0;
@@ -324,7 +324,7 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 		case ID_32777:
 			On32777();
 			break;
-		
+
 		}
 		break;
 	case WM_LBUTTONDBLCLK:
@@ -334,7 +334,7 @@ LRESULT CMainFrame::OnTrayNotification(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return 1;
-	
+
 }
 
 void CMainFrame::DestroyTrayIcon()
@@ -347,15 +347,15 @@ void CMainFrame::DestroyTrayIcon()
 	nid.hWnd = GetSafeHwnd();
 	bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
 
-	
+
 }
 
 void CMainFrame::On32775()
 {
 	EnviromnmentDialog aboutDlg;
-	
+
 	aboutDlg.DoModal();
-	
+
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
 
@@ -383,10 +383,26 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	TRACE_WIN32A("frame on key down %c", nChar);
-	E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
-	switcher->startSwitcher();
-	keydown = 1;
-	startChecking();
+	switch (nChar){
+		//알트 탭
+	case 'A':
+	{
+				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
+				if (switcher->isRunning() == false){
+					//스위처가 동작중이 아닐 때
+					switcher->startSwitcher();
+					keydown = 1;
+					startChecking();
+				}
+				else{
+					//쉬프트 탭
+					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
+					
+				}	
+	}
+		break;
+	}
+	
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -423,6 +439,11 @@ int CMainFrame::startChecking()
 		return 0;
 	}
 	if (isCheckRunning == false && t == NULL){
+		for (list<std::thread*>::iterator itr = thread_list.begin(); itr != thread_list.end(); itr++){
+			delete  *itr;
+		}
+		thread_list.clear();
+
 		isCheckRunning = true;
 		t = new thread{ &CMainFrame::onChecking, this };
 	}
@@ -434,6 +455,8 @@ int CMainFrame::stopChecking()
 {
 	keydown = 0;
 	isCheckRunning = false;
+	t->detach();
+	thread_list.push_back(t);
 	t = NULL;
 	return 0;
 }
@@ -442,15 +465,13 @@ int CMainFrame::stopChecking()
 int CMainFrame::onChecking()
 {
 	while (isCheckRunning){
-		//TRACE_WIN32A("onChecking()");
-		//Sleep(1000);
 		if (GetKeyState(VK_MENU) < 0)
 		{
 			//TRACE_WIN32A("ALT KEY DOWN\n");
-		}				
+		}
 		else
 		{
-			TRACE_WIN32A("ALT KEY UP\n");
+			//TRACE_WIN32A("ALT KEY UP\n");
 			stopChecking();
 			E_WindowSwitcher::getSingleton()->terminateSwitcher();
 		}
