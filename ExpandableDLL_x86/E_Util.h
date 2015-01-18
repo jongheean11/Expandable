@@ -5,3 +5,4 @@ BOOL isVisible(char* processName);
 wchar_t* ConverCtoWC(char* str);
 DWORD GetProcessID(LPCTSTR pszProcessName);
 DWORD getppid(LPCTSTR pszProcessName, DWORD pid);
+HWND GetWindowFromPID(DWORD dwPID);

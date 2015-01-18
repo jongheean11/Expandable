@@ -138,9 +138,6 @@
     <ClInclude Include="ShowMenu.h">
       <Filter>ShowMenu</Filter>
     </ClInclude>
-    <ClInclude Include="E_DLLClient.h">
-      <Filter>Notification</Filter>
-    </ClInclude>
     <ClInclude Include="E_Server.h">
       <Filter>Notification</Filter>
     </ClInclude>
@@ -148,6 +145,9 @@
       <Filter>Notification</Filter>
     </ClInclude>
     <ClInclude Include="E_Notify.h">
+      <Filter>Notification</Filter>
+    </ClInclude>
+    <ClInclude Include="E_DLLServer.h">
       <Filter>Notification</Filter>
     </ClInclude>
   </ItemGroup>
@@ -230,9 +230,6 @@
     <ClCompile Include="ShowMenu.cpp">
       <Filter>ShowMenu</Filter>
     </ClCompile>
-    <ClCompile Include="E_DLLClient.cpp">
-      <Filter>Notification</Filter>
-    </ClCompile>
     <ClCompile Include="E_MyCSocket.cpp">
       <Filter>Notification</Filter>
     </ClCompile>
@@ -240,6 +237,9 @@
       <Filter>Notification</Filter>
     </ClCompile>
     <ClCompile Include="E_Server.cpp">
+      <Filter>Notification</Filter>
+    </ClCompile>
+    <ClCompile Include="E_DLLServer.cpp">
       <Filter>Notification</Filter>
     </ClCompile>
   </ItemGroup>

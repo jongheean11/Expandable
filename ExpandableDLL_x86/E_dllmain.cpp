@@ -35,6 +35,7 @@ extern bool interfacehook;
 extern bool interfacestatehook;
 extern bool globalhook;
 char* processName = NULL;
+int pid = NULL;
 char fileName[255] = { 0, };
 
 //프로세스 리스트 변수
@@ -55,6 +56,8 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	if (processName == NULL){
 		processName = strrchr(fileName, '\\');
 		processName = processName + 1;
+		pid = GetCurrentProcessId();
+		HWND hwnd = GetWindowFromPID(pid);
 		TRACE_WIN32A("[DLLMain] %s", processName);
 	}
 

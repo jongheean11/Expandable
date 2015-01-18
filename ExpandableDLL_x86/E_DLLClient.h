@@ -1,3 +1,5 @@
+#pragma once
+
 #include <json/json.h>
 
 //JSON
@@ -9,6 +11,14 @@
 const std::string PING = "PING";
 const std::string PONG = "PONG";
 
+//enum TBPFLAG
+//{
+//	TBPF_NOPROGRESS = 0,
+//	TBPF_INDETERMINATE = 0x1,
+//	TBPF_NORMAL = 0x2,
+//	TBPF_ERROR = 0x4,
+//	TBPF_PAUSED = 0x8
+//} 	TBPFLAG;
 
 enum TYPE{PROGRESSVALUE, PROGRESSSTATE, SHOWWINDOW};
 
@@ -47,3 +57,8 @@ int recvData(__out char* buffer);
 bool isAvailable();
 void init();
 void clean();
+void setrecvtimeout(int timeout);
+
+//¾Ë¸²
+
+void notify(__in NOTIFICATION_ITEM& item);

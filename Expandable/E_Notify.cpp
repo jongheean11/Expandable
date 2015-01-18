@@ -5,6 +5,10 @@
 #include "E_Map.h"
 #pragma once
 
+void E_Notify::setPname(char* title)
+{
+	strcpy(this->pName, title);
+}
 //E_Notify* E_Notify::singleton = NULL;
 E_Notify::E_Notify()
 {
