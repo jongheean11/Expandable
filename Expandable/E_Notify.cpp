@@ -42,13 +42,20 @@ E_Notify::~E_Notify()
 //		singleton = new E_Notify();
 //	return singleton;
 //}
-
+bool E_Notify::deleteAble()
+{
+	if (hwnd_cwnd_notify == NULL)
+		return true;
+	else
+		return false;
+}
 void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 {
 	pId = processId;
 	setPname(processName);
-	//pHwnd = hwnd;
-	pHwnd = ::FindWindow(NULL, L"카카오톡");
+	//pName = processName;
+	//pHwnd = hwnd;		//실제사용할 소스
+	pHwnd = ::FindWindow(NULL, L"카카오톡"); //테스트용
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->nowActiveNotify++;
@@ -162,7 +169,7 @@ void E_Notify::terminateNotify()
 	//e_global->nowActiveNotify--;
 	e_global->notifyAblePos[myPos] = 0;
 	hwnd_cwnd_notify->DestroyWindow();
-	
+	hwnd_cwnd_notify = NULL;
 }
 
 
