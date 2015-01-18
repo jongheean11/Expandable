@@ -3,7 +3,7 @@
 E_AeroPeekController::E_AeroPeekController()
 {
 	dskThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
-
+	
 	// Use the window frame and client area
 	dskThumbProps.fSourceClientAreaOnly = FALSE;
 	dskThumbProps.fVisible = TRUE;

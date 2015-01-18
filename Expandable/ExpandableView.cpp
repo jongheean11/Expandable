@@ -197,6 +197,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 	{
 		return;
 	}*/
+	/*
 	if (nIDEvent == 3)
 	{
 		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
@@ -208,26 +209,26 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
 				KillTimer(3);
-				SetTimer(4, 50, NULL);
+				SetTimer(4, 30, NULL);
 				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			
 			else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
 				KillTimer(3);
-				SetTimer(5, 50, NULL);
+				SetTimer(5, 30, NULL);
 				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
 			{
 				KillTimer(3);
-				SetTimer(6, 50, NULL);
+				SetTimer(6, 30, NULL);
 				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
 			{
 				KillTimer(3);
-				SetTimer(7, 50, NULL);
+				SetTimer(7, 30, NULL);
 				//E_DragAndDropSwitcher::getSingleton()->turnUpdateOn();
 			}
 			else
@@ -260,7 +261,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_left = true;
 					drSwitcher->startSwitcher();
-					SetTimer(3, 80, NULL);
+					SetTimer(3, 32, NULL);
 				}
 			}
 		}
@@ -268,7 +269,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			KillTimer(4);
 			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
-			SetTimer(3, 80, NULL);
+			SetTimer(3, 32, NULL);
 		}
 	}
 
@@ -289,7 +290,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_right = true;
 					drSwitcher->startSwitcher();
-					SetTimer(3, 80, NULL);
+					SetTimer(3, 32, NULL);
 				}
 			}
 		}
@@ -297,7 +298,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			KillTimer(5);
 			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
-			SetTimer(3, 80, NULL);
+			SetTimer(3, 32, NULL);
 		}
 	}
 
@@ -318,7 +319,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_top = true;
 					drSwitcher->startSwitcher();
-					SetTimer(3, 80, NULL);
+					SetTimer(3, 32, NULL);
 				}
 			}
 		}
@@ -326,7 +327,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			KillTimer(6);
 			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
-			SetTimer(3, 80, NULL);
+			SetTimer(3, 32, NULL);
 		}
 	}
 
@@ -347,7 +348,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
 					drSwitcher->cursor_bottom = true;
 					drSwitcher->startSwitcher();
-					SetTimer(3, 80, NULL);
+					SetTimer(3, 32, NULL);
 				}
 			}
 		}
@@ -355,7 +356,72 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			KillTimer(7);
 			//E_DragAndDropSwitcher::getSingleton()->turnUpdateOff();
-			SetTimer(3, 80, NULL);
+			SetTimer(3, 32, NULL);
+		}
+	}
+	*/
+
+	if (nIDEvent == 3)
+	{
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		POINT point;
+		GetCursorPos(&point);
+
+		if (!(GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
+		{
+			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+			{
+				KillTimer(3);
+				//SetTimer(4, 30, NULL);
+				E_DragAndDropSwitcher::getSingleton()->cursor_left = true;
+				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+				SetTimer(30, 32, NULL);
+			}
+			
+			else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
+			{
+				KillTimer(3);
+				//SetTimer(5, 30, NULL);
+				E_DragAndDropSwitcher::getSingleton()->cursor_right = true;
+				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+				SetTimer(30, 32, NULL);
+			}
+			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
+			{
+				KillTimer(3);
+				//SetTimer(6, 30, NULL);
+				E_DragAndDropSwitcher::getSingleton()->cursor_top = true;
+				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+				SetTimer(30, 32, NULL);
+			}
+			else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
+			{
+				KillTimer(3);
+				//SetTimer(7, 30, NULL);
+				E_DragAndDropSwitcher::getSingleton()->cursor_bottom = true;
+				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+				SetTimer(30, 32, NULL);
+			}
+			else
+			{
+				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
+				if (mapCRect.PtInRect(point))
+				{
+					E_Map* e_map = E_Map::getSingleton();
+					if(!e_map->ison)
+						e_map->drawMap();
+				}
+			}
+		}
+	}
+
+	if (nIDEvent == 30)
+	{
+		E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+		if (!drSwitcher->ison)
+		{
+			KillTimer(30);
+			SetTimer(3, 32, NULL);
 		}
 	}
 
@@ -368,7 +434,7 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	//SetCapture();
-	SetTimer(3, 80, NULL);
+	SetTimer(3, 32, NULL);
 	//SetTimer(2, 5000, NULL);
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
