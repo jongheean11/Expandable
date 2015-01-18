@@ -22,7 +22,8 @@ E_Notify::E_Notify()
 	notifywidth = w * 0.15;
 	notifyheight = h * 0.08;
 	myPos = 0; 
-	colornum = 240;
+	colornum = 250;
+
 }
 
 const wchar_t* E_Notify::caption = L"Notify";
@@ -108,10 +109,14 @@ void E_Notify::OnPaint()
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 	CBrush brush;
+
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); 
+	long w = enManager->getWidth();
 	if (click)
 		brush.CreateSolidBrush(RGB(100, 100, 50));
 	else
-		brush.CreateSolidBrush(RGB(colornum, colornum, colornum * 50 / 230));
+		brush.CreateSolidBrush(RGB(colornum, colornum, colornum / 4));
+		//brush.CreateSolidBrush(RGB(colornum, colornum, colornum /4));
 	dc.SelectObject(brush);
 	dc.Rectangle(0, 0, notifywidth, notifyheight);
 	CString s1,s2;
@@ -120,17 +125,14 @@ void E_Notify::OnPaint()
 
 	CFont font;
 	// 폰트를 굴림체, 11포인트, 보통속성 크기로 생성
-	font.CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
+	font.CreateFont(w*1/63, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
 	CFont *pOld_Font = dc.SelectObject(&font);
 	dc.SetTextColor(RGB(0, 0, 0)); // 텍스트 검정색으로 설정
-	if (click)
-		dc.SetBkColor(RGB(100, 100, 50));
-	else
-		dc.SetBkColor(RGB(colornum, colornum, colornum*50/230));
+	dc.SetBkMode(TRANSPARENT);
 	
 	dc.TextOutW(10, 10, s1);
 	font.DeleteObject(); 
-	font.CreateFont(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
+	font.CreateFont(w/95, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
 	pOld_Font = dc.SelectObject(&font);
 	dc.TextOutW(10,  notifyheight/2+10, s2);
 
@@ -142,7 +144,7 @@ void E_Notify::OnTimer(UINT_PTR nIDEvent)
 	if (nIDEvent == 1)
 	{
 		time--;
-		colornum -= 3;
+		colornum -= 3.5;
 		Invalidate(0);
 		if (time < 0)
 		{
@@ -267,7 +269,7 @@ void E_Notify::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
 	time = 50;
-	colornum = 240;
+	colornum = 250;
 	TRACKMOUSEEVENT MouseEvent;
 	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
 	MouseEvent.cbSize = sizeof(MouseEvent);

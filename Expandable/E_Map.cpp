@@ -8,12 +8,12 @@ const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
-	if (ison){
+	//if (ison){
 		//Invalidate(0);
 		//this->Invalidate(0);
-		//Invalidate(0);
+	//	Invalidate(0);
 		//TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
-	}
+	//}
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
@@ -206,50 +206,8 @@ void E_Map::OnPaint()
 				//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
 			}
 		}
-		RECT rectForSelectDesktop;
-		int nowselect = e_global->getSelectedIndex();
-		int selectx = e_global->getSelectedIndex() % mapWidth;
-		int selecty = e_global->getSelectedIndex() / mapWidth;
 		
-
-		rectForSelectDesktop.left = selectx*w*mapsize;
-		rectForSelectDesktop.top = selecty*w*mapsize;
-		rectForSelectDesktop.right = rectForSelectDesktop.left + w*mapsize;
-		rectForSelectDesktop.bottom = rectForSelectDesktop.top + w*mapsize;
-
-		pen.DeleteObject();
-		pen.CreatePen(PS_SOLID, 5, RGB(118, 35, 220));
-		memDC.SelectObject(pen);
-		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
-		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
-		memDC.MoveTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
-		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
-		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
-		memDC.LineTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
-		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
-		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
-		pen.DeleteObject();
-		if (up)
-		{
-			up = false;
-			pen.DeleteObject();
-			if (select)
-			{
-				select = false;
-				pen.CreatePen(PS_SOLID, 5, RGB(255, 170, 85));
-				memDC.SelectObject(pen);
-				memDC.MoveTo(tmprect.left, tmprect.top);
-				memDC.LineTo(tmprect.right, tmprect.top);
-				memDC.MoveTo(tmprect.right, tmprect.top);
-				memDC.LineTo(tmprect.right, tmprect.bottom);
-				memDC.MoveTo(tmprect.left, tmprect.top);
-				memDC.LineTo(tmprect.left, tmprect.bottom);
-				memDC.MoveTo(tmprect.left, tmprect.bottom);
-				memDC.LineTo(tmprect.right, tmprect.bottom);
-				pen.DeleteObject();
-			}
-		}
-
+		
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
@@ -265,8 +223,8 @@ void E_Map::OnPaint()
 
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
-				long iconPosstx = rectForIcon.left*e_global->getMapsize() + idx*w*mapsize;
-				long iconPossty = rectForIcon.top*e_global->getMapsize()*w / (h - th) + idy*w*mapsize;
+				long iconPosstx = rectForIcon.left *e_global->getMapsize() + idx*w*mapsize;  //check
+				long iconPossty = rectForIcon.top *e_global->getMapsize()*w / (h - th) + idy*w*mapsize;//check
 				//rect 가로사이즈는 미니맵 크기의 1/8
 				//rect 시작 위치는 rectForIcon 의 x1,y1
 
@@ -288,18 +246,9 @@ void E_Map::OnPaint()
 					memDC.SetStretchBltMode(COLORONCOLOR);
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					if (selectIconHwnd != (*itr_window)->getWindow())
-					{
-						if (iconPosstx < iconSize / 2)
-							iconPosstx = iconSize / 2;
-
-						if (iconPossty < iconSize / 2)
-							iconPossty = iconSize / 2;
-						memDC.StretchBlt(iconPosstx + 2 - iconSize / 2, iconPossty + 2 - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-
-					}
-					
-							
-					RECT* iconRect = new RECT{ iconPosstx + 2 - iconSize / 2, iconPossty + 2 - iconSize / 2, iconPosstx + 2 + iconSize / 2, iconPossty + 2 + iconSize / 2 };
+						memDC.StretchBlt(iconPosstx + 2 , iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+			
+					RECT* iconRect = new RECT{ iconPosstx + 2 , iconPossty + 2 , iconPosstx + 2 + iconSize , iconPossty + 2 + iconSize  };
 
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
@@ -308,6 +257,60 @@ void E_Map::OnPaint()
 			}
 
 		}
+		RECT rectForSelectDesktop;
+		//int nowselect = e_global->getSelectedIndex();
+		int selectx = e_global->getSelectedIndex() % mapWidth;
+		int selecty = e_global->getSelectedIndex() / mapWidth;
+
+
+		rectForSelectDesktop.left = selectx*w*mapsize;
+		rectForSelectDesktop.top = selecty*w*mapsize;
+		rectForSelectDesktop.right = rectForSelectDesktop.left + w*mapsize;
+		rectForSelectDesktop.bottom = rectForSelectDesktop.top + w*mapsize;
+
+		pen.DeleteObject();
+		pen.CreatePen(PS_SOLID, 5, RGB(118, 35, 220));	//보라
+		memDC.SelectObject(pen);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
+		memDC.MoveTo(rectForSelectDesktop.right, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.top);
+		memDC.LineTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
+		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
+		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
+		pen.DeleteObject();
+		if (up)
+		{
+			up = false;
+			pen.DeleteObject();
+			if (select)
+			{
+				select = false;
+				pen.CreatePen(PS_SOLID, 5, RGB(255, 170, 85));	//주황
+				memDC.SelectObject(pen);
+				memDC.MoveTo(tmprect.left, tmprect.top);
+				memDC.LineTo(tmprect.right, tmprect.top);
+				memDC.MoveTo(tmprect.right, tmprect.top);
+				memDC.LineTo(tmprect.right, tmprect.bottom);
+				memDC.MoveTo(tmprect.left, tmprect.top);
+				memDC.LineTo(tmprect.left, tmprect.bottom);
+				memDC.MoveTo(tmprect.left, tmprect.bottom);
+				memDC.LineTo(tmprect.right, tmprect.bottom);
+				pen.DeleteObject();
+			}
+		}
+		pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));	//주황
+		memDC.SelectObject(pen);
+		memDC.MoveTo(0, 0);
+		memDC.LineTo(w*mapsize*mapWidth,0);
+		memDC.MoveTo(w*mapsize*mapWidth, 0);
+		memDC.LineTo(w*mapsize*mapWidth, w*mapsize*mapWidth);
+		memDC.MoveTo(0, 0);
+		memDC.LineTo(0, w*mapsize*mapWidth);
+		memDC.MoveTo(0, w*mapsize*mapWidth);
+		memDC.LineTo(w*mapsize*mapWidth, w*mapsize*mapWidth);
+		pen.DeleteObject();
 
 		redraw = false;
 
@@ -357,7 +360,8 @@ void E_Map::OnPaint()
 
 
 				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-
+				cdc.DeleteDC();
+				icon.DeleteObject();
 				break;
 
 			}
@@ -389,8 +393,8 @@ void E_Map::OnPaint()
 		foreRect.bottom = iconClick.y + iconSize / 2;
 
 		RECT rectForMove;
-		long newxpoint = (iconClick.x) / e_global->getMapsize()*mapWidth / mapWidth;
-		long newypoint = (h - th)*(iconClick.y) / w / e_global->getMapsize() / mapHeight*mapHeight;
+		long newxpoint = (iconClick.x - iconSize/2) / e_global->getMapsize()*mapWidth / mapWidth;
+		long newypoint = (h - th)*(iconClick.y - iconSize / 2) / w / e_global->getMapsize() / mapHeight*mapHeight;
 		
 		int windowindext;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
@@ -410,7 +414,7 @@ void E_Map::OnPaint()
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
 			rectForChildMove = rectForMove;
-			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1), newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1) , newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 			//여기에 자식 프로그램 또는 비슷한 프로그램까지 같이 움직여야함
 			//부모 핸들로 윈도우 프로세스 얻어오고
 			//그 이후에 얻어온 프로세스 아이디로 모든 창들 이동!
@@ -450,13 +454,16 @@ void E_Map::OnPaint()
 		memDC.MoveTo(tmprect.left, tmprect.bottom);
 		memDC.LineTo(tmprect.right, tmprect.bottom);
 		pen.DeleteObject();
-
+		cdc.DeleteDC();
+		icon.DeleteObject();
 	}
 
 	if (drawable)
 		dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
 	memDC.DeleteDC();
 	bmp.DeleteObject();
+	brush.DeleteObject();
+	
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
@@ -561,8 +568,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 	time = e_global->getTimer();
 
 	RECT trect;
-	trect.left = point.x - iconSize / 2;
-	trect.top = point.y - iconSize / 2;
+	trect.left = point.x;// -iconSize / 2;
+	trect.top = point.y;// -iconSize / 2;
 	trect.right = trect.left + iconSize;
 	trect.bottom = trect.top + iconSize;
 
@@ -594,7 +601,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 
 			::GetWindowRect(selectIconHwnd, &trect2);
-			::MoveWindow(selectIconHwnd, xp / mapsize, yp*(h - th) / w / mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
+			::MoveWindow(selectIconHwnd, (xp - iconSize / 2) / mapsize, (yp - iconSize / 2) * (h - th) / w / mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
 
 			in = true;
 			iconHwndList.remove((*itr_hwnd));
