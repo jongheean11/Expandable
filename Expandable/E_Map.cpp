@@ -207,27 +207,7 @@ void E_Map::OnPaint()
 			}
 		}
 		
-		if (up)
-		{
-			up = false;
-			pen.DeleteObject();
-			if (select)
-			{
-				select = false;
-				pen.CreatePen(PS_SOLID, 5, RGB(255, 170, 85));	//주황
-				memDC.SelectObject(pen);
-				memDC.MoveTo(tmprect.left, tmprect.top);
-				memDC.LineTo(tmprect.right, tmprect.top);
-				memDC.MoveTo(tmprect.right, tmprect.top);
-				memDC.LineTo(tmprect.right, tmprect.bottom);
-				memDC.MoveTo(tmprect.left, tmprect.top);
-				memDC.LineTo(tmprect.left, tmprect.bottom);
-				memDC.MoveTo(tmprect.left, tmprect.bottom);
-				memDC.LineTo(tmprect.right, tmprect.bottom);
-				pen.DeleteObject();
-			}
-		}
-
+		
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
@@ -266,13 +246,8 @@ void E_Map::OnPaint()
 					memDC.SetStretchBltMode(COLORONCOLOR);
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 					if (selectIconHwnd != (*itr_window)->getWindow())
-					{
-						
 						memDC.StretchBlt(iconPosstx + 2 , iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-
-					}
-					
-							
+			
 					RECT* iconRect = new RECT{ iconPosstx + 2 , iconPossty + 2 , iconPosstx + 2 + iconSize , iconPossty + 2 + iconSize  };
 
 					iconRectList.push_front(iconRect);
@@ -304,6 +279,37 @@ void E_Map::OnPaint()
 		memDC.LineTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
 		memDC.MoveTo(rectForSelectDesktop.left, rectForSelectDesktop.bottom);
 		memDC.LineTo(rectForSelectDesktop.right, rectForSelectDesktop.bottom);
+		pen.DeleteObject();
+		if (up)
+		{
+			up = false;
+			pen.DeleteObject();
+			if (select)
+			{
+				select = false;
+				pen.CreatePen(PS_SOLID, 5, RGB(255, 170, 85));	//주황
+				memDC.SelectObject(pen);
+				memDC.MoveTo(tmprect.left, tmprect.top);
+				memDC.LineTo(tmprect.right, tmprect.top);
+				memDC.MoveTo(tmprect.right, tmprect.top);
+				memDC.LineTo(tmprect.right, tmprect.bottom);
+				memDC.MoveTo(tmprect.left, tmprect.top);
+				memDC.LineTo(tmprect.left, tmprect.bottom);
+				memDC.MoveTo(tmprect.left, tmprect.bottom);
+				memDC.LineTo(tmprect.right, tmprect.bottom);
+				pen.DeleteObject();
+			}
+		}
+		pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));	//주황
+		memDC.SelectObject(pen);
+		memDC.MoveTo(0, 0);
+		memDC.LineTo(w*mapsize*mapWidth,0);
+		memDC.MoveTo(w*mapsize*mapWidth, 0);
+		memDC.LineTo(w*mapsize*mapWidth, w*mapsize*mapWidth);
+		memDC.MoveTo(0, 0);
+		memDC.LineTo(0, w*mapsize*mapWidth);
+		memDC.MoveTo(0, w*mapsize*mapWidth);
+		memDC.LineTo(w*mapsize*mapWidth, w*mapsize*mapWidth);
 		pen.DeleteObject();
 
 		redraw = false;
