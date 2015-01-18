@@ -34,7 +34,7 @@ private:
 	bool hotkeyinvalidate;
 	
 public:
-	
+	DWORD pidforhideNotify;
 	CWnd* notifyHwnd[5];
 	int notifyAblePos[5];
 	E_Window* twForHide;
