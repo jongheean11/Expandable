@@ -863,6 +863,7 @@ void E_Global::changeDesktop(int pastvalue, int newvalue)
 	int pastdesknum = pastvalue;
 	int newdesknum = newvalue;
 	setSelectedIndex(0);
+	e_global->desktopCount = newvalue;
 	//일단 모든 Desktop의 리스트를 가져와서 복사후 지역변수로 저장후 다시 글로벌로
 
 	if (pastdesknum > newdesknum)	//기존의 Desktop이 더많은경우 ex) 9->6

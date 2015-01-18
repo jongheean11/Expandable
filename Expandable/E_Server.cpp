@@ -1,12 +1,10 @@
 #include "stdafx.h"
-#include "E_Server.h"s
-
+#include "E_Server.h"
 
 E_Server* E_Server::singleton = NULL;
 E_Server::E_Server() : th(NULL), stopFlag(false)
 {
 }
-
 
 E_Server::~E_Server()
 {
@@ -106,7 +104,6 @@ void E_Server::onClient(E_MyCSocket* param)
 				readJSON(item, buff);
 				if (item.type == PROGRESSSTATE)
 				{
-					E_Global* e_global = E_Global::getSingleton();
 					
 						E_Notify* e_noti = new E_Notify();
 
