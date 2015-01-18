@@ -84,8 +84,9 @@ void E_Server::onClient(E_MyCSocket* param)
 		int received = 0;
 		
 		received = client.Receive(buff, MAXBUFFERSIZE, 0);
-		if (received == 0)
+		if (received == 0 || received == SOCKET_ERROR)
 		{
+			TRACE_WIN32A("[E_Server::onClient] 소켓 종료 로그 (%d)", received == SOCKET_ERROR ? GetLastError() : 0 );
 			break;
 		}
 		NOTIFICATION_ITEM item;

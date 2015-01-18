@@ -18,11 +18,11 @@ private:
 	bool updateFlag;
 	int tabIndex;
 	list<HTHUMBNAIL> thumb_list;
-	unordered_map<HWND, HTHUMBNAIL> thumb_map;
+	unordered_map<HWND, HTHUMBNAIL> thumb_map;	// 썸네일
 	unordered_map<HWND, RECT> rect_map;	//	rect
-	unordered_map<HWND, DRAWMODE> mode_map;	//	rect
-	unordered_map<HWND, GROUP2> group_map;	//	rect
-	unordered_map<HWND, E_Desktop*> desktop_map;	//	rect
+	unordered_map<HWND, DRAWMODE> mode_map;	//	그리기 모드 ( 업데이트 인지? )
+	unordered_map<HWND, GROUP2> group_map;	//	속해 있는 그룹
+	unordered_map<HWND, E_Desktop*> desktop_map;	//	속해있는 데스크탑
 
 protected:
 	

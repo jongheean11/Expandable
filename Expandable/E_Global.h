@@ -25,6 +25,10 @@ private:
 	double iconsize;
 	//½º·¹µå
 	thread* currentThread;
+	std::unordered_map<std::thread::id, bool> thread_map;
+	std::unordered_map<std::thread::id, bool> thread_inner_map;
+	std::unordered_map<std::thread::id, std::thread*> thread_pmap;
+	//
 	int transparent;
 	int settingTimer;
 	bool hotkeyinvalidate;

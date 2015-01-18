@@ -119,7 +119,9 @@ list<HWND> E_Global::getAllWindows()
 {
 	E_Global* object = E_Global::getSingleton();
 	object->windowListForUpdate.clear();	//초기화
+	
 	EnumWindows(E_Global::EnumCallBack, 0);
+
 	return object->windowListForUpdate;
 }
 
@@ -186,22 +188,34 @@ void E_Global::onTimer()
 // 업데이트 시작
 bool E_Global::startUpdate()
 {
+	TRACE_WIN32A("E_Global::startUpdate() before");
 	lock_guard<mutex> start(E_Mutex::updateStartStopMutex);
 	if (currentThread == NULL && updateMode != true){
 		TRACE_WIN32A("E_Global::startUpdate()");
 		updateMode = true;
-		thread* t = new thread{ &E_Global::loopUpdate, this };
+
+		thread* t = new thread{ &E_Global::loopUpdate, this};
+		thread_map.insert(std::unordered_map<std::thread::id, bool>::value_type(t->get_id(), false));	//플래그 관리
+		thread_inner_map.insert(std::unordered_map<std::thread::id, bool>::value_type(t->get_id(), false));	//플래그 관리
+		thread_pmap.insert(std::unordered_map<std::thread::id, thread*>::value_type(t->get_id(), t));	//포인터 관리
 		currentThread = t;
+
+		TRACE_WIN32A("E_Global::startUpdate() after");
 		return true;
 	}
+	TRACE_WIN32A("E_Global::startUpdate() after");
 	return false;
 }
 
 // 실시간으로 윈도우 업데이트
 void E_Global::loopUpdate()
 {
-	//TRACE_WIN32A("E_Global::loopUpdate()");
-	while (updateMode){
+	bool update = false;
+	//맵이 유효할 때
+	if (thread_map.find(std::this_thread::get_id()) != thread_map.end())
+		bool update = thread_map.find(std::this_thread::get_id())->second;
+	
+	while (update == false){
 		if (onUpdate()){
 			//TRACE_WIN32A("E_Global::loopUpdate()");
 			windowSwitcher->updateSelectedDesktop();
@@ -210,6 +224,10 @@ void E_Global::loopUpdate()
 			dragSwitcher->updateSelectedDesktop();
 		}
 		Sleep(200);
+		update = thread_map.find(std::this_thread::get_id())->second;//플래그 업데이트
+	}
+	if (update == true){
+		thread_inner_map.find(std::this_thread::get_id())->second = true;
 	}
 }
 
@@ -218,7 +236,9 @@ bool E_Global::onUpdate()
 {
 	bool result = false;
 	//윈도우 리스트 업데이트
-	list<HWND> wlist = getAllWindows();
+	TRACE_WIN32A("E_Global::getAllWindows before");
+	list<HWND> wlist = getAllWindows();	//UI 쓰레드에서 호출되는 콜백이라 데드락 발생하기 쉬움
+	TRACE_WIN32A("E_Global::getAllWindows after");
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
 	//윈도우 추가
 	int wlistSize = wlist.size();
@@ -258,7 +278,9 @@ bool E_Global::onUpdate()
 				noChangeList.push_back(window);
 			}
 		}
+		TRACE_WIN32A("E_Global::updateMutex before");
 		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
+		TRACE_WIN32A("E_Global::updateMutex after");
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
 		//실제 리스트에 업데이트
@@ -279,16 +301,44 @@ bool E_Global::onUpdate()
 // 업데이트를 멈추는 함수 (스레드 플래그를 바꿔줌)
 bool E_Global::stopUpdate()
 {
+	//동기화
 	lock_guard<mutex> stop(E_Mutex::updateStartStopMutex);
+
+	list<std::thread::id> colleting;
+	//스레드 컬렉팅 (할당 해제)
+	for (std::unordered_map<std::thread::id, bool>::iterator iter = thread_inner_map.begin(); iter != thread_inner_map.end(); iter++){
+		if (iter->second == true){
+			//중지 플래그 검사
+			std::unordered_map<std::thread::id, thread*>::iterator target;
+			if ((target = thread_pmap.find(iter->first)) != thread_pmap.end()){
+				target->second->detach();
+				//target->second->
+				delete target->second;
+				//스레드 할당 해제
+				colleting.push_back(iter->first);
+			}
+		}
+	}
+	//스레드 컬렉팅 (맵에서 제거)
+	for (list<std::thread::id>::iterator iter = colleting.begin(); iter != colleting.end(); iter++){
+		thread_map.erase(*iter);
+		thread_pmap.erase(*iter);
+		thread_inner_map.erase(*iter);
+	}
+
+	TRACE_WIN32A("E_Global::stopUpdate() before");
 	if (currentThread != NULL && updateMode == true){
 		TRACE_WIN32A("E_Global::stopUpdate()");
-		updateMode = false;
-		currentThread->join();	//스레드가 끝날때까지 대기
-		//currentThread->detach();
-		delete currentThread;
+
+		thread_map.find(currentThread->get_id())->second = true;		//중지 플래그로 변경 //스레드 대기를 없에고 컬렉팅으로 해결
+
+		//delete currentThread;
+		//업데이트 가능
 		currentThread = NULL;
+		updateMode = false;
 		return true;
 	}
+	TRACE_WIN32A("E_Global::stopUpdate() after");
 	return false;
 }
 
@@ -793,10 +843,10 @@ void E_Global::moveDesktop(int index)
 {
 	onUpdate();
 	if (0 <= index && index < desktopCount){
-
-		int index = selectedIndex + 1;
+		//index = selectedIndex + 1;
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
+
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
 
