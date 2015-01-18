@@ -1,10 +1,13 @@
 
 #include <windows.h>
+#include "E_DLLClient.h"
 
 #define STATUS_SUCCESS						(0x00000000L) 
 
 extern BYTE g_pZWRT[5];
 extern char* processName;
+extern int pid;
+extern HWND hwnd;
 
 BOOL hook_by_hotpatch_ShowWindow();
 BOOL unhook_by_hotpatch_ShowWindow();

@@ -1,5 +1,6 @@
 #include "E_MyCSocket.h"
-#include "E_DLLClient.h"
+#include "E_DLLServer.h"
+#include "E_Notify.h"
 
 #pragma once
 #define PORT 8888

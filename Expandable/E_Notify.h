@@ -7,7 +7,7 @@ private:
 	int notifyheight;
 	int myPos;
 	int pId;
-	char* pName;
+	char pName[255];
 	HWND pHwnd;
 	bool click;
 	bool m_bTrack;
@@ -22,6 +22,7 @@ public:
 	CWnd* hwnd_cwnd_notify;
 	void showNotify(int processId, char* processName, HWND hwnd);
 	static BOOL CALLBACK EnumCallHide(HWND hwnd, LPARAM lParam);
+	void setPname(char* title);
 	//void showNotify();
 
 	static const wchar_t* caption;

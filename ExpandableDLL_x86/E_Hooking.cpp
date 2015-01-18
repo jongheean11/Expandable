@@ -778,6 +778,24 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 		}
 		pTaskList3->Release();
 	}
+
+	//아이템 정보
+	NOTIFICATION_ITEM item;
+	double ullCompleted_d = ullCompleted*1e-9;
+	double ullTotal_d = ullTotal*1e-9;
+	double result = 100*(ullCompleted_d / ullTotal_d);
+	item.type = PROGRESSVALUE;
+	item.value = (unsigned long)result;
+	//프로세스 정보
+	if (NULL != processName)
+		strcpy_s(item.infomation.pname, processName);
+	else
+		item.infomation.pname[0] = 'N';
+	item.infomation.pid = pid;
+	item.infomation.hwnd = (unsigned int)hwnd;
+
+	//notify(item);
+
 	return hresult;
 }
 
@@ -816,6 +834,20 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 		}
 		pTaskList3->Release();
 	}
+
+	NOTIFICATION_ITEM item;
+	item.type = PROGRESSSTATE;
+	item.value = tbpFlags;
+	//프로세스 정보
+	if (NULL != processName)
+		strcpy_s(item.infomation.pname, processName);
+	else
+		item.infomation.pname[0] = 'N';
+	item.infomation.pid = pid;
+	item.infomation.hwnd = (unsigned int)hwnd;
+
+	notify(item);
+
 	return hresult;
 }
 

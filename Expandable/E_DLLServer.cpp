@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "E_DLLClient.h"
+#include "E_DLLServer.h"
 
 void writeJSON(__in NOTIFICATION_ITEM& item, __out std::string& buffer)
 {

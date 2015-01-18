@@ -5,6 +5,10 @@
 #include "E_Map.h"
 #pragma once
 
+void E_Notify::setPname(char* title)
+{
+	strcpy(this->pName, title);
+}
 //E_Notify* E_Notify::singleton = NULL;
 E_Notify::E_Notify()
 {
@@ -19,7 +23,6 @@ E_Notify::E_Notify()
 	notifyheight = h * 0.08;
 	myPos = 0; 
 	colornum = 240;
-
 }
 
 const wchar_t* E_Notify::caption = L"Notify";
@@ -42,7 +45,7 @@ E_Notify::~E_Notify()
 void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 {
 	pId = processId;
-	pName = processName;
+	setPname(processName);
 	//pHwnd = hwnd;
 	pHwnd = ::FindWindow(NULL, L"Ä«Ä«¿ÀÅå");
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();

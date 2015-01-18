@@ -43,8 +43,11 @@ void testConnectServer(){
 	init();
 	if (connectExpandable()){
 		TRACE_WIN32A("[connectExpandable] 성공");
+		
+		isAvailable();
+		TRACE_WIN32A("[connectExpandable] isAvail 다음");
 
-		std::string buffer;
+	/*	std::string buffer;
 		NOTIFICATION_ITEM item;
 		item.type = PROGRESSVALUE;
 		item.value = 66;
@@ -54,7 +57,7 @@ void testConnectServer(){
 		writeJSON(item, buffer);
 		if (isConnected()){
 			sendData(buffer);
-		}
+		}*/
 	}
 	while (1){
 	}

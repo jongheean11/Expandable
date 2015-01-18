@@ -13,6 +13,8 @@
 #include <winsock2.h>
 #include <Shobjidl.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <memory>
 #include "changlib.h"
 #include "..\\NetFX\\easyhook.h"
 #pragma comment(lib,"ws2_32")

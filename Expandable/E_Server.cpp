@@ -89,10 +89,28 @@ void E_Server::onClient(E_MyCSocket* param)
 			TRACE_WIN32A("[E_Server::onClient] 소켓 종료 로그 (%d)", received == SOCKET_ERROR ? GetLastError() : 0 );
 			break;
 		}
-		NOTIFICATION_ITEM item;
-		readJSON(item, buff);
-
 		TRACE_WIN32A("[E_Server::onClient] %d 바이트를 수신함 %s", received, buff);
+		//#제거
+		if (buff[received - 1] == '#'){
+			
+			buff[received - 1] = '\0';
+			std::string sendData = PONG;
+			sendData.append("#");
+			if (strcmp(buff, PING.c_str()) == 0){
+				int sendlen = client.Send(sendData.c_str(), strlen(sendData.c_str()));
+				TRACE_WIN32A("[E_Server::onClient] %d 바이트를 전송함 %s", sendlen, sendData.c_str());
+
+			}
+			else{
+				NOTIFICATION_ITEM item;
+				readJSON(item, buff);
+				if (item.type == PROGRESSSTATE)
+				{
+					E_Notify* e_noti = new E_Notify();
+					e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
+				}
+			}
+		}
 
 		////받은 메시지를 다시 클라이언트로 메아리 치기
 		//int sent = client->Send(buff, received);
@@ -106,6 +124,8 @@ void E_Server::onClient(E_MyCSocket* param)
 		if (iter->second == param){
 			std::thread* target = iter->first;
 			threadState.find(target)->second = NOTRUNNING;
+			client.Detach();
+			client.Close();
 			return;
 		}
 	}
@@ -122,15 +142,15 @@ void E_Server::garbageCollect()
 			if (socketMap.find(iter->first) != socketMap.end())
 			{
 				socket = socketMap.find(iter->first)->second;
-				socket->Close();		//소켓 닫음 ( UI 스레드에서만 삭제됨/ 프레임워크 )
-				delete socket;		//소켓 삭제
+				//socket->Close();		//소켓 닫음 ( UI 스레드에서만 삭제됨/ 프레임워크 )
+				delete socket;		//소켓 삭제 (소멸자)
 				iter->first->detach();	//스레드 삭제 전 호출
-				th = iter->first;	
+				th = iter->first;
 				list.push_back(th);
-				TRACE_WIN32A("소켓 및 스레드 정리");
+				//TRACE_WIN32A("소켓 및 스레드 정리");
 			}
 			else{
-				TRACE_WIN32A("소켓 삭제 중.. 자료구조 불일치 발견...");
+				//TRACE_WIN32A("소켓 삭제 중.. 자료구조 불일치 발견...");
 			}
 		}
 	}
