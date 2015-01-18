@@ -7,7 +7,6 @@ E_Server::E_Server() : th(NULL), stopFlag(false)
 {
 }
 
-
 E_Server::~E_Server()
 {
 }
@@ -106,14 +105,9 @@ void E_Server::onClient(E_MyCSocket* param)
 				readJSON(*item, buff);
 				if (item->type == PROGRESSSTATE)
 				{
-					E_Global* e_global = E_Global::getSingleton();
-					::SendMessage(e_global->hwnd_frame, WM_USER_NOTIFY, (WPARAM)item, 0);
-					//::SendMessageA(핸들, 메세지, (void*)item, NULL);
-					/*
 					E_Notify* e_noti = new E_Notify();
 
 					e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
-					*/
 				}
 			}
 		}
