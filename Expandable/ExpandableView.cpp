@@ -16,7 +16,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
+#define WM_USER_NOTIFY (WM_USER + 4)
 
 // CExpandableView
 
@@ -118,7 +118,8 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'A')
 	{
-		
+		E_Global* e_global = E_Global::getSingleton();
+		::SendMessage(e_global->hwnd_frame, WM_USER_NOTIFY, 0, 0);
 		
 	}
 	if (nChar == 'C'){

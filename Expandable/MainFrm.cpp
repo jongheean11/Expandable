@@ -10,6 +10,9 @@
 #include "ShowMenu.h"
 #include "E_Global.h"
 #include "E_Map.h"
+#include "E_Notify.h"
+#include "E_Server.h"
+#define WM_USER_NOTIFY (WM_USER + 4)
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -31,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_KEYUP()
 	ON_WM_SYSKEYDOWN()
 	ON_WM_SYSKEYUP()
+	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
 	ON_COMMAND(ID_32777, &CMainFrame::On32777)
 END_MESSAGE_MAP()
@@ -51,6 +55,12 @@ CMainFrame::CMainFrame()
 	
 }
 
+HRESULT CMainFrame::OnUserNotify(WPARAM wParam, LPARAM lParam)
+{
+	// TODO: Your Code
+	
+	return TRUE;
+}
 CMainFrame::~CMainFrame()
 {
 	
