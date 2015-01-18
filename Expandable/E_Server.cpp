@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "E_Server.h"
-
+#include "E_Global.h"
+#define WM_USER_NOTIFY (WM_USER + 4)
 E_Server* E_Server::singleton = NULL;
 E_Server::E_Server() : th(NULL), stopFlag(false)
 {
@@ -100,15 +101,13 @@ void E_Server::onClient(E_MyCSocket* param)
 
 			}
 			else{
-				NOTIFICATION_ITEM item;
-				readJSON(item, buff);
-				if (item.type == PROGRESSSTATE)
+				NOTIFICATION_ITEM* item = new NOTIFICATION_ITEM;
+				readJSON(*item, buff);
+				if (item->type == PROGRESSSTATE)
 				{
-					
-						E_Notify* e_noti = new E_Notify();
+					E_Notify* e_noti = new E_Notify();
 
-						e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
-					
+					e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
 				}
 			}
 		}

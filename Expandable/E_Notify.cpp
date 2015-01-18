@@ -54,8 +54,8 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 	pId = processId;
 	setPname(processName);
 	//pName = processName;
-	//pHwnd = hwnd;		//실제사용할 소스
-	pHwnd = ::FindWindow(NULL, L"카카오톡"); //테스트용
+	pHwnd = hwnd;		//실제사용할 소스
+	//pHwnd = ::FindWindow(NULL, L"카카오톡"); //테스트용
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->nowActiveNotify++;
