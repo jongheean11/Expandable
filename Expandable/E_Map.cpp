@@ -207,10 +207,15 @@ void E_Map::OnPaint()
 			}
 		}
 		
-		
+		int isOneWindow;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
+			if ((*itr_desktop)->getWindowList().size() == 1)
+				isOneWindow = 1;
+			else
+				isOneWindow = 0;
+
 			(*itr_desktop)->getIndex();
 			int idx = (*itr_desktop)->getIndex() % mapWidth;
 			int idy = (*itr_desktop)->getIndex() / mapWidth;
@@ -245,10 +250,20 @@ void E_Map::OnPaint()
 					cdc.SetBkColor(E_Map::backgroundColor);
 					memDC.SetStretchBltMode(COLORONCOLOR);
 					//memDC.StretchBlt(rectForIcon.left, rectForIcon.top, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					RECT* iconRect;
 					if (selectIconHwnd != (*itr_window)->getWindow())
-						memDC.StretchBlt(iconPosstx + 2 , iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-			
-					RECT* iconRect = new RECT{ iconPosstx + 2 , iconPossty + 2 , iconPosstx + 2 + iconSize , iconPossty + 2 + iconSize  };
+					{
+						if (isOneWindow)
+							memDC.StretchBlt(idx*w*mapsize + w*mapsize*0.15, idy*w*mapsize + w*mapsize*0.15, w*mapsize*0.7, w*mapsize*0.7, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						else
+							memDC.StretchBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+					}
+					
+					if (isOneWindow)
+						iconRect = new RECT{ idx*w*mapsize + w*mapsize*0.15, idy*w*mapsize + w*mapsize*0.15, idx*w*mapsize + w*mapsize*0.85, idy*w*mapsize + w*mapsize*0.85 };
+					
+					else
+						iconRect = new RECT{ iconPosstx + 2, iconPossty + 2, iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize };
 
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);

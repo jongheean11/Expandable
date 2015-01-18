@@ -25,7 +25,7 @@ private:
 	bool alreadyin;
 	CRect getSize;
 	POINT pt;
-
+	
 	
 public:
 	

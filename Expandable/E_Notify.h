@@ -13,7 +13,7 @@ private:
 	bool m_bTrack;
 	int colornum;
 public:
-	
+	bool deleteAble();
 	E_Notify();
 	~E_Notify();
 	static E_Notify* getSingleton();
