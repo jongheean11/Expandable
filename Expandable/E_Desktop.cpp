@@ -49,6 +49,32 @@ void E_Desktop::setAllIconVisible()
 	}*/
 }
 
+void E_Desktop::setAllTransParentExclude()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
+		if (!(*itr)->isAeroPossible()){
+			TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
+			(*itr)->setTransparent();	//투명
+			//윈도우 상태 저장
+
+			(*itr)->setNormal();
+		}
+	}
+}
+
+void E_Desktop::setAllMinimizeTransparent()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		if ((*itr)->getTPMode()){
+			(*itr)->setMinimize();
+			(*itr)->setOpaque();
+		}
+	}
+}
+
 void E_Desktop::setAllTransparent()
 {
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
@@ -204,4 +230,32 @@ void E_Desktop::setAllMinimize()
 		ShowWindow((*itr)->getWindow(), SW_MINIMIZE);
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
+}
+
+
+void E_Desktop::setAllRestore()
+{
+
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		(*itr)->setRestore();
+	}
+}
+
+
+void E_Desktop::setAllSaveShowState()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		(*itr)->saveShowState();
+	}
+}
+
+
+void E_Desktop::setAllRestoreSavedShowState()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		(*itr)->restoreShowState();
+	}
 }

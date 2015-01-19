@@ -7,6 +7,8 @@
 E_Global* E_Global::singleton = NULL;
 
 const wchar_t* E_Global::testFrameName = L"expandable";
+wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
+
 #define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
@@ -127,10 +129,9 @@ list<HWND> E_Global::getAllWindows()
 
 BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 {
-
 	HWND myhwnd = FindWindow(NULL, E_Global::testFrameName);
 	E_Global *global = E_Global::getSingleton();
-
+	
 	WCHAR Cap[255];
 	int length;
 	::GetWindowText(hwnd, Cap, 254);
@@ -140,24 +141,34 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	{
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
-		// 바탕화면, 태스트바, 시작버튼 제거, expandable 테스트 윈도우 제거
+		// 바탕화면, 태스트바, 시작버튼 제거, expandable 테스트 윈도우 제거, spy ++ 제거
 		if (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) && hwnd != myhwnd){
-			HWND handle = GetParent(hwnd);
-			if (handle == NULL)
-			{ //최상위 윈도우만 포함
-				// 정훈 수정. 중복되는 메모리 주소값 있을시 추가 안함 (CWND 및 HWND 중복 방지)
-				bool already_exist = false;
-				for (std::list<HWND>::iterator itr_inspect = global->windowListForUpdate.begin(); itr_inspect != global->windowListForUpdate.end(); itr_inspect++)
-				{
-					if (hwnd == *itr_inspect)
-					{
-						already_exist = true;
-					}
+			wchar_t* cap = NULL;
+			int arrSize = sizeof(excludeWindows) / sizeof(char*);
+			for (int i = 0; i < arrSize; i++){
+				cap = wcsstr(Cap, excludeWindows[i]);
+				if (cap != NULL){
+					break;
 				}
+			}
+			if (cap == NULL){
+				HWND handle = GetParent(hwnd);
+				if (handle == NULL)
+				{ //최상위 윈도우만 포함
+					// 정훈 수정. 중복되는 메모리 주소값 있을시 추가 안함 (CWND 및 HWND 중복 방지)
+					bool already_exist = false;
+					for (std::list<HWND>::iterator itr_inspect = global->windowListForUpdate.begin(); itr_inspect != global->windowListForUpdate.end(); itr_inspect++)
+					{
+						if (hwnd == *itr_inspect)
+						{
+							already_exist = true;
+						}
+					}
 
-				if (!already_exist)
-				{
-					global->windowListForUpdate.push_front(hwnd);
+					if (!already_exist)
+					{
+						global->windowListForUpdate.push_front(hwnd);
+					}
 				}
 			}
 		}
@@ -236,9 +247,9 @@ bool E_Global::onUpdate()
 {
 	bool result = false;
 	//윈도우 리스트 업데이트
-	TRACE_WIN32A("E_Global::getAllWindows before");
+	//TRACE_WIN32A("E_Global::getAllWindows before");
 	list<HWND> wlist = getAllWindows();	//UI 쓰레드에서 호출되는 콜백이라 데드락 발생하기 쉬움
-	TRACE_WIN32A("E_Global::getAllWindows after");
+	//TRACE_WIN32A("E_Global::getAllWindows after");
 	list<E_Window*> selectedWindows = selectedDesktop->getWindowList();
 	//윈도우 추가
 	int wlistSize = wlist.size();
@@ -278,9 +289,9 @@ bool E_Global::onUpdate()
 				noChangeList.push_back(window);
 			}
 		}
-		TRACE_WIN32A("E_Global::updateMutex before");
+		//TRACE_WIN32A("E_Global::updateMutex before");
 		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
-		TRACE_WIN32A("E_Global::updateMutex after");
+		//TRACE_WIN32A("E_Global::updateMutex after");
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
 		//실제 리스트에 업데이트

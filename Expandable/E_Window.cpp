@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "E_Window.h"
 
-E_Window::E_Window(HWND window)
+E_Window::E_Window(HWND window) : tpmode(false)
 {
 	this->window = window;
 	//스크린샷
 	SetMinimizeMaximizeAnimation(false);
 	takeScreenshot();
 	SetMinimizeMaximizeAnimation(true);
-	
+
 	//아이콘
 	int width = E_Util::getSystemSmallIconSize();
 	HICON hicon = E_Util::getIconHandle(this->window);
@@ -17,6 +17,7 @@ E_Window::E_Window(HWND window)
 
 	//윈도우 이름
 	GetWindowTextA(window, windowName, 255);
+	savedState = 0xffffffff;
 }
 
 E_Window::~E_Window()
@@ -102,12 +103,14 @@ bool E_Window::setIconVisible(HWND hwnd)
 
 void E_Window::setTransparent()
 {
+	tpmode = true;
 	SetWindowLongW(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) | WS_EX_LAYERED);
 	SetLayeredWindowAttributes(window, 0, 0, LWA_ALPHA); //창투명
 }
 
 void E_Window::setOpaque()
 {
+	tpmode = false;
 	SetLayeredWindowAttributes(window, 0, 255, LWA_ALPHA); //투명해제
 	SetWindowLongW(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) && ~WS_EX_LAYERED);
 }
@@ -226,6 +229,10 @@ bool E_Window::takeScreenshot()
 	
 }
 
+void E_Window::setMinimize()
+{
+	ShowWindow(window, SW_MINIMIZE);
+}
 
 void E_Window::setHide()
 {
@@ -243,6 +250,7 @@ void E_Window::setNormal()
 	ShowWindow(window, SW_NORMAL);
 }
 
+
 CBitmap* E_Window::getScreenshot()
 {
 	return &screenshot;
@@ -257,7 +265,7 @@ CBitmap* E_Window::getIcon()
 }
 
 
-// 윈도우 Show 상태를 가져옴
+// 윈도우 Show 상태를 가져옴 //정상적이지 않을 수 있음 (실제 윈도우 상태를 알고싶을땐 IsVisible API가 더 정확하다)
 UINT E_Window::getShowState()
 {
 	WINDOWPLACEMENT windowinfo;
@@ -292,4 +300,34 @@ bool E_Window::isAeroPossible()
 char* E_Window::getWindowName()
 {
 	return windowName;
+}
+bool E_Window::getTPMode()
+{
+	return tpmode;
+}
+
+// 윈도우 쇼 상태
+void E_Window::saveShowState()
+{
+	if (isAeroPossible())
+	{
+		savedState = SW_NORMAL;
+	}
+	else{
+		savedState = SW_MINIMIZE;
+	}
+}
+
+
+// 저장된 상태 복구
+void E_Window::restoreShowState()
+{
+	if (savedState != 0xffffffff)
+		ShowWindow(window, savedState);
+}
+
+
+void E_Window::setRestore()
+{
+	ShowWindow(window, SW_RESTORE);
 }
