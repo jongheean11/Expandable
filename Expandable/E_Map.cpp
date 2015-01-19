@@ -422,6 +422,25 @@ void E_Map::OnPaint()
 			}
 		}
 
+
+	
+	
+		
+	
+	
+		WCHAR name[60];
+		::GetWindowText(selectIconHwnd, name, 60);
+		//
+		int get = 0;
+		char* pStr;
+		int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+		pStr = new char[strSize];
+		WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+		int resutr = 0;
+		if (strstr(pStr, "곰오디오") != NULL || strstr(pStr,"곰플레이어") || strstr(pStr,"스티커"))
+			get = 1;
+
+
 		//if ( (newxpoint < w && newypoint < h && e_global->getSelectedIndex() == windowindext) || e_global->getSelectedIndex() == getdesktop(movindexx,movindexy)-1)
 		if (e_global->getSelectedIndex() == getdesktop(movindexx, movindexy) - 1)
 		{
@@ -435,13 +454,15 @@ void E_Map::OnPaint()
 			childmovx = newxpoint - w*(movindexx - 1);
 			childmovy = newypoint - (h - th)*(movindexy - 1);
 			parentprocessId = GetWindowThreadProcessId(selectIconHwnd, NULL);
-			EnumWindows(E_Map::EnumCallBackMap, 1);
+			if (get)
+				EnumWindows(E_Map::EnumCallBackMap, 1);
 			
 		}
 		else
 		{
 			::ShowWindow(selectIconHwnd, SW_HIDE);
-			EnumWindows(E_Map::EnumCallBackMap, 0);
+			if (get)
+				EnumWindows(E_Map::EnumCallBackMap, 0);
 		}
 
 		::BringWindowToTop(selectIconHwnd);
@@ -485,16 +506,16 @@ void E_Map::OnPaint()
 BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
-	WCHAR name2[4];
-	WCHAR name3[] = L"스티커";
-	WCHAR name4[] = L"카카오";
+	//WCHAR name2[4];
+	//WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"카카오";
 	
-	::GetWindowText(hwnd, name2, 4);
-	//::GetWindowText(hwnd, name4, 4);
+	//::GetWindowText(hwnd, name2, 4);
+	
 	
 
 
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) )//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD childprocessId;
@@ -503,8 +524,8 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 		{
 			if (lParam)
 			{
-				if (wcscmp(name2, name4) == 0)
-					return false;
+				//if (wcscmp(name2, name4) == 0)
+					//return false;
 				RECT rectforchildmov;
 				::ShowWindow(hwnd, SW_SHOW);
 				::GetWindowRect(hwnd, &rectforchildmov);
