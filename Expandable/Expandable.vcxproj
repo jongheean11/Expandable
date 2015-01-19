@@ -179,6 +179,7 @@
     <ClInclude Include="E_WindowSwitcher.h" />
     <ClInclude Include="E_WindowSwitcherTest.h" />
     <ClInclude Include="E_WindowTest.h" />
+    <ClInclude Include="InjDll.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="memdc-redsusia.h" />
     <ClInclude Include="E_MyCSocket.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="E_WindowSwitcher.cpp" />
     <ClCompile Include="E_WindowSwitcherTest.cpp" />
     <ClCompile Include="E_WindowTest.cpp" />
+    <ClCompile Include="InjDll.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="E_MyCSocket.cpp" />
     <ClCompile Include="ShowMenu.cpp" />
