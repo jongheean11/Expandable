@@ -13,6 +13,9 @@
 #include "E_Notify.h"
 #include "E_Server.h"
 #define WM_USER_NOTIFY (WM_USER + 4)
+#define WM_USER_MAPR (WM_USER + 5)
+
+#define WM_INVALIDATE (WM_USER + 6)
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -36,7 +39,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_SYSKEYUP()
 	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
+	ON_MESSAGE(WM_USER_MAPR, OnMapRight)
 	ON_COMMAND(ID_32777, &CMainFrame::On32777)
+	ON_COMMAND(ID_32778, &CMainFrame::On32778)
+	ON_COMMAND(ID_32779, &CMainFrame::On32779)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -88,7 +94,35 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 	//e_map->leave2 = true;
 	return TRUE;
 }
+HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
+{
+	// TODO: Your Code
+	hwnd = (HWND)wParam;
+	UINT uMouseMsg = (UINT)lParam;
+	POINT MousePos;
+	GetCursorPos(&MousePos);
+	CMenu menu, *pPopup;
+	UINT id;
+	E_Map* e_map = E_Map::getSingleton();
+	menu.LoadMenu(IDR_MAINFRAME);
+	pPopup = menu.GetSubMenu(2);
+	id = pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD, MousePos.x, MousePos.y, this);
+	switch (id)
+	{
+	case ID_32778:
+		On32778();
+		break;
+	case ID_32779:
+		On32779();
+		//PostMessage(WM_QUIT);
+		break;
 
+	}
+
+
+
+	return TRUE;
+}
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -419,11 +453,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 						E_WindowSwitcher::getSingleton()->selectPrevWindow();
 
 					}
-				}	
+				}
 	}
 		break;
 	}
-	
+
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -581,4 +615,24 @@ void CMainFrame::changetray(int num)
 	//E_Map* e_map = E_Map::getSingleton();
 	//e_map->leave2 = true;
 	//::BringWindowToTop(e_map->maphwnd);
+}
+
+
+void CMainFrame::On32778()
+{
+	//종료
+	E_Map* e_map = E_Map::getSingleton();
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	::SendMessage(hwnd, WM_CLOSE, 0, 0);
+	::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 0);
+
+}
+
+
+void CMainFrame::On32779()
+{
+	//도킹
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+
+
 }

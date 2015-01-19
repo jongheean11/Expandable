@@ -4,21 +4,24 @@
 #include "E_Global.h"
 #include <stdint.h>
 #define WM_TRAY_EVENT (WM_USER + 3)
+#define WM_USER_MAPR (WM_USER + 5)
+#define WM_INVALIDATE (WM_USER + 6)
 const COLORREF E_Map::backgroundColor = RGB(0, 0, 0);
 void E_Map::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
 	//if (ison){
-		//Invalidate(0);
-		//this->Invalidate(0);
+	//Invalidate(0);
+	//this->Invalidate(0);
 	//	Invalidate(0);
-		//TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
+	//TRACE_WIN32A("[E_Map::updateSelectedDesktop()]");
 	//}
 }
 E_Map* E_Map::singleton = NULL;
 E_Map::E_Map()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	checkdelete = false;
 	ison2 = false;
 	maphwnd = this->GetSafeHwnd();
 	//leave2 = false;
@@ -33,7 +36,7 @@ E_Map::E_Map()
 	ison = false;
 	redraw = false;
 	clicked = false;
-	alreadyin=false;
+	alreadyin = false;
 }
 E_Map::~E_Map()
 {
@@ -93,7 +96,7 @@ void E_Map::drawMap()
 	}
 	else
 		terminateMap();
-	
+
 
 }
 
@@ -117,9 +120,11 @@ BEGIN_MESSAGE_MAP(E_Map, CWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_TIMER()
 	ON_MESSAGE(WM_USER_EVENT, OnUserEvent)
+	ON_MESSAGE(WM_INVALIDATE, OnInvali)
 	ON_WM_MOUSELEAVE()
 	ON_WM_KILLFOCUS()
 	ON_WM_CREATE()
+	ON_WM_RBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -173,7 +178,7 @@ void E_Map::OnPaint()
 		//forSelectMap = false;
 	}
 
-	if (!ison || clicked || forSelectMap || up || e_global->gethotkey())
+	if (!ison || clicked || forSelectMap || up || e_global->gethotkey() || checkdelete)
 	{
 		e_global->sethotkey(false);
 		drawable = true;
@@ -206,7 +211,7 @@ void E_Map::OnPaint()
 				//dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
 			}
 		}
-		
+
 		int isOneWindow;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
@@ -240,6 +245,7 @@ void E_Map::OnPaint()
 				//아직 데스크탑 2 3 4 5 ... 에 대해서는 관여하지 못하고 1번만 그림
 				CBitmap* icon = (*itr_window)->getIcon();
 				BITMAP icon_info;
+				int dr = 0;
 				if (icon->m_hObject != NULL)
 				{
 					icon->GetBitmap(&icon_info);
@@ -254,16 +260,36 @@ void E_Map::OnPaint()
 					if (selectIconHwnd != (*itr_window)->getWindow())
 					{
 						if (isOneWindow)
-							memDC.StretchBlt(idx*w*mapsize + w*mapsize*0.15, idy*w*mapsize + w*mapsize*0.15, w*mapsize*0.7, w*mapsize*0.7, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+							memDC.TransparentBlt(idx*w*mapsize + w*mapsize*0.15, idy*w*mapsize + w*mapsize*0.15, w*mapsize*0.7, w*mapsize*0.7, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));// SRCCOPY);
 						else
-							memDC.StretchBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+							memDC.TransparentBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));//SRCCOPY);
 					}
-					
+
 					if (isOneWindow)
+					{
+						dr = 1;
 						iconRect = new RECT{ idx*w*mapsize + w*mapsize*0.15, idy*w*mapsize + w*mapsize*0.15, idx*w*mapsize + w*mapsize*0.85, idy*w*mapsize + w*mapsize*0.85 };
-					
+					}
 					else
 						iconRect = new RECT{ iconPosstx + 2, iconPossty + 2, iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize };
+
+					if (dr && !clicked)
+					{
+
+						pen.DeleteObject();
+						pen.CreatePen(PS_SOLID, 3, RGB(65, 205, 25));	//초록
+						memDC.SelectObject(pen);
+						memDC.MoveTo(iconRect->left, iconRect->top);
+						memDC.LineTo(iconRect->right, iconRect->top);
+						memDC.MoveTo(iconRect->right, iconRect->top);
+						memDC.LineTo(iconRect->right, iconRect->bottom);
+						memDC.MoveTo(iconRect->left, iconRect->top);
+						memDC.LineTo(iconRect->left, iconRect->bottom);
+						memDC.MoveTo(iconRect->left, iconRect->bottom);
+						memDC.LineTo(iconRect->right, iconRect->bottom);
+						pen.DeleteObject();
+
+					}
 
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
@@ -318,7 +344,7 @@ void E_Map::OnPaint()
 		pen.CreatePen(PS_SOLID, 1, RGB(0, 0, 0));	//주황
 		memDC.SelectObject(pen);
 		memDC.MoveTo(0, 0);
-		memDC.LineTo(w*mapsize*mapWidth,0);
+		memDC.LineTo(w*mapsize*mapWidth, 0);
 		memDC.MoveTo(w*mapsize*mapWidth, 0);
 		memDC.LineTo(w*mapsize*mapWidth, w*mapsize*mapWidth);
 		memDC.MoveTo(0, 0);
@@ -342,14 +368,13 @@ void E_Map::OnPaint()
 		{
 			if ((*itr_hwnd) == selectIconHwnd)
 			{
-
 				std::list<E_Window*> desktop_window = e_global->getSelectedDesktop()->getWindowList();
 				for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 				{
 					if ((*itr_window)->getWindow() == selectIconHwnd)
 						::ShowWindow(selectIconHwnd, SW_NORMAL);
 				}
-				
+
 				::BringWindowToTop(this->GetSafeHwnd());
 				::BringWindowToTop(selectIconHwnd);
 				memDC.FillRect(*itr_rect, &brush);
@@ -373,11 +398,10 @@ void E_Map::OnPaint()
 				cdc.SetBkMode(1);
 				cdc.SetBkColor(E_Map::backgroundColor);
 
-				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+				memDC.TransparentBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));// SRCCOPY);
 				cdc.DeleteDC();
 				icon.DeleteObject();
 				break;
-
 			}
 		}
 	}
@@ -400,16 +424,16 @@ void E_Map::OnPaint()
 		cdc.SetBkMode(1);
 		cdc.SetBkColor(E_Map::backgroundColor);
 
-		memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+		memDC.TransparentBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));// SRCCOPY);
 		foreRect.left = iconClick.x - iconSize / 2;
 		foreRect.right = iconClick.x + iconSize / 2;
 		foreRect.top = iconClick.y - iconSize / 2;
 		foreRect.bottom = iconClick.y + iconSize / 2;
 
 		RECT rectForMove;
-		long newxpoint = (iconClick.x - iconSize/2) / e_global->getMapsize()*mapWidth / mapWidth;
+		long newxpoint = (iconClick.x - iconSize / 2) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y - iconSize / 2) / w / e_global->getMapsize() / mapHeight*mapHeight;
-		
+
 		int windowindext;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
@@ -422,12 +446,6 @@ void E_Map::OnPaint()
 			}
 		}
 
-
-	
-	
-		
-	
-	
 		WCHAR name[60];
 		::GetWindowText(selectIconHwnd, name, 60);
 		//
@@ -437,9 +455,8 @@ void E_Map::OnPaint()
 		pStr = new char[strSize];
 		WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
 		int resutr = 0;
-		if (strstr(pStr, "곰오디오") != NULL || strstr(pStr,"곰플레이어") || strstr(pStr,"스티커"))
+		if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
 			get = 1;
-
 
 		//if ( (newxpoint < w && newypoint < h && e_global->getSelectedIndex() == windowindext) || e_global->getSelectedIndex() == getdesktop(movindexx,movindexy)-1)
 		if (e_global->getSelectedIndex() == getdesktop(movindexx, movindexy) - 1)
@@ -447,7 +464,7 @@ void E_Map::OnPaint()
 			::ShowWindow(selectIconHwnd, SW_SHOW);
 			::GetWindowRect(selectIconHwnd, &rectForMove);
 			rectForChildMove = rectForMove;
-			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1) , newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
+			::MoveWindow(selectIconHwnd, newxpoint - w*(movindexx - 1), newypoint - (h - th)*(movindexy - 1), rectForMove.right - rectForMove.left, rectForMove.bottom - rectForMove.top, TRUE);
 			//여기에 자식 프로그램 또는 비슷한 프로그램까지 같이 움직여야함
 			//부모 핸들로 윈도우 프로세스 얻어오고
 			//그 이후에 얻어온 프로세스 아이디로 모든 창들 이동!
@@ -456,7 +473,7 @@ void E_Map::OnPaint()
 			parentprocessId = GetWindowThreadProcessId(selectIconHwnd, NULL);
 			if (get)
 				EnumWindows(E_Map::EnumCallBackMap, 1);
-			
+
 		}
 		else
 		{
@@ -498,7 +515,7 @@ void E_Map::OnPaint()
 	memDC.DeleteDC();
 	bmp.DeleteObject();
 	brush.DeleteObject();
-	
+
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
@@ -506,16 +523,16 @@ void E_Map::OnPaint()
 BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
-	//WCHAR name2[4];
-	//WCHAR name3[] = L"스티커";
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
 	//WCHAR name4[] = L"카카오";
-	
-	//::GetWindowText(hwnd, name2, 4);
-	
-	
+	::GetWindowText(hwnd, name2, 4);
 
 
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) )//|| wcscmp(name4, name5) == 0)
+
+
+
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD childprocessId;
@@ -525,11 +542,11 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 			if (lParam)
 			{
 				//if (wcscmp(name2, name4) == 0)
-					//return false;
+				//return false;
 				RECT rectforchildmov;
 				::ShowWindow(hwnd, SW_SHOW);
 				::GetWindowRect(hwnd, &rectforchildmov);
-				::MoveWindow(hwnd, e_map->childmovx  , e_map->childmovy  , rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
+				::MoveWindow(hwnd, e_map->childmovx, e_map->childmovy, rectforchildmov.right - rectforchildmov.left, rectforchildmov.bottom - rectforchildmov.top, TRUE);
 			}
 			else
 				::ShowWindow(hwnd, SW_HIDE);
@@ -690,8 +707,12 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 		}
 
 
+
+		///
+
+
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
-			
+
 		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
@@ -717,7 +738,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				EnumWindows(E_Map::EnumCallHide, 1);
 			}
 		}
-		
+
 		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
 
@@ -732,10 +753,10 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	//WCHAR name4[] = L"Microsoft Spy++";
 	//WCHAR name5[16];
 	::GetWindowText(hwnd, name2, 4);
-//	::GetWindowText(hwnd, name4, 4);
+	//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
-	
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
+
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD pidforchild;
@@ -761,9 +782,9 @@ int E_Map::getdesktop(int indexx, int indexy)
 	int mapHeight = e_global->getDesktopHeight();
 	int desktop = 0;
 	int bre = 0;
-	for (int i = 1; i < mapHeight+1 ; i++)
+	for (int i = 1; i < mapHeight + 1; i++)
 	{
-		for (int j = 1; j < mapWidth+1 ; j++)
+		for (int j = 1; j < mapWidth + 1; j++)
 		{
 			desktop++;
 			if (j == indexx && i == indexy)
@@ -783,7 +804,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	SetCursor(LoadCursor(NULL, IDC_ARROW)); // 기본
 	E_Global* e_global = E_Global::getSingleton();
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton(); 
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
 	time = e_global->getTimer();
@@ -806,7 +827,7 @@ void E_Map::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		SetWindowText(_T("Tracking"));
 	}
-	
+
 	CWnd::OnMouseMove(nFlags, point);
 }
 
@@ -841,7 +862,7 @@ void E_Map::OnTimer(UINT_PTR nIDEvent)
 		}
 		else
 			alreadyin = false;
-		
+
 	}
 	CWnd::OnTimer(nIDEvent);
 }
@@ -854,12 +875,34 @@ HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
 	time = e_global->getTimer();
 	return TRUE;
 }
+HRESULT E_Map::OnInvali(WPARAM wParam, LPARAM lParam)
+{
+	// TODO: Your Code
+	HWND hwnd = (HWND)wParam;
+	E_Global* e_global = E_Global::getSingleton();
+	checkdelete = true;
 
+
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> winlist = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist.begin(); itr_window != winlist.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_window)->getWindow() == hwnd)
+			{
+				(*itr_desk)->removeWindow((*itr_window));
+			}
+		}
+	}
+	Invalidate(0);
+	return TRUE;
+}
 void E_Map::OnMouseLeave()
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	OutputDebugString(L"OnMouseLeave star");
-		
+
 	TRACKMOUSEEVENT MouseEvent;
 	::ZeroMemory(&MouseEvent, sizeof(MouseEvent));
 	MouseEvent.cbSize = sizeof(MouseEvent);
@@ -897,4 +940,41 @@ int E_Map::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetTimer(10, 15, NULL);
 
 	return 0;
+}
+
+
+void E_Map::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	E_Global* e_global = E_Global::getSingleton();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	long w = enManager->getWidth();
+	double mapsize = e_global->getMapsize();
+	//leave2 = false;
+	::BringWindowToTop(this->GetSafeHwnd());
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	std::list<HWND>::iterator itr_hwnd = iconHwndList.begin();
+	for (std::list<RECT*>::iterator itr_rect = iconRectList.begin(); itr_rect != iconRectList.end(); itr_rect++, itr_hwnd++)	//각 데스크탑 별로출력
+	{
+		if ((*itr_rect)->left < point.x && (*itr_rect)->right > point.x && (*itr_rect)->top < point.y && (*itr_rect)->bottom > point.y)
+		{
+
+			::SendMessage(e_global->hwnd_frame, WM_USER_MAPR, (WPARAM)(*itr_hwnd), 0);
+
+
+
+
+
+
+
+			//
+			break;
+		}
+	}
+
+
+
+
+	__super::OnRButtonDown(nFlags, point);
 }
