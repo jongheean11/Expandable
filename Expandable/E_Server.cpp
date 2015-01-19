@@ -105,9 +105,9 @@ void E_Server::onClient(E_MyCSocket* param)
 				readJSON(*item, buff);
 				if (item->type == PROGRESSSTATE)
 				{
-					E_Notify* e_noti = new E_Notify();
+			//		E_Notify* e_noti = new E_Notify();
 
-					e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
+			//		e_noti->showNotify(item.infomation.pid, item.infomation.pname, (HWND)item.infomation.hwnd);
 				}
 			}
 		}

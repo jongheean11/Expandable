@@ -488,10 +488,13 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 	WCHAR name[10];
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
-	//WCHAR name4[] = L"Microsoft Spy++";
-	//WCHAR name5[16];
+	WCHAR name4[] = L"카카오";
+	
 	::GetWindowText(hwnd, name2, 4);
-	//::GetWindowText(hwnd, name5,16);
+	//::GetWindowText(hwnd, name4, 4);
+	
+
+
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
@@ -501,6 +504,8 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 		{
 			if (lParam)
 			{
+				if (wcscmp(name2, name4) == 0)
+					return false;
 				RECT rectforchildmov;
 				::ShowWindow(hwnd, SW_SHOW);
 				::GetWindowRect(hwnd, &rectforchildmov);
@@ -703,9 +708,11 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	WCHAR name[10];
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
+	WCHAR name4[] = L"카카오";
 	//WCHAR name4[] = L"Microsoft Spy++";
 	//WCHAR name5[16];
 	::GetWindowText(hwnd, name2, 4);
+//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
 	
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0 )//|| wcscmp(name4, name5) == 0)
@@ -715,6 +722,8 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 		pidforchild = GetWindowThreadProcessId(hwnd, NULL);
 		if (pidforchild == e_map->pidforhide)
 		{
+			if (wcscmp(name2, name4) == 0)
+				return false;
 			if (lParam)
 				::ShowWindow(hwnd, SW_HIDE);
 			else
