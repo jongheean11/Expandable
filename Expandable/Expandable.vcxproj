@@ -229,6 +229,10 @@
     <ResourceCompile Include="Expandable.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="DesktopSwitcher_background.png" />
+    <Image Include="DesktopSwitcher_leftarrow.png" />
+    <Image Include="DesktopSwitcher_rightarrow.png" />
+    <Image Include="Map_background.png" />
     <Image Include="res\bitmap1.bmp" />
     <Image Include="res\Expandable.ico" />
     <Image Include="res\ExpandableDoc.ico" />
@@ -251,6 +255,7 @@
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="UserImages.bmp" />
+    <Image Include="WindowSwitcher_background.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
