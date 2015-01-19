@@ -485,7 +485,8 @@ int CMainFrame::stopChecking()
 
 int CMainFrame::onChecking()
 {
-	while (isCheckRunning){
+	while (isCheckRunning)
+	{
 		if (GetKeyState(VK_MENU) < 0)
 		{
 			//TRACE_WIN32A("ALT KEY DOWN\n");
