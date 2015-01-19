@@ -19,9 +19,9 @@ public:
 	int isCheckRunning = false;
 	thread* t = NULL;
 	// 작업입니다.
-
+	HWND hwnd;
 	//윈도우 리스트
-	
+
 public:
 
 	// 재정의입니다.
@@ -62,6 +62,7 @@ public:
 	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnUserNotify(WPARAM wParam, LPARAM lParam);
+	afx_msg HRESULT OnMapRight(WPARAM wParam, LPARAM lParam);
 	// alt up 체킹
 	int startChecking();
 	int stopChecking();
@@ -69,6 +70,8 @@ public:
 
 	afx_msg void On32777();
 	void changetray(int num);
+	afx_msg void On32778();
+	afx_msg void On32779();
 };
 
 
