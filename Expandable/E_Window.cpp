@@ -8,7 +8,7 @@ E_Window::E_Window(HWND window) : tpmode(false)
 	SetMinimizeMaximizeAnimation(false);
 	takeScreenshot();
 	SetMinimizeMaximizeAnimation(true);
-
+	dock = false;
 	//¾ÆÀÌÄÜ
 	int width = E_Util::getSystemSmallIconSize();
 	HICON hicon = E_Util::getIconHandle(this->window);

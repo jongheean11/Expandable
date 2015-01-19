@@ -216,7 +216,7 @@ void E_Map::OnPaint()
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{
-			if ((*itr_desktop)->getWindowList().size() == 1)
+			if ((*itr_desktop)->getWindowList().size() == 1 && e_global->dockcount == 0)
 				isOneWindow = 1;
 			else
 				isOneWindow = 0;
@@ -229,7 +229,6 @@ void E_Map::OnPaint()
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
-
 
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
@@ -288,6 +287,42 @@ void E_Map::OnPaint()
 						memDC.MoveTo(iconRect->left, iconRect->bottom);
 						memDC.LineTo(iconRect->right, iconRect->bottom);
 						pen.DeleteObject();
+
+					}
+					
+					
+					if ((*itr_window)->dock)//고정윈도우의 경우
+					{
+						pen.DeleteObject();
+						pen.CreatePen(PS_SOLID, 3, RGB(240, 40, 40));	//빨강
+						memDC.SelectObject(pen);
+						memDC.MoveTo(iconRect->left, iconRect->top);
+						memDC.LineTo(iconRect->right, iconRect->top);
+						memDC.MoveTo(iconRect->right, iconRect->top);
+						memDC.LineTo(iconRect->right, iconRect->bottom);
+						memDC.MoveTo(iconRect->left, iconRect->top);
+						memDC.LineTo(iconRect->left, iconRect->bottom);
+						memDC.MoveTo(iconRect->left, iconRect->bottom);
+						memDC.LineTo(iconRect->right, iconRect->bottom);
+						pen.DeleteObject();
+
+
+
+						for (int jdx = 0; jdx < mapWidth; jdx++)
+						{
+							for (int jdy = 0; jdy < mapHeight; jdy++)
+							{
+								if (jdx == idx && jdy == idy)
+									continue;
+								iconPosstx = rectForIcon.left *e_global->getMapsize() + jdx*w*mapsize;  //check
+								iconPossty = rectForIcon.top *e_global->getMapsize()*w / (h - th) + jdy*w*mapsize;//check
+								memDC.TransparentBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));//SRCCOPY);
+
+							}
+						}
+						
+
+
 
 					}
 
@@ -442,7 +477,14 @@ void E_Map::OnPaint()
 			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				if ((*itr_window)->getWindow() == selectIconHwnd)
-					windowindext = (*itr_desktop)->getIndex();
+				{
+					if ((*itr_window)->dock)
+					{
+						(*itr_window)->dock = false;
+						e_global->dockcount--;
+					}
+				}
+					//windowindext = (*itr_desktop)->getIndex();
 			}
 		}
 
@@ -585,6 +627,8 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 			break;
 		}
 	}
+	
+
 	clickindexx = mouse.x / (mapsize*w) + 1;
 	clickindexy = mouse.y / (mapsize*w) + 1;
 	time = e_global->getTimer();
@@ -730,7 +774,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				continue;
 			}
 			(*itr_desk)->setAllHide();
-
+			
 			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
 			{
@@ -739,8 +783,32 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 		}
 
+		std::list<E_Desktop*> desklist2 = e_global->desktopList;
+		for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+		{
+			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+			{
+				if ((*itr_window)->dock)
+				{
+					::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+				}
+			}
+		}
+
+
+
+
 		::BringWindowToTop(this->GetSafeHwnd());
 		//e_global->getSelectedDesktop()->setAllShow(); 
+
+
+
+
+
+
+
+
 
 	}
 }
@@ -878,20 +946,24 @@ HRESULT E_Map::OnUserEvent(WPARAM wParam, LPARAM lParam)
 HRESULT E_Map::OnInvali(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
-	HWND hwnd = (HWND)wParam;
-	E_Global* e_global = E_Global::getSingleton();
 	checkdelete = true;
-
-
-	std::list<E_Desktop*> desklist = e_global->desktopList;
-	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+	if ((int)lParam == 0)
 	{
-		std::list<E_Window*> winlist = (*itr_desk)->getWindowList();
-		for (std::list<E_Window*>::iterator itr_window = winlist.begin(); itr_window != winlist.end(); itr_window++)	//각 데스크탑 별로출력
+		HWND hwnd = (HWND)wParam;
+		E_Global* e_global = E_Global::getSingleton();
+		
+
+
+		std::list<E_Desktop*> desklist = e_global->desktopList;
+		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
-			if ((*itr_window)->getWindow() == hwnd)
+			std::list<E_Window*> winlist = (*itr_desk)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = winlist.begin(); itr_window != winlist.end(); itr_window++)	//각 데스크탑 별로출력
 			{
-				(*itr_desk)->removeWindow((*itr_window));
+				if ((*itr_window)->getWindow() == hwnd)
+				{
+					(*itr_desk)->removeWindow((*itr_window));
+				}
 			}
 		}
 	}

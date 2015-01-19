@@ -29,7 +29,6 @@ private:
 	bool checkdelete;
 
 public:
-
 	DWORD pidforhide;
 	static BOOL CALLBACK EnumCallBackMap(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallHide(HWND hwnd, LPARAM lParam);

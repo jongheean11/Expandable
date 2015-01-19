@@ -36,6 +36,7 @@ private:
 	//제외 윈도우
 	static wchar_t* const excludeWindows[];
 public:
+	int dockcount;
 	DWORD pidforhideNotify;
 	CWnd* notifyHwnd[5];
 	int notifyAblePos[5];

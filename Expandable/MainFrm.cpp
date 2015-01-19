@@ -633,6 +633,22 @@ void CMainFrame::On32779()
 {
 	//도킹
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-
+	E_Map* e_map = E_Map::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+	std::list<E_Desktop*> desklist = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> winlist = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist.begin(); itr_window != winlist.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_window)->getWindow() == hwnd)
+			{
+				(*itr_window)->dock = true;
+				e_global->dockcount++;
+				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
+				break;
+			}
+		}
+	}
 
 }
