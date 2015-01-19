@@ -49,6 +49,9 @@
     <Filter Include="Notification">
       <UniqueIdentifier>{8dc7efd4-bba2-4759-8590-274e5d7603ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Injector">
+      <UniqueIdentifier>{7548a767-5838-4bcf-9671-a2b590599932}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -150,6 +153,9 @@
     <ClInclude Include="E_DLLServer.h">
       <Filter>Notification</Filter>
     </ClInclude>
+    <ClInclude Include="InjDll.h">
+      <Filter>Injector</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -241,6 +247,9 @@
     </ClCompile>
     <ClCompile Include="E_DLLServer.cpp">
       <Filter>Notification</Filter>
+    </ClCompile>
+    <ClCompile Include="InjDll.cpp">
+      <Filter>Injector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

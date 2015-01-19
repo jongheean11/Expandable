@@ -45,6 +45,9 @@ static wchar_t wprocessList[PROCESSSIZE][255] = { L"chrome.exe", L"iexplore.exe"
 static const char* EXPLORER = "explorer.exe";
 static const wchar_t* WEXPLORER = L"explorer.exe";
 
+//프로세스 예외 리스트
+#define EXCLUDESIZE 1
+static char excludeList[EXCLUDESIZE][255] = { "dbgview.exe" };
 
 #define TEST_EXECUTABLE
 BOOL APIENTRY DllMain(HMODULE hModule,
@@ -65,7 +68,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	{
 	case DLL_PROCESS_ATTACH:
 		TRACE_WIN32A("[Attach] DLL_PROCESS_ATTACH");
-
+		for (int i = 0; i < EXCLUDESIZE; i++){
+			if (processName != NULL
+				&& !_stricmp(processName, excludeList[i])){
+				return FALSE;
+			}
+		}
 		//Gloal Hook은 Explorer 고유의 기능
 		if (processName != NULL
 			&& !_stricmp(processName, EXPLORER)
@@ -154,6 +162,8 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 int main(int argc, char* argv[]){
 	//testWriteJSON();
 	//testSocket();
+	//printf("sizeof: %d ", sizeof(processList));
+	//printf("sizeof: %d ", sizeof(excludeList));
 	testConnectServer();
 	return 0;
 
