@@ -11,7 +11,7 @@
 
 #include "ExpandableDoc.h"
 #include "ExpandableView.h"
-
+#include "InjDll.h"
 #include "E_WindowTest.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -155,6 +155,14 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		HWND hwnd = this->m_hWnd;
 		char *name = "expandable.exe";
 		e_noti->showNotify(1,name,hwnd);
+	}
+	if (nChar == 'I')
+	{
+		Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+	}
+	if (nChar == 'E')
+	{
+		Injector(L"explorer.exe", EJECTION_MODE, L"ExpandableDLL_x86.dll");
 	}
 	//if (nChar == 'Q'){
 	//	//스레드 테스트
