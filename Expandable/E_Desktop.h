@@ -17,8 +17,11 @@ public:
 	// 모든창 SW_SHOW
 	void setAllShow();
 	void setAllTransparent();
+	void setAllTransParentExclude();
+	void setAllMinimizeTransparent();
 	void setAllOpaque();
 	void setAllHide();
+
 
 	void operator=(const E_Desktop &tmp);
 
@@ -43,4 +46,7 @@ public:
 	~E_Desktop();
 	// 윈도우를 리스트에 포함
 	void setAllMinimize();
+	void setAllRestore();
+	void setAllSaveShowState();
+	void setAllRestoreSavedShowState();
 };

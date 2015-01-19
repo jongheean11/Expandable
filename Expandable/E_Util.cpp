@@ -13,9 +13,18 @@ HICON E_Util::getIconHandle(HWND hwnd) {
 	DWORD pid;
 	DWORD res = GetWindowThreadProcessId(hwnd, &pid); // !!??!!
 	HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-	int copyLength = GetModuleFileNameEx(handle, NULL, path, 1024);
-	//int copyLength = GetWindowModuleFileName(hwnd, path,1024);
+	
+	int copyLength;
+	copyLength = GetModuleFileNameEx(handle, NULL, path, 1024); // 32bit API
+	
+	if (copyLength == 0)
+	{
+		DWORD dwLen = sizeof(path) / sizeof(wchar_t);
+		::QueryFullProcessImageName(handle, 0, path, &dwLen); // Windows Vista ÀÌ»ף API
+	}
+	
 	ExtractIconEx(path, 0, &icon, NULL, 1);
+	CloseHandle(handle);
 	return icon;
 }
 

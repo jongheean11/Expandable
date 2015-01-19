@@ -32,7 +32,9 @@ private:
 	int transparent;
 	int settingTimer;
 	bool hotkeyinvalidate;
-	
+
+	//제외 윈도우
+	static wchar_t* const excludeWindows[];
 public:
 	DWORD pidforhideNotify;
 	CWnd* notifyHwnd[5];

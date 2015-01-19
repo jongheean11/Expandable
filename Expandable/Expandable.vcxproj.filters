@@ -52,6 +52,9 @@
     <Filter Include="Injector">
       <UniqueIdentifier>{7548a767-5838-4bcf-9671-a2b590599932}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Image">
+      <UniqueIdentifier>{762ec67a-8bc7-4a12-8ea8-425d9acb1398}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -323,6 +326,21 @@
     </Image>
     <Image Include="res\bitmap1.bmp">
       <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="DesktopSwitcher_background.png">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="DesktopSwitcher_leftarrow.png">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="DesktopSwitcher_rightarrow.png">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="Map_background.png">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="WindowSwitcher_background.png">
+      <Filter>Image</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
