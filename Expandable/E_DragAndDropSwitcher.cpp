@@ -581,8 +581,6 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 		//switchTaskbar = NULL;
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-		
-		//E_Window::setIconInvisible(hTaskbarWnd);
 	}
 }
 
