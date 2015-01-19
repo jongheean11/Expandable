@@ -79,9 +79,9 @@ void E_WindowSwitcher::startSwitcher()
 		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
 		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 
-			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
-
 			hwnd = (*iter)->getWindow();
+
+			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
 			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
 				//thumb_list.push_back(hthumbnail);
@@ -204,6 +204,8 @@ void E_WindowSwitcher::restartSwitcher()
 		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
 		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 			hwnd = (*iter)->getWindow();
+
+			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
 			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
 				//thumb_list.push_back(hthumbnail);
@@ -667,6 +669,39 @@ void E_WindowSwitcher::OnPaint()
 						cdc.DeleteDC();
 					}*/
 
+					//아이콘
+					int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
+					CWnd* iconCWnd = NULL;
+					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
+						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
+						//CPaintDC iconDC(iconCWnd);
+						CBitmap* icon = (*iter)->getIcon();
+						BITMAP icon_info;
+
+						if (icon->m_hObject != NULL){
+							icon->GetBitmap(&icon_info);
+
+							RECT windowRect;
+							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
+							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom;
+							windowRect.right = allswitcherLeft + rectForAero.right;
+							iconCWnd->MoveWindow(&windowRect);
+							
+							CDC* iconDC = iconCWnd->GetDC();
+							//SetBkMode(*iconDC, TRANSPARENT);
+
+							CDC cdc; 
+							cdc.CreateCompatibleDC(iconDC);
+							cdc.SelectObject(icon);
+							iconDC->SetStretchBltMode(COLORONCOLOR);
+							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+							cdc.DeleteDC();
+							iconCWnd->ShowWindow(SW_SHOW);
+
+						}
+					}
+
 					//업데이트 플래그
 					mode_map.find((*iter)->getWindow())->second = DRAW_NORMAL;
 
@@ -885,6 +920,39 @@ void E_WindowSwitcher::OnPaint()
 						cdc.DeleteDC();
 					}*/
 
+
+					//아이콘
+					int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
+					CWnd* iconCWnd = NULL;
+					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
+						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
+						//CPaintDC iconDC(iconCWnd);
+						CBitmap* icon = (*iter)->getIcon();
+						BITMAP icon_info;
+
+						if (icon->m_hObject != NULL){
+							icon->GetBitmap(&icon_info);
+
+							RECT windowRect;
+							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
+							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom;
+							windowRect.right = allswitcherLeft + rectForAero.right;
+							iconCWnd->MoveWindow(&windowRect);
+
+							CDC* iconDC = iconCWnd->GetDC();
+							//SetBkMode(*iconDC, TRANSPARENT);
+
+							CDC cdc;
+							cdc.CreateCompatibleDC(iconDC);
+							cdc.SelectObject(icon);
+							iconDC->SetStretchBltMode(COLORONCOLOR);
+							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+							cdc.DeleteDC();
+							iconCWnd->ShowWindow(SW_SHOW);
+						}
+					}
+
 					//업데이트 플래그
 					mode_map.find((*iter)->getWindow())->second = DRAW_NORMAL;
 
@@ -904,7 +972,7 @@ void E_WindowSwitcher::OnPaint()
 
 
 				//버퍼에 있는 내용 한번에 그리기
-
+				
 				dc.StretchBlt(switcherLeft, 0, switcherWidth, switcherHeight, &memDC, 0, 0, switcherWidth, switcherHeight, SRCCOPY);
 				dc.StretchBlt(secondSwitcherLeft, switcherHeight + bottomPadding, secondSwitcherWidth, secondSwitcherHeight
 					, &secondMemDC
@@ -1347,17 +1415,20 @@ CWnd* E_WindowSwitcher::createChild()
 	int iconsize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
 	RECT winRect;
 	winRect.left = 0;
-	winRect.right = 0;
-	winRect.bottom = iconsize;
-	winRect.right = iconsize;
+	winRect.top = 0;
+	winRect.bottom = 1;
+	winRect.right = 1;
 
 	CBrush brush_map;
 	brush_map.CreateStockObject(NULL_BRUSH);
+	//brush_map.CreateSolidBrush(RGB(88, 88, 88));
 
 	CWnd* cwnd = new CWnd;
 	UINT nClassStyle_window = 0;
-	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, brush_map, 0);
-	cwnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"icon", WS_VISIBLE | WS_POPUP, winRect, this, 0, NULL);
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
+	cwnd->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, L"icon", WS_VISIBLE | WS_POPUP, winRect, this, 0, NULL);
+	this->UpdateWindow();
+	this->ShowWindow(SW_HIDE);
 	//CREATE
 	brush_map.DeleteObject();
 
