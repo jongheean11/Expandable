@@ -157,6 +157,11 @@ BEGIN
         MENUITEM "프로그램종료",                      ID_32778
         MENUITEM "윈도우고정",                       ID_32779
     END
+    POPUP "우클릭2"
+    BEGIN
+        MENUITEM "프로그램종료",                      ID_32778
+        MENUITEM "윈도우고정해제",                     ID_32781
+    END
 END
 
 IDR_POPUP_EDIT MENU

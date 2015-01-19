@@ -72,6 +72,7 @@ public:
 	void changetray(int num);
 	afx_msg void On32778();
 	afx_msg void On32779();
+	afx_msg void On32781();
 };
 
 

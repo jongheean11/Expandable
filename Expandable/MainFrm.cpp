@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_32777, &CMainFrame::On32777)
 	ON_COMMAND(ID_32778, &CMainFrame::On32778)
 	ON_COMMAND(ID_32779, &CMainFrame::On32779)
+	ON_COMMAND(ID_32781, &CMainFrame::On32781)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -97,7 +98,31 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
+	E_Global* e_global = E_Global::getSingleton();
+	bool dockicon = false;
 	hwnd = (HWND)wParam;
+
+	std::list<E_Desktop*> desklist2 = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_window)->getWindow() == hwnd)
+			{
+				if ((*itr_window)->dock)
+				{
+					dockicon = true;
+					break;
+				}
+			}
+		}
+		if (dockicon)
+			break;
+	}
+
+
+
 	UINT uMouseMsg = (UINT)lParam;
 	POINT MousePos;
 	GetCursorPos(&MousePos);
@@ -105,7 +130,11 @@ HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
 	UINT id;
 	E_Map* e_map = E_Map::getSingleton();
 	menu.LoadMenu(IDR_MAINFRAME);
-	pPopup = menu.GetSubMenu(2);
+	if (dockicon)
+		pPopup = menu.GetSubMenu(3);
+	else
+		pPopup = menu.GetSubMenu(2);
+
 	id = pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD, MousePos.x, MousePos.y, this);
 	switch (id)
 	{
@@ -114,6 +143,10 @@ HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
 		break;
 	case ID_32779:
 		On32779();
+		//PostMessage(WM_QUIT);
+		break;
+	case ID_32781:
+		On32781();
 		//PostMessage(WM_QUIT);
 		break;
 
@@ -646,9 +679,32 @@ void CMainFrame::On32779()
 				(*itr_window)->dock = true;
 				e_global->dockcount++;
 				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
-				break;
+				return;
 			}
 		}
 	}
 
+}
+
+
+void CMainFrame::On32781()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	E_Global* e_global = E_Global::getSingleton();
+	E_Map* e_map = E_Map::getSingleton();
+	std::list<E_Desktop*> desklist2 = e_global->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_window)->getWindow() == hwnd)
+			{
+				(*itr_window)->dock = false;
+				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
+				return;
+			}
+		}
+		
+	}
 }
