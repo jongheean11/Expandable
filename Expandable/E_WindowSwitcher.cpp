@@ -62,20 +62,28 @@ void E_WindowSwitcher::startSwitcher()
 	tabIndex = 1;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
-	global->startUpdate();
+	//global->startUpdate();
 
 	RECT r = { 0, 0, 0, 0 };
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
+	//정보 업데이트
+	global->onUpdate();
+
+	//AERO모드
+	startTPMode();
 
 	//각종 정보 등록
 	E_Desktop* desktop = global->getSelectedDesktop();
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
 		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
+
+			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
+
 			hwnd = (*iter)->getWindow();
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
-			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
+			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
 				//thumb_list.push_back(hthumbnail);
 				thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 			}
@@ -106,10 +114,11 @@ void E_WindowSwitcher::startSwitcher()
 void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
+		stopTPMode();
 		running = false;
 		//크리티컬 세션?
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
-		E_Global::getSingleton()->stopUpdate();
+		//E_Global::getSingleton()->stopUpdate();
 
 		HRESULT result;
 		this->ShowWindow(SW_HIDE);
@@ -124,6 +133,13 @@ void E_WindowSwitcher::terminateSwitcher()
 				//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
 			}
 		}
+		//아이콘 해제
+		for (unordered_map<HWND, CWnd*>::iterator iter = icon_map.begin(); iter != icon_map.end(); iter++) {
+			if (::IsWindow(iter->second->GetSafeHwnd()))
+				delete iter->second;
+		}
+		icon_map.clear();
+
 		thumb_map.clear();
 		rect_map.clear();
 		mode_map.clear();
@@ -141,6 +157,9 @@ void E_WindowSwitcher::terminateSwitcher()
 // 스위처를 재시작하는 함수
 void E_WindowSwitcher::restartSwitcher()
 {
+	//투명 해제 모드
+	stopTPMode();
+	
 	HRESULT result;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
@@ -154,6 +173,14 @@ void E_WindowSwitcher::restartSwitcher()
 			//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] RELEASE FAIL");
 		}
 	}
+
+	//아이콘 해제
+	for (unordered_map<HWND, CWnd*>::iterator iter = icon_map.begin(); iter != icon_map.end(); iter++) {
+		if (::IsWindow(iter->second->GetSafeHwnd()))
+			delete iter->second;
+	}
+	icon_map.clear();
+
 	thumb_map.clear();
 	rect_map.clear();
 	mode_map.clear();
@@ -162,9 +189,15 @@ void E_WindowSwitcher::restartSwitcher()
 
 	//재등록하는 부분
 
+	//정보 업데이트
+	global->onUpdate();
+
 	RECT r = { 0, 0, 0, 0 };
 	HWND hwnd = NULL;
 	HTHUMBNAIL hthumbnail = NULL;
+
+	//투명 해제 모드
+	startTPMode();
 
 	E_Desktop* desktop = global->getSelectedDesktop();
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
@@ -172,7 +205,7 @@ void E_WindowSwitcher::restartSwitcher()
 		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
 			hwnd = (*iter)->getWindow();
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
-			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail)) && (*iter)->isAeroPossible()) {
+			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
 				//thumb_list.push_back(hthumbnail);
 				thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 			}
@@ -542,7 +575,7 @@ void E_WindowSwitcher::OnPaint()
 
 					CBitmap* screenshot;
 					BITMAP bmpinfo;             //비트맵은 높이와 크기가 달라서
-					bool isAero = (*iter)->isAeroPossible();
+					bool isAero = true;	//(*iter)->isAeroPossible();	//모두 AERO 모드
 					unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find(cwnd->GetSafeHwnd());
 					if (isAero && (validKey != thumb_map.end()))
 						cwnd->GetWindowRect(crect);
@@ -595,8 +628,7 @@ void E_WindowSwitcher::OnPaint()
 					rectForAero.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset + switcherLeft;
 					rectForAero.right = rectForAero.left + windowWidth;
 					rectForAero.bottom = rectForAero.top + windowHeight;
-
-
+					
 					//전체 스위처 기준 이벤트 좌표 (윈도우 좌표계)
 					CRect rectForEvent;
 					rectForEvent.top = aeroTopoffset;
@@ -623,7 +655,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//아이콘
-					CBitmap* icon = (*iter)->getIcon();
+					/*CBitmap* icon = (*iter)->getIcon();
 					BITMAP icon_info;
 					if (icon->m_hObject != NULL){
 						icon->GetBitmap(&icon_info);
@@ -631,9 +663,9 @@ void E_WindowSwitcher::OnPaint()
 						cdc.CreateCompatibleDC(&dc);
 						cdc.SelectObject(icon);
 						memDC.SetStretchBltMode(COLORONCOLOR);
-						memDC.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						memDC.TransparentBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 						cdc.DeleteDC();
-					}
+					}*/
 
 					//업데이트 플래그
 					mode_map.find((*iter)->getWindow())->second = DRAW_NORMAL;
@@ -761,7 +793,7 @@ void E_WindowSwitcher::OnPaint()
 
 					CBitmap* screenshot;
 					BITMAP bmpinfo;             //비트맵은 높이와 크기가 달라서
-					bool isAero = (*iter)->isAeroPossible();
+					bool isAero = true; //(*iter)->isAeroPossible(); //에어로 모드
 					unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find(cwnd->GetSafeHwnd());
 					if (isAero && (validKey != thumb_map.end()))
 						cwnd->GetWindowRect(crect);
@@ -823,7 +855,7 @@ void E_WindowSwitcher::OnPaint()
 					rectForEvent.right = rectForEvent.left + aeroWidth; //왼쪽 오프셋
 
 					rect_map.insert(unordered_map<HWND, RECT>::value_type(cwnd->GetSafeHwnd(), rectForEvent));
-
+					
 					//에어로픽이나 스크린샷
 					if (isAero && (validKey != thumb_map.end())) {
 						//에어로가 가능할때
@@ -841,7 +873,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//아이콘
-					CBitmap* icon = (*iter)->getIcon();
+					/*CBitmap* icon = (*iter)->getIcon();
 					BITMAP icon_info;
 					if (icon->m_hObject != NULL){
 						icon->GetBitmap(&icon_info);
@@ -849,9 +881,9 @@ void E_WindowSwitcher::OnPaint()
 						cdc.CreateCompatibleDC(&dc);
 						cdc.SelectObject(icon);
 						secondMemDC.SetStretchBltMode(COLORONCOLOR);
-						secondMemDC.StretchBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
+						secondMemDC.TransparentBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 						cdc.DeleteDC();
-					}
+					}*/
 
 					//업데이트 플래그
 					mode_map.find((*iter)->getWindow())->second = DRAW_NORMAL;
@@ -1027,7 +1059,7 @@ HBRUSH E_WindowSwitcher::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	E_Global::getSingleton()->stopUpdate();
+	//E_Global::getSingleton()->stopUpdate();
 	HWND hwnd = NULL;	//지역 변수 사용을 통해 iterating 제거 예외 우회
 	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
@@ -1035,6 +1067,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		HWND hwnd = itr->first;
 		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
 			if (IsWindow(itr->first) && group_map.find(itr->first) != group_map.end()){
+				stopTPMode();
 				if (group_map.find(itr->first)->second == SELECTEDDESKTOP){
 					WINDOWPLACEMENT windowState;
 
@@ -1050,8 +1083,23 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
 					}
 					else{
-						if (windowState.showCmd != SW_MAXIMIZE)
+						if (::IsIconic(hwnd) == true)
 							::ShowWindow(hwnd, SW_RESTORE);
+						
+					/*	if (::GetForegroundWindow() != hwnd){
+							HWND h_active_wnd = ::GetForegroundWindow();
+							if (h_active_wnd != NULL){
+								DWORD thread_id = GetWindowThreadProcessId(h_active_wnd, NULL);
+							c	DWORD current_thread_id = GetCurrentThreadId();
+								if (current_thread_id != thread_id){
+									if (AttachThreadInput(current_thread_id, thread_id, TRUE)){
+										BringWindowToTop();
+										AttachThreadInput(current_thread_id, thread_id, FALSE);
+									}
+								}
+							}
+						}*/
+
 						::BringWindowToTop(hwnd);
 					}
 				}
@@ -1075,8 +1123,26 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					::GetWindowPlacement(hwnd, &windowState);
 					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
-					if (windowState.showCmd != SW_MAXIMIZE)
+					if (::IsIconic(hwnd) == true)
 						::ShowWindow(hwnd, SW_RESTORE);
+					/*if (windowState.showCmd != SW_MAXIMIZE)
+						::ShowWindow(hwnd, SW_RESTORE);*/
+
+
+				/*	if (::GetForegroundWindow() != hwnd){
+						HWND h_active_wnd = ::GetForegroundWindow();
+						if (h_active_wnd != NULL){
+							DWORD thread_id = GetWindowThreadProcessId(h_active_wnd, NULL);
+							DWORD current_thread_id = GetCurrentThreadId();
+							if (current_thread_id != thread_id){
+								if (AttachThreadInput(current_thread_id, thread_id, TRUE)){
+									BringWindowToTop();
+									AttachThreadInput(current_thread_id, thread_id, FALSE);
+								}
+							}
+						}
+					}*/
+
 					::BringWindowToTop(hwnd);
 				}
 				terminateSwitcher();
@@ -1136,8 +1202,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	if (running==true)
-		terminateSwitcher();
+	/*if (running==true)
+		terminateSwitcher();*/
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1218,5 +1284,82 @@ void E_WindowSwitcher::selectPrevWindow()
 // 다른 데스크탑으로 토글
 void E_WindowSwitcher::selectOtherDesktop()
 {
+	
+}
 
+
+void E_WindowSwitcher::startTPMode() 
+{
+	E_Window::SetMinimizeMaximizeAnimation(false);
+	E_Global* global = E_Global::getSingleton();  
+	E_Desktop* selectedDesktop = global->getSelectedDesktop();
+
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (selectedDesktop == *iterDesktop){
+			(*iterDesktop)->setAllTransParentExclude();	//tp 모드로 만듬
+			continue;
+		}
+		(*iterDesktop)->setAllIconInvisible();
+
+		//창 모양 유지용
+		(*iterDesktop)->setAllShow();	//창 위치 복구
+		(*iterDesktop)->setAllSaveShowState();	//창 위치 저장
+		(*iterDesktop)->setAllHide();			//창 위치 숨기기
+
+		(*iterDesktop)->setAllTransParentExclude();
+	}
+	E_Window::SetMinimizeMaximizeAnimation(true);
+}
+
+
+void E_WindowSwitcher::stopTPMode()
+{
+	E_Window::SetMinimizeMaximizeAnimation(false);
+	E_Global* global = E_Global::getSingleton();
+
+	//최소화
+	E_Desktop* selectedDesktop = global->getSelectedDesktop();
+	std::list<E_Window*> winlist = selectedDesktop->getWindowList();
+	selectedDesktop->setAllMinimizeTransparent();	//tp모드 해제
+	
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop == selectedDesktop)
+			continue;
+		//창 숨기기
+		(*iterDesktop)->setAllOpaque();
+
+		//창 모양 유지용
+		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후 
+
+		(*iterDesktop)->setAllHide();					//숨김
+		(*iterDesktop)->setAllIconVisible();			//아이콘 보여 줌
+	}
+	E_Window::SetMinimizeMaximizeAnimation(true);
+}
+
+//void E_WindowSwitcher::saveShowState()
+//{
+//}
+
+
+CWnd* E_WindowSwitcher::createChild()
+{
+	int iconsize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
+	RECT winRect;
+	winRect.left = 0;
+	winRect.right = 0;
+	winRect.bottom = iconsize;
+	winRect.right = iconsize;
+
+	CBrush brush_map;
+	brush_map.CreateStockObject(NULL_BRUSH);
+
+	CWnd* cwnd = new CWnd;
+	UINT nClassStyle_window = 0;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, brush_map, 0);
+	cwnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"icon", WS_VISIBLE | WS_POPUP, winRect, this, 0, NULL);
+	//CREATE
+	brush_map.DeleteObject();
+
+	return cwnd;
 }

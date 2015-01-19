@@ -23,6 +23,7 @@ private:
 	unordered_map<HWND, DRAWMODE> mode_map;	//	그리기 모드 ( 업데이트 인지? )
 	unordered_map<HWND, GROUP2> group_map;	//	속해 있는 그룹
 	unordered_map<HWND, E_Desktop*> desktop_map;	//	속해있는 데스크탑
+	unordered_map<HWND, CWnd*> icon_map;	//	속해있는 데스크탑
 
 protected:
 	
@@ -45,7 +46,9 @@ public:
 	void terminateSwitcher();
 	// ZOrderTop
 	void setZOrderTop();
-
+	
+	void startTPMode();
+	void stopTPMode();
 	// 해상도에 대비한 아이콘의 크기를 반환
 	int getIconSize(int res_width);
 	// 해상도에 비례한 에어로픽 너비 크기
@@ -86,5 +89,7 @@ public:
 	void selectPrevWindow();
 	// 다른 데스크탑으로 토글
 	void selectOtherDesktop();
+//	void saveShowState();
+	CWnd* createChild();
 };
 

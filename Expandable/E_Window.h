@@ -12,8 +12,10 @@ private:
 	CBitmap screenshot;
 	char windowName[255];
 
+	bool tpmode;	//투명 모드인가?
+	unsigned int savedState;	//saveShowState로 저장한 상태
+	
 public:
-
 	E_Window(HWND);
 	~E_Window();
 	bool takeScreenshot();
@@ -27,6 +29,7 @@ public:
 	void setHide();
 	void setShow();
 	void setNormal();
+	void setMinimize();
 	// 윈도우 세팅
 	void setWindow(HWND window);
 	HWND getWindow();
@@ -41,4 +44,10 @@ public:
 	UINT getShowState();
 	// 에어로가 가능한지 아는 함수.
 	bool isAeroPossible();
+	bool getTPMode();
+	// 윈도우 쇼 상태
+	void saveShowState();
+	// 저장된 상태 복구
+	void restoreShowState();
+	void setRestore();
 };
