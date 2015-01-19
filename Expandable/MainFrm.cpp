@@ -679,6 +679,8 @@ void CMainFrame::On32779()
 				(*itr_window)->dock = true;
 				e_global->dockcount++;
 				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
+				if (e_global->getSelectedIndex() != (*itr_desk)->getIndex())
+					::ShowWindow(hwnd, SW_SHOW);
 				return;
 			}
 		}
@@ -702,6 +704,8 @@ void CMainFrame::On32781()
 			{
 				(*itr_window)->dock = false;
 				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
+				if (e_global->getSelectedIndex() != (*itr_desk)->getIndex())
+					::ShowWindow(hwnd, SW_HIDE);
 				return;
 			}
 		}
