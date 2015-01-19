@@ -15,7 +15,7 @@ private:
 
 	E_Desktop* focusedDesktop;
 	E_Window* clickedWindow;
-	bool ison;
+	
 
 	// property for doubleclick
 	SYSTEMTIME doubleClickTimer, __doubleClickTimer;
@@ -28,6 +28,8 @@ private:
 	bool desktop_selected;
 
 public:
+	bool ison;
+
 	int target_desktop_index, desktoplist_startindex;
 
 private:

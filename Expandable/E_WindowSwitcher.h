@@ -80,5 +80,11 @@ public:
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	// 다음 윈도우로 이동
+	void selectNextWindow();
+	// 이전 윈도우로 이동
+	void selectPrevWindow();
+	// 다른 데스크탑으로 토글
+	void selectOtherDesktop();
 };
 

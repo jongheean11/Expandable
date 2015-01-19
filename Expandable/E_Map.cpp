@@ -373,7 +373,6 @@ void E_Map::OnPaint()
 				cdc.SetBkMode(1);
 				cdc.SetBkColor(E_Map::backgroundColor);
 
-
 				memDC.StretchBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 				cdc.DeleteDC();
 				icon.DeleteObject();
