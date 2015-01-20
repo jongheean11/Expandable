@@ -11,7 +11,7 @@ private:
 	char pName[255];
 	HWND pHwnd;
 	bool click;
-	bool m_bTrack;
+	BOOL m_bTrack;
 	int colornum;
 public:
 	bool deleteAble();

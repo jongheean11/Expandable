@@ -20,8 +20,9 @@ void E_GlobalTest::testGetKakaoWindow()
 
 	}
 }
- list<HWND> E_GlobalTest::testGetAllWindows()
- {
+
+list<HWND> E_GlobalTest::testGetAllWindows()
+{
 	 E_Global* object = E_Global::getSingleton();
 
 	 E_Global::getSingleton()->getKakaoWindow()->ShowWindow(SW_HIDE);

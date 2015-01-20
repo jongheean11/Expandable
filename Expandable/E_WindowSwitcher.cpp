@@ -284,7 +284,7 @@ void E_WindowSwitcher::OnPaint()
 			//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
 			{
 				//타이틀 바
-				CFont* pOldFont;
+				//CFont* pOldFont;
 				CFont font;
 				LOGFONT lf;
 				::ZeroMemory(&lf, sizeof(lf));
@@ -1203,7 +1203,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
 					}
 					else{
-						if (::IsIconic(hwnd) == true)
+						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
 					/*	if (::GetForegroundWindow() != hwnd){
@@ -1245,7 +1245,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					::GetWindowPlacement(hwnd, &windowState);
 					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
-					if (::IsIconic(hwnd) == true)
+					if (::IsIconic(hwnd) == TRUE)
 						::ShowWindow(hwnd, SW_RESTORE);
 					/*if (windowState.showCmd != SW_MAXIMIZE)
 						::ShowWindow(hwnd, SW_RESTORE);*/

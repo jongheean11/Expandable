@@ -183,7 +183,7 @@ bool E_Window::takeScreenshot()
 
 	HWND hTargetWnd = window;
 
-	LPCTSTR lpszFilePath;
+	//LPCTSTR lpszFilePath;
 
 	CRect rct;
 	if (hTargetWnd)

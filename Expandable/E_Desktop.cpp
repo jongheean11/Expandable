@@ -23,7 +23,10 @@ void E_Desktop::setAllIconInvisible()
 {
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		(*itr)->setIconInvisible((*itr)->getWindow());
+		if (!(*itr)->dock)
+		{
+			(*itr)->setIconInvisible((*itr)->getWindow());
+		}
 	}
 	/*
 	POSITION pos = windowList.GetHeadPosition();
@@ -36,10 +39,15 @@ void E_Desktop::setAllIconInvisible()
 
 void E_Desktop::setAllIconVisible()
 {
-	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	for (list<E_Window*>::reverse_iterator ritr = windowList.rbegin(); ritr != windowList.rend(); ritr++)
+	{
+		if (!(*ritr)->dock)
+			(*ritr)->setIconVisible((*ritr)->getWindow());
+	}
+	/*for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
 		(*itr)->setIconVisible((*itr)->getWindow());
-	}
+	}*/
 	/*
 	POSITION pos = windowList.GetHeadPosition();
 	for (int i = 0; i < windowList.GetCount(); i++)

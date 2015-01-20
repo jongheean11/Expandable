@@ -681,6 +681,12 @@ void CMainFrame::On32779()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	E_Map* e_map = E_Map::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
+	
+	e_global->dockedWindowList.push_back(hwnd);
+
+
+
+	
 	std::list<E_Desktop*> desklist = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 	{
@@ -694,19 +700,33 @@ void CMainFrame::On32779()
 				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
 				if (e_global->getSelectedIndex() != (*itr_desk)->getIndex())
 					::ShowWindow(hwnd, SW_SHOW);
+
+				e_global->hwnd_desk.insert(hash_map<HWND, int>::value_type((*itr_window)->getWindow(),(*itr_desk)->getIndex()));
+
+
 				return;
 			}
 		}
 	}
-
+	return;
 }
 
 
 void CMainFrame::On32781()
 {
+	//도킹해제
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	E_Global* e_global = E_Global::getSingleton();
 	E_Map* e_map = E_Map::getSingleton();
+
+	std::list<HWND> docklist = e_global->dockedWindowList;
+	for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)
+	{
+		if ((*itr_dock) == hwnd)
+			e_global->dockedWindowList.remove((*itr_dock));
+	}
+
+
 	std::list<E_Desktop*> desklist2 = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 	{
@@ -719,6 +739,9 @@ void CMainFrame::On32781()
 				::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
 				if (e_global->getSelectedIndex() != (*itr_desk)->getIndex())
 					::ShowWindow(hwnd, SW_HIDE);
+
+				e_global->hwnd_desk.erase(e_global->hwnd_desk.find((*itr_window)->getWindow()));
+
 				return;
 			}
 		}
