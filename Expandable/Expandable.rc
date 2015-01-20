@@ -152,6 +152,16 @@ BEGIN
     BEGIN
         MENUITEM "Expandable 정보(&A)...",        ID_APP_ABOUT
     END
+    POPUP "우클릭"
+    BEGIN
+        MENUITEM "프로그램종료",                      ID_32778
+        MENUITEM "윈도우고정",                       ID_32779
+    END
+    POPUP "우클릭2"
+    BEGIN
+        MENUITEM "프로그램종료",                      ID_32778
+        MENUITEM "윈도우고정해제",                     ID_32781
+    END
 END
 
 IDR_POPUP_EDIT MENU
@@ -264,7 +274,7 @@ BEGIN
     LTEXT           "Ctrl + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,137,123,156,9,SS_NOPREFIX
     LTEXT           "Alt + Win + Arrow Key (위, 아래, 좌, 우)",IDC_STATIC,138,157,149,9,SS_NOPREFIX
     LTEXT           "보다 넓은 바탕화면을 누리세요 !",IDC_STATIC,139,17,119,9,SS_NOPREFIX
-    CONTROL         IDB_BITMAP1,IDC_EXLogo, "Static", SS_BITMAP, 20,29,74,138,NOT WS_GROUP
+    CONTROL         IDB_BITMAP1,IDC_EXLogo,"static",SS_BITMAP,20,29,74,138,NOT WS_GROUP
 END
 
 

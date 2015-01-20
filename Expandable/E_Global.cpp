@@ -12,6 +12,7 @@ wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
 #define WM_TRAY_EVENT (WM_USER + 3)
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	dockcount = 0;
 	nowActiveNotify = -1;
 	nextActiveNotify = 0;
 	mapopen = false;
