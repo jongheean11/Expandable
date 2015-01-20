@@ -49,4 +49,5 @@ public:
 	void setAllRestore();
 	void setAllSaveShowState();
 	void setAllRestoreSavedShowState();
+	void setAllNormalExclude();
 };
