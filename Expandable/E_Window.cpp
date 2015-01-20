@@ -146,7 +146,7 @@ void E_Window::SetMinimizeMaximizeAnimation(bool status)
 	//}
 }
 
-BOOL E_Window::takeScreenshot()
+bool E_Window::takeScreenshot()
 {
 	//ShowWindow(window,SW_FORCEMINIMIZE); // ½ºÅ©¸°¼¦ ¾ÈµÊ
 	//ShowWindow(window, SW_HIDE);	//½ºÅ©¸°¼¦ ¾ÈµÊ
