@@ -97,6 +97,9 @@ void E_WindowSwitcher::startSwitcher()
 		}
 	}
 	
+	//아이콘 초기화
+	//drawIcon();
+
 	//데스크탑
 	E_Window* desktopWindow = global->backgroundWindow;
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
@@ -670,7 +673,6 @@ void E_WindowSwitcher::OnPaint()
 					}*/
 
 					//아이콘
-					int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
 						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
@@ -682,23 +684,30 @@ void E_WindowSwitcher::OnPaint()
 							icon->GetBitmap(&icon_info);
 
 							RECT windowRect;
+							/*windowRect.left = 0;
+							windowRect.top = 0;
+							windowRect.bottom = 1;
+							windowRect.right = 1;
+
+							iconCWnd->MoveWindow(&windowRect);*/
+
 							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
 							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
 							windowRect.bottom = allswitcherTop + rectForAero.bottom;
 							windowRect.right = allswitcherLeft + rectForAero.right;
 							iconCWnd->MoveWindow(&windowRect);
-							
+							//iconCWnd->SetWindowPos(NULL, windowRect.left, windowRect.top, windowRect.right, windowRect.bottom, 0);
 							CDC* iconDC = iconCWnd->GetDC();
 							//SetBkMode(*iconDC, TRANSPARENT);
-
+							
 							CDC cdc; 
 							cdc.CreateCompatibleDC(iconDC);
 							cdc.SelectObject(icon);
-							iconDC->SetStretchBltMode(COLORONCOLOR);
+							//iconDC->SetStretchBltMode(COLORONCOLOR);
+							//iconDC->bitbit
 							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 							cdc.DeleteDC();
-							iconCWnd->ShowWindow(SW_SHOW);
-
 						}
 					}
 
@@ -970,7 +979,18 @@ void E_WindowSwitcher::OnPaint()
 					pen.DeleteObject();
 				}
 
+				/*for (list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++){
+					unordered_map<HWND, CWnd*>::iterator itr = icon_map.find((*iter)->getWindow());
+					if (itr != icon_map.end())
+						itr->second->ShowWindow(SW_SHOW);
+				}
 
+				for (list<E_Window*>::iterator iter = secondWinlist.begin(); iter != secondWinlist.end(); iter++){
+					unordered_map<HWND, CWnd*>::iterator itr = icon_map.find((*iter)->getWindow());
+					if (itr != icon_map.end())
+						itr->second->ShowWindow(SW_SHOW);
+				}*/
+				
 				//버퍼에 있는 내용 한번에 그리기
 				
 				dc.StretchBlt(switcherLeft, 0, switcherWidth, switcherHeight, &memDC, 0, 0, switcherWidth, switcherHeight, SRCCOPY);
@@ -1365,16 +1385,21 @@ void E_WindowSwitcher::startTPMode()
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (selectedDesktop == *iterDesktop){
 			(*iterDesktop)->setAllTransParentExclude();	//tp 모드로 만듬
+			//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
+			(*iterDesktop)->setAllNormalExclude();
 			continue;
 		}
 		(*iterDesktop)->setAllIconInvisible();
+		//투명
+		(*iterDesktop)->setAllTransParentExclude();
 
 		//창 모양 유지용
 		(*iterDesktop)->setAllShow();	//창 위치 복구
 		(*iterDesktop)->setAllSaveShowState();	//창 위치 저장
 		(*iterDesktop)->setAllHide();			//창 위치 숨기기
 
-		(*iterDesktop)->setAllTransParentExclude();
+		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
+		(*iterDesktop)->setAllNormalExclude();
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }
@@ -1393,21 +1418,18 @@ void E_WindowSwitcher::stopTPMode()
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (*iterDesktop == selectedDesktop)
 			continue;
-		//창 숨기기
-		(*iterDesktop)->setAllOpaque();
 
 		//창 모양 유지용
 		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후 
-
+		
 		(*iterDesktop)->setAllHide();					//숨김
 		(*iterDesktop)->setAllIconVisible();			//아이콘 보여 줌
+
+		//창 숨기기
+		(*iterDesktop)->setAllOpaque();
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }
-
-//void E_WindowSwitcher::saveShowState()
-//{
-//}
 
 
 CWnd* E_WindowSwitcher::createChild()
@@ -1418,19 +1440,71 @@ CWnd* E_WindowSwitcher::createChild()
 	winRect.top = 0;
 	winRect.bottom = 1;
 	winRect.right = 1;
-
+	
 	CBrush brush_map;
-	brush_map.CreateStockObject(NULL_BRUSH);
-	//brush_map.CreateSolidBrush(RGB(88, 88, 88));
+	//brush_map.CreateStockObject(NULL_BRUSH);
+	brush_map.CreateSolidBrush(this->backgroundColor);
 
 	CWnd* cwnd = new CWnd;
 	UINT nClassStyle_window = 0;
 	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
 	cwnd->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, L"icon", WS_VISIBLE | WS_POPUP, winRect, this, 0, NULL);
-	this->UpdateWindow();
-	this->ShowWindow(SW_HIDE);
+	cwnd->UpdateWindow();
+	
 	//CREATE
 	brush_map.DeleteObject();
 
 	return cwnd;
+}
+
+
+
+// 아이콘을 미리 그리는 코드
+// 사용안함
+void E_WindowSwitcher::drawIcon()
+{
+	int offset = 0;
+	HWND hwnd;
+	E_Global* global = E_Global::getSingleton();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
+			hwnd = (*iter)->getWindow();
+			
+			int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
+			CWnd* iconCWnd = NULL;
+			if (icon_map.find(hwnd) != icon_map.end()){
+				iconCWnd = icon_map.find(hwnd)->second;
+				//CPaintDC iconDC(iconCWnd);
+				CBitmap* icon = (*iter)->getIcon();
+				BITMAP icon_info;
+
+				if (icon->m_hObject != NULL){
+					icon->GetBitmap(&icon_info);
+
+					offset += icon_info.bmWidth;	//투명유지
+
+					//iconCWnd->ShowWindow(SW_HIDE);
+
+					RECT windowRect;
+					windowRect.left = offset;
+					windowRect.top = 0;
+					windowRect.right = icon_info.bmWidth + windowRect.left;
+					windowRect.bottom = icon_info.bmHeight + windowRect.top;
+
+					iconCWnd->MoveWindow(&windowRect);
+					iconCWnd->SetWindowPos(NULL, windowRect.left, windowRect.top, windowRect.right, windowRect.bottom, 0);
+					CDC* iconDC = iconCWnd->GetDC();
+					//SetBkMode(*iconDC, TRANSPARENT);
+
+					CDC cdc;
+					cdc.CreateCompatibleDC(iconDC);
+					cdc.SelectObject(icon);
+					iconDC->TransparentBlt(0, 0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+					
+					cdc.DeleteDC();
+				}
+			}
+		}
+	}
 }

@@ -281,12 +281,14 @@ bool E_Window::isAeroPossible()
 	UINT state;
 	UINT winstate = getShowState();
 	BOOL isVisible = IsWindowVisible(this->getWindow());
+	BOOL isMinimized = IsIconic(this->getWindow());
 	if ((state = winstate) == SW_FORCEMINIMIZE
 		|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
 		|| (state = winstate) == SW_MINIMIZE
 		|| (state = winstate) == SW_SHOWMINIMIZED
 		|| (state = winstate) == SW_SHOWMINNOACTIVE
 		|| isVisible == FALSE
+		|| isMinimized == TRUE
 		//|| (state = winstate) == SW_SHOWNA
 		){
 		//스크린샷이 안되는 상황
