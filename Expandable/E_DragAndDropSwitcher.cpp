@@ -71,11 +71,28 @@ void drawCurrentDesktop()
 	};
 	aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->currentTaskbarRECT), drSwitcher->currentTaskbarThumbnail);
 	
+	for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	{
+		if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
+		{
+			CRect getSize;
+			GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+			RECT *windowRECT = new RECT
+			{
+				getSize.left + plus_width,
+				getSize.top + plus_height,
+				getSize.right + plus_width,
+				getSize.bottom + plus_height
+			};
+			aeController->registerAero((*itr_window_docked)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		}
+	}
+
 	std::list<E_Window*> window_list = e_global->getSelectedDesktop()->windowList;
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if ((*itr_window)->isAeroPossible())
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -291,6 +308,23 @@ void drawSwitchDesktop()
 		drSwitcher->switchDesktop = *itr_desktop;
 	}
 
+	for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	{
+		if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
+		{
+			CRect getSize;
+			GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+			RECT *windowRECT = new RECT
+			{
+				getSize.left + width,
+				getSize.top + height,
+				getSize.right + width,
+				getSize.bottom + height
+			};
+			aeController->registerAero((*itr_window_docked)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		}
+	}
+
 	for (list<E_Window*>::iterator itr = drSwitcher->switchDesktop->windowList.begin(); itr != drSwitcher->switchDesktop->windowList.end(); itr++)
 	{
 		(*itr)->setShow();
@@ -301,7 +335,7 @@ void drawSwitchDesktop()
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
 		{
 			//(*itr_window)->setShow();
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
@@ -885,6 +919,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
+					e_global->getSelectedDesktop()->setAllIconVisible();
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
@@ -935,6 +970,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
+					switchDesktop->setAllIconVisible();
 					switchDesktop->setAllHide();
 				}
 
@@ -991,6 +1027,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
+					e_global->getSelectedDesktop()->setAllIconVisible();
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
@@ -1041,6 +1078,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
+					switchDesktop->setAllIconVisible();
 					switchDesktop->setAllHide();
 				}
 
@@ -1098,6 +1136,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
+					e_global->getSelectedDesktop()->setAllIconVisible();
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
@@ -1148,6 +1187,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
+					switchDesktop->setAllIconVisible();
 					switchDesktop->setAllHide();
 				}
 
@@ -1204,6 +1244,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
+					e_global->getSelectedDesktop()->setAllIconVisible();
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
@@ -1254,6 +1295,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
+					switchDesktop->setAllIconVisible();
 					switchDesktop->setAllHide();
 				}
 

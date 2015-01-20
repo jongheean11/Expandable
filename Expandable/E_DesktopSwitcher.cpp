@@ -143,12 +143,14 @@ void drawDesktopList()
 			}
 		}
 
+		(*itr_desktop)->setAllIconInvisible();
+		(*itr_desktop)->setAllShow();
 		list<RECT*> windowRECT_List;
 		hash_map<RECT*, HTHUMBNAIL> pushThumbnail_Map;
 		std::list<E_Window*> window_list_topmost;
 		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
 		{
-			(*itr_window)->setShow();
+			//(*itr_window)->setShow();
 			if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
 			{
 				DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
@@ -241,6 +243,8 @@ void drawWindowS()
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+
+	e_global->getSelectedDesktop()->setAllIconVisible();
 
 	//Selected Desktop 부분
 	double background_bottom = 1080 - 0.15 * (1080 - (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height)),
@@ -446,13 +450,14 @@ void E_DesktopSwitcher::startSwitcher()
 
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-		HBITMAP hbitmap_old = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0,
-			LR_CREATEDIBSECTION | LR_LOADTRANSPARENT | LR_LOADFROMFILE);
 		
 		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		HBITMAP hbmOrig_left = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_leftarrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 		BITMAP bm = { 0 };
 		GetObject(hbmOrig, sizeof(BITMAP), &bm);
+		BITMAP bm_left = { 0 };
+		GetObject(hbmOrig_left, sizeof(BITMAP), &bm_left);
 
 		HDC dc = ::GetDC(::GetDesktopWindow());
 		HDC memdc = CreateCompatibleDC(dc);
@@ -478,9 +483,12 @@ void E_DesktopSwitcher::startSwitcher()
 
 		E_Window::setIconInvisible(this->m_hWnd);
 		
-
 		//e_global->stopUpdate();
 		drawDesktopSwitcher();
+
+		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 0, LWA_ALPHA);
+		
 		UpdateWindow();
 		ison = true;
 		
@@ -498,6 +506,12 @@ void E_DesktopSwitcher::terminateSwitcher()
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 	eraseDesktopList();
 	eraseWindowS();
+
+	if (ison)
+	{
+		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
+		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+	}
 
 	ison = false;
 	doubleclick_first = false;
@@ -751,7 +765,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 			{
 				for (itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++)
 				{
-					//(*itr_desktop)->setAllOpaque();
+					(*itr_desktop)->setAllIconVisible();
 					(*itr_desktop)->setAllHide();
 				}
 				(e_global->getSelectedDesktop())->setAllShow();
@@ -827,6 +841,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 			if (((CRect)(*itr_desktop_area)).PtInRect(point) && (i == target_desktop_index))
 			{
 				eraseWindowS();
+				e_global->getSelectedDesktop()->setAllIconInvisible();
 				e_global->setSelectedIndex(i);
 				drawWindowS();
 				desktop_inrange = true;
