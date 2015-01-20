@@ -881,7 +881,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 			{
-				bool yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
 				if (yesOverlap)
 				{
 					if (i != e_global->getSelectedIndex())
@@ -976,7 +976,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 			int p = 0;
 			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 			{
-				bool yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
 				if (yesOverlap)
 				{
 					if (i != e_global->getSelectedIndex())

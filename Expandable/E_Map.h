@@ -21,7 +21,7 @@ private:
 	bool redraw;
 	bool select;
 	bool up;
-	bool m_bTrack;
+	BOOL m_bTrack;
 	bool leave;
 	bool alreadyin;
 	CRect getSize;

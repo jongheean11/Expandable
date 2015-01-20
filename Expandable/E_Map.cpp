@@ -469,7 +469,7 @@ void E_Map::OnPaint()
 		long newxpoint = (iconClick.x - iconSize / 2) / e_global->getMapsize()*mapWidth / mapWidth;
 		long newypoint = (h - th)*(iconClick.y - iconSize / 2) / w / e_global->getMapsize() / mapHeight*mapHeight;
 
-		int windowindext;
+		//int windowindext;
 		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
 		{

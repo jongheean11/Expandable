@@ -61,7 +61,7 @@ DWORD E_AeroPeekController::unregisterAllAreo()
 }
 
 // AeroPeek이 활성화 되어있는지?
-bool E_AeroPeekController::isAeroPeekMode()
+BOOL E_AeroPeekController::isAeroPeekMode()
 {
 	BOOL result;
 	bool returnVal=false;

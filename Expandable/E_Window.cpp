@@ -146,7 +146,7 @@ void E_Window::SetMinimizeMaximizeAnimation(bool status)
 	//}
 }
 
-bool E_Window::takeScreenshot()
+BOOL E_Window::takeScreenshot()
 {
 	//ShowWindow(window,SW_FORCEMINIMIZE); // ½ºÅ©¸°¼¦ ¾ÈµÊ
 	//ShowWindow(window, SW_HIDE);	//½ºÅ©¸°¼¦ ¾ÈµÊ
@@ -183,7 +183,7 @@ bool E_Window::takeScreenshot()
 
 	HWND hTargetWnd = window;
 
-	LPCTSTR lpszFilePath;
+	//LPCTSTR lpszFilePath;
 
 	CRect rct;
 	if (hTargetWnd)

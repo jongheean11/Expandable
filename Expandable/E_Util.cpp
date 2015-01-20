@@ -236,7 +236,7 @@ BOOL CALLBACK shownWindow(HWND hwnd, LPARAM lParam){ // EnumWindows callback
 		//printf("wndtitle: %s\n", pcWinTitle);
 		hModuleT = getModuleHwnd(hwnd);
 
-		char szBuff[512];
+		//char szBuff[512];
 		//sprintf(szBuff, "%p", hwnd);
 
 		//printf("Found .... hWnd: %s\n", szBuff);
