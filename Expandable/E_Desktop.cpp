@@ -63,10 +63,26 @@ void E_Desktop::setAllTransParentExclude()
 			(*itr)->setTransparent();	//투명
 			//윈도우 상태 저장
 
+			//(*itr)->setNormal();
+		}
+	}
+}
+
+
+void E_Desktop::setAllNormalExclude()
+{
+
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
+		if (!(*itr)->isAeroPossible()){
+			TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
+
 			(*itr)->setNormal();
 		}
 	}
 }
+
 
 void E_Desktop::setAllMinimizeTransparent()
 {

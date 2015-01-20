@@ -3,7 +3,7 @@
 #include "E_IGlobal.h"
 #include "E_Mutex.h"
 #include "E_ISwitcherUpdator.h"
-
+#include <hash_map>
 /*
 객체 생성 후
 init()로 초기화 필요.
@@ -32,10 +32,11 @@ private:
 	int transparent;
 	int settingTimer;
 	bool hotkeyinvalidate;
-
+	DWORD parnetpid;
 	//제외 윈도우
 	static wchar_t* const excludeWindows[];
 public:
+
 	int dockcount;
 	DWORD pidforhideNotify;
 	CWnd* notifyHwnd[5];
@@ -59,7 +60,11 @@ public:
 	E_Window* backgroundWindow;
 
 	list<E_Desktop*> desktopList;
-	list<E_Window*> dockedWindowList;
+	list<HWND> dockedWindowList;
+
+	std::hash_map<HWND, int> hwnd_desk;
+
+
 	bool ExpandableRunningFlag;
 	int desktopwidth;
 	int desktopheight;
@@ -80,6 +85,8 @@ public:
 	E_ISwitcherUpdator* dragSwitcher;
 	E_ISwitcherUpdator* windowSwitcher;
 public:
+
+	static BOOL CALLBACK EnumShow(HWND hwnd, LPARAM lParam);
 	double getIconsize();
 	void setIconsize(double value);
 	void setMapsize(double value);

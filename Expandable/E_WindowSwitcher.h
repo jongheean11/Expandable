@@ -91,5 +91,7 @@ public:
 	void selectOtherDesktop();
 //	void saveShowState();
 	CWnd* createChild();
+	// 아이콘을 미리 그리는 코드
+	void drawIcon();
 };
 

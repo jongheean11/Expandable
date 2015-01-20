@@ -783,6 +783,11 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 		}
 
+		//std::list<HWND> docklist = e_global->dockedWindowList;
+		//for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)	//각 데스크탑 별로출력
+		//{
+		//	::ShowWindow((*itr_dock), SW_SHOW);
+		//}
 		std::list<E_Desktop*> desklist2 = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
@@ -792,6 +797,16 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				if ((*itr_window)->dock)
 				{
 					::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+					WCHAR name[60];
+					::GetWindowText((*itr_window)->getWindow(), name, 60);
+					char* pStr;
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+					int resutr = 0;
+					parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+						EnumWindows(EnumShow, 0);
 				}
 			}
 		}
@@ -806,12 +821,27 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 
-
-
-
-
 	}
 }
+BOOL CALLBACK  E_Map::EnumShow(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"카카오";
+	::GetWindowText(hwnd, name2, 4);
+
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->parnetpid)
+			::ShowWindow(hwnd, SW_SHOW);
+	}
+	return true;
+}
+
 BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
@@ -1033,13 +1063,7 @@ void E_Map::OnRButtonDown(UINT nFlags, CPoint point)
 		{
 
 			::SendMessage(e_global->hwnd_frame, WM_USER_MAPR, (WPARAM)(*itr_hwnd), 0);
-
-
-
-
-
-
-
+			
 			//
 			break;
 		}
