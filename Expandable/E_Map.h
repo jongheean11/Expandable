@@ -27,9 +27,11 @@ private:
 	CRect getSize;
 	POINT pt;
 	bool checkdelete;
+	DWORD parnetpid;
 
 public:
 	DWORD pidforhide;
+	static BOOL CALLBACK EnumShow(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackMap(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallHide(HWND hwnd, LPARAM lParam);
 	DWORD parentprocessId;

@@ -694,9 +694,53 @@ void E_Global::moveDesktopLeft()
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
 			//
+			//std::list<HWND> docklist = e_global->dockedWindowList;
+			//for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)	//각 데스크탑 별로출력
+			//{
+			//	::ShowWindow((*itr_dock), SW_SHOW);
+			//		
+			//	WCHAR name[60];
+			//	int get = 0;
+			//	char* pStr;
+			//	int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+			//	pStr = new char[strSize];
+			//	WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+			//	int resutr = 0;
+			//	parnetpid = GetWindowThreadProcessId((*itr_dock), NULL);
+			//	if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+			//		EnumWindows(EnumShow, 0);
+			//	
+			//}
+
+			std::list<E_Desktop*> desklist2 = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					if ((*itr_window)->dock)
+					{
+						::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+
+						WCHAR name[60];
+						int get = 0;
+						char* pStr;
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+						int resutr = 0;
+						parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+							EnumWindows(EnumShow, 0);
+
+					}
+				}
+			}
+
 		}
 	}
 }
+
 // 오른쪽 데스크탑으로 이동 (TEST OK)
 void E_Global::moveDesktopRight()
 {
@@ -737,6 +781,32 @@ void E_Global::moveDesktopRight()
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
 			//
+
+			std::list<E_Desktop*> desklist2 = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					if ((*itr_window)->dock)
+					{
+						::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+
+						WCHAR name[60];
+						int get = 0;
+						char* pStr;
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+						int resutr = 0;
+						parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+							EnumWindows(EnumShow, 0);
+
+					}
+				}
+			}
+
 		}
 	}
 }
@@ -776,6 +846,34 @@ void E_Global::moveDesktopUp()
 			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
+			std::list<E_Desktop*> desklist2 = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					if ((*itr_window)->dock)
+					{
+						::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+
+						WCHAR name[60];
+						int get = 0;
+						char* pStr;
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+						int resutr = 0;
+						parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+							EnumWindows(EnumShow, 0);
+
+					}
+				}
+			}
+
+		
+		
+		
 		}
 	}
 }
@@ -807,9 +905,54 @@ void E_Global::moveDesktopDown()
 			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
+			std::list<E_Desktop*> desklist2 = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					if ((*itr_window)->dock)
+					{
+						::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
+						WCHAR name[60];
+						::GetWindowText((*itr_window)->getWindow(), name, 60);
+						char* pStr;
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+						int resutr = 0;
+						parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
+							EnumWindows(EnumShow, 0);
+						
+					}
+				}
+			}
+		
+		
+		
 		}
 	}
 }
+BOOL CALLBACK  E_Global::EnumShow(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"카카오";
+	::GetWindowText(hwnd, name2, 4);
+
+	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Global* e_global = E_Global::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_global->parnetpid)
+			::ShowWindow(hwnd, SW_SHOW);
+	}
+	return true;
+}
+
 
 // 리스트를 Z-Index로 정렬해서 반환하는 함수
 void E_Global::sortZIndexWindowList(list<E_Window*>& target)
