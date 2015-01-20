@@ -475,6 +475,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					switcher->startSwitcher();
 					keydown = 1;
 					startChecking();
+					E_WindowSwitcher::stealFocus(NULL);
 				}
 				else{
 					//쉬프트 탭
@@ -489,6 +490,17 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 	}
 		break;
+		//알트탭 종료
+	case 'B':
+	{
+				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
+				if (switcher->isRunning() == true){
+					//스위처가 동작중이 아닐 때
+					switcher->selectTabWindow();
+					switcher->terminateSwitcher();
+				}
+	}
+	
 	}
 
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -562,7 +574,8 @@ int CMainFrame::onChecking()
 		{
 			//TRACE_WIN32A("ALT KEY UP\n");
 			stopChecking();
-			E_WindowSwitcher::getSingleton()->terminateSwitcher();
+
+			::SendMessage(this->GetSafeHwnd(), WM_KEYDOWN, 'B', 0);
 		}
 	}
 	return 0;

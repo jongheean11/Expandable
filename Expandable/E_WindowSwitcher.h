@@ -17,6 +17,8 @@ private:
 	bool running;
 	bool updateFlag;
 	int tabIndex;
+	int startTaboffset;
+	GROUP2 tabMode;
 	list<HTHUMBNAIL> thumb_list;
 	unordered_map<HWND, HTHUMBNAIL> thumb_map;	// 썸네일
 	unordered_map<HWND, RECT> rect_map;	//	rect
@@ -25,6 +27,8 @@ private:
 	unordered_map<HWND, E_Desktop*> desktop_map;	//	속해있는 데스크탑
 	unordered_map<HWND, CWnd*> icon_map;	//	속해있는 데스크탑
 
+	list<E_Window*> temp_windowlist;
+	list<E_Window*> temp_secondwindowlist;
 protected:
 	
 
@@ -64,6 +68,7 @@ public:
 	// 창의 모양을 알 수 있다.
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
 	//void E_WindowSwitcher::drawIcon();
+	static void stealFocus(HWND hwnd);
 
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
@@ -93,5 +98,11 @@ public:
 	CWnd* createChild();
 	// 아이콘을 미리 그리는 코드
 	void drawIcon();
+private:
+//	int selectedIndex;
+public:
+	void selectTabWindow();
+	// 아이콘 윈도우와 에어로를 초기화 하는 함수,
+	void resetIconcwndAndAero();
 };
 
