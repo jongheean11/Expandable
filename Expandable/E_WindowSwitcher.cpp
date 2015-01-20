@@ -1221,8 +1221,8 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						}*/
 
 						::BringWindowToTop(hwnd);
-						//::SetFocus(hwnd);
-						stealFocus(hwnd);
+						::SetFocus(hwnd);
+						//stealFocus(hwnd);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1266,9 +1266,9 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					}*/
 
 					::BringWindowToTop(hwnd);
-					//::SetFocus(hwnd);
+					::SetFocus(hwnd);
 
-					stealFocus(hwnd);
+					//stealFocus(hwnd);
 				}
 				terminateSwitcher();
 				break;
@@ -1702,8 +1702,8 @@ void E_WindowSwitcher::selectTabWindow()
 				if (::IsIconic(hwnd) == true)
 					::ShowWindow(hwnd, SW_RESTORE);
 				::BringWindowToTop(hwnd);
-				//::SetFocus(hwnd);
-				stealFocus(hwnd);
+				::SetFocus(hwnd);
+				//stealFocus(hwnd);
 			}
 		}
 		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
@@ -1729,8 +1729,8 @@ void E_WindowSwitcher::selectTabWindow()
 			if (::IsIconic(hwnd) == true)
 				::ShowWindow(hwnd, SW_RESTORE);
 			::BringWindowToTop(hwnd);
-			//::SetFocus(hwnd);
-			stealFocus(hwnd);
+			::SetFocus(hwnd);
+			//stealFocus(hwnd);
 		}
 		terminateSwitcher();
 	}

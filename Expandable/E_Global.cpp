@@ -152,6 +152,12 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 					break;
 				}
 			}
+			if (global->hwnd_desk.find(hwnd) != global->hwnd_desk.end()){
+				std::hash_map<HWND, int>::iterator iter = global->hwnd_desk.find(hwnd);
+				if (iter->second != global->selectedIndex) {
+					return TRUE;
+				}
+			}
 			if (cap == NULL){
 				HWND handle = GetParent(hwnd);
 				if (handle == NULL)
