@@ -79,6 +79,12 @@ void drawDesktopList()
 	deSwitcher->background_bottom = deSwitcher->initial_padding_height + deSwitcher->switch_height; // bottom은 변하지 않음
 	deSwitcher->taskbar_top = deSwitcher->background_bottom - deSwitcher->sizeRect_taskbar.Height() * deSwitcher->ratio_hh; // bottom, left, right는 background와 동일
 
+	if (deSwitcher->leftarrow == NULL)
+	{
+		deSwitcher->leftarrow = new CRect(11 * enManager->getWidth() / 1280, 93 * enManager->getHeight() / 1024, 67 * enManager->getWidth() / 1280, 149 * enManager->getHeight() / 1024);
+		deSwitcher->rightarrow = new CRect(1213 * enManager->getWidth() / 1280, 93 * enManager->getHeight() / 1024, 1269 * enManager->getWidth() / 1280, 149 * enManager->getHeight() / 1024);
+	}
+
 	int i = 0,
 		desktop_i = 0,
 		desktop_listnum = e_global->desktopList.size() >= 4 ? 4 : e_global->desktopList.size(),
@@ -431,6 +437,9 @@ void E_DesktopSwitcher::updateSelectedDesktop()
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
+	leftarrow = NULL; 
+	rightarrow = NULL;
+
 	ison = false;
 	doubleclick_first = false;
 	doubleclick_second = false;
@@ -478,13 +487,10 @@ void E_DesktopSwitcher::startSwitcher()
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		
-		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		HBITMAP hbmOrig_left = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_leftarrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 		BITMAP bm = { 0 };
 		GetObject(hbmOrig, sizeof(BITMAP), &bm);
-		BITMAP bm_left = { 0 };
-		GetObject(hbmOrig_left, sizeof(BITMAP), &bm_left);
 
 		HDC dc = ::GetDC(::GetDesktopWindow());
 		HDC memdc = CreateCompatibleDC(dc);
@@ -498,7 +504,7 @@ void E_DesktopSwitcher::startSwitcher()
 		SelectObject(memdc, hOld);
 		DeleteDC(memdc);
 		DeleteDC(memdc2);
-		
+
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
 
@@ -519,6 +525,7 @@ void E_DesktopSwitcher::startSwitcher()
 		ison = true;
 		
 		ShowWindow(SW_SHOWMAXIMIZED);
+		Invalidate(FALSE);
 	}
 	else
 	{
@@ -528,11 +535,13 @@ void E_DesktopSwitcher::startSwitcher()
 
 void E_DesktopSwitcher::terminateSwitcher()
 {
-	E_Global* e_global = E_Global::getSingleton();
-	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
-
 	if (ison)
 	{
+		E_Global* e_global = E_Global::getSingleton();
+		E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+
+
+
 		for (list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++)
 		{
 			(*itr_desktop)->setAllIconVisible();
@@ -551,33 +560,39 @@ void E_DesktopSwitcher::terminateSwitcher()
 		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
+		delete leftarrow;
+		delete rightarrow;
+
+		leftarrow = NULL;
+		rightarrow = NULL;
+
+		eraseDesktopList();
+		eraseWindowS();
+
+		ison = false;
+		doubleclick_first = false;
+		doubleclick_second = false;
+		desktop_inrange = true;
+		leftarrow_pressed = false;
+		rightarrow_pressed = false;
+		window_selected = false;
+		window_squeezed = false;
+		desktop_selected = false;
+
+		//e_global->stopUpdate();
+		aeController->unregisterAllAreo();
+		window_area_list_rect.clear();
+		window_area_map_RECT_EWindow.clear();
+		window_desktop_RECT_hthumbnail_map.clear();
+		window_desktop_rect_map.clear();
+		window_RECT_hthumbnail_map.clear();
+		desktop_area_list_rect.clear();
+		desktop_RECT_hthumbnail_map.clear();
+
+		E_Window::setIconVisible(this->m_hWnd);
+		DestroyWindow();
 	}
-
-	eraseDesktopList();
-	eraseWindowS();
-
-	ison = false;
-	doubleclick_first = false;
-	doubleclick_second = false;
-	desktop_inrange = true;
-	leftarrow_pressed = false;
-	rightarrow_pressed = false;
-	window_selected = false;
-	window_squeezed = false;
-	desktop_selected = false;
-	
-	//e_global->stopUpdate();
-	aeController->unregisterAllAreo();
-	window_area_list_rect.clear();
-	window_area_map_RECT_EWindow.clear();
-	window_desktop_RECT_hthumbnail_map.clear();
-	window_desktop_rect_map.clear();
-	window_RECT_hthumbnail_map.clear();
-	desktop_area_list_rect.clear();
-	desktop_RECT_hthumbnail_map.clear();
-
-	E_Window::setIconVisible(this->m_hWnd);
-	DestroyWindow();
 }
 
 void E_DesktopSwitcher::switchDesktop(E_Desktop* selection)
@@ -590,6 +605,8 @@ BEGIN_MESSAGE_MAP(E_DesktopSwitcher, CWnd)
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_MOUSEMOVE()
+ON_WM_PAINT()
+ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -827,10 +844,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 		doubleclick_second = false;
 	}
 
-	CRect leftarrow = new CRect(10, 40, 50, 80);
-	CRect rightarrow = new CRect(1920 - 50, 40, 1920 - 10, 80);
-
-	if (leftarrow.PtInRect(point))
+	if (leftarrow->PtInRect(point))
 	{
 		leftarrow_pressed = false;
 		eraseDesktopList();
@@ -845,10 +859,12 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				break;
 			}
 		}
+
+		Invalidate(TRUE);
 		//e_global->startUpdate();
 		return;
 	}
-	if (rightarrow.PtInRect(point))
+	if (rightarrow->PtInRect(point))
 	{
 		rightarrow_pressed = false;
 		eraseDesktopList();
@@ -863,6 +879,8 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				break;
 			}
 		}
+
+		Invalidate(TRUE);
 		//e_global->startUpdate();
 		return;
 	}
@@ -882,6 +900,8 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				drawWindowS();
 				desktop_inrange = true;
 				//e_global->startUpdate();
+
+				Invalidate(TRUE);
 				return;
 			}
 			i = (i + 1) % e_global->desktopList.size();
@@ -1147,6 +1167,61 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 		window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
 	}
 	
+	else
+	{
+		if ((leftarrow->PtInRect(point)) || (rightarrow->PtInRect(point)))
+		{
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+		}
+		else
+		{
+			SetCursor(LoadCursor(NULL, IDC_ARROW));
+		}
+	}
 
 	CWnd::OnMouseMove(nFlags, point);
+}
+
+void E_DesktopSwitcher::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+	// 그리기 메시지에 대해서는 __super::OnPaint()을(를) 호출하지 마십시오.
+	if (ison)
+	{
+		CPen pen;
+		pen.CreatePen(PS_SOLID, 5, RGB(255, 255, 255));
+		dc.SelectObject(pen);
+
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		E_Global* e_global = E_Global::getSingleton();
+		int i = desktoplist_startindex;
+		for (list<RECT*>::iterator itr_rect = desktop_area_list_rect.begin(); itr_rect != desktop_area_list_rect.end(); itr_rect++)
+		{
+			if (e_global->getSelectedIndex() == i)
+			{
+				dc.MoveTo((*itr_rect)->left - 10, (*itr_rect)->top - 10);
+				dc.LineTo((*itr_rect)->right + 10, (*itr_rect)->top - 10);
+				dc.MoveTo((*itr_rect)->right + 10, (*itr_rect)->top - 10);
+				dc.LineTo((*itr_rect)->right + 10, (*itr_rect)->bottom + 10);
+				dc.MoveTo((*itr_rect)->left - 10, (*itr_rect)->top - 10);
+				dc.LineTo((*itr_rect)->left - 10, (*itr_rect)->bottom + 10);
+				dc.MoveTo((*itr_rect)->left - 10, (*itr_rect)->bottom + 10);
+				dc.LineTo((*itr_rect)->right + 10, (*itr_rect)->bottom + 10);
+
+				pen.DeleteObject();
+				return;
+			}
+			i = (i + 1) % e_global->getDesktopCount();
+		}		
+	}
+}
+
+
+void E_DesktopSwitcher::OnDestroy()
+{
+	__super::OnDestroy();
+
+	terminateSwitcher();
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }

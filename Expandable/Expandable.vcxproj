@@ -231,7 +231,10 @@
   <ItemGroup>
     <Image Include="DesktopSwitcher_background.bmp" />
     <Image Include="DesktopSwitcher_background.png" />
+    <Image Include="DesktopSwitcher_background_witharrow.bmp" />
+    <Image Include="DesktopSwitcher_leftarrow.bmp" />
     <Image Include="DesktopSwitcher_leftarrow.png" />
+    <Image Include="DesktopSwitcher_rightarrow.bmp" />
     <Image Include="DesktopSwitcher_rightarrow.png" />
     <Image Include="Map_background.bmp" />
     <Image Include="Map_background.png" />

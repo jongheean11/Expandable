@@ -28,6 +28,8 @@ private:
 	bool desktop_selected;
 
 public:
+	CRect *leftarrow, *rightarrow;
+	
 	bool ison;
 
 	int target_desktop_index, desktoplist_startindex;
@@ -93,4 +95,6 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnPaint();
+	afx_msg void OnDestroy();
 };
