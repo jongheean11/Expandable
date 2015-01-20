@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 #include "E_WindowSwitcher.h"
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 
 void getWindowText(HWND hwnd)
 {
@@ -121,13 +121,35 @@ void drawDesktopList()
 		aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->m_hWnd, *taskbarRECT, pushThumbnail);
 		deSwitcher->desktop_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(taskbarRECT, pushThumbnail));
 
+
+		for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+		{
+			if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
+			{
+				CRect getSize;
+				GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+				double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
+					window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
+				double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
+					window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+				RECT *windowRECT = new RECT
+				{
+					window_left,
+					window_top,
+					window_right,
+					window_bottom
+				};
+				aeController->registerAero((*itr_window_docked)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			}
+		}
+
 		list<RECT*> windowRECT_List;
 		hash_map<RECT*, HTHUMBNAIL> pushThumbnail_Map;
 		std::list<E_Window*> window_list_topmost;
 		for (std::list<E_Window*>::iterator itr_window = (*itr_desktop)->windowList.begin(); itr_window != ((*itr_desktop)->windowList.end()); itr_window++) // iterating backward
 		{
 			(*itr_window)->setShow();
-			if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
+			if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
 			{
 				DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 				if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -261,11 +283,33 @@ void drawWindowS()
 			break;
 		desktop_i++;
 	}
+
+	for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	{
+		if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
+		{
+			CRect getSize;
+			GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+			double window_left = getSize.left * deSwitcher->ratio_ww + background_left,
+				window_top = getSize.top * deSwitcher->ratio_hh + background_top;
+			double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
+				window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+			RECT *windowRECT = new RECT
+			{
+				window_left,
+				window_top,
+				window_right,
+				window_bottom
+			};
+			aeController->registerAero((*itr_window_docked)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		}
+	}
+
 	std::list<E_Window*> window_list = (*desktop_current)->windowList;
 	std::list<E_Window*> window_list_topmost;
 	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
 	{
-		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()))
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
 		{
 			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
 			if ((dwExStyle & WS_EX_TOPMOST) != 0)
@@ -402,7 +446,32 @@ void E_DesktopSwitcher::startSwitcher()
 
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
+		HBITMAP hbitmap_old = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0,
+			LR_CREATEDIBSECTION | LR_LOADTRANSPARENT | LR_LOADFROMFILE);
+		
+		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+
+		BITMAP bm = { 0 };
+		GetObject(hbmOrig, sizeof(BITMAP), &bm);
+
+		HDC dc = ::GetDC(::GetDesktopWindow());
+		HDC memdc = CreateCompatibleDC(dc);
+		HDC memdc2 = CreateCompatibleDC(dc);
+		HBITMAP hbm = CreateCompatibleBitmap(dc, enManager->getWidth(), enManager->getHeight());
+		HGDIOBJ hOld = SelectObject(memdc, hbm);
+		SelectObject(memdc2, hbmOrig);
+		StretchBlt(memdc, 0, 0, enManager->getWidth(), enManager->getHeight(), memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+		::ReleaseDC(::GetDesktopWindow(), dc);
+
+		SelectObject(memdc, hOld);
+		DeleteDC(memdc);
+		DeleteDC(memdc2);
+		
+		HBRUSH fillBrush;
+		fillBrush = ::CreatePatternBrush(hbm);
+
+		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
+		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
 		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0); 
 
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
@@ -416,8 +485,6 @@ void E_DesktopSwitcher::startSwitcher()
 		ison = true;
 		
 		ShowWindow(SW_SHOWMAXIMIZED);
-
-		
 	}
 	else
 	{
@@ -428,6 +495,7 @@ void E_DesktopSwitcher::startSwitcher()
 void E_DesktopSwitcher::terminateSwitcher()
 {
 	E_Global* e_global = E_Global::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 	eraseDesktopList();
 	eraseWindowS();
 
@@ -442,6 +510,14 @@ void E_DesktopSwitcher::terminateSwitcher()
 	desktop_selected = false;
 	
 	//e_global->stopUpdate();
+	aeController->unregisterAllAreo();
+	window_area_list_rect.clear();
+	window_area_map_RECT_EWindow.clear();
+	window_desktop_RECT_hthumbnail_map.clear();
+	window_desktop_rect_map.clear();
+	window_RECT_hthumbnail_map.clear();
+	desktop_area_list_rect.clear();
+	desktop_RECT_hthumbnail_map.clear();
 
 	E_Window::setIconVisible(this->m_hWnd);
 	DestroyWindow();
@@ -675,11 +751,12 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 			{
 				for (itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++)
 				{
-					(*itr_desktop)->setAllOpaque();
+					//(*itr_desktop)->setAllOpaque();
 					(*itr_desktop)->setAllHide();
 				}
 				(e_global->getSelectedDesktop())->setAllShow();
 
+				::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 				terminateSwitcher();
 				//e_global->startUpdate();
 				return;

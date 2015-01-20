@@ -5,6 +5,7 @@
 #include "E_Global.h"
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
+#define WM_TRAY_EVENT (WM_USER + 3)
 
 const COLORREF E_DragAndDropSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 
@@ -886,6 +887,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					}
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
@@ -991,6 +993,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					}
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
@@ -1097,6 +1100,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					}
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
@@ -1202,6 +1206,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					}
 					e_global->getSelectedDesktop()->setAllHide();
 					e_global->setSelectedIndex(switchIndex);
+					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
