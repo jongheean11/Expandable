@@ -27,12 +27,12 @@ void E_WindowSwitcher::updateSelectedDesktop()
 	//TRACE_WIN32A("[E_WindowSwitcher::updateSelectedDesktop()]");
 }
 
-E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false)
+E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMode(SELECTEDDESKTOP)
 {
 	envManager = E_EnvironmentManager::getSingleton();
 
 	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-	
+
 	CBrush brush_map;
 	//brush_map.CreateSolidBrush(E_WindowSwitcher::backgroundColor);
 	brush_map.CreateStockObject(NULL_BRUSH);
@@ -41,6 +41,8 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false)
 	this->ShowWindow(SW_HIDE);
 	this->UpdateWindow();
 	brush_map.DeleteObject();
+	//  selectedIndex = 0;
+	startTaboffset = 0;
 }
 
 
@@ -59,7 +61,6 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 // UI를 보여주고 입력을 받는 창을 활성화 시킴
 void E_WindowSwitcher::startSwitcher()
 {
-	tabIndex = 1;
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
 	//global->startUpdate();
@@ -97,8 +98,10 @@ void E_WindowSwitcher::startSwitcher()
 		}
 	}
 	
-	//아이콘 초기화
-	//drawIcon();
+	//스위처 상태 초기화
+	tabMode = SELECTEDDESKTOP;	//선택한 탭
+	startTaboffset = 0;	//윈도우 리스트에서 시작 위치
+	tabIndex = 1;	//선택한 윈도우 인덱스
 
 	//데스크탑
 	E_Window* desktopWindow = global->backgroundWindow;
@@ -138,8 +141,10 @@ void E_WindowSwitcher::terminateSwitcher()
 		}
 		//아이콘 해제
 		for (unordered_map<HWND, CWnd*>::iterator iter = icon_map.begin(); iter != icon_map.end(); iter++) {
-			if (::IsWindow(iter->second->GetSafeHwnd()))
+			if (::IsWindow(iter->second->GetSafeHwnd())){
+				iter->second->DestroyWindow();
 				delete iter->second;
+			}
 		}
 		icon_map.clear();
 
@@ -274,11 +279,12 @@ void E_WindowSwitcher::OnPaint()
 			long previewWidth = aeroWidth - paddingSize * 2;	//실제 aero 크기
 			long previewHeight = aeroHeight - paddingSize * 2;	//실제 aero 크기
 			long bottomPadding = paddingSize * 6;
+			rect_map.clear();//그릴때 마다 터치 좌표 초기화
 
 			//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]전체 데스크탑 공용변수 aeroWidth: %d paddingSize: %d, previewWidth: %d", aeroWidth, paddingSize, previewWidth);
 			{
 				//타이틀 바
-				CFont* pOldFont;
+				//CFont* pOldFont;
 				CFont font;
 				LOGFONT lf;
 				::ZeroMemory(&lf, sizeof(lf));
@@ -457,13 +463,31 @@ void E_WindowSwitcher::OnPaint()
 						secondExistUpdateMode = 1;
 					}
 				}
+				
+				int emptyforIndex = 0; 
 
 				//첫번째 데스크탑
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
 					//mode_map.key
 					if (mode_map.find((*iter)->getWindow()) == mode_map.end() || (IsWindow((*iter)->getWindow()) == FALSE)){
+						TRACE_WIN32A("[invalid window]");
 						continue;
 					}
+					//윈도우 개수가 14개 이상일 때 제외
+					if (emptyforIndex++ < startTaboffset && tabMode == SELECTEDDESKTOP){
+						//RECT rect; rect.left = 0; rect.top = 0; rect.right = 1; rect.bottom = 1;
+						//TRACE_WIN32A("startTaboffset %d, listcount %d", startTaboffset, winlist.size());
+						////에어로 효과 제거
+						//unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find((*iter)->getWindow());
+						//E_AeroPeekController::getSingleton()->moveAero(validKey->second, rect);
+						//if (icon_map.find(validKey->first) != icon_map.end()){
+						//	CWnd* iconCWnd = icon_map.find(validKey->first)->second;
+						//	iconCWnd->MoveWindow(&rect);
+						//}
+						//
+						continue;
+					}
+					
 					unordered_map<HWND, DRAWMODE>::iterator modeIter = mode_map.find((*iter)->getWindow());
 					DRAWMODE mode = modeIter->second;
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
@@ -495,7 +519,6 @@ void E_WindowSwitcher::OnPaint()
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
 
-
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
@@ -510,7 +533,7 @@ void E_WindowSwitcher::OnPaint()
 					memDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
-					if (tabIndex == count) {
+					if (tabIndex == count && tabMode == SELECTEDDESKTOP) {
 						memDC.SelectObject(pen);
 						::InflateRect(temprect, 1, 1);
 						int padding = 2;
@@ -540,7 +563,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//타이틀 그리기
-					if (tabIndex == count && existUpdateMode == 0){
+					if (tabIndex == count && existUpdateMode == 0 && tabMode == SELECTEDDESKTOP) {
 						RECT fontRect;
 						fontRect.top = paddingSize;
 						fontRect.left = paddingSize;
@@ -549,8 +572,6 @@ void E_WindowSwitcher::OnPaint()
 						SetBkMode(memDC, TRANSPARENT);
 						memDC.SelectObject(font);
 						memDC.DrawText(windowName, &fontRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
-						//SetBkMode(memDC, OPAQUE);
-
 					}
 					else if (mode == UPDATE_TOUCH && existUpdateMode == 1) {
 						RECT fontRect;
@@ -642,7 +663,7 @@ void E_WindowSwitcher::OnPaint()
 					rectForEvent.right = temprect.left + aeroWidth + switcherLeft; //왼쪽 오프셋
 
 					rect_map.insert(unordered_map<HWND, RECT>::value_type(cwnd->GetSafeHwnd(), rectForEvent));
-
+					
 					//에어로픽이나 스크린샷
 					if (isAero && (validKey != thumb_map.end())) {
 						//에어로가 가능할때
@@ -728,12 +749,20 @@ void E_WindowSwitcher::OnPaint()
 					pen.DeleteObject();
 				}
 				
+				emptyforIndex = 0;
+
 				//두번째 데스크탑
 				for (list<E_Window*>::reverse_iterator iter = secondWinlist.rbegin(); iter != secondWinlist.rend(); iter++){
 					//mode_map.key
 					if (mode_map.find((*iter)->getWindow()) == mode_map.end() || (IsWindow((*iter)->getWindow()) == FALSE)){
 						continue;
 					}
+
+					//윈도우 개수가 14개 이상일 때 제외
+					if (emptyforIndex++ < startTaboffset && tabMode == SELECTEDDESKTOP){
+						continue;
+					}
+
 					unordered_map<HWND, DRAWMODE>::iterator modeIter = mode_map.find((*iter)->getWindow());
 					DRAWMODE mode = modeIter->second;
 					CWnd* cwnd = CWnd::FromHandle((*iter)->getWindow());
@@ -745,7 +774,7 @@ void E_WindowSwitcher::OnPaint()
 
 					title.Format(L"%s #%d", windowName, desktop_map.find((*iter)->getWindow())->second->getIndex());
 
-					//TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName.GetBuffer(), windowState.showCmd);
+					TRACE_WIN32(L"[E_WindowSwitcher::OnPaint] %s\t\t[state]: %d", windowName, windowState.showCmd);
 
 					long aeroLeftoffset = paddingSize + (aeroWidth * secondWidthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = titleSize + paddingSize + (aeroHeight * secondHeightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
@@ -780,6 +809,21 @@ void E_WindowSwitcher::OnPaint()
 					//dc.Rectangle(temprect);
 					secondMemDC.FillRect(&temprect, &brush1);
 
+					//탭 경계선 그리기
+					if (tabIndex == secondCount && tabMode == OTHERDESKTOP) {
+						secondMemDC.SelectObject(pen);
+						::InflateRect(temprect, 1, 1);
+						int padding = 2;
+						secondMemDC.MoveTo(temprect.left + padding, temprect.top + padding);
+						secondMemDC.LineTo(temprect.right - padding, temprect.top + padding);
+						secondMemDC.MoveTo(temprect.right - padding, temprect.top + padding);
+						secondMemDC.LineTo(temprect.right - padding, temprect.bottom - padding);
+						secondMemDC.MoveTo(temprect.left + padding, temprect.top + padding);
+						secondMemDC.LineTo(temprect.left + padding, temprect.bottom - padding);
+						secondMemDC.MoveTo(temprect.left + padding, temprect.bottom - padding);
+						secondMemDC.LineTo(temprect.right - padding, temprect.bottom - padding);
+					}
+
 					//경계선 그리기
 					if (mode == UPDATE_TAB || mode == UPDATE_TOUCH) {
 						secondMemDC.SelectObject(pen);
@@ -797,7 +841,7 @@ void E_WindowSwitcher::OnPaint()
 
 
 					//타이틀 그리기
-					if (tabIndex == count + windowSize && secondExistUpdateMode == 0){
+					if (tabIndex == secondCount && secondExistUpdateMode == 0 && tabMode == OTHERDESKTOP){
 						RECT fontRect;
 						fontRect.top = paddingSize;
 						fontRect.left = paddingSize;
@@ -807,7 +851,6 @@ void E_WindowSwitcher::OnPaint()
 						secondMemDC.SelectObject(font);
 						secondMemDC.DrawText(windowName, &fontRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER | DT_END_ELLIPSIS);
 						//SetBkMode(memDC, OPAQUE);
-
 					}
 					else if (mode == UPDATE_TOUCH && secondExistUpdateMode == 1) {
 						RECT fontRect;
@@ -1006,6 +1049,12 @@ void E_WindowSwitcher::OnPaint()
 
 				secondMemDC.DeleteDC();
 				secondBmp.DeleteObject();
+
+				//윈도우 리스트
+				temp_windowlist.clear();
+				temp_secondwindowlist.clear();
+				temp_windowlist = winlist;
+				temp_secondwindowlist = secondWinlist;
 			}
 		}
 	}
@@ -1020,23 +1069,6 @@ void E_WindowSwitcher::OnPaint()
 		}*/
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
 }
-
-/*
-test code*/
-//void E_WindowSwitcher::drawIcon(){
-//
-//	CPaintDC dc(this); // device context for painting
-//	E_Window * temp = new E_Window(E_Global::getSingleton()->getKakaoWindow()->GetSafeHwnd());
-//	
-//	CBitmap* icon = temp->getIcon();
-//	BITMAP icon_info;
-//	icon->GetBitmap(&icon_info);
-//	CDC cdc;
-//	cdc.CreateCompatibleDC(this->GetWindowDC());
-//	cdc.SelectObject(icon);
-//	dc.SetStretchBltMode(COLORONCOLOR);
-//	dc.StretchBlt(0,0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-//}
 
 // 현재 Switcher가 동작중인가?
 bool E_WindowSwitcher::isRunning()
@@ -1171,7 +1203,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
 					}
 					else{
-						if (::IsIconic(hwnd) == true)
+						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
 					/*	if (::GetForegroundWindow() != hwnd){
@@ -1189,6 +1221,8 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						}*/
 
 						::BringWindowToTop(hwnd);
+						::SetFocus(hwnd);
+						//stealFocus(hwnd);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1211,7 +1245,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					::GetWindowPlacement(hwnd, &windowState);
 					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
-					if (::IsIconic(hwnd) == true)
+					if (::IsIconic(hwnd) == TRUE)
 						::ShowWindow(hwnd, SW_RESTORE);
 					/*if (windowState.showCmd != SW_MAXIMIZE)
 						::ShowWindow(hwnd, SW_RESTORE);*/
@@ -1232,6 +1266,9 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					}*/
 
 					::BringWindowToTop(hwnd);
+					::SetFocus(hwnd);
+
+					//stealFocus(hwnd);
 				}
 				terminateSwitcher();
 				break;
@@ -1268,10 +1305,8 @@ BOOL E_WindowSwitcher::OnEraseBkgnd(CDC* pDC)
 void E_WindowSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	if (nChar == VK_TAB){
-		TRACE_WIN32A("VK_TAB");
-		
-	}
+	//TRACE_WIN32A("OnKeyDown %c",nChar);
+	
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -1299,7 +1334,11 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 void E_WindowSwitcher::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("E_WindowSwitcher::OnSysKeyDown %d", nChar);
 
+	if (nChar == 192 && running){
+		selectOtherDesktop();
+	}
 	__super::OnSysKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -1307,6 +1346,8 @@ void E_WindowSwitcher::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	//TRACE_WIN32A("E_WindowSwitcher::OnSysKeyUp %d", nChar);
+	
 	
 	__super::OnSysKeyUp(nChar, nRepCnt, nFlags);
 }
@@ -1315,7 +1356,16 @@ void E_WindowSwitcher::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 // 다음 윈도우로 이동
 void E_WindowSwitcher::selectNextWindow()
 {
+	//에어로
 	E_Global* global = E_Global::getSingleton();
+	E_AeroPeekController* aero = E_AeroPeekController::getSingleton();
+
+	RECT winRect;
+	winRect.left = 0;
+	winRect.top = 0;
+	winRect.bottom = 1;
+	winRect.right = 1;
+	
 
 	//두번째 데스크탑 윈도우 스위처 계산 //
 	list<E_Window*> secondWinlist;
@@ -1325,20 +1375,52 @@ void E_WindowSwitcher::selectNextWindow()
 			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
 			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
 				secondWinlist.push_back(*iter);
+				icon_map.find((*iter)->getWindow())->second->MoveWindow(&winRect,0);
 			}
 		}
 	}
+	list<E_Window*> winlist =global->getSelectedDesktop()->getWindowList();
+	winlist.push_front(E_Global::getSingleton()->backgroundWindow);
 
-	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;//데스크탑 포함
+	int selectedSize = winlist.size();//데스크탑 포함
 	int otherSize = secondWinlist.size();
 
-	tabIndex++;
-	if (tabIndex >= selectedSize){
-		tabIndex = 0;
+	//현재 데스크탑
+	if (tabMode == SELECTEDDESKTOP){
+		tabIndex++;
+		
+		if (tabIndex + startTaboffset >= selectedSize){
+			tabIndex = 0;
+			startTaboffset = 0;
+			resetIconcwndAndAero();
+		}
+		else if (tabIndex >= 14){
+			startTaboffset++; //tabIndex - 14 + 1;
+			tabIndex = 13;
+			resetIconcwndAndAero();
+		}
+	}
+	
+	//다른 데스크탑
+	else if (tabMode == OTHERDESKTOP){
+		tabIndex++;
+
+		if (tabIndex + startTaboffset >= otherSize){
+			tabIndex = 0;
+			startTaboffset = 0;
+			resetIconcwndAndAero();
+		}
+		else if (tabIndex >= 14){
+			startTaboffset++; //tabIndex - 14 + 1;
+			tabIndex = 13;
+			resetIconcwndAndAero();
+		}
 	}
 	Invalidate(0);
+	if (startTaboffset > 0){
+		Invalidate(1);
+	}
 }
-
 
 // 이전 윈도우로 이동
 void E_WindowSwitcher::selectPrevWindow()
@@ -1360,19 +1442,67 @@ void E_WindowSwitcher::selectPrevWindow()
 	int selectedSize = global->getSelectedDesktop()->getWindowList().size() + 1;
 	int otherSize = secondWinlist.size();
 
-	tabIndex--;
+	//현재 데스크탑
+	if (tabMode == SELECTEDDESKTOP){
+		tabIndex--;
+		
+		if (tabIndex < 0 && startTaboffset == 0){
+			if (selectedSize>14)
+				tabIndex = 13;
+			else
+				tabIndex = selectedSize - 1;//selectedSize - 1;
+			if (selectedSize > 14)
+				startTaboffset = selectedSize - 14;
+			else
+				startTaboffset = 0;
+			resetIconcwndAndAero();
+		}
+		else if (tabIndex < 0){
+			tabIndex = 0;
+			startTaboffset--;
+			resetIconcwndAndAero();
+		}
+		TRACE_WIN32A("tabIndex: %d %d", tabIndex, startTaboffset);
+	}
 
-	if (tabIndex < 0){
-		tabIndex = selectedSize - 1;
+	//다른 데스크탑
+	else if (tabMode == OTHERDESKTOP){
+		tabIndex--;
+
+		if (tabIndex < 0 && startTaboffset == 0){
+			if (otherSize>14)
+				tabIndex = 13;
+			else
+				tabIndex = otherSize - 1;//selectedSize - 1;
+			if (selectedSize > 14)
+				startTaboffset = otherSize - 14;
+			else
+				startTaboffset = 0;
+			resetIconcwndAndAero();
+		}
+		else if (tabIndex < 0){
+			tabIndex = 0;
+			startTaboffset--;
+			resetIconcwndAndAero();
+		}
 	}
 	Invalidate(0);
 }
 
-
 // 다른 데스크탑으로 토글
 void E_WindowSwitcher::selectOtherDesktop()
 {
-	
+	if (tabMode == SELECTEDDESKTOP && temp_secondwindowlist.size() != 0){
+		tabMode = OTHERDESKTOP;
+		tabIndex = 0;
+		startTaboffset = 0;
+	}
+	else if (tabMode == OTHERDESKTOP){
+		tabMode = SELECTEDDESKTOP;
+		tabIndex = 1;
+		startTaboffset = 0;
+	}
+	Invalidate(0);
 }
 
 
@@ -1505,6 +1635,158 @@ void E_WindowSwitcher::drawIcon()
 					cdc.DeleteDC();
 				}
 			}
+		}
+	}
+}
+
+
+void E_WindowSwitcher::stealFocus(HWND hwnd)
+{
+	DWORD dwCurrentThread = GetCurrentThreadId();
+	DWORD dwFGThread = GetWindowThreadProcessId(::GetForegroundWindow(), NULL);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, TRUE);
+	if (hwnd == NULL)
+		HWND hwnd = E_WindowSwitcher::getSingleton()->m_hWnd;
+	// Possible actions you may wan to bring the window into focus.
+	::SetForegroundWindow(hwnd);
+	::SetCapture(hwnd);
+	::SetFocus(hwnd);
+	::SetActiveWindow(hwnd);
+	::EnableWindow(hwnd, TRUE);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
+}
+
+void E_WindowSwitcher::selectTabWindow()
+{
+	HWND hwnd =NULL;
+	int loop = tabIndex + startTaboffset;
+	int offset = 0;
+	if (tabMode == SELECTEDDESKTOP){
+		for (list<E_Window*>::reverse_iterator iter = temp_windowlist.rbegin(); iter != temp_windowlist.rend(); iter++){
+			if (loop == offset){
+				hwnd = (*iter)->getWindow();
+				break;
+			}
+			offset++;
+		}
+	}
+	else{
+		for (list<E_Window*>::reverse_iterator iter = temp_secondwindowlist.rbegin(); iter != temp_secondwindowlist.rend(); iter++){
+			if (loop == offset){
+				hwnd = (*iter)->getWindow();
+				break;
+			}
+			offset++;
+		}
+		
+	}
+	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
+		stopTPMode();
+		if (group_map.find(hwnd)->second == SELECTEDDESKTOP){
+			WINDOWPLACEMENT windowState;
+
+			char title[255] = { 0, };
+			::GetWindowTextA(hwnd, title, 255);
+			::GetWindowPlacement(hwnd, &windowState);
+			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+
+			hwnd = hwnd;	//지역 변수 사용
+
+			//LOSS FOCUS
+			if (strcmp(title, "Program Manager") == 0){
+				E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
+			}
+			else{
+				if (::IsIconic(hwnd) == true)
+					::ShowWindow(hwnd, SW_RESTORE);
+				::BringWindowToTop(hwnd);
+				::SetFocus(hwnd);
+				//stealFocus(hwnd);
+			}
+		}
+		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
+			//소속 데스크탑
+			E_Desktop* desktop = desktop_map.find(hwnd)->second;
+
+			//그 데스크탑으로 이동
+			int index = 0;
+			E_Global* global = E_Global::getSingleton();
+
+			hwnd = hwnd;	//지역 변수 사용
+
+			//LOSS FOCUS
+			global->moveDesktop(desktop->getIndex());
+
+			WINDOWPLACEMENT windowState;
+
+			char title[255] = { 0, };
+			::GetWindowTextA(hwnd, title, 255);
+			::GetWindowPlacement(hwnd, &windowState);
+			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+
+			if (::IsIconic(hwnd) == true)
+				::ShowWindow(hwnd, SW_RESTORE);
+			::BringWindowToTop(hwnd);
+			::SetFocus(hwnd);
+			//stealFocus(hwnd);
+		}
+		terminateSwitcher();
+	}
+}
+
+// 아이콘 윈도우와 에어로를 초기화 하는 함수,
+void E_WindowSwitcher::resetIconcwndAndAero()
+{
+	//에어로
+	E_Global* global = E_Global::getSingleton();
+	E_AeroPeekController* aero = E_AeroPeekController::getSingleton();
+
+	RECT winRect;
+	winRect.left = 0;
+	winRect.top = 0;
+	winRect.bottom = 1;
+	winRect.right = 1;
+
+	list<E_Window*> winlist = global->getSelectedDesktop()->getWindowList();
+	winlist.push_front(E_Global::getSingleton()->backgroundWindow);
+
+
+	//두번째 데스크탑 윈도우 스위처 계산 //
+	list<E_Window*> secondWinlist;
+	E_Desktop* desktop = global->getSelectedDesktop();
+	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
+		if (*iterDesktop != desktop){
+			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
+			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
+				secondWinlist.push_back(*iter);
+				icon_map.find((*iter)->getWindow())->second->MoveWindow(&winRect, 0);
+			}
+		}
+	}
+
+	//아이콘 리셋 / 에어로 리셋
+	for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
+		unordered_map<HWND, CWnd*>::iterator iconIter = icon_map.find((*iter)->getWindow());
+		if (iconIter != icon_map.end()){
+			iconIter->second->MoveWindow(&winRect, 0);
+		}
+		unordered_map<HWND, HTHUMBNAIL>::iterator thumbIter = thumb_map.find((*iter)->getWindow());
+		if (thumbIter != thumb_map.end()){
+			HTHUMBNAIL handle = thumbIter->second;
+			aero->moveAero(handle, winRect);
+		}
+	}
+	for (std::list<E_Window*>::reverse_iterator iter = secondWinlist.rbegin(); iter != secondWinlist.rend(); iter++) {
+		unordered_map<HWND, CWnd*>::iterator iconIter = icon_map.find((*iter)->getWindow());
+		if (iconIter != icon_map.end()){
+			iconIter->second->MoveWindow(&winRect, 0);
+		}
+		unordered_map<HWND, HTHUMBNAIL>::iterator thumbIter = thumb_map.find((*iter)->getWindow());
+		if (thumbIter != thumb_map.end()){
+			HTHUMBNAIL handle = thumbIter->second;
+			aero->moveAero(handle, winRect);
 		}
 	}
 }

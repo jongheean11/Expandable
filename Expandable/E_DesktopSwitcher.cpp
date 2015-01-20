@@ -504,7 +504,7 @@ void E_DesktopSwitcher::startSwitcher()
 		SelectObject(memdc, hOld);
 		DeleteDC(memdc);
 		DeleteDC(memdc2);
-
+		
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
 
@@ -537,8 +537,8 @@ void E_DesktopSwitcher::terminateSwitcher()
 {
 	if (ison)
 	{
-		E_Global* e_global = E_Global::getSingleton();
-		E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+	E_Global* e_global = E_Global::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 
 
 
@@ -567,32 +567,32 @@ void E_DesktopSwitcher::terminateSwitcher()
 		leftarrow = NULL;
 		rightarrow = NULL;
 
-		eraseDesktopList();
-		eraseWindowS();
+	eraseDesktopList();
+	eraseWindowS();
 
-		ison = false;
-		doubleclick_first = false;
-		doubleclick_second = false;
-		desktop_inrange = true;
-		leftarrow_pressed = false;
-		rightarrow_pressed = false;
-		window_selected = false;
-		window_squeezed = false;
-		desktop_selected = false;
+	ison = false;
+	doubleclick_first = false;
+	doubleclick_second = false;
+	desktop_inrange = true;
+	leftarrow_pressed = false;
+	rightarrow_pressed = false;
+	window_selected = false;
+	window_squeezed = false;
+	desktop_selected = false;
+	
+	//e_global->stopUpdate();
+	aeController->unregisterAllAreo();
+	window_area_list_rect.clear();
+	window_area_map_RECT_EWindow.clear();
+	window_desktop_RECT_hthumbnail_map.clear();
+	window_desktop_rect_map.clear();
+	window_RECT_hthumbnail_map.clear();
+	desktop_area_list_rect.clear();
+	desktop_RECT_hthumbnail_map.clear();
 
-		//e_global->stopUpdate();
-		aeController->unregisterAllAreo();
-		window_area_list_rect.clear();
-		window_area_map_RECT_EWindow.clear();
-		window_desktop_RECT_hthumbnail_map.clear();
-		window_desktop_rect_map.clear();
-		window_RECT_hthumbnail_map.clear();
-		desktop_area_list_rect.clear();
-		desktop_RECT_hthumbnail_map.clear();
-
-		E_Window::setIconVisible(this->m_hWnd);
-		DestroyWindow();
-	}
+	E_Window::setIconVisible(this->m_hWnd);
+	DestroyWindow();
+}
 }
 
 void E_DesktopSwitcher::switchDesktop(E_Desktop* selection)
@@ -937,7 +937,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 			{
-				bool yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
 				if (yesOverlap)
 				{
 					if (i != e_global->getSelectedIndex())
@@ -1032,7 +1032,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 			int p = 0;
 			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 			{
-				bool yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
 				if (yesOverlap)
 				{
 					if (i != e_global->getSelectedIndex())
