@@ -71,12 +71,27 @@ void drawCurrentDesktop()
 	};
 	aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->currentTaskbarRECT), drSwitcher->currentTaskbarThumbnail);
 	
-	for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
 	{
-		if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
+		::ShowWindow(*itr_window_docked, SW_SHOW);
+		
+		UINT state;
+		WINDOWPLACEMENT windowinfo;
+		GetWindowPlacement(*itr_window_docked, &windowinfo);
+		UINT winstate = windowinfo.showCmd;
+		BOOL isVisible = IsWindowVisible(*itr_window_docked);
+		BOOL isMinimized = IsIconic(*itr_window_docked);
+		if (!((state = winstate) == SW_FORCEMINIMIZE
+			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+			|| (state = winstate) == SW_MINIMIZE
+			|| (state = winstate) == SW_SHOWMINIMIZED
+			|| (state = winstate) == SW_SHOWMINNOACTIVE
+			|| isVisible == FALSE
+			|| isMinimized == TRUE)
+			&& IsWindow(*itr_window_docked))
 		{
 			CRect getSize;
-			GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+			GetWindowRect(*itr_window_docked, &getSize);
 			RECT *windowRECT = new RECT
 			{
 				getSize.left + plus_width,
@@ -84,7 +99,7 @@ void drawCurrentDesktop()
 				getSize.right + plus_width,
 				getSize.bottom + plus_height
 			};
-			aeController->registerAero((*itr_window_docked)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			aeController->registerAero(*itr_window_docked, drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
 		}
 	}
 
@@ -308,12 +323,25 @@ void drawSwitchDesktop()
 		drSwitcher->switchDesktop = *itr_desktop;
 	}
 
-	for (std::list<E_Window*>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
 	{
-		if (((*itr_window_docked)->isAeroPossible()) && IsWindow((*itr_window_docked)->getWindow()))
-		{
+		UINT state;
+		WINDOWPLACEMENT windowinfo;
+		GetWindowPlacement(*itr_window_docked, &windowinfo);
+		UINT winstate = windowinfo.showCmd;
+		BOOL isVisible = IsWindowVisible(*itr_window_docked);
+		BOOL isMinimized = IsIconic(*itr_window_docked);
+		if (!((state = winstate) == SW_FORCEMINIMIZE
+			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+			|| (state = winstate) == SW_MINIMIZE
+			|| (state = winstate) == SW_SHOWMINIMIZED
+			|| (state = winstate) == SW_SHOWMINNOACTIVE
+			|| isVisible == FALSE
+			|| isMinimized == TRUE)
+			&& IsWindow(*itr_window_docked))
+		{			
 			CRect getSize;
-			GetWindowRect((*itr_window_docked)->getWindow(), &getSize);
+			GetWindowRect(*itr_window_docked, &getSize);
 			RECT *windowRECT = new RECT
 			{
 				getSize.left + width,
@@ -321,13 +349,14 @@ void drawSwitchDesktop()
 				getSize.right + width,
 				getSize.bottom + height
 			};
-			aeController->registerAero((*itr_window_docked)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			aeController->registerAero(*itr_window_docked, drSwitcher->m_hWnd, *windowRECT, pushThumbnail);	
 		}
 	}
 
 	for (list<E_Window*>::iterator itr = drSwitcher->switchDesktop->windowList.begin(); itr != drSwitcher->switchDesktop->windowList.end(); itr++)
 	{
-		(*itr)->setShow();
+		if (!(*itr)->dock)
+			(*itr)->setShow();
 	}
 
 	//drSwitcher->switchDesktop->setAllShow();
@@ -920,7 +949,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.x += 1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					e_global->getSelectedDesktop()->setAllHide();
+					//e_global->getSelectedDesktop()->setAllHide();
+					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
@@ -971,7 +1009,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.x += -1;
 					}
 					switchDesktop->setAllIconVisible();
-					switchDesktop->setAllHide();
+					//switchDesktop->setAllHide();
+					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 				}
 
 				Sleep(300);
@@ -1028,7 +1075,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.x += -1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					e_global->getSelectedDesktop()->setAllHide();
+					//e_global->getSelectedDesktop()->setAllHide();
+					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
@@ -1079,7 +1135,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.x += 1;
 					}
 					switchDesktop->setAllIconVisible();
-					switchDesktop->setAllHide();
+					//switchDesktop->setAllHide();
+					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 				}
 
 				Sleep(300);
@@ -1137,7 +1202,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.y += 1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					e_global->getSelectedDesktop()->setAllHide();
+					//e_global->getSelectedDesktop()->setAllHide();
+					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
@@ -1188,7 +1262,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.y += -1;
 					}
 					switchDesktop->setAllIconVisible();
-					switchDesktop->setAllHide();
+					//switchDesktop->setAllHide();
+					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 				}
 
 				Sleep(300);
@@ -1245,7 +1328,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.y += -1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					e_global->getSelectedDesktop()->setAllHide();
+					//e_global->getSelectedDesktop()->setAllHide();
+					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 					e_global->setSelectedIndex(switchIndex);
 					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
@@ -1296,7 +1388,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						prev_point.y += 1;
 					}
 					switchDesktop->setAllIconVisible();
-					switchDesktop->setAllHide();
+					//switchDesktop->setAllHide();
+					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
+					{
+						if (!(*itr)->dock)
+						{
+							(*itr)->SetMinimizeMaximizeAnimation(FALSE);
+							(*itr)->setHide();
+							(*itr)->SetMinimizeMaximizeAnimation(TRUE);
+						}
+					}
 				}
 
 				Sleep(300);
