@@ -790,6 +790,8 @@ void CMainFrame::changetray(int num)
 	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+	::SendMessage(E_Map::getSingleton()->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 0);
+
 	//E_Map* e_map = E_Map::getSingleton();
 	//e_map->leave2 = true;
 	//::BringWindowToTop(e_map->maphwnd);
