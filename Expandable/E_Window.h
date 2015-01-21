@@ -16,6 +16,7 @@ private:
 	unsigned int savedState;	//saveShowState로 저장한 상태
 	
 public:
+
 	bool dock;
 	E_Window(HWND);
 	~E_Window();
