@@ -599,6 +599,7 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 	cursor_right = false;
 	cursor_top = false;
 	cursor_bottom = false;
+	switchable = false;
 
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 	
