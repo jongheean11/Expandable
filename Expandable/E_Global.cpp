@@ -3,6 +3,7 @@
 #pragma once
 #include <list>
 #include "E_Map.h"
+#include "InjDll.h"
 
 E_Global* E_Global::singleton = NULL;
 
@@ -41,7 +42,6 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 		desktopheight = info.desktopheight;
 	}
 
-
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	notifyAblePos[0] = notifyAblePos[1] = notifyAblePos[2] = notifyAblePos[3] = notifyAblePos[4] = 0;
@@ -53,8 +53,7 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
 
-	//윈도우 리스트 초기화 // 생성자 안이라 초기화 불가능
-	//
+	Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 }
 void E_Global::setTimer(int value)
 {
@@ -69,7 +68,6 @@ int E_Global::getTimer()
 
 E_Global::~E_Global()
 {
-
 }
 void E_Global::setTransparent(int value)
 {

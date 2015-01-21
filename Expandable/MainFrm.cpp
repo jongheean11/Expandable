@@ -12,6 +12,7 @@
 #include "E_Map.h"
 #include "E_Notify.h"
 #include "E_Server.h"
+#include "InjDll.h"
 //
 
 //
@@ -517,6 +518,9 @@ void CMainFrame::On32775()
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
+	//¿Ã¡ßº«
+	Injector(L"explorer.exe", EJECTION_MODE, L"ExpandableDLL_x86.dll");
+
 	DestroyTrayIcon();
 	E_Global* e_global = E_Global::getSingleton();
 

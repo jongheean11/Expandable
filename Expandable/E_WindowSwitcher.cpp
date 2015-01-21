@@ -411,7 +411,6 @@ void E_WindowSwitcher::OnPaint()
 				//현재 데스크탑 배경 색
 				{
 					CBitmap *cbm = getBackgroundCBitmap(switcherWidth, switcherHeight);
-					
 					CBrush brush;
 					//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
 					brush.CreatePatternBrush(cbm);
@@ -809,7 +808,7 @@ void E_WindowSwitcher::OnPaint()
 					
 					//배경 그리기
 					//dc.Rectangle(temprect);
-					//secondMemDC.FillRect(&temprect, &brush1);s
+					//secondMemDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
 					if (tabIndex == secondCount && tabMode == OTHERDESKTOP) {
@@ -1837,10 +1836,16 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	SelectObject(memdc2, hbmOrig);
 	StretchBlt(memdc, 0, 0, width, height, memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 	::ReleaseDC(::GetDesktopWindow(), dc);
-
+	
 	SelectObject(memdc, hOld);
 	DeleteDC(memdc);
 	DeleteDC(memdc2);
+
+	//DeleteObject(hbm);
+	//DeleteObject(hOld);	
+
+	DeleteObject(hbmOrig);	//비트맵 해제
+
 
 	return CBitmap::FromHandle(hbm);
 }
