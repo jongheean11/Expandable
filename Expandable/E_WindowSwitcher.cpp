@@ -27,7 +27,7 @@ void E_WindowSwitcher::updateSelectedDesktop()
 	//TRACE_WIN32A("[E_WindowSwitcher::updateSelectedDesktop()]");
 }
 
-E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMode(SELECTEDDESKTOP)
+E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMode(SELECTEDDESKTOP), isfocus(false)
 {
 	envManager = E_EnvironmentManager::getSingleton();
 
@@ -102,7 +102,7 @@ void E_WindowSwitcher::startSwitcher()
 	tabMode = SELECTEDDESKTOP;	//선택한 탭
 	startTaboffset = 0;	//윈도우 리스트에서 시작 위치
 	tabIndex = 1;	//선택한 윈도우 인덱스
-
+	
 	//데스크탑
 	E_Window* desktopWindow = global->backgroundWindow;
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
@@ -110,10 +110,8 @@ void E_WindowSwitcher::startSwitcher()
 		thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(desktopWindow->getWindow(), hthumbnail));
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
-
-	this->ShowWindow(SW_SHOW);
-	this->BringWindowToTop();
-	running = true;
+	
+	SetTimer(1, 5, NULL);
 }
 
 
@@ -122,6 +120,7 @@ void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
 		stopTPMode();
+		isfocus = false;	//포커스 플래그 초기화
 		running = false;
 		//크리티컬 세션?
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
@@ -252,6 +251,7 @@ BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_KILLFOCUS()
 	ON_WM_SYSKEYDOWN()
 	ON_WM_SYSKEYUP()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 /*창을 새로 그리는 함수*/
@@ -1293,11 +1293,8 @@ void E_WindowSwitcher::selectTabWindow()
 			//LOSS FOCUS
 			if (strcmp(title, "Program Manager") == 0){
 				E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
-				terminateSwitcher();
 			}
 			else{
-
-				terminateSwitcher();
 
 				if (::IsIconic(hwnd) == true)
 					::ShowWindow(hwnd, SW_RESTORE);
@@ -1327,8 +1324,6 @@ void E_WindowSwitcher::selectTabWindow()
 			::GetWindowPlacement(hwnd, &windowState);
 			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
-			terminateSwitcher();
-
 			if (::IsIconic(hwnd) == true)
 				::ShowWindow(hwnd, SW_RESTORE);
 			::BringWindowToTop(hwnd);
@@ -1338,6 +1333,7 @@ void E_WindowSwitcher::selectTabWindow()
 			//stealFocus(hwnd);
 			//stealFocus2(hwnd);
 		}
+		terminateSwitcher();
 	}
 }
 
@@ -1387,8 +1383,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	//if (running==true)
-		//terminateSwitcher();
+	if (running==true)
+		terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1594,6 +1590,7 @@ void E_WindowSwitcher::startTPMode()
 		(*iterDesktop)->setAllNormalExclude();
 		
 		//현재 창 포커스
+		::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }
@@ -1614,8 +1611,7 @@ void E_WindowSwitcher::stopTPMode()
 			continue;
 
 		//창 모양 유지용
-		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후 
-		
+		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후
 		(*iterDesktop)->setAllHide();					//숨김
 		(*iterDesktop)->setAllIconVisible();			//아이콘 보여 줌
 
@@ -1800,4 +1796,27 @@ void E_WindowSwitcher::resetIconcwndAndAero()
 			aero->moveAero(handle, winRect);
 		}
 	}
+}
+
+
+void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("E_WindowSwitcher::OnTimer()");
+	if (nIDEvent == 1)
+	{
+		if (!isfocus)
+		{
+			isfocus = true;
+			//포커스 제거
+			KillTimer(1);
+			
+			//동작 중
+			running = true;
+			
+			//윈도우를 띄움
+			this->ShowWindow(SW_SHOW);
+		}
+	}
+	__super::OnTimer(nIDEvent);
 }
