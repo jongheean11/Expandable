@@ -69,6 +69,14 @@ CMainFrame::CMainFrame()
 	DwmEnableComposition(DWM_EC_ENABLECOMPOSITION); //DWM_EC_ENABLECOMPOSITION // DWM_EC_DISABLECOMPOSITION
 	//DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 	icondisable = false;
+	alreadyrun = false;
+	////
+	//프로그램 켜져있을시 종료 추가
+	
+
+
+
+
 
 }
 
@@ -176,6 +184,34 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
+
+
+
+	//
+
+	HANDLE hEvent;
+
+	hEvent = CreateEvent(NULL, FALSE, TRUE, AfxGetAppName());
+
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+
+	{
+
+		AfxMessageBox(TEXT("이미 프로그램이 실행중입니다."));
+
+		PostQuitMessage(WM_QUIT);
+
+	}
+
+
+
+
+	//
+
+
+
+
+
 	SetTimer(1, 10, NULL);
 
 
@@ -495,41 +531,42 @@ void CMainFrame::OnDestroy()
 	}
 
 	//AHK종료
-
-	CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
-	ProcessName.MakeUpper();
-	//ProcessName.Format()
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if ((int)hSnapshot != -1)
+	if (!alreadyrun)
 	{
-		PROCESSENTRY32 pe32;
-		pe32.dwSize = sizeof(PROCESSENTRY32);
-		BOOL bContinue;
-		CString tempProcessName;
-		if (Process32First(hSnapshot, &pe32))
+		CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
+		ProcessName.MakeUpper();
+		//ProcessName.Format()
+		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if ((int)hSnapshot != -1)
 		{
-			//프로세스 목록 검색 시작
-			do
+			PROCESSENTRY32 pe32;
+			pe32.dwSize = sizeof(PROCESSENTRY32);
+			BOOL bContinue;
+			CString tempProcessName;
+			if (Process32First(hSnapshot, &pe32))
 			{
-				tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
-				tempProcessName.MakeUpper();
-				if ((tempProcessName.Find(ProcessName, 0) != -1))
+				//프로세스 목록 검색 시작
+				do
 				{
-					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
-					if (hProcess)
+					tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
+					tempProcessName.MakeUpper();
+					if ((tempProcessName.Find(ProcessName, 0) != -1))
 					{
-						DWORD dwExitCode;
-						GetExitCodeProcess(hProcess, &dwExitCode);
-						TerminateProcess(hProcess, dwExitCode);
-						CloseHandle(hProcess);
+						HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
+						if (hProcess)
+						{
+							DWORD dwExitCode;
+							GetExitCodeProcess(hProcess, &dwExitCode);
+							TerminateProcess(hProcess, dwExitCode);
+							CloseHandle(hProcess);
+						}
 					}
-				}
-				bContinue = Process32Next(hSnapshot, &pe32);
-			} while (bContinue);
+					bContinue = Process32Next(hSnapshot, &pe32);
+				} while (bContinue);
+			}
+			CloseHandle(hSnapshot);
 		}
-		CloseHandle(hSnapshot);
 	}
-
 
 	//
 
