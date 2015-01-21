@@ -55,9 +55,6 @@
     <Filter Include="Image">
       <UniqueIdentifier>{762ec67a-8bc7-4a12-8ea8-425d9acb1398}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Setting">
-      <UniqueIdentifier>{328c3966-e4ae-41f3-8ab5-35ada50ac17e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -163,7 +160,7 @@
       <Filter>Injector</Filter>
     </ClInclude>
     <ClInclude Include="E_SettingManager.h">
-      <Filter>Setting</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -261,7 +258,7 @@
       <Filter>Injector</Filter>
     </ClCompile>
     <ClCompile Include="E_SettingManager.cpp">
-      <Filter>Setting</Filter>
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +370,9 @@
       <Filter>Image</Filter>
     </Image>
     <Image Include="WindowSwitcher_background_squeezed2.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="WindowSwitcher_background2.bmp">
       <Filter>Image</Filter>
     </Image>
   </ItemGroup>

@@ -1812,11 +1812,11 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	bool squeezed = width / height > 5 ? TRUE : FALSE;
 	if (squeezed)
 	{
-		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background_squeezed2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	}
 	else
 	{
-		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background_squeezed.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	}
 	
 	BITMAP bm = { 0 };
