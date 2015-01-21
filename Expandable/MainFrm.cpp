@@ -12,6 +12,7 @@
 #include "E_Map.h"
 #include "E_Notify.h"
 #include "E_Server.h"
+#include "E_DesktopSwitcher.h"
 //
 
 //
@@ -41,8 +42,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
-//	ON_WM_SYSKEYDOWN()
-//	ON_WM_SYSKEYUP()
+	//	ON_WM_SYSKEYDOWN()
+	//	ON_WM_SYSKEYUP()
 	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
 	ON_MESSAGE(WM_USER_MAPR, OnMapRight)
@@ -183,7 +184,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
-	
+
 
 
 	//
@@ -492,7 +493,7 @@ void CMainFrame::DestroyTrayIcon()
 	//HWND ahk = ::FindWindow(NULL, L"AutoHotKey.exe");
 	//::SendMessage(autohwnd, WM_CLOSE, 0, 0);
 	//::DestroyWindow(autohwnd);
-	
+
 
 
 	return;
@@ -532,40 +533,40 @@ void CMainFrame::OnDestroy()
 	//AHK종료
 	if (!alreadyrun)
 	{
-	CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
-	ProcessName.MakeUpper();
-	//ProcessName.Format()
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if ((int)hSnapshot != -1)
-	{
-		PROCESSENTRY32 pe32;
-		pe32.dwSize = sizeof(PROCESSENTRY32);
-		BOOL bContinue;
-		CString tempProcessName;
-		if (Process32First(hSnapshot, &pe32))
+		CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
+		ProcessName.MakeUpper();
+		//ProcessName.Format()
+		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if ((int)hSnapshot != -1)
 		{
-			//프로세스 목록 검색 시작
-			do
+			PROCESSENTRY32 pe32;
+			pe32.dwSize = sizeof(PROCESSENTRY32);
+			BOOL bContinue;
+			CString tempProcessName;
+			if (Process32First(hSnapshot, &pe32))
 			{
-				tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
-				tempProcessName.MakeUpper();
-				if ((tempProcessName.Find(ProcessName, 0) != -1))
+				//프로세스 목록 검색 시작
+				do
 				{
-					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
-					if (hProcess)
+					tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
+					tempProcessName.MakeUpper();
+					if ((tempProcessName.Find(ProcessName, 0) != -1))
 					{
-						DWORD dwExitCode;
-						GetExitCodeProcess(hProcess, &dwExitCode);
-						TerminateProcess(hProcess, dwExitCode);
-						CloseHandle(hProcess);
+						HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
+						if (hProcess)
+						{
+							DWORD dwExitCode;
+							GetExitCodeProcess(hProcess, &dwExitCode);
+							TerminateProcess(hProcess, dwExitCode);
+							CloseHandle(hProcess);
+						}
 					}
-				}
-				bContinue = Process32Next(hSnapshot, &pe32);
-			} while (bContinue);
+					bContinue = Process32Next(hSnapshot, &pe32);
+				} while (bContinue);
+			}
+			CloseHandle(hSnapshot);
 		}
-		CloseHandle(hSnapshot);
 	}
-}
 
 	//
 
@@ -594,11 +595,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					keydown = 1;
 					startChecking();
 					switcher->stealFocus2(switcher->GetSafeHwnd());
-					
+
 				}
 				else{
 					//쉬프트 탭
-				//	switcher->stealFocus2(switcher->GetSafeHwnd());
+					//	switcher->stealFocus2(switcher->GetSafeHwnd());
 					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
 					if (shift == false){
 						E_WindowSwitcher::getSingleton()->selectNextWindow();
@@ -624,11 +625,10 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 'C':
 	{
-			//김정훈 코드
-				TRACE_WIN32A("[FRAME]KIM JUNG");
+		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
-	
+
 	}
 
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -809,12 +809,12 @@ void CMainFrame::On32779()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	E_Map* e_map = E_Map::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
-	
+
 	e_global->dockedWindowList.push_back(hwnd);
 
 
 
-	
+
 	std::list<E_Desktop*> desklist = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 	{
@@ -876,7 +876,7 @@ void CMainFrame::On32781()
 
 	}
 }
-		
+
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
