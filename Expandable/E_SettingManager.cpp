@@ -30,7 +30,7 @@ bool E_SettingManager::writeData(SettingInfo& info)
 	root["settingTimer"] = info.settingTimer;
 	root["desktopwidth"] = info.desktopwidth;
 	root["desktopheight"] = info.desktopheight;
-
+	 
 	Json::StyledWriter writer;
 
 	string buffer;
