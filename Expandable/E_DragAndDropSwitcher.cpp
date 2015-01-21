@@ -9,24 +9,6 @@
 
 const COLORREF E_DragAndDropSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 
-void stealFocus()
-{
-	DWORD dwCurrentThread = GetCurrentThreadId();
-	DWORD dwFGThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
-
-	AttachThreadInput(dwCurrentThread, dwFGThread, TRUE);
-
-	HWND hwnd = E_DragAndDropSwitcher::getSingleton()->m_hWnd;
-	// Possible actions you may wan to bring the window into focus.
-	SetForegroundWindow(hwnd);
-	SetCapture(hwnd);
-	SetFocus(hwnd);
-	SetActiveWindow(hwnd);
-	EnableWindow(hwnd, TRUE);
-
-	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
-}
-
 void E_DragAndDropSwitcher::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨

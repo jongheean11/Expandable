@@ -456,6 +456,10 @@ void CMainFrame::OnDestroy()
 		(*itr_desk)->setAllIconVisible();
 		(*itr_desk)->setAllShow();
 	}
+	HWND hTaskbarWnd = ::FindWindowW(_T("Shell_TrayWnd"), NULL);
+	::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
+	::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
 	PostMessage(WM_QUIT);
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
