@@ -1280,7 +1280,6 @@ void E_WindowSwitcher::selectTabWindow()
 			}
 			offset++;
 		}
-
 	}
 	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
 		stopTPMode();

@@ -502,6 +502,13 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					//switcher->terminateSwitcher();
 				}
 	}
+		break;
+	case 'C':
+	{
+			//±èÁ¤ÈÆ ÄÚµå
+				TRACE_WIN32A("[FRAME]KIM JUNG");
+	}
+		break;
 	
 	}
 
