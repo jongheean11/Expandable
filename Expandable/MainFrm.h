@@ -58,8 +58,8 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+//	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+//	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnUserNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnMapRight(WPARAM wParam, LPARAM lParam);

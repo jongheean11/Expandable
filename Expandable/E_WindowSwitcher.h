@@ -69,7 +69,7 @@ public:
 	SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_height);
 	//void E_WindowSwitcher::drawIcon();
 	static void stealFocus(HWND hwnd);
-
+	static void stealFocus2(HWND hwnd);
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnPaint();
 	// 현재 Switcher가 동작중인가?
