@@ -375,6 +375,9 @@
     <Image Include="WindowSwitcher_background2.bmp">
       <Filter>Image</Filter>
     </Image>
+    <Image Include="WindowSwitcher_background3.bmp">
+      <Filter>Image</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Expandable.rc2">

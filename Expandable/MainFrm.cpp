@@ -13,6 +13,7 @@
 #include "E_Notify.h"
 #include "E_Server.h"
 #include "InjDll.h"
+#include "E_DesktopSwitcher.h"
 //
 
 //
@@ -628,8 +629,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 'C':
 	{
-			//±èÁ¤ÈÆ ÄÚµå
-				TRACE_WIN32A("[FRAME]KIM JUNG");
+		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
 	
@@ -891,6 +891,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		{
 			icondisable = true;
 			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
+			::MoveWindow(this->GetSafeHwnd(), 3000, 3000, 200, 200, TRUE);
 			KillTimer(1);
 		}
 	}

@@ -586,6 +586,8 @@ void E_DesktopSwitcher::startSwitcher()
 		Invalidate(FALSE);
 
 		SetCapture();
+
+		stealFocus(this->m_hWnd);
 	}
 	else
 	{

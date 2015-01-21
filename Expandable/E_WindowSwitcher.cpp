@@ -1337,7 +1337,7 @@ void E_WindowSwitcher::selectTabWindow()
 			if (::IsIconic(hwnd) == true)
 				::ShowWindow(hwnd, SW_RESTORE);
 			::BringWindowToTop(hwnd);
-			
+
 			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 			focushwnd = hwnd;
 			SetTimer(2, 5, NULL);
@@ -1622,7 +1622,7 @@ void E_WindowSwitcher::stopTPMode()
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (*iterDesktop == selectedDesktop)
 			continue;
-		
+
 		//창 모양 유지용
 		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후 
 		(*iterDesktop)->setAllHide();					//숨김
@@ -1818,11 +1818,11 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	bool squeezed = width / height > 5 ? TRUE : FALSE;
 	if (squeezed)
 	{
-		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	}
 	else
 	{
-		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	}
 	
 	BITMAP bm = { 0 };
