@@ -241,10 +241,6 @@ void E_WindowSwitcher::restartSwitcher()
 }
 
 
-// ZOrderTop
-void E_WindowSwitcher::setZOrderTop()
-{
-}
 BEGIN_MESSAGE_MAP(E_WindowSwitcher, CWnd)
 	ON_WM_PAINT()
 	ON_WM_CTLCOLOR()
