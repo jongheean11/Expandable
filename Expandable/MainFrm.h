@@ -54,19 +54,20 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	bool alreadyrun;
 	HWND autohwnd;
 	afx_msg void On32775();
 	afx_msg void OnDestroy();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-//	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-//	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	//	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	//	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnUserNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnMapRight(WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK EnumAuto(HWND hwnd, LPARAM lParam);
 	DWORD GetProcessByFileName(char* name);
-
+	bool icondisable;
 	// alt up üŷ
 	int startChecking();
 	int stopChecking();
@@ -77,6 +78,7 @@ public:
 	afx_msg void On32778();
 	afx_msg void On32779();
 	afx_msg void On32781();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 

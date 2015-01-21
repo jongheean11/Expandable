@@ -106,5 +106,6 @@ public:
 	// 아이콘 윈도우와 에어로를 초기화 하는 함수,
 	void resetIconcwndAndAero();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-};
 
+	CBitmap* getBackgroundCBitmap(long width, long height);
+};
