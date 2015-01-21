@@ -112,6 +112,7 @@ void E_WindowSwitcher::startSwitcher()
 	}
 
 	this->ShowWindow(SW_SHOW);
+	//this->BringWindowToTop();
 	running = true;
 }
 
@@ -1206,23 +1207,12 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
-					/*	if (::GetForegroundWindow() != hwnd){
-							HWND h_active_wnd = ::GetForegroundWindow();
-							if (h_active_wnd != NULL){
-								DWORD thread_id = GetWindowThreadProcessId(h_active_wnd, NULL);
-							c	DWORD current_thread_id = GetCurrentThreadId();
-								if (current_thread_id != thread_id){
-									if (AttachThreadInput(current_thread_id, thread_id, TRUE)){
-										BringWindowToTop();
-										AttachThreadInput(current_thread_id, thread_id, FALSE);
-									}
-								}
-							}
-						}*/
 
 						::BringWindowToTop(hwnd);
-						::SetFocus(hwnd);
+						//::SetFocus(hwnd);
 						//stealFocus(hwnd);
+						//stealFocus2(hwnd);
+
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1251,24 +1241,12 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						::ShowWindow(hwnd, SW_RESTORE);*/
 
 
-				/*	if (::GetForegroundWindow() != hwnd){
-						HWND h_active_wnd = ::GetForegroundWindow();
-						if (h_active_wnd != NULL){
-							DWORD thread_id = GetWindowThreadProcessId(h_active_wnd, NULL);
-							DWORD current_thread_id = GetCurrentThreadId();
-							if (current_thread_id != thread_id){
-								if (AttachThreadInput(current_thread_id, thread_id, TRUE)){
-									BringWindowToTop();
-									AttachThreadInput(current_thread_id, thread_id, FALSE);
-								}
-							}
-						}
-					}*/
-
 					::BringWindowToTop(hwnd);
-					::SetFocus(hwnd);
+					//::SetFocus(hwnd);
 
 					//stealFocus(hwnd);
+					//stealFocus2(hwnd);
+
 				}
 				terminateSwitcher();
 				break;
@@ -1277,6 +1255,92 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 
 	CWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void E_WindowSwitcher::selectTabWindow()
+{
+	HWND hwnd = NULL;
+	int loop = tabIndex + startTaboffset;
+	int offset = 0;
+	if (tabMode == SELECTEDDESKTOP){
+		for (list<E_Window*>::reverse_iterator iter = temp_windowlist.rbegin(); iter != temp_windowlist.rend(); iter++){
+			if (loop == offset){
+				hwnd = (*iter)->getWindow();
+				break;
+			}
+			offset++;
+		}
+	}
+	else{
+		for (list<E_Window*>::reverse_iterator iter = temp_secondwindowlist.rbegin(); iter != temp_secondwindowlist.rend(); iter++){
+			if (loop == offset){
+				hwnd = (*iter)->getWindow();
+				break;
+			}
+			offset++;
+		}
+
+	}
+	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
+		stopTPMode();
+		if (group_map.find(hwnd)->second == SELECTEDDESKTOP){
+			WINDOWPLACEMENT windowState;
+
+			char title[255] = { 0, };
+			::GetWindowTextA(hwnd, title, 255);
+			::GetWindowPlacement(hwnd, &windowState);
+			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+
+			hwnd = hwnd;	//지역 변수 사용
+
+			//LOSS FOCUS
+			if (strcmp(title, "Program Manager") == 0){
+				E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
+				terminateSwitcher();
+			}
+			else{
+
+				terminateSwitcher();
+
+				if (::IsIconic(hwnd) == true)
+					::ShowWindow(hwnd, SW_RESTORE);
+				::BringWindowToTop(hwnd);
+				//::SetFocus(hwnd);
+				//stealFocus(hwnd);
+				//stealFocus2(hwnd);
+			}
+		}
+		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
+			//소속 데스크탑
+			E_Desktop* desktop = desktop_map.find(hwnd)->second;
+
+			//그 데스크탑으로 이동
+			int index = 0;
+			E_Global* global = E_Global::getSingleton();
+
+			hwnd = hwnd;	//지역 변수 사용
+
+			//LOSS FOCUS
+			global->moveDesktop(desktop->getIndex());
+
+			WINDOWPLACEMENT windowState;
+
+			char title[255] = { 0, };
+			::GetWindowTextA(hwnd, title, 255);
+			::GetWindowPlacement(hwnd, &windowState);
+			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+
+			terminateSwitcher();
+
+			if (::IsIconic(hwnd) == true)
+				::ShowWindow(hwnd, SW_RESTORE);
+			::BringWindowToTop(hwnd);
+			//::SetFocus(hwnd);
+			//stealFocus(hwnd);
+			//stealFocus2(hwnd);
+		}
+	}
 }
 
 
@@ -1324,9 +1388,9 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 {
 	__super::OnKillFocus(pNewWnd);
 
-	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	/*if (running==true)
-		terminateSwitcher();*/
+	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
+	//if (running==true)
+		//terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1658,81 +1722,28 @@ void E_WindowSwitcher::stealFocus(HWND hwnd)
 	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
 }
 
-void E_WindowSwitcher::selectTabWindow()
+
+void E_WindowSwitcher::stealFocus2(HWND parm_dest_wnd)
 {
-	HWND hwnd =NULL;
-	int loop = tabIndex + startTaboffset;
-	int offset = 0;
-	if (tabMode == SELECTEDDESKTOP){
-		for (list<E_Window*>::reverse_iterator iter = temp_windowlist.rbegin(); iter != temp_windowlist.rend(); iter++){
-			if (loop == offset){
-				hwnd = (*iter)->getWindow();
-				break;
-			}
-			offset++;
-		}
-	}
-	else{
-		for (list<E_Window*>::reverse_iterator iter = temp_secondwindowlist.rbegin(); iter != temp_secondwindowlist.rend(); iter++){
-			if (loop == offset){
-				hwnd = (*iter)->getWindow();
-				break;
-			}
-			offset++;
-		}
-		
-	}
-	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
-		stopTPMode();
-		if (group_map.find(hwnd)->second == SELECTEDDESKTOP){
-			WINDOWPLACEMENT windowState;
+	if (NULL != parm_dest_wnd && ::IsWindow(parm_dest_wnd)){
+		CWnd *p_prev_wnd = CWnd::FromHandle(parm_dest_wnd);
 
-			char title[255] = { 0, };
-			::GetWindowTextA(hwnd, title, 255);
-			::GetWindowPlacement(hwnd, &windowState);
-			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+		if (NULL != p_prev_wnd){
+			p_prev_wnd->BringWindowToTop();
 
-			hwnd = hwnd;	//지역 변수 사용
+			CWnd *p_child_wnd = p_prev_wnd->GetLastActivePopup();
+			if (p_prev_wnd->IsIconic() == TRUE) p_prev_wnd->ShowWindow(SW_RESTORE);
+			p_prev_wnd->ShowWindow(SW_SHOWNORMAL);
 
-			//LOSS FOCUS
-			if (strcmp(title, "Program Manager") == 0){
-				E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
+			if (p_child_wnd != NULL && p_prev_wnd != p_child_wnd){
+				p_child_wnd->BringWindowToTop();
+				p_child_wnd->SetForegroundWindow();
 			}
 			else{
-				if (::IsIconic(hwnd) == true)
-					::ShowWindow(hwnd, SW_RESTORE);
-				::BringWindowToTop(hwnd);
-				::SetFocus(hwnd);
-				//stealFocus(hwnd);
+				p_prev_wnd->BringWindowToTop();
+				p_prev_wnd->SetForegroundWindow();
 			}
 		}
-		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
-			//소속 데스크탑
-			E_Desktop* desktop = desktop_map.find(hwnd)->second;
-
-			//그 데스크탑으로 이동
-			int index = 0;
-			E_Global* global = E_Global::getSingleton();
-
-			hwnd = hwnd;	//지역 변수 사용
-
-			//LOSS FOCUS
-			global->moveDesktop(desktop->getIndex());
-
-			WINDOWPLACEMENT windowState;
-
-			char title[255] = { 0, };
-			::GetWindowTextA(hwnd, title, 255);
-			::GetWindowPlacement(hwnd, &windowState);
-			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
-
-			if (::IsIconic(hwnd) == true)
-				::ShowWindow(hwnd, SW_RESTORE);
-			::BringWindowToTop(hwnd);
-			::SetFocus(hwnd);
-			//stealFocus(hwnd);
-		}
-		terminateSwitcher();
 	}
 }
 

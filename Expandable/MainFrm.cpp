@@ -35,8 +35,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
-	ON_WM_SYSKEYDOWN()
-	ON_WM_SYSKEYUP()
+//	ON_WM_SYSKEYDOWN()
+//	ON_WM_SYSKEYUP()
 	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
 	ON_MESSAGE(WM_USER_MAPR, OnMapRight)
@@ -475,10 +475,12 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					switcher->startSwitcher();
 					keydown = 1;
 					startChecking();
-					E_WindowSwitcher::stealFocus(NULL);
+				//	switcher->stealFocus2(switcher->GetSafeHwnd());
+					
 				}
 				else{
 					//쉬프트 탭
+				//	switcher->stealFocus2(switcher->GetSafeHwnd());
 					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
 					if (shift == false){
 						E_WindowSwitcher::getSingleton()->selectNextWindow();
@@ -497,7 +499,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				if (switcher->isRunning() == true){
 					//스위처가 동작중이 아닐 때
 					switcher->selectTabWindow();
-					switcher->terminateSwitcher();
+					//switcher->terminateSwitcher();
 				}
 	}
 	
@@ -516,20 +518,20 @@ void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 }
 
 
-void CMainFrame::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	TRACE_WIN32A("OnSysKeyDown");
-	CFrameWndEx::OnSysKeyDown(nChar, nRepCnt, nFlags);
-}
+//void CMainFrame::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//	TRACE_WIN32A("OnSysKeyDown");
+//	CFrameWndEx::OnSysKeyDown(nChar, nRepCnt, nFlags);
+//}
 
 
-void CMainFrame::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	TRACE_WIN32A("OnSysKeyUp");
-	CFrameWndEx::OnSysKeyUp(nChar, nRepCnt, nFlags);
-}
+//void CMainFrame::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//	TRACE_WIN32A("OnSysKeyUp");
+//	CFrameWndEx::OnSysKeyUp(nChar, nRepCnt, nFlags);
+//}
 
 
 // alt up 체킹
