@@ -410,13 +410,6 @@ void drawDragAndDropSwitcher()
 	EndPaint(*drSwitcher, &ps);
 }
 
-void preDoSwitchTaskbar()
-{
-	//E_DragAndDropSwitcher::getSingleton()->hTaskbarWnd = FindWindowW(_T("Shell_TrayWnd"), NULL); // 작업표시줄 hwnd
-	//Sleep(400);
-	//E_DragAndDropSwitcher::getSingleton()->switchTaskbar = new E_Window(E_DragAndDropSwitcher::getSingleton()->hTaskbarWnd);
-}
-
 E_DragAndDropSwitcher::E_DragAndDropSwitcher()
 {
 	ison = false;
@@ -521,8 +514,6 @@ void E_DragAndDropSwitcher::startSwitcher()
 			main_top = 0;
 			main_right = enManager->getWidth() * 2;
 			main_bottom = enManager->getHeight();
-			//currentTaskbarRECT->left += -enManager->getWidth();
-			//currentTaskbarRECT->right += -enManager->getWidth();
 		}
 		else if (cursor_right)
 		{
@@ -537,8 +528,6 @@ void E_DragAndDropSwitcher::startSwitcher()
 			main_top = 0;
 			main_right = enManager->getWidth();
 			main_bottom = enManager->getHeight() * 2;
-			//currentTaskbarRECT->top += -enManager->getHeight();
-			//currentTaskbarRECT->bottom += -enManager->getHeight();
 		}
 		else
 		{
@@ -547,34 +536,14 @@ void E_DragAndDropSwitcher::startSwitcher()
 			main_right = enManager->getWidth();
 			main_bottom = enManager->getHeight() * 2;
 		}
-		//UINT nClassStyle_window = 0;
-		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		//currentCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_currentTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
-		//E_Window::setIconInvisible(currentCWnd.m_hWnd);
-		//WS_EX_TOPMOST,
-		//switchCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_switchTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
-		//E_Window::setIconInvisible(switchCWnd.m_hWnd);
 		
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		MoveWindow(movingCRect);
 
 		GetCursorPos(&prev_point);
 		
-		//stealFocus();
-
-
-		//BringWindowToTop();
-		//SetForegroundWindow();
-		//UpdateWindow();
-
-
 		ShowWindow(SW_SHOW);
 		SetCursor(LoadCursor(NULL, IDC_HAND));
-
-		//UpdateWindow();
-		//::ShowWindow(hTaskbarWnd, SW_HIDE);
-		//Invalidate();
-		//::ShowWindow(hTaskbarWnd, SW_SHOW);
 	}
 	else
 	{
@@ -584,15 +553,6 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 void E_DragAndDropSwitcher::terminateSwitcher()
 {
-	//E_Global::getSingleton()->stopUpdate();
-	/*if (started)
-	{
-		delete currentDesktopRECT;
-		delete currentTaskbarRECT;
-		delete switchDesktopRECT;
-		delete switchTaskbarRECT;
-	}*/
-
 	ison = false;
 	started = false;
 	cursor_left = false;
@@ -635,16 +595,6 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 	}
-}
-
-void E_DragAndDropSwitcher::turnUpdateOn()
-{
-	E_Global::getSingleton()->startUpdate();
-}
-
-void E_DragAndDropSwitcher::turnUpdateOff()
-{
-	E_Global::getSingleton()->stopUpdate();
 }
 
 BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
@@ -763,10 +713,6 @@ void movingRects_y(int y)
 	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
 	drSwitcher->movingCRect.top += y;
 	drSwitcher->movingCRect.bottom += y;
-	//drSwitcher->currentTaskbarRECT->top += y;
-	//drSwitcher->currentTaskbarRECT->bottom += y;
-	//drSwitcher->switchTaskbarRECT->top += y;
-	//drSwitcher->switchTaskbarRECT->bottom += y;
 }
 
 void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
@@ -788,33 +734,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 
 				startSwitcher();
 				
+				E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 				if (cursor_left)
 				{
-					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 					movingCRect = CRect(-enManager->getWidth(), 0, enManager->getWidth(), enManager->getHeight());
-					//switchTaskbarRECT->left += -enManager->getWidth();
-					//switchTaskbarRECT->right += -enManager->getWidth();
 					MoveWindow(movingCRect);
-					//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
-				}
-				else if (cursor_right)
-				{
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 				}
 				else if (cursor_top)
 				{
-					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 					movingCRect = CRect(0, -enManager->getHeight(), enManager->getWidth(), enManager->getHeight());
-					//switchTaskbarRECT->top += -enManager->getHeight();
-					//switchTaskbarRECT->bottom += -enManager->getHeight();
-					MoveWindow(movingCRect);
-					//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
-				}
-				else
-				{
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
+					MoveWindow(movingCRect);				
 				}
 				E_Window::setIconInvisible(this->m_hWnd);
 
@@ -825,21 +754,20 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
+				E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+				E_Global* e_global = E_Global::getSingleton();
 				if ((cursor_left || cursor_right) && (abs(point.x - prev_point.x) > 3))
 				{
 					movingRects_x(point.x - prev_point.x);
 					MoveWindow(movingCRect, FALSE);
-					//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 					prev_point = point;
-					//Invalidate();
-					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+					
 					if ((((prev_point.x * 100 / enManager->getWidth()) >= 33) && cursor_left) || ((((enManager->getWidth() - prev_point.x) * 100 / enManager->getWidth()) >= 33) && cursor_right))
 					{
 						if (!switchable)
 						{
-							E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
-							E_Global::getSingleton()->getDesktop(switchIndex)->setAllIconVisible();
+							e_global->getSelectedDesktop()->setAllIconInvisible();
+							e_global->getDesktop(switchIndex)->setAllIconVisible();
 							switchable = true;
 						}
 					}
@@ -847,8 +775,8 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						if (switchable)
 						{
-							E_Global::getSingleton()->getDesktop(switchIndex)->setAllIconInvisible();
-							E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+							e_global->getDesktop(switchIndex)->setAllIconInvisible();
+							e_global->getSelectedDesktop()->setAllIconVisible();
 							switchable = false;
 						}
 					}
@@ -857,17 +785,14 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 				{
 					movingRects_y(point.y - prev_point.y);
 					MoveWindow(movingCRect);
-					//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-					//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 					prev_point = point;
-					//Invalidate();
-					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+					
 					if ((((prev_point.y * 100 / enManager->getHeight()) >= 33) && cursor_top) || ((((enManager->getHeight() - prev_point.y) * 100 / enManager->getHeight()) >= 33) && cursor_bottom))
 					{
 						if (!switchable)
 						{
-							E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
-							E_Global::getSingleton()->getDesktop(switchIndex)->setAllIconVisible();
+							e_global->getSelectedDesktop()->setAllIconInvisible();
+							e_global->getDesktop(switchIndex)->setAllIconVisible();
 							switchable = true;
 						}
 					}
@@ -875,8 +800,8 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						if (switchable)
 						{
-							E_Global::getSingleton()->getDesktop(switchIndex)->setAllIconInvisible();
-							E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+							e_global->getDesktop(switchIndex)->setAllIconInvisible();
+							e_global->getSelectedDesktop()->setAllIconVisible();
 							switchable = false;
 						}
 					}
@@ -890,15 +815,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			E_Global* e_global = E_Global::getSingleton();
 			if (cursor_left)
 			{
-				//if ((prev_point.x * 100 / enManager->getWidth()) >= 33)
 				if (switchable)
 				{
 					while (prev_point.x <= enManager->getWidth())
 					{
 						movingRects_x(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 2;
 					}
 					Sleep(60);
@@ -906,8 +828,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT-> left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -2;
 					}
 					Sleep(60);
@@ -915,8 +835,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					Sleep(60);
@@ -924,8 +842,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					Sleep(60);
@@ -933,12 +849,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					//e_global->getSelectedDesktop()->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -957,8 +871,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -2;
 					}
 					Sleep(60);
@@ -966,8 +878,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 2;
 					}
 					Sleep(60);
@@ -975,8 +885,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					Sleep(60);
@@ -984,8 +892,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					Sleep(60);
@@ -993,12 +899,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					switchDesktop->setAllIconVisible();
-					//switchDesktop->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1015,16 +919,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			}
 			else if (cursor_right)
 			{
-				//prev_point.x = currentDesktopRECT->right;
-				//if (((enManager->getWidth() - prev_point.x) * 100 / enManager->getWidth()) >= 33)
 				if (switchable)
 				{
 					while (prev_point.x >= 0)
 					{
 						movingRects_x(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -2;
 					}
 					Sleep(60);
@@ -1032,8 +932,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 2;
 					}
 					Sleep(60);
@@ -1041,8 +939,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					Sleep(60);
@@ -1050,8 +946,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					Sleep(60);
@@ -1059,12 +953,9 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					//e_global->getSelectedDesktop()->setAllHide();
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1083,8 +974,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 2;
 					}
 					Sleep(60);
@@ -1092,8 +981,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -2;
 					}
 					Sleep(60);
@@ -1101,8 +988,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					Sleep(60);
@@ -1110,8 +995,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += -1;
 					}
 					Sleep(60);
@@ -1119,12 +1002,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.x += 1;
 					}
 					switchDesktop->setAllIconVisible();
-					//switchDesktop->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1138,20 +1019,15 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 
 				Sleep(300);
 				terminateSwitcher();
-				//::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-				//::SetLayeredWindowAttributes(hTaskbarWnd, 0, 0, LWA_ALPHA);
 			}
 			else if (cursor_top)
 			{
-				//if ((prev_point.y * 100 / enManager->getHeight()) >= 33)
 				if (switchable)
 				{
 					while (prev_point.y <= enManager->getHeight())
 					{
 						movingRects_y(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 2;
 					}
 					Sleep(60);
@@ -1159,8 +1035,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -2;
 					}
 					Sleep(60);
@@ -1168,8 +1042,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					Sleep(60);
@@ -1177,8 +1049,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					Sleep(60);
@@ -1186,12 +1056,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					//e_global->getSelectedDesktop()->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1210,8 +1078,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -2;
 					}
 					Sleep(60);
@@ -1219,8 +1085,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 2;						
 					}
 					Sleep(60);
@@ -1228,8 +1092,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					Sleep(60);
@@ -1237,8 +1099,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					Sleep(60);
@@ -1246,12 +1106,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					switchDesktop->setAllIconVisible();
-					//switchDesktop->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1268,16 +1126,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
-				//prev_point.y = currentDesktopRECT->bottom;
-				//if (((enManager->getHeight() - prev_point.y) * 100 / enManager->getHeight()) >= 33)
 				if (switchable)
 				{
 					while (prev_point.y >= 0)
 					{
 						movingRects_y(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -2;
 					}
 					Sleep(60);
@@ -1285,8 +1139,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 2;
 					}
 					Sleep(60);
@@ -1294,8 +1146,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					Sleep(60);
@@ -1303,8 +1153,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					Sleep(60);
@@ -1312,12 +1160,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					e_global->getSelectedDesktop()->setAllIconVisible();
-					//e_global->getSelectedDesktop()->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1336,8 +1182,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 2;
 					}
 					Sleep(60);
@@ -1345,8 +1189,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-2);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -2;
 					}
 					Sleep(60);
@@ -1354,8 +1196,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					Sleep(60);
@@ -1363,8 +1203,6 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += -1;
 					}
 					Sleep(60);
@@ -1372,12 +1210,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 					{
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
-						//::MoveWindow(currentCWnd, currentTaskbarRECT->left, currentTaskbarRECT->top, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top, FALSE);
-						//::MoveWindow(switchCWnd, switchTaskbarRECT->left, switchTaskbarRECT->top, switchTaskbarRECT->right - switchTaskbarRECT->left, switchTaskbarRECT->bottom - switchTaskbarRECT->top, FALSE);
 						prev_point.y += 1;
 					}
 					switchDesktop->setAllIconVisible();
-					//switchDesktop->setAllHide();
+					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
 					{
 						if (!(*itr)->dock)
@@ -1402,102 +1238,8 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 				if ((winstate == SW_HIDE) && !(::IsWindowVisible(*itr)) )
 					::ShowWindow(*itr, SW_SHOW);
 			}
-			//::ShowWindow(hTaskbarWnd, SW_SHOW);
 		}
 	}
 
 	__super::OnTimer(nIDEvent);
 }
-
-//void E_DragAndDropSwitcher::OnPaint()
-//{
-//	CPaintDC dc(this); // device context for painting
-//	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-//	// 그리기 메시지에 대해서는 __super::OnPaint()을(를) 호출하지 마십시오.
-//	/*if ((started) && switchTaskbar != NULL)
-//	{
-//		CPaintDC currentDC(&currentCWnd);
-//		CPaintDC switchDC(&switchCWnd);
-//		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-//
-//		CBitmap *currentBitmap = currentTaskbar->getScreenshot();
-//		BITMAP bmpinfo_current, bmpinfo_switch;
-//		currentBitmap->GetBitmap(&bmpinfo_current);
-//
-//		// 더블 버퍼링을 위한 코드
-//		//메모리 DC를 생성한다. (버퍼 메모리 할당)
-//		CDC memDC_current, memDC_switch;
-//		//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
-//		CBitmap bmp_current, bmp_switch;
-//		//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
-//		memDC_current.CreateCompatibleDC(&currentDC);
-//		//주어진 dc에 호환하는 비트맵을 생성한다.
-//		bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), currentTaskbarRECT->bottom - currentTaskbarRECT->top);
-//		//이제 memDC에 생성된 비트맵을 연결한다.
-//		memDC_current.SelectObject(bmp_current);
-//		
-//		BITMAP icon_info_current, icon_info_switch;
-//		currentBitmap->GetBitmap(&icon_info_current);
-//		CDC cdc_current, cdc_switch;
-//		cdc_current.CreateCompatibleDC(&currentDC);
-//		cdc_current.SelectObject(currentBitmap);
-//		
-//		//memDC.SetStretchBltMode(COLORONCOLOR);
-//		//memDC.Rectangle(0, 0, 100, 100);
-//		
-//		memDC_current.StretchBlt(0,//currentTaskbarRECT->left,
-//			0,//currentTaskbarRECT->top,
-//			currentTaskbarRECT->right - currentTaskbarRECT->left,
-//			currentTaskbarRECT->bottom - currentTaskbarRECT->top, 
-//			&cdc_current, 0, 0, icon_info_current.bmWidth, icon_info_current.bmHeight, SRCCOPY);
-//		cdc_current.DeleteDC();
-//		
-//
-//		//dc.Rectangle(0, 0, 1000, 100);
-//		currentDC.StretchBlt(0,
-//			0,//currentTaskbarRECT->top, //0,
-//			enManager->getWidth(), icon_info_current.bmHeight,//enManager->getHeight(),
-//			&memDC_current,
-//			0, 0,
-//			icon_info_current.bmWidth, icon_info_current.bmHeight,
-//			SRCCOPY);
-//
-//		//dc 해제
-//		memDC_current.DeleteDC();
-//		bmp_current.DeleteObject();
-//		
-//		memDC_switch.CreateCompatibleDC(&switchDC);
-//
-//		bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), switchTaskbarRECT->bottom - switchTaskbarRECT->top);
-//		memDC_switch.SelectObject(bmp_switch);
-//		cdc_switch.CreateCompatibleDC(&switchDC);
-//
-//		CBitmap *switchBitmap = switchTaskbar->getScreenshot();
-//		switchBitmap->GetBitmap(&bmpinfo_switch);
-//		switchBitmap->GetBitmap(&icon_info_switch);
-//		cdc_switch.SelectObject(switchBitmap);
-//
-//		memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
-//			0,//currentTaskbarRECT->top,
-//			switchTaskbarRECT->right - switchTaskbarRECT->left,
-//			switchTaskbarRECT->bottom - switchTaskbarRECT->top,
-//			&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
-//
-//		cdc_switch.DeleteDC();
-//
-//		switchDC.StretchBlt(0,
-//			0,//currentTaskbarRECT->top, //0,
-//			enManager->getWidth(), icon_info_switch.bmHeight,//enManager->getHeight(),
-//			&memDC_switch,
-//			0, 0,
-//			icon_info_switch.bmWidth, icon_info_switch.bmHeight,
-//			SRCCOPY);
-//
-//		memDC_switch.DeleteDC();
-//		bmp_switch.DeleteObject();
-//		
-//		E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
-//		//::ShowWindow(hTaskbarWnd, SW_SHOW);
-//		//Invalidate(true);
-//	}*/
-//}

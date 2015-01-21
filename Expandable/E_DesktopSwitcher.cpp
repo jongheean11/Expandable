@@ -712,19 +712,18 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		doubleclick_second = false;
 	}
 	
-	if (leftarrow->PtInRect(point))
+	if (e_global->desktopList.size() > 4)
 	{
-		leftarrow_pressed = true;
-
-		stealFocus(this->m_hWnd);
-		return;
-	}
-	if (rightarrow->PtInRect(point))
-	{
-		rightarrow_pressed = true;
-
-		stealFocus(this->m_hWnd);
-		return;
+		if (leftarrow->PtInRect(point))
+		{
+			leftarrow_pressed = true;
+			return;
+		}
+		else if (rightarrow->PtInRect(point))
+		{
+			rightarrow_pressed = true;
+			return;
+		}
 	}
 
 	int i = desktoplist_startindex;
@@ -747,7 +746,7 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 	//initialize swappoint_h
 	//swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
-	swappoint_h = main_backgroundRECT->top;
+	//swappoint_h = main_backgroundRECT->top;
 	if (!window_selected)
 	{
 		if (desktop_inrange)
@@ -926,7 +925,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 		doubleclick_second = false;
 	}
 
-	if (leftarrow->PtInRect(point))
+	if (leftarrow->PtInRect(point) && leftarrow_pressed)
 	{
 		leftarrow_pressed = false;
 		eraseDesktopList();
@@ -946,7 +945,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 		//e_global->startUpdate();
 		return;
 	}
-	if (rightarrow->PtInRect(point))
+	if (rightarrow->PtInRect(point) && rightarrow_pressed)
 	{
 		rightarrow_pressed = false;
 		eraseDesktopList();
