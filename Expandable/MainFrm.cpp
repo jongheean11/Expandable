@@ -12,6 +12,7 @@
 #include "E_Map.h"
 #include "E_Notify.h"
 #include "E_Server.h"
+#include "E_DesktopSwitcher.h"
 //
 
 //
@@ -624,8 +625,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 'C':
 	{
-				//±èÁ¤ÈÆ ÄÚµå
-				TRACE_WIN32A("[FRAME]KIM JUNG");
+		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
 
