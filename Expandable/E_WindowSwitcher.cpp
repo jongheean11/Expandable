@@ -5,9 +5,9 @@ const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xe5);
 const COLORREF E_WindowSwitcher::aeroColorSelectedMouse = RGB(0x30, 0xb0, 0xee);
-const COLORREF E_WindowSwitcher::borderColor = RGB(0xdc, 0xdb, 0xdb);
+const COLORREF E_WindowSwitcher::borderColor = RGB(120, 120, 120);
 const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
-const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(0xcf, 0xdc, 0xdc);
+const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
@@ -411,7 +411,6 @@ void E_WindowSwitcher::OnPaint()
 				//현재 데스크탑 배경 색
 				{
 					CBitmap *cbm = getBackgroundCBitmap(switcherWidth, switcherHeight);
-					
 					CBrush brush;
 					//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
 					brush.CreatePatternBrush(cbm);
@@ -524,15 +523,15 @@ void E_WindowSwitcher::OnPaint()
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColor);
 					else if (mode == UPDATE_TAB)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelected);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelected);
 					else if (mode == UPDATE_TOUCH)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelectedMouse);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelectedMouse);
 
 					//배경 그리기
 					//dc.Rectangle(temprect);
-					memDC.FillRect(&temprect, &brush1);
+					//memDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
 					if (tabIndex == count && tabMode == SELECTEDDESKTOP) {
@@ -796,20 +795,20 @@ void E_WindowSwitcher::OnPaint()
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-
+					
 
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColor);
 					else if (mode == UPDATE_TAB)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelected);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelected);
 					else if (mode == UPDATE_TOUCH)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelectedMouse);
-
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelectedMouse);
+					
 					//배경 그리기
 					//dc.Rectangle(temprect);
-					secondMemDC.FillRect(&temprect, &brush1);
+					//secondMemDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
 					if (tabIndex == secondCount && tabMode == OTHERDESKTOP) {
@@ -1837,10 +1836,16 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	SelectObject(memdc2, hbmOrig);
 	StretchBlt(memdc, 0, 0, width, height, memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 	::ReleaseDC(::GetDesktopWindow(), dc);
-
+	
 	SelectObject(memdc, hOld);
 	DeleteDC(memdc);
 	DeleteDC(memdc2);
+
+	//DeleteObject(hbm);
+	//DeleteObject(hOld);	
+
+	DeleteObject(hbmOrig);	//비트맵 해제
+
 
 	return CBitmap::FromHandle(hbm);
 }
