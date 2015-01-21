@@ -1028,6 +1028,9 @@ void E_Global::moveDesktop(int index)
 		if (last != NULL){
 
 			selectedDesktop->setAllHide();//숨김
+			for (list<HWND>::iterator iter = dockedWindowList.begin(); iter != dockedWindowList.end(); iter++){
+				ShowWindow((*iter), SW_SHOWNORMAL);
+			}
 			last->setAllShow();	//보여줌
 
 			selectedIndex = index;	//인덱스 업데이트

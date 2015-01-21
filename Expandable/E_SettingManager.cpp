@@ -84,12 +84,6 @@ bool E_SettingManager::readData(SettingInfo& info)
 		return false;
 	}
 
-	//settingTimer = 5;
-	//transparent = 160;
-	//mapsize = 0.06;
-	//iconsize = 1;
-	//desktopwidth = 3;
-	//desktopheight = 3;
 	//°ª ¼¼ÆÃ
 	info.mapsize = result.get("mapsize", 0.06).asDouble();
 	info.iconsize = result.get("iconsize", 1).asDouble();
