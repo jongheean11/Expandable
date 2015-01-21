@@ -54,6 +54,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	HWND autohwnd;
 	afx_msg void On32775();
 	afx_msg void OnDestroy();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -63,6 +64,9 @@ public:
 	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnUserNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnMapRight(WPARAM wParam, LPARAM lParam);
+	static BOOL CALLBACK EnumAuto(HWND hwnd, LPARAM lParam);
+	DWORD GetProcessByFileName(char* name);
+
 	// alt up üŷ
 	int startChecking();
 	int stopChecking();
