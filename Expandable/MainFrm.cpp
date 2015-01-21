@@ -146,7 +146,6 @@ HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
 	}
 
 
-
 	UINT uMouseMsg = (UINT)lParam;
 	POINT MousePos;
 	GetCursorPos(&MousePos);
@@ -595,7 +594,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					switcher->startSwitcher();
 					keydown = 1;
 					startChecking();
-					//	switcher->stealFocus2(switcher->GetSafeHwnd());
+					switcher->stealFocus2(switcher->GetSafeHwnd());
 
 				}
 				else{
@@ -616,10 +615,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'B':
 	{
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
+				TRACE_WIN32A("ALT UP");
 				if (switcher->isRunning() == true){
 					//스위처가 동작중이 아닐 때
 					switcher->selectTabWindow();
-					//switcher->terminateSwitcher();
+					switcher->terminateSwitcher();
 				}
 	}
 		break;
