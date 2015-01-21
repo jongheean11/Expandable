@@ -179,6 +179,7 @@ bool E_Window::takeScreenshot()
 		notShowing = true;
 		this->setTransparent();
 		ShowWindow(window, SW_RESTORE);
+		//ShowWindow(window, SW_SHOW);
 	}
 
 	HWND hTargetWnd = window;

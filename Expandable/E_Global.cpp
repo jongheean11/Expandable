@@ -153,11 +153,14 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	E_Global *global = E_Global::getSingleton();
 	
 	WCHAR Cap[255];
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
 	int length;
 	::GetWindowText(hwnd, Cap, 254);
+	::GetWindowText(hwnd, expandable, 11);
 	length = ::GetWindowTextLength(hwnd);
 
-	if (IsWindowVisible(hwnd))
+	if (IsWindowVisible(hwnd) && !(wcscmp(expandable, expan) == 0))
 	{
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.
