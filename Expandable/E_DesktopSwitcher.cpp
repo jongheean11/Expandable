@@ -486,6 +486,10 @@ void E_DesktopSwitcher::updateSelectedDesktop()
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
+	leftkey_pressed = false;
+	rightkey_pressed = false;
+	enterkey_pressed = false;
+	esckey_pressed = false;
 	leftarrow = NULL; 
 	rightarrow = NULL;
 
@@ -520,6 +524,8 @@ void E_DesktopSwitcher::startSwitcher()
 	if (!ison)
 	{
 		E_Global* e_global = E_Global::getSingleton();
+
+		initindex = e_global->getSelectedIndex();
 
 		e_global->onUpdate();
 
@@ -648,6 +654,11 @@ void E_DesktopSwitcher::terminateSwitcher()
 		desktop_CWnd_list.clear();
 		ReleaseCapture();
 
+		leftkey_pressed = false;
+		rightkey_pressed = false;
+		enterkey_pressed = false;
+		esckey_pressed = false;
+
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
 	}
@@ -659,13 +670,14 @@ void E_DesktopSwitcher::switchDesktop(E_Desktop* selection)
 }
 
 BEGIN_MESSAGE_MAP(E_DesktopSwitcher, CWnd)
-//ON_WM_LBUTTONDBLCLK()
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_MOUSEMOVE()
 ON_WM_PAINT()
 ON_WM_DESTROY()
 ON_WM_CREATE()
+ON_WM_KEYDOWN()
+ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 
@@ -980,7 +992,6 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				e_global->setSelectedIndex(i);
 				drawWindowS();
 				desktop_inrange = true;
-				//e_global->startUpdate();
 
 				Invalidate(TRUE);
 				return;
@@ -1407,4 +1418,142 @@ int E_DesktopSwitcher::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 
 	return 0;
+}
+
+void E_DesktopSwitcher::keyArrowPress(int direction)
+{
+	if (ison)
+	{
+		E_Global* e_global = E_Global::getSingleton();
+
+		int index = (e_global->desktopList.size() + e_global->getSelectedIndex() + direction) % e_global->desktopList.size();
+
+		if (e_global->desktopList.size() == 1)
+			return;
+
+		else if ((e_global->desktopList.size() >= 2) && (e_global->desktopList.size() <= 2))
+		{
+			eraseWindowS();
+			e_global->getSelectedDesktop()->setAllIconInvisible();
+			e_global->setSelectedIndex(index);
+			drawWindowS();
+			desktop_inrange = true;
+
+			Invalidate(TRUE);
+			return;
+		}
+		else
+		{	
+			int i = desktoplist_startindex, p=0;
+			while (p < 4)
+			{
+				if (e_global->getSelectedIndex() == i)
+				{
+					if ((p == 0) && (direction == -1))
+					{
+						eraseDesktopList();
+						desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex - 1) % e_global->desktopList.size();
+						drawDesktopList();
+						
+						eraseWindowS();
+						e_global->getSelectedDesktop()->setAllIconInvisible();
+						e_global->setSelectedIndex(index);
+						drawWindowS();
+						desktop_inrange = true;
+						
+						Invalidate(TRUE);
+						return;
+					}
+					else if ((p == 3) && (direction == 1))
+					{
+						eraseDesktopList();
+						desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex + 1) % e_global->desktopList.size();
+						drawDesktopList();
+
+						eraseWindowS();
+						e_global->getSelectedDesktop()->setAllIconInvisible();
+						e_global->setSelectedIndex(index);
+						drawWindowS();
+						desktop_inrange = true;
+
+						Invalidate(TRUE);
+						return;
+					}
+					else
+					{
+						eraseWindowS();
+						e_global->getSelectedDesktop()->setAllIconInvisible();
+						e_global->setSelectedIndex(index);
+						drawWindowS();
+						desktop_inrange = true;
+
+						Invalidate(TRUE);
+						return;
+					}
+				}
+				i = (i + 1) % e_global->desktopList.size();
+				p++;
+			}
+		}
+	}
+}
+
+void E_DesktopSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar == VK_LEFT)
+	{
+		leftkey_pressed = true;
+	}
+	else if (nChar == VK_RIGHT)
+	{
+		rightkey_pressed = true;
+	}
+	else if (nChar == VK_RETURN)
+	{
+		enterkey_pressed = true;
+	}
+	else if (nChar == VK_ESCAPE)
+	{
+		esckey_pressed = true;
+	}
+
+	__super::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if ((nChar == VK_LEFT) && leftkey_pressed)
+	{
+		keyArrowPress(-1);
+		stealFocus(this->m_hWnd);
+		E_Window::setIconInvisible(this->m_hWnd);
+	}
+	else if ((nChar == VK_RIGHT) && rightkey_pressed)
+	{
+		keyArrowPress(1);
+		stealFocus(this->m_hWnd);
+		E_Window::setIconInvisible(this->m_hWnd);
+	}
+	else if ((nChar == VK_RETURN) && enterkey_pressed)
+	{
+		terminateSwitcher();
+	}
+	else if ((nChar == VK_ESCAPE) && esckey_pressed)
+	{
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+		{
+			E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
+			E_Global::getSingleton()->setSelectedIndex(initindex);
+		}
+		
+		terminateSwitcher();
+	}
+
+	leftkey_pressed = false;
+	rightkey_pressed = false;
+	enterkey_pressed = false;
+	esckey_pressed = false;
+
+	__super::OnKeyUp(nChar, nRepCnt, nFlags);
 }

@@ -34,13 +34,14 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 
 	CBrush brush_map;
-	//brush_map.CreateSolidBrush(E_WindowSwitcher::backgroundColor);
+	//////brush_map.CreateSolidBrush(E_WindowSwitcher::backgroundColor);
 	brush_map.CreateStockObject(NULL_BRUSH);
 	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
+	//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
 	this->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 1, 1), CWnd::GetDesktopWindow(), 0);
 	this->ShowWindow(SW_HIDE);
 	this->UpdateWindow();
-	brush_map.DeleteObject();
+	//brush_map.DeleteObject();
 	//  selectedIndex = 0;
 	startTaboffset = 0;
 }
@@ -408,8 +409,11 @@ void E_WindowSwitcher::OnPaint()
 
 				//현재 데스크탑 배경 색
 				{
+					CBitmap *cbm = getBackgroundCBitmap(switcherWidth, switcherHeight);
+					
 					CBrush brush;
-					brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
+					//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
+					brush.CreatePatternBrush(cbm);
 					RECT rect;
 					rect.left = 0;
 					rect.top = 0;
@@ -1795,4 +1799,36 @@ void E_WindowSwitcher::resetIconcwndAndAero()
 			aero->moveAero(handle, winRect);
 		}
 	}
+}
+
+CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
+{
+	HBITMAP hbmOrig;
+	bool squeezed = width / height > 5 ? TRUE : FALSE;
+	if (squeezed)
+	{
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background_squeezed2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	}
+	else
+	{
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("WindowSwitcher_background_squeezed.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	}
+	
+	BITMAP bm = { 0 };
+	GetObject(hbmOrig, sizeof(BITMAP), &bm);
+
+	HDC dc = ::GetDC(::GetDesktopWindow());
+	HDC memdc = CreateCompatibleDC(dc);
+	HDC memdc2 = CreateCompatibleDC(dc);
+	HBITMAP hbm = CreateCompatibleBitmap(dc, width, height);
+	HGDIOBJ hOld = SelectObject(memdc, hbm);
+	SelectObject(memdc2, hbmOrig);
+	StretchBlt(memdc, 0, 0, width, height, memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+	::ReleaseDC(::GetDesktopWindow(), dc);
+
+	SelectObject(memdc, hOld);
+	DeleteDC(memdc);
+	DeleteDC(memdc2);
+
+	return CBitmap::FromHandle(hbm);
 }

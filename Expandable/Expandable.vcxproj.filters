@@ -360,6 +360,12 @@
     <Image Include="DesktopSwitcher_background_witharrow.bmp">
       <Filter>Image</Filter>
     </Image>
+    <Image Include="WindowSwitcher_background_squeezed.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="WindowSwitcher_background_squeezed2.bmp">
+      <Filter>Image</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Expandable.rc2">

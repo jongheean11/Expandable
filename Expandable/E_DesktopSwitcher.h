@@ -16,7 +16,6 @@ private:
 	E_Desktop* focusedDesktop;
 	E_Window* clickedWindow;
 	
-
 	// property for doubleclick
 	SYSTEMTIME doubleClickTimer, __doubleClickTimer;
 	bool doubleclick_first, doubleclick_second;
@@ -67,6 +66,10 @@ public:
 	void switchDesktop(E_Desktop* selection);
 	double getMainDesktopSize();
 	void setMainDesktopSize(double size);
+	void keyArrowPress(int direction);
+
+	bool leftkey_pressed, rightkey_pressed, enterkey_pressed, esckey_pressed;
+	int initindex;
 
 	//double swappoint_h;
 	std::list<RECT*> desktop_area_list_rect; // Desktop ¿µ¿ª
@@ -100,4 +103,6 @@ public:
 	afx_msg void OnPaint();
 	afx_msg void OnDestroy();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 };

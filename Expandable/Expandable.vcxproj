@@ -262,6 +262,8 @@
     <Image Include="UserImages.bmp" />
     <Image Include="WindowSwitcher_background.bmp" />
     <Image Include="WindowSwitcher_background.png" />
+    <Image Include="WindowSwitcher_background_squeezed.bmp" />
+    <Image Include="WindowSwitcher_background_squeezed2.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
