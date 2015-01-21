@@ -422,18 +422,22 @@ void E_WindowSwitcher::OnPaint()
 					memDC.FillRect(&rect, &brush);
 					brush.DeleteObject();
 				}
-
-				//다른 데스크탑 배경 
+				
+				//다른 데스크탑 배경
 				{
-					CBrush brush;
-					brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
-					RECT rect;
-					rect.left = 0;
-					rect.top = 0;
-					rect.right = secondSwitcherWidth;
-					rect.bottom = secondSwitcherHeight;
-					secondMemDC.FillRect(&rect, &brush);
-					brush.DeleteObject();
+					if (secondSwitcherWidth != 0 && secondSwitcherHeight != 0){
+						CBitmap *cbm = getBackgroundCBitmap(secondSwitcherWidth, secondSwitcherHeight);
+						CBrush brush;
+						//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
+						brush.CreatePatternBrush(cbm);
+						RECT rect;
+						rect.left = 0;
+						rect.top = 0;
+						rect.right = secondSwitcherWidth;
+						rect.bottom = secondSwitcherHeight;
+						secondMemDC.FillRect(&rect, &brush);
+						brush.DeleteObject();
+					}
 				}
 
 				//첫번째 데스크탑에 업데이트가 존재하는지?
@@ -1181,6 +1185,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	//E_Global::getSingleton()->stopUpdate();
+	HWND focushwnd = NULL;
 	HWND hwnd = NULL;	//지역 변수 사용을 통해 iterating 제거 예외 우회
 	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
@@ -1209,6 +1214,9 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						
 
 						::BringWindowToTop(hwnd);
+
+						focushwnd = hwnd;
+						SetTimer(2, 5, NULL);
 						//::SetFocus(hwnd);
 						//stealFocus(hwnd);
 						//stealFocus2(hwnd);
@@ -1224,7 +1232,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					E_Global* global = E_Global::getSingleton();
 
 					hwnd = itr->first;	//지역 변수 사용
-
+					
 					//LOSS FOCUS
 					global->moveDesktop(desktop->getIndex());
 
@@ -1242,6 +1250,9 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 
 					::BringWindowToTop(hwnd);
+
+					focushwnd = hwnd;
+					SetTimer(2, 5, NULL);
 					//::SetFocus(hwnd);
 
 					//stealFocus(hwnd);

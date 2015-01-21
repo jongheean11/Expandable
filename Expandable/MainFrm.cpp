@@ -902,7 +902,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 void CMainFrame::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	TRACE_WIN32A("OnSysCommand");
+	//TRACE_WIN32A("OnSysCommand");
 	CFrameWndEx::OnSysCommand(nID, lParam);
 }
 
@@ -911,11 +911,8 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
 	CFrameWndEx::OnSize(nType, cx, cy);
 	if (nType == SIZE_MINIMIZED){
-		TRACE_WIN32A("CMAINFRAME ONSIZE");
+		//TRACE_WIN32A("CMAINFRAME ONSIZE");
 		this->ShowWindow(SW_SHOWNORMAL);
 	}
-
-
-
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
