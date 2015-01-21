@@ -28,6 +28,11 @@ private:
 	bool desktop_selected;
 
 public:
+	list<CWnd*> desktop_CWnd_list;
+	CWnd* mainCWnd;
+	bool window_squeezed_inlist;
+	LONG window_squeezed_left, window_squeezed_top;
+
 	CRect *leftarrow, *rightarrow;
 	
 	bool ison;
@@ -43,11 +48,11 @@ private:
 	HTHUMBNAIL window_hthumbnail, window_hthumbnail_from_desktop;
 	DWM_THUMBNAIL_PROPERTIES winThumbProps;
 	double main_desktop_size;
+
 public:
 	double main_desktop_width, main_desktop_height;
 
 public:
-
 	virtual void updateSelectedDesktop();
 	//get singleton function
 	static E_DesktopSwitcher* E_DesktopSwitcher::getSingleton()
@@ -59,14 +64,11 @@ public:
 
 	void startSwitcher();
 	void terminateSwitcher();
-	void setZOrderTop();
-	void queryPositionAndProcess(int nx, int ny);
 	void switchDesktop(E_Desktop* selection);
 	double getMainDesktopSize();
 	void setMainDesktopSize(double size);
 
-
-	double swappoint_h;
+	//double swappoint_h;
 	std::list<RECT*> desktop_area_list_rect; // Desktop 영역
 	std::list<RECT*> window_area_list_rect; // 메인 Desktop 내의 window들
 
@@ -97,4 +99,5 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnPaint();
 	afx_msg void OnDestroy();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

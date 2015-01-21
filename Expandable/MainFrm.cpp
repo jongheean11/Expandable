@@ -59,7 +59,8 @@ CMainFrame::CMainFrame()
 {
 	// TODO: 여기에 멤버 초기화 코드를 추가합니다.
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
-
+	DwmEnableComposition(DWM_EC_ENABLECOMPOSITION); //DWM_EC_ENABLECOMPOSITION // DWM_EC_DISABLECOMPOSITION
+	//DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 }
 
 HRESULT CMainFrame::OnUserNotify(WPARAM wParam, LPARAM lParam)
@@ -456,6 +457,10 @@ void CMainFrame::OnDestroy()
 		(*itr_desk)->setAllIconVisible();
 		(*itr_desk)->setAllShow();
 	}
+	HWND hTaskbarWnd = ::FindWindowW(_T("Shell_TrayWnd"), NULL);
+	::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
+	::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
 	PostMessage(WM_QUIT);
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
