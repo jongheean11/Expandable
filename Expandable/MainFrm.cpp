@@ -307,7 +307,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// 빠른(<Alt> 키를 누른 채 끌기) 도구 모음 사용자 지정을 활성화합니다.
 	CMFCToolBar::EnableQuickCustomization();
-
+	
 	return 0;
 }
 
@@ -887,6 +887,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		{
 			icondisable = true;
 			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
+			::MoveWindow(this->GetSafeHwnd(), 3000, 3000, 200, 200, TRUE);
 			KillTimer(1);
 		}
 	}
