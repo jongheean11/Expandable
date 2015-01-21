@@ -54,6 +54,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	bool autoalready;
 	bool alreadyrun;
 	HWND autohwnd;
 	afx_msg void On32775();

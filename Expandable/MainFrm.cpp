@@ -74,6 +74,7 @@ CMainFrame::CMainFrame()
 	//DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 	icondisable = false;
 	alreadyrun = false;
+	autoalready = false;
 	////
 	//프로그램 켜져있을시 종료 추가
 	
@@ -201,7 +202,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 
 		AfxMessageBox(TEXT("이미 프로그램이 실행중입니다."));
-
+		autoalready = true;
 		PostQuitMessage(WM_QUIT);
 
 	}
@@ -210,9 +211,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	//
-
-
-
 
 
 	SetTimer(1, 10, NULL);
@@ -224,7 +222,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	::SetLayeredWindowAttributes(e_global->hwnd_frame, 0, 0, LWA_ALPHA); //창투명
 	//
 
-
+	if (!autoalready)
 	ShellExecute(this->GetSafeHwnd(), TEXT("open"), TEXT(".\\AutoHotkey\\AutoHotkey.exe"), NULL, NULL, SW_HIDE);
 
 	//tray 아이콘 생성
