@@ -618,7 +618,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				if (switcher->isRunning() == true){
 					//스위처가 동작중이 아닐 때
 					switcher->selectTabWindow();
-					//switcher->terminateSwitcher();
+					switcher->terminateSwitcher();
 				}
 	}
 		break;

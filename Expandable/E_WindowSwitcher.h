@@ -34,6 +34,7 @@ protected:
 
 public:
 	bool isfocus;
+	HWND focushwnd;
 	virtual void updateSelectedDesktop();
 	const static COLORREF backgroundColor;
 	const static COLORREF aeroColor;

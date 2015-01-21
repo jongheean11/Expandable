@@ -44,17 +44,6 @@ void E_Desktop::setAllIconVisible()
 		if (!(*ritr)->dock)
 			(*ritr)->setIconVisible((*ritr)->getWindow());
 	}
-	/*for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
-	{
-		(*itr)->setIconVisible((*itr)->getWindow());
-	}*/
-	/*
-	POSITION pos = windowList.GetHeadPosition();
-	for (int i = 0; i < windowList.GetCount(); i++)
-	{
-		E_Window* current = &windowList.GetNext(pos);
-		current->setIconVisible();
-	}*/
 }
 
 void E_Desktop::setAllTransParentExclude()
