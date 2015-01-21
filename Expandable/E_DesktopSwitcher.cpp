@@ -8,6 +8,23 @@
 #include "E_WindowSwitcher.h"
 #define WM_TRAY_EVENT (WM_USER + 3)
 
+void stealFocus(HWND hwnd)
+{
+	DWORD dwCurrentThread = GetCurrentThreadId();
+	DWORD dwFGThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, TRUE);
+
+	// Possible actions you may wan to bring the window into focus.
+	SetForegroundWindow(hwnd);
+	SetCapture(hwnd);
+	SetFocus(hwnd);
+	SetActiveWindow(hwnd);
+	EnableWindow(hwnd, TRUE);
+
+	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
+}
+
 void getWindowText(HWND hwnd)
 {
 	LPWSTR a = new WCHAR[1000];
@@ -51,6 +68,8 @@ void eraseDesktopList()
 	deSwitcher->window_desktop_RECT_hthumbnail_map.clear();
 	deSwitcher->desktop_area_list_rect.clear();
 	deSwitcher->window_desktop_rect_map.clear();
+
+	deSwitcher->desktop_CWnd_list.clear();
 }
 
 void drawDesktopList()
@@ -79,6 +98,12 @@ void drawDesktopList()
 	deSwitcher->background_bottom = deSwitcher->initial_padding_height + deSwitcher->switch_height; // bottom은 변하지 않음
 	deSwitcher->taskbar_top = deSwitcher->background_bottom - deSwitcher->sizeRect_taskbar.Height() * deSwitcher->ratio_hh; // bottom, left, right는 background와 동일
 
+	if (deSwitcher->leftarrow == NULL)
+	{
+		deSwitcher->leftarrow = new CRect(11 * enManager->getWidth() / 1280, 93 * enManager->getHeight() / 1024, 67 * enManager->getWidth() / 1280, 149 * enManager->getHeight() / 1024);
+		deSwitcher->rightarrow = new CRect(1213 * enManager->getWidth() / 1280, 93 * enManager->getHeight() / 1024, 1269 * enManager->getWidth() / 1280, 149 * enManager->getHeight() / 1024);
+	}
+
 	int i = 0,
 		desktop_i = 0,
 		desktop_listnum = e_global->desktopList.size() >= 4 ? 4 : e_global->desktopList.size(),
@@ -96,10 +121,15 @@ void drawDesktopList()
 		}
 	}
 
+	UINT nClassStyle_window = 0;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, CreateSolidBrush(NULL_BRUSH), 0);
 	for (; i != desktop_listnum; i++)
 	{
+		CWnd* pushCWnd = new CWnd;
+		
 		deSwitcher->background_left = deSwitcher->initial_padding_width + deSwitcher->padding_width * (2 * (i + 1) - 1) + deSwitcher->switch_width * i + __max*((deSwitcher->switch_width + deSwitcher->padding_width * 2) / 2);
 		deSwitcher->background_right = deSwitcher->background_left + deSwitcher->switch_width;
+		
 		RECT *backgroundRECT = new RECT
 		{
 			deSwitcher->background_left,
@@ -107,19 +137,13 @@ void drawDesktopList()
 			deSwitcher->background_right,
 			deSwitcher->background_bottom,
 		};
-		aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->m_hWnd, *backgroundRECT, pushThumbnail);
+		pushCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_list", WS_VISIBLE | WS_POPUP, *backgroundRECT, deSwitcher, 0);
+
+		//aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->m_hWnd, *backgroundRECT, pushThumbnail);
+		//aeController->registerAero(deSwitcher->hShellWnd, pushCWnd->m_hWnd, *backgroundRECT, pushThumbnail);
+		aeController->registerAero(deSwitcher->hShellWnd, pushCWnd->m_hWnd, CRect(0, 0, backgroundRECT->right - backgroundRECT->left, backgroundRECT->bottom - backgroundRECT->top), pushThumbnail);
 		deSwitcher->desktop_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(backgroundRECT, pushThumbnail));
 		deSwitcher->desktop_area_list_rect.push_back(backgroundRECT);
-
-		RECT *taskbarRECT = new RECT
-		{
-			deSwitcher->background_left,
-			deSwitcher->taskbar_top,
-			deSwitcher->background_right,
-			deSwitcher->background_bottom
-		};
-		aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->m_hWnd, *taskbarRECT, pushThumbnail);
-		deSwitcher->desktop_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(taskbarRECT, pushThumbnail));
 
 
 		for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
@@ -141,10 +165,10 @@ void drawDesktopList()
 			{
 				CRect getSize;
 				GetWindowRect(*itr_window_docked, &getSize);
-				double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
-					window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
-				double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
-					window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+				double window_left = getSize.left * deSwitcher->ratio_ww,// + deSwitcher->background_left,
+					window_top = getSize.top * deSwitcher->ratio_hh;// +deSwitcher->background_top;
+				double window_right = getSize.Width() * deSwitcher->ratio_ww,// + window_left,
+					window_bottom = getSize.Height() * deSwitcher->ratio_hh;// + window_top;
 				RECT *windowRECT = new RECT
 				{
 					window_left,
@@ -152,7 +176,8 @@ void drawDesktopList()
 					window_right,
 					window_bottom
 				};
-				aeController->registerAero(*itr_window_docked, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+				//aeController->registerAero(*itr_window_docked, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+				aeController->registerAero(*itr_window_docked, pushCWnd->m_hWnd, *windowRECT, pushThumbnail);
 			}
 		}
 
@@ -175,10 +200,10 @@ void drawDesktopList()
 				{
 					CRect getSize;
 					GetWindowRect((*itr_window)->getWindow(), &getSize);
-					double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
-						window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
+					double window_left = getSize.left * deSwitcher->ratio_ww,// + deSwitcher->background_left,
+						window_top = getSize.top * deSwitcher->ratio_hh;// +deSwitcher->background_top;
 					double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
-						window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+						window_bottom = getSize.Height() * deSwitcher->ratio_hh +window_top;
 					RECT *windowRECT = new RECT
 					{
 						window_left,
@@ -186,7 +211,8 @@ void drawDesktopList()
 						window_right,
 						window_bottom
 					};
-					aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+					//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+					aeController->registerAero((*itr_window)->getWindow(), pushCWnd->m_hWnd, *windowRECT, pushThumbnail);
 
 					windowRECT_List.push_front(windowRECT);
 					pushThumbnail_Map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
@@ -197,10 +223,10 @@ void drawDesktopList()
 		{
 			CRect getSize;
 			GetWindowRect((*itr_window)->getWindow(), &getSize);
-			double window_left = getSize.left * deSwitcher->ratio_ww + deSwitcher->background_left,
-				window_top = getSize.top * deSwitcher->ratio_hh + deSwitcher->background_top;
+			double window_left = getSize.left * deSwitcher->ratio_ww,// + deSwitcher->background_left,
+				window_top = getSize.top * deSwitcher->ratio_hh;// +deSwitcher->background_top;
 			double window_right = getSize.Width() * deSwitcher->ratio_ww + window_left,
-				window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
+				window_bottom = getSize.Height() * deSwitcher->ratio_hh +window_top;
 			RECT *windowRECT = new RECT
 			{
 				window_left,
@@ -208,7 +234,8 @@ void drawDesktopList()
 				window_right,
 				window_bottom
 			};
-			aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			aeController->registerAero((*itr_window)->getWindow(), pushCWnd->m_hWnd, *windowRECT, pushThumbnail);
 
 			windowRECT_List.push_front(windowRECT);
 			pushThumbnail_Map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
@@ -228,6 +255,20 @@ void drawDesktopList()
 			else
 				itr_desktop++;
 		}
+
+		RECT *taskbarRECT = new RECT
+		{
+			deSwitcher->background_left,
+			deSwitcher->taskbar_top,
+			deSwitcher->background_right,
+			deSwitcher->background_bottom
+		};
+		//aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->m_hWnd, *taskbarRECT, pushThumbnail);
+		//aeController->registerAero(deSwitcher->hTaskbarWnd, pushCWnd->m_hWnd, *taskbarRECT, pushThumbnail);
+		aeController->registerAero(deSwitcher->hTaskbarWnd, pushCWnd->m_hWnd, CRect(0, taskbarRECT->top - backgroundRECT->top, taskbarRECT->right - taskbarRECT->left, taskbarRECT->bottom - backgroundRECT->top), pushThumbnail);
+		deSwitcher->desktop_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(taskbarRECT, pushThumbnail));
+
+		deSwitcher->desktop_CWnd_list.push_back(pushCWnd);
 	}
 }
 
@@ -257,6 +298,9 @@ void drawWindowS()
 	E_DesktopSwitcher* deSwitcher = E_DesktopSwitcher::getSingleton();
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 
+	UINT nClassStyle_window = 0;
+	CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, CreateSolidBrush(NULL_BRUSH), 0);
+
 	e_global->getSelectedDesktop()->setAllIconVisible();
 
 	//Selected Desktop 부분
@@ -281,16 +325,14 @@ void drawWindowS()
 		background_right,
 		background_bottom
 	};
-	aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->m_hWnd, *(deSwitcher->main_backgroundRECT), deSwitcher->main_backgroundHTHUMBNAIL);
 
-	deSwitcher->main_taskbarRECT = new RECT
+	if (deSwitcher->mainCWnd == NULL)
 	{
-		background_left,
-		taskbar_top,
-		background_right,
-		background_bottom
-	};
-	aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->m_hWnd, *(deSwitcher->main_taskbarRECT), deSwitcher->main_taskbarHTHUMBNAIL);
+		deSwitcher->mainCWnd = new CWnd;
+		deSwitcher->mainCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_main", WS_VISIBLE | WS_POPUP, *deSwitcher->main_backgroundRECT, deSwitcher, 0);
+	}
+
+	aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->mainCWnd->m_hWnd, CRect(0, 0, deSwitcher->main_backgroundRECT->right - deSwitcher->main_backgroundRECT->left, deSwitcher->main_backgroundRECT->bottom - deSwitcher->main_backgroundRECT->top), deSwitcher->main_backgroundHTHUMBNAIL);
 
 	std::list<E_Desktop*>::iterator desktop_current = e_global->desktopList.begin();
 	int desktop_i = 0;
@@ -330,7 +372,8 @@ void drawWindowS()
 				window_right,
 				window_bottom
 			};
-			aeController->registerAero(*itr_window_docked, deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+			//aeController->registerAero(*itr_window_docked, deSwitcher->mainCWnd->m_hWnd, *windowRECT, pushThumbnail);
+			aeController->registerAero(*itr_window_docked, deSwitcher->mainCWnd->m_hWnd, CRect(windowRECT->left - background_left, windowRECT->top - background_top, windowRECT->right - window_left, windowRECT->bottom - window_top), pushThumbnail);
 		}
 	}
 
@@ -361,7 +404,8 @@ void drawWindowS()
 					window_right,
 					window_bottom
 				};
-				aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+				//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->mainCWnd->m_hWnd, CRect(windowRECT->left - background_left, windowRECT->top - background_top, windowRECT->right - window_left, windowRECT->bottom - window_top), pushThumbnail);
+				aeController->registerAero((*itr_window)->getWindow(), deSwitcher->mainCWnd->m_hWnd, CRect(windowRECT->left - background_left, windowRECT->top - background_top, windowRECT->right - background_left, windowRECT->bottom - background_top), pushThumbnail);
 				deSwitcher->window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
 
 				deSwitcher->window_area_list_rect.push_front(windowRECT);
@@ -385,12 +429,23 @@ void drawWindowS()
 			window_right,
 			window_bottom
 		};
-		aeController->registerAero((*itr_window)->getWindow(), deSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		//aeController->registerAero((*itr_window)->getWindow(), deSwitcher->mainCWnd->m_hWnd, *windowRECT, pushThumbnail);
+		aeController->registerAero((*itr_window)->getWindow(), deSwitcher->mainCWnd->m_hWnd, CRect(windowRECT->left - background_left, windowRECT->top - background_top, windowRECT->right - background_left, windowRECT->bottom - background_top), pushThumbnail);
 		deSwitcher->window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
 
 		deSwitcher->window_area_list_rect.push_front(windowRECT);
 		deSwitcher->window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(windowRECT, *itr_window));
 	}
+
+	deSwitcher->main_taskbarRECT = new RECT
+	{
+		background_left,
+		taskbar_top,
+		background_right,
+		background_bottom
+	};
+	//aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->m_hWnd, *(deSwitcher->main_taskbarRECT), deSwitcher->main_taskbarHTHUMBNAIL);
+	aeController->registerAero(deSwitcher->hTaskbarWnd, deSwitcher->mainCWnd->m_hWnd, CRect(0, deSwitcher->main_taskbarRECT->top - deSwitcher->main_backgroundRECT->top, deSwitcher->main_taskbarRECT->right - deSwitcher->main_taskbarRECT->left, deSwitcher->main_taskbarRECT->bottom - deSwitcher->main_backgroundRECT->top), deSwitcher->main_taskbarHTHUMBNAIL);
 }
 
 void drawDesktopSwitcher()
@@ -431,6 +486,11 @@ void E_DesktopSwitcher::updateSelectedDesktop()
 
 E_DesktopSwitcher::E_DesktopSwitcher()
 {	
+	leftarrow = NULL; 
+	rightarrow = NULL;
+
+	mainCWnd = NULL;
+	window_squeezed_inlist = false;
 	ison = false;
 	doubleclick_first = false;
 	doubleclick_second = false;
@@ -478,13 +538,10 @@ void E_DesktopSwitcher::startSwitcher()
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		
-		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		HBITMAP hbmOrig_left = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_leftarrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
 		BITMAP bm = { 0 };
 		GetObject(hbmOrig, sizeof(BITMAP), &bm);
-		BITMAP bm_left = { 0 };
-		GetObject(hbmOrig_left, sizeof(BITMAP), &bm_left);
 
 		HDC dc = ::GetDC(::GetDesktopWindow());
 		HDC memdc = CreateCompatibleDC(dc);
@@ -505,6 +562,7 @@ void E_DesktopSwitcher::startSwitcher()
 		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
 		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+		//WS_EX_TOPMOST
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 
 		E_Window::setIconInvisible(this->m_hWnd);
@@ -519,6 +577,9 @@ void E_DesktopSwitcher::startSwitcher()
 		ison = true;
 		
 		ShowWindow(SW_SHOWMAXIMIZED);
+		Invalidate(FALSE);
+
+		SetCapture();
 	}
 	else
 	{
@@ -528,11 +589,11 @@ void E_DesktopSwitcher::startSwitcher()
 
 void E_DesktopSwitcher::terminateSwitcher()
 {
-	E_Global* e_global = E_Global::getSingleton();
-	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
-
 	if (ison)
 	{
+		E_Global* e_global = E_Global::getSingleton();
+		E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+
 		for (list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin(); itr_desktop != e_global->desktopList.end(); itr_desktop++)
 		{
 			(*itr_desktop)->setAllIconVisible();
@@ -551,33 +612,45 @@ void E_DesktopSwitcher::terminateSwitcher()
 		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
+		delete leftarrow;
+		delete rightarrow;
+
+		leftarrow = NULL;
+		rightarrow = NULL;
+
+		eraseDesktopList();
+		eraseWindowS();
+
+		window_squeezed_inlist = false;
+		ison = false;
+		doubleclick_first = false;
+		doubleclick_second = false;
+		desktop_inrange = true;
+		leftarrow_pressed = false;
+		rightarrow_pressed = false;
+		window_selected = false;
+		window_squeezed = false;
+		desktop_selected = false;
+
+		//e_global->stopUpdate();
+		aeController->unregisterAllAreo();
+		window_area_list_rect.clear();
+		window_area_map_RECT_EWindow.clear();
+		window_desktop_RECT_hthumbnail_map.clear();
+		window_desktop_rect_map.clear();
+		window_RECT_hthumbnail_map.clear();
+		desktop_area_list_rect.clear();
+		desktop_RECT_hthumbnail_map.clear();
+
+		delete mainCWnd;
+		mainCWnd = NULL;
+		desktop_CWnd_list.clear();
+		ReleaseCapture();
+
+		E_Window::setIconVisible(this->m_hWnd);
+		DestroyWindow();
 	}
-
-	eraseDesktopList();
-	eraseWindowS();
-
-	ison = false;
-	doubleclick_first = false;
-	doubleclick_second = false;
-	desktop_inrange = true;
-	leftarrow_pressed = false;
-	rightarrow_pressed = false;
-	window_selected = false;
-	window_squeezed = false;
-	desktop_selected = false;
-	
-	//e_global->stopUpdate();
-	aeController->unregisterAllAreo();
-	window_area_list_rect.clear();
-	window_area_map_RECT_EWindow.clear();
-	window_desktop_RECT_hthumbnail_map.clear();
-	window_desktop_rect_map.clear();
-	window_RECT_hthumbnail_map.clear();
-	desktop_area_list_rect.clear();
-	desktop_RECT_hthumbnail_map.clear();
-
-	E_Window::setIconVisible(this->m_hWnd);
-	DestroyWindow();
 }
 
 void E_DesktopSwitcher::switchDesktop(E_Desktop* selection)
@@ -590,6 +663,9 @@ BEGIN_MESSAGE_MAP(E_DesktopSwitcher, CWnd)
 ON_WM_LBUTTONDOWN()
 ON_WM_LBUTTONUP()
 ON_WM_MOUSEMOVE()
+ON_WM_PAINT()
+ON_WM_DESTROY()
+ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -636,17 +712,18 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		doubleclick_second = false;
 	}
 	
-	CRect leftarrow = new CRect(10, 40, 50, 80);
-	CRect rightarrow = new CRect(1920-50, 40, 1920-10, 80);
-	
-	if (leftarrow.PtInRect(point))
+	if (leftarrow->PtInRect(point))
 	{
 		leftarrow_pressed = true;
+
+		stealFocus(this->m_hWnd);
 		return;
 	}
-	if (rightarrow.PtInRect(point))
+	if (rightarrow->PtInRect(point))
 	{
 		rightarrow_pressed = true;
+
+		stealFocus(this->m_hWnd);
 		return;
 	}
 
@@ -657,6 +734,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			desktop_selected = true;
 			target_desktop_index = i;
+
+			stealFocus(this->m_hWnd);
 			return;
 		}
 		i = (i + 1) % e_global->desktopList.size();
@@ -667,18 +746,29 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 
 	//initialize swappoint_h
-	swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
+	//swappoint_h = (((enManager->getWidth() - 100)*0.175) / enManager->getWidth()) * enManager->getHeight() + 100 * ((double)enManager->getHeight() / (double)enManager->getWidth());
+	swappoint_h = main_backgroundRECT->top;
 	if (!window_selected)
 	{
 		if (desktop_inrange)
 		{
+			list<CWnd*>::iterator itr_desktop_CWnd;
+			int p = desktoplist_startindex;
+			for (itr_desktop_CWnd = desktop_CWnd_list.begin(); itr_desktop_CWnd != desktop_CWnd_list.end(); itr_desktop_CWnd++)
+			{
+				if (p == e_global->getSelectedIndex())
+					break;
+
+				p = (p + 1) % e_global->desktopList.size();
+			}
+
 			std::list<RECT*> window_desktop_rect_list = window_desktop_rect_map.find(e_global->getSelectedIndex())->second;
 			std::list<RECT*>::iterator itr_window_desktop_area = window_desktop_rect_list.begin();
 			// window 공간들 iterating
 			for (std::list<RECT*>::iterator itr_window_area = window_area_list_rect.begin(); itr_window_area != window_area_list_rect.end(); itr_window_area++)
 			{
 				double areasize = ((*itr_window_area)->right - (*itr_window_area)->left)*((*itr_window_area)->bottom - (*itr_window_area)->top);
-				if ((((CRect)(*itr_window_area)).PtInRect(point)) && !(areasize == this->getMainDesktopSize()))
+				if ((((CRect)(*itr_window_area)).PtInRect(point)) && !(areasize == this->getMainDesktopSize()) && ((CRect)main_backgroundRECT).PtInRect(point))
 				{
 					hash_map<RECT*, E_Window*>::iterator itr_window_EWindow = window_area_map_RECT_EWindow.find(*itr_window_area);
 					hash_map<RECT*, HTHUMBNAIL>::iterator itr_window_hthumbnail = window_RECT_hthumbnail_map.find(*itr_window_area);
@@ -701,7 +791,10 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					aeController->unregisterAero(itr_window_hthumbnail->second);
 					window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-					aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_copy, window_hthumbnail);
+					//aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_copy, window_hthumbnail);
+					aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, 
+						CRect(window_RECT_copy->left - main_backgroundRECT->left, window_RECT_copy->top - main_backgroundRECT->top, window_RECT_copy->right - (window_RECT_copy->left - main_backgroundRECT->left), window_RECT_copy->bottom - (window_RECT_copy->top - main_backgroundRECT->top)),
+						window_hthumbnail);
 					window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_copy, window_hthumbnail));
 
 					window_RECT_from_desktop = *itr_window_desktop_area;
@@ -712,11 +805,13 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					aeController->unregisterAero(itr_window_desktop_hthumbnail->second);
 					window_desktop_RECT_hthumbnail_map__.erase(itr_window_desktop_hthumbnail);
-					aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_from_desktop, window_hthumbnail_from_desktop);
+					aeController->registerAero(window_ptr->getWindow(), (*itr_desktop_CWnd)->m_hWnd, *window_RECT_from_desktop, window_hthumbnail_from_desktop);
+					//aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, CRect(window_RECT_from_desktop->left - main_backgroundRECT->left, window_RECT_from_desktop->top - main_backgroundRECT->top, window_RECT_from_desktop->right - (window_RECT_from_desktop->left - main_backgroundRECT->left), window_RECT_from_desktop->bottom - (window_RECT_from_desktop->top - main_backgroundRECT->top)), window_hthumbnail_from_desktop);
 					window_desktop_RECT_hthumbnail_map__.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_from_desktop, window_hthumbnail_from_desktop));
 					window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(e_global->getSelectedIndex()));
 					window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(e_global->getSelectedIndex(), window_desktop_RECT_hthumbnail_map__));
 
+					stealFocus(this->m_hWnd);
 					return;
 				}
 				itr_window_desktop_area++;
@@ -749,9 +844,13 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					aeController->unregisterAero(itr_window_hthumbnail->second);
 					window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-					aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_copy, window_hthumbnail);
+					aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, 
+						CRect(window_RECT_copy->left - main_backgroundRECT->left, window_RECT_copy->top - main_backgroundRECT->top, window_RECT_copy->right - (window_RECT_copy->left - main_backgroundRECT->left), window_RECT_copy->bottom - (window_RECT_copy->top - main_backgroundRECT->top)), 
+						window_hthumbnail);
+					//aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, CRect(window_RECT_copy->left - main_backgroundRECT->left, window_RECT_copy->top - main_backgroundRECT->top, window_RECT_copy->right - (window_RECT_copy->left - main_backgroundRECT->left), window_RECT_copy->bottom - (window_RECT_copy->top - main_backgroundRECT->top)),window_hthumbnail); ///
 					window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_copy, window_hthumbnail));
 
+					stealFocus(this->m_hWnd);
 					return;
 				}
 			}
@@ -827,10 +926,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 		doubleclick_second = false;
 	}
 
-	CRect leftarrow = new CRect(10, 40, 50, 80);
-	CRect rightarrow = new CRect(1920 - 50, 40, 1920 - 10, 80);
-
-	if (leftarrow.PtInRect(point))
+	if (leftarrow->PtInRect(point))
 	{
 		leftarrow_pressed = false;
 		eraseDesktopList();
@@ -845,10 +941,12 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				break;
 			}
 		}
+
+		Invalidate(TRUE);
 		//e_global->startUpdate();
 		return;
 	}
-	if (rightarrow.PtInRect(point))
+	if (rightarrow->PtInRect(point))
 	{
 		rightarrow_pressed = false;
 		eraseDesktopList();
@@ -863,6 +961,8 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				break;
 			}
 		}
+
+		Invalidate(TRUE);
 		//e_global->startUpdate();
 		return;
 	}
@@ -882,6 +982,8 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				drawWindowS();
 				desktop_inrange = true;
 				//e_global->startUpdate();
+
+				Invalidate(TRUE);
 				return;
 			}
 			i = (i + 1) % e_global->desktopList.size();
@@ -915,83 +1017,86 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 			int i = desktoplist_startindex;
 
-			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
+			if (window_squeezed_inlist)
 			{
-				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
-				if (yesOverlap)
+				int i_CWnd = 1;
+				list<CWnd*>::iterator itr_CWnd = desktop_CWnd_list.begin();
+
+				for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 				{
-					if (i != e_global->getSelectedIndex())
+					BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+					if (yesOverlap)
 					{
-						std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
-						for (j = 0; itr_desktop != e_global->desktopList.end(); itr_desktop++)
+						if (i != e_global->getSelectedIndex())
 						{
-							if (j == i)
-								break;
-							j++;
+							std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+							for (j = 0; itr_desktop != e_global->desktopList.end(); itr_desktop++)
+							{
+								if (j == i)
+									break;
+								j++;
+							}
+
+							(*itr_desktop_from)->windowList.remove(window_ptr);
+							(*itr_desktop)->windowList.push_back(window_ptr);
+
+							aeController->unregisterAero(itr_window_desktop_hthumbnail->second);
+							window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
+
+							double ratio_wW = (((double)enManager->getWidth() - 100) * (double)0.175) / main_desktop_width,
+								ratio_hH = (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth()) / main_desktop_height;
+							(*window_RECT_from_desktop).left = ((*window_RECT).left - main_backgroundRECT->left) * ratio_wW;
+							(*window_RECT_from_desktop).right = ((*window_RECT).right - main_backgroundRECT->left) * ratio_wW;
+							(*window_RECT_from_desktop).top = ((*window_RECT).top - main_backgroundRECT->top) * ratio_hH;
+							(*window_RECT_from_desktop).bottom = ((*window_RECT).bottom - main_backgroundRECT->top) * ratio_hH;
+
+							winThumbProps.rcDestination = *window_RECT_from_desktop;
+							DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+
+							hash_map<RECT*, HTHUMBNAIL> window_desktop_RECT_hthumbnail_map_ = window_desktop_RECT_hthumbnail_map.find(i)->second;
+							window_desktop_RECT_hthumbnail_map_.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_from_desktop, window_hthumbnail));
+							window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(i));
+							window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(i, window_desktop_RECT_hthumbnail_map_));
+							window_desktop_RECT_hthumbnail_map__.erase(itr_window_desktop_hthumbnail);
+							window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(e_global->getSelectedIndex()));
+							window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(e_global->getSelectedIndex(), window_desktop_RECT_hthumbnail_map__));
+
+							window_area_map_RECT_EWindow.erase(itr_window_EWindow);
+
+							window_area_list_rect.remove(*window_area_list_rect.begin());
+
+							list<RECT*> window_desktop_rect_list__ = window_desktop_rect_map.find(i)->second;
+							window_desktop_rect_list__.push_front(*window_desktop_rect_list.begin());
+							window_desktop_rect_map.erase(window_desktop_rect_map.find(i));
+							window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(i, window_desktop_rect_list__));
+							window_desktop_rect_list.remove(*window_desktop_rect_list.begin());
+							window_desktop_rect_map.erase(window_desktop_rect_map.find(e_global->getSelectedIndex()));
+							window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(e_global->getSelectedIndex(), window_desktop_rect_list));
 						}
-
-						(*itr_desktop_from)->windowList.remove(window_ptr);
-						(*itr_desktop)->windowList.push_back(window_ptr);
-
-						aeController->unregisterAero(itr_window_desktop_hthumbnail->second);
-						window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-
-						if ((i - e_global->getSelectedIndex()) >= 4)
-						{
-							(*window_RECT_from_desktop).left += ((enManager->getWidth() - 100) / 4) * (i - e_global->desktopList.size() - e_global->getSelectedIndex());
-							(*window_RECT_from_desktop).right += ((enManager->getWidth() - 100) / 4) * (i - e_global->desktopList.size() - e_global->getSelectedIndex());
-						}
-						else if ((i - e_global->getSelectedIndex()) <= -4)
-						{
-							(*window_RECT_from_desktop).left += ((enManager->getWidth() - 100) / 4) * -(e_global->getSelectedIndex() - e_global->desktopList.size() - i);
-							(*window_RECT_from_desktop).right += ((enManager->getWidth() - 100) / 4) * -(e_global->getSelectedIndex() - e_global->desktopList.size() - i);
-						}
-						else
-						{
-							(*window_RECT_from_desktop).left += ((enManager->getWidth() - 100) / 4) * (i - e_global->getSelectedIndex());
-							(*window_RECT_from_desktop).right += ((enManager->getWidth() - 100) / 4) * (i - e_global->getSelectedIndex());
-						}
-						winThumbProps.rcDestination = *window_RECT_from_desktop;
-						DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-
-						hash_map<RECT*, HTHUMBNAIL> window_desktop_RECT_hthumbnail_map_ = window_desktop_RECT_hthumbnail_map.find(i)->second;
-						window_desktop_RECT_hthumbnail_map_.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_from_desktop, window_hthumbnail));
-						window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(i));
-						window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(i, window_desktop_RECT_hthumbnail_map_));
-						window_desktop_RECT_hthumbnail_map__.erase(itr_window_desktop_hthumbnail);
-						window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(e_global->getSelectedIndex()));
-						window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(e_global->getSelectedIndex(), window_desktop_RECT_hthumbnail_map__));
-
-						window_area_map_RECT_EWindow.erase(itr_window_EWindow);
-
-						window_area_list_rect.remove(*window_area_list_rect.begin());
-
-						list<RECT*> window_desktop_rect_list__ = window_desktop_rect_map.find(i)->second;
-						window_desktop_rect_list__.push_front(*window_desktop_rect_list.begin());
-						window_desktop_rect_map.erase(window_desktop_rect_map.find(i));
-						window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(i, window_desktop_rect_list__));
-						window_desktop_rect_list.remove(*window_desktop_rect_list.begin());
-						window_desktop_rect_map.erase(window_desktop_rect_map.find(e_global->getSelectedIndex()));
-						window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(e_global->getSelectedIndex(), window_desktop_rect_list));
-
-						//e_global->startUpdate();
-						return;
+						break;
 					}
-					break;
+					i = (i + 1) % e_global->desktopList.size();
+					itr_CWnd++;
+					i_CWnd++;
 				}
-				i = (i + 1) % e_global->desktopList.size();
+				window_squeezed_inlist = false;
 			}
-			winThumbProps.rcDestination = *window_RECT;
-			DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+			else
+			{
+				aeController->unregisterAero(window_hthumbnail);
+				aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, CRect(window_RECT->left - main_backgroundRECT->left, window_RECT->top - main_backgroundRECT->top, window_RECT->right - main_backgroundRECT->left, window_RECT->bottom - main_backgroundRECT->top), window_hthumbnail);
 
-			window_area_list_rect.remove(*window_area_list_rect.begin());
-			window_area_list_rect.push_front(window_RECT);
-			E_Window* RECT_EWindow_copy = itr_window_EWindow->second;
-			HTHUMBNAIL RECT_HTHUMBNAIL_copy = itr_window_hthumbnail->second;
-			window_area_map_RECT_EWindow.erase(itr_window_EWindow);
-			window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, RECT_EWindow_copy));
-			window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-			window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
+				window_area_list_rect.remove(*window_area_list_rect.begin());
+				window_area_list_rect.push_front(window_RECT);
+				E_Window* RECT_EWindow_copy = itr_window_EWindow->second;
+				HTHUMBNAIL RECT_HTHUMBNAIL_copy = itr_window_hthumbnail->second;
+				window_area_map_RECT_EWindow.erase(itr_window_EWindow);
+				window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, window_ptr));
+				//window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, RECT_EWindow_copy));
+				window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
+				window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, window_hthumbnail));
+				//window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
+			}
 		}
 		else
 		{
@@ -1007,79 +1112,82 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				j++;
 			}
 
-			int i = desktoplist_startindex;
-
-			int p = 0;
-			for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
+			if (window_squeezed_inlist)
 			{
-				BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
-				if (yesOverlap)
+				int i = desktoplist_startindex;
+				int p = 0;
+				for (std::list<RECT*>::iterator itr_desktop_rect = desktop_area_list_rect.begin(); itr_desktop_rect != desktop_area_list_rect.end(); itr_desktop_rect++)
 				{
-					if (i != e_global->getSelectedIndex())
+					BOOL yesOverlap = ((CRect)*itr_desktop_rect).PtInRect(point);
+					if (yesOverlap)
 					{
-						std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
-						for (j = 0; itr_desktop != e_global->desktopList.end(); itr_desktop++)
+						if (i != e_global->getSelectedIndex())
 						{
-							if (j == i)
-								break;
-							j++;
+							std::list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+							for (j = 0; itr_desktop != e_global->desktopList.end(); itr_desktop++)
+							{
+								if (j == i)
+									break;
+								j++;
+							}
+
+							(*itr_desktop_from)->windowList.remove(window_ptr);
+							(*itr_desktop)->windowList.push_back(window_ptr);
+
+							window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
+
+							
+							double ratio_wW = (((double)enManager->getWidth() - 100) * (double)0.175) / main_desktop_width,
+								ratio_hH = (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth()) / main_desktop_height;
+							(*window_RECT_from_desktop).left = ((*window_RECT).left - main_backgroundRECT->left) * ratio_wW;
+							(*window_RECT_from_desktop).right = ((*window_RECT).right - main_backgroundRECT->left) * ratio_wW;
+							(*window_RECT_from_desktop).top = ((*window_RECT).top - main_backgroundRECT->top) * ratio_hH;
+							(*window_RECT_from_desktop).bottom = ((*window_RECT).bottom - main_backgroundRECT->top) * ratio_hH;
+
+							winThumbProps.rcDestination = *window_RECT_from_desktop;
+							DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps); 
+							
+							hash_map<RECT*, HTHUMBNAIL> window_desktop_RECT_hthumbnail_map_ = window_desktop_RECT_hthumbnail_map.find(i)->second;
+							window_desktop_RECT_hthumbnail_map_.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_from_desktop, window_hthumbnail));
+							window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(i));
+							window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(i, window_desktop_RECT_hthumbnail_map_));
+
+							window_area_map_RECT_EWindow.erase(itr_window_EWindow);
+
+							window_area_list_rect.remove(*window_area_list_rect.begin());
+
+							list<RECT*> window_desktop_rect_list__ = window_desktop_rect_map.find(i)->second;
+							window_desktop_rect_list__.push_front(window_RECT_from_desktop);
+							window_desktop_rect_map.erase(window_desktop_rect_map.find(i));
+							window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(i, window_desktop_rect_list__));
 						}
-
-						(*itr_desktop_from)->windowList.remove(window_ptr);
-						(*itr_desktop)->windowList.push_back(window_ptr);
-
-						window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-						
-						window_RECT_from_desktop = new RECT{
-							(*itr_desktop_rect)->left + ((window_RECT->left - main_backgroundRECT->left) * (switch_width / (main_backgroundRECT->right - main_backgroundRECT->left))),
-							initial_padding_height + (window_RECT->top - main_backgroundRECT->top) * (switch_height / (main_backgroundRECT->bottom - main_backgroundRECT->top)),
-							0,
-							0
-						};
-						(*window_RECT_from_desktop).right = (*window_RECT_from_desktop).left + (window_RECT_copy->right - window_RECT_copy->left);
-						(*window_RECT_from_desktop).bottom = (*window_RECT_from_desktop).top + (window_RECT_copy->bottom - window_RECT_copy->top);
-						
-						winThumbProps.rcDestination = *window_RECT_from_desktop;
-						DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-
-						hash_map<RECT*, HTHUMBNAIL> window_desktop_RECT_hthumbnail_map_ = window_desktop_RECT_hthumbnail_map.find(i)->second;
-						window_desktop_RECT_hthumbnail_map_.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_from_desktop, window_hthumbnail));
-						window_desktop_RECT_hthumbnail_map.erase(window_desktop_RECT_hthumbnail_map.find(i));
-						window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(i, window_desktop_RECT_hthumbnail_map_));
-
-						window_area_map_RECT_EWindow.erase(itr_window_EWindow);
-
-						window_area_list_rect.remove(*window_area_list_rect.begin());
-
-						list<RECT*> window_desktop_rect_list__ = window_desktop_rect_map.find(i)->second;
-						window_desktop_rect_list__.push_front(window_RECT_from_desktop);
-						window_desktop_rect_map.erase(window_desktop_rect_map.find(i));
-						window_desktop_rect_map.insert(hash_map<int, list<RECT*>>::value_type(i, window_desktop_rect_list__));
-						
-						//e_global->startUpdate();
-						return;
+						break;
 					}
-					break;
+					i = (i + 1) % e_global->desktopList.size();
+					p++;
 				}
-				i = (i + 1) % e_global->desktopList.size();
-				p++;
+				window_squeezed_inlist = false;
 			}
-			winThumbProps.rcDestination = *window_RECT;
-			DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-
-			window_area_list_rect.remove(*window_area_list_rect.begin());
-			window_area_list_rect.push_front(window_RECT);
-			E_Window* RECT_EWindow_copy = itr_window_EWindow->second;
-			HTHUMBNAIL RECT_HTHUMBNAIL_copy = itr_window_hthumbnail->second;
-			window_area_map_RECT_EWindow.erase(itr_window_EWindow);
-			window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, RECT_EWindow_copy));
-			window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
-			window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
+			else
+			{
+				aeController->unregisterAero(window_hthumbnail);
+				aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, CRect(window_RECT->left - main_backgroundRECT->left, window_RECT->top - main_backgroundRECT->top, window_RECT->right - main_backgroundRECT->left, window_RECT->bottom - main_backgroundRECT->top), window_hthumbnail);
+				
+				window_area_list_rect.remove(*window_area_list_rect.begin());
+				window_area_list_rect.push_front(window_RECT);
+				E_Window* RECT_EWindow_copy = itr_window_EWindow->second;
+				HTHUMBNAIL RECT_HTHUMBNAIL_copy = itr_window_hthumbnail->second;
+				window_area_map_RECT_EWindow.erase(itr_window_EWindow);
+				window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, window_ptr));
+				//window_area_map_RECT_EWindow.insert(hash_map<RECT*, E_Window*>::value_type(window_RECT, RECT_EWindow_copy));
+				window_RECT_hthumbnail_map.erase(itr_window_hthumbnail);
+				window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, window_hthumbnail));
+				//window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
+			}
 		}
 	}
 
-	//e_global->startUpdate();
-	
+	E_Window::setIconInvisible(this->m_hWnd);
 	CWnd::OnLButtonUp(nFlags, point);
 }
 
@@ -1089,8 +1197,9 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 	if (((GetKeyState(VK_LBUTTON) & 0x80) != 0) && window_selected)
 	{
 		//SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
-
+		E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
 		LONG diff_x = point.x - window_leftdown_point.x,
 			diff_y = point.y - window_leftdown_point.y;
 
@@ -1098,15 +1207,90 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 		(*window_RECT_copy).right = (*window_RECT_copy).right + diff_x;
 		(*window_RECT_copy).top = (*window_RECT_copy).top + diff_y;
 		(*window_RECT_copy).bottom = (*window_RECT_copy).bottom + diff_y;
-
-		winThumbProps.rcDestination = *window_RECT_copy;
-		DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
-
-		window_leftdown_point = point;
-
-		if (!window_squeezed)
+		if (window_squeezed)
 		{
-			if ((double)(*window_RECT_copy).top < swappoint_h - 50)
+			if (((CRect)main_backgroundRECT).PtInRect(point))
+			{ // TODO
+				double ratio_wW = (((double)enManager->getWidth() - 100) * (double)0.175) / main_desktop_width,
+					ratio_hH = (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth()) / main_desktop_height;
+
+				(*window_RECT_copy).top = point.y - (point.y - (*window_RECT_copy).top) / ratio_hH;
+				(*window_RECT_copy).bottom = point.y + ((*window_RECT_copy).bottom - point.y) / ratio_hH;
+				(*window_RECT_copy).left = point.x - (point.x - (*window_RECT_copy).left) / ratio_wW;
+				(*window_RECT_copy).right = point.x + ((*window_RECT_copy).right - point.x) / ratio_wW;
+				window_squeezed = false;
+
+				aeController->unregisterAero(window_hthumbnail);
+				aeController->registerAero(window_ptr->getWindow(), mainCWnd->m_hWnd, CRect(window_RECT_copy->left - main_backgroundRECT->left, window_RECT_copy->top - main_backgroundRECT->top, window_RECT_copy->right - main_backgroundRECT->left, window_RECT_copy->bottom - main_backgroundRECT->top), window_hthumbnail);
+			}
+			else
+			{
+				if (!window_squeezed_inlist)
+				{
+					int i = desktoplist_startindex;
+					list<CWnd*>::iterator itr_CWnd = desktop_CWnd_list.begin();
+					for (list<RECT*>::iterator itr_rect = desktop_area_list_rect.begin(); itr_rect != desktop_area_list_rect.end(); itr_rect++)
+					{
+						if ((((CRect)(*itr_rect)).PtInRect(point)) && (i != E_Global::getSingleton()->getSelectedIndex()))
+						{
+							(*window_RECT_copy).top -= (*itr_rect)->top;
+							(*window_RECT_copy).bottom -= (*itr_rect)->top;
+							(*window_RECT_copy).left -= (*itr_rect)->left;
+							(*window_RECT_copy).right -= (*itr_rect)->left;
+							window_squeezed_top = (*itr_rect)->top;
+							window_squeezed_left = (*itr_rect)->left;
+							aeController->unregisterAero(window_hthumbnail);
+							aeController->registerAero(window_ptr->getWindow(), (*itr_CWnd)->m_hWnd, *window_RECT_copy, window_hthumbnail);
+
+							window_squeezed_inlist = true;
+							break;
+						}
+						i = (i + 1) % E_Global::getSingleton()->desktopList.size();
+						itr_CWnd++;
+					}
+
+					if (!window_squeezed_inlist)
+					{
+						winThumbProps.rcDestination = *window_RECT_copy;
+						DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+					}
+				}
+				else
+				{
+					window_squeezed_inlist = false;
+					for (list<RECT*>::iterator itr_rect = desktop_area_list_rect.begin(); itr_rect != desktop_area_list_rect.end(); itr_rect++)
+					{
+						if (((CRect)(*itr_rect)).PtInRect(point))
+						{
+							window_squeezed_inlist = true;
+							break;
+						}
+					}
+
+					if (window_squeezed_inlist)
+					{
+						winThumbProps.rcDestination = *window_RECT_copy;
+						DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+						window_squeezed_inlist = true;
+					}
+					else
+					{
+						(*window_RECT_copy).top += window_squeezed_top;
+						(*window_RECT_copy).bottom += window_squeezed_top;
+						(*window_RECT_copy).left += window_squeezed_left;
+						(*window_RECT_copy).right += window_squeezed_left;
+
+						aeController->unregisterAero(window_hthumbnail);
+						aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_copy, window_hthumbnail);
+						window_squeezed_inlist = false;
+					}
+				}
+			}
+		}
+		else
+		{
+			//if ((double)(*window_RECT_copy).top < swappoint_h - 50)
+			if (!((CRect)main_backgroundRECT).PtInRect(point))
 			{
 				window_squeezed = true;
 
@@ -1118,11 +1302,19 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 				(*window_RECT_copy).left = point.x - (point.x - (*window_RECT_copy).left) * ratio_wW;
 				(*window_RECT_copy).right = point.x + ((*window_RECT_copy).right - point.x) * ratio_wW;
 
-				winThumbProps.rcDestination = *window_RECT_copy;
+				aeController->unregisterAero(window_hthumbnail);
+				aeController->registerAero(window_ptr->getWindow(), this->m_hWnd, *window_RECT_copy, window_hthumbnail);
+
+				//winThumbProps.rcDestination = *window_RECT_copy;
+				//DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
+			}
+			else
+			{
+				winThumbProps.rcDestination = CRect(window_RECT_copy->left - main_backgroundRECT->left, window_RECT_copy->top - main_backgroundRECT->top, window_RECT_copy->right - main_backgroundRECT->left, window_RECT_copy->bottom - main_backgroundRECT->top);
 				DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps);
 			}
 		}
-
+		window_leftdown_point = point;
 		return;
 	}
 	
@@ -1147,6 +1339,73 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 		window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT, RECT_HTHUMBNAIL_copy));
 	}
 	
+	else
+	{
+		if ((leftarrow->PtInRect(point)) || (rightarrow->PtInRect(point)))
+		{
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+		}
+		else
+		{
+			SetCursor(LoadCursor(NULL, IDC_ARROW));
+		}
+	}
 
 	CWnd::OnMouseMove(nFlags, point);
+}
+
+void E_DesktopSwitcher::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+	// 그리기 메시지에 대해서는 __super::OnPaint()을(를) 호출하지 마십시오.
+	if (ison)
+	{
+		CPen pen;
+		pen.CreatePen(PS_SOLID, 4, RGB(255, 255, 255));
+		dc.SelectObject(pen);
+
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		E_Global* e_global = E_Global::getSingleton();
+		int i = desktoplist_startindex;
+		for (list<RECT*>::iterator itr_rect = desktop_area_list_rect.begin(); itr_rect != desktop_area_list_rect.end(); itr_rect++)
+		{
+			if (e_global->getSelectedIndex() == i)
+			{
+				dc.MoveTo((*itr_rect)->left - (9 * enManager->getWidth() / 1920), (*itr_rect)->top - (6 * enManager->getHeight() / 1080));
+				dc.LineTo((*itr_rect)->right + (9 * enManager->getWidth() / 1920), (*itr_rect)->top - (6 * enManager->getHeight() / 1080));
+				dc.MoveTo((*itr_rect)->right + (9 * enManager->getWidth() / 1920), (*itr_rect)->top - (6 * enManager->getHeight() / 1080));
+				dc.LineTo((*itr_rect)->right + (9 * enManager->getWidth() / 1920), (*itr_rect)->bottom + (6 * enManager->getHeight() / 1080));
+				dc.MoveTo((*itr_rect)->left - (9 * enManager->getWidth() / 1920), (*itr_rect)->top - (6 * enManager->getHeight() / 1080));
+				dc.LineTo((*itr_rect)->left - (9 * enManager->getWidth() / 1920), (*itr_rect)->bottom + (6 * enManager->getHeight() / 1080));
+				dc.MoveTo((*itr_rect)->left - (9 * enManager->getWidth() / 1920), (*itr_rect)->bottom + (6 * enManager->getHeight() / 1080));
+				dc.LineTo((*itr_rect)->right + (9 * enManager->getWidth() / 1920), (*itr_rect)->bottom + (6 * enManager->getHeight() / 1080));
+
+				pen.DeleteObject();
+				return;
+			}
+			i = (i + 1) % e_global->getDesktopCount();
+		}		
+	}
+}
+
+
+void E_DesktopSwitcher::OnDestroy()
+{
+	__super::OnDestroy();
+
+	terminateSwitcher();
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+}
+
+
+int E_DesktopSwitcher::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (__super::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	SetCapture();
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
+
+	return 0;
 }

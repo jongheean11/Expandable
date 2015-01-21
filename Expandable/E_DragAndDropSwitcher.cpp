@@ -9,24 +9,6 @@
 
 const COLORREF E_DragAndDropSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 
-void stealFocus()
-{
-	DWORD dwCurrentThread = GetCurrentThreadId();
-	DWORD dwFGThread = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
-
-	AttachThreadInput(dwCurrentThread, dwFGThread, TRUE);
-
-	HWND hwnd = E_DragAndDropSwitcher::getSingleton()->m_hWnd;
-	// Possible actions you may wan to bring the window into focus.
-	SetForegroundWindow(hwnd);
-	SetCapture(hwnd);
-	SetFocus(hwnd);
-	SetActiveWindow(hwnd);
-	EnableWindow(hwnd, TRUE);
-
-	AttachThreadInput(dwCurrentThread, dwFGThread, FALSE);
-}
-
 void E_DragAndDropSwitcher::updateSelectedDesktop()
 {
 	//업데이트가 발생한 경우 자동으로 호출됨
@@ -73,14 +55,16 @@ void drawCurrentDesktop()
 	
 	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
 	{
-		::ShowWindow(*itr_window_docked, SW_SHOW);
-		
 		UINT state;
 		WINDOWPLACEMENT windowinfo;
 		GetWindowPlacement(*itr_window_docked, &windowinfo);
 		UINT winstate = windowinfo.showCmd;
 		BOOL isVisible = IsWindowVisible(*itr_window_docked);
 		BOOL isMinimized = IsIconic(*itr_window_docked);
+
+		if (winstate == SW_HIDE)
+			::ShowWindow(*itr_window_docked, SW_SHOW);
+		
 		if (!((state = winstate) == SW_FORCEMINIMIZE
 			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
 			|| (state = winstate) == SW_MINIMIZE
@@ -416,8 +400,8 @@ void drawDragAndDropSwitcher()
 	drSwitcher->hShellWnd = GetShellWindow(); // 바탕화면 hwnd
 	GetWindowRect(drSwitcher->hShellWnd, &(drSwitcher->sizeRect_background)); // 바탕화면 크기 얻기
 	
-	drawSwitchDesktop();
 	drawCurrentDesktop();
+	drawSwitchDesktop();
 
 	PAINTSTRUCT ps;
 	HDC hdc;
@@ -510,7 +494,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
 		//WS_EX_TOPMOST,
 		ison = true;
 
@@ -525,6 +509,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 	if (ison)
 	{
 		E_Window::setIconInvisible(this->m_hWnd);
+		
 		E_Global::getSingleton()->onUpdate();
 		drawDragAndDropSwitcher();
 
@@ -576,9 +561,12 @@ void E_DragAndDropSwitcher::startSwitcher()
 		GetCursorPos(&prev_point);
 		
 		//stealFocus();
-		BringWindowToTop();
-		SetForegroundWindow();
-		UpdateWindow();
+
+
+		//BringWindowToTop();
+		//SetForegroundWindow();
+		//UpdateWindow();
+
 
 		ShowWindow(SW_SHOW);
 		SetCursor(LoadCursor(NULL, IDC_HAND));
@@ -661,7 +649,7 @@ void E_DragAndDropSwitcher::turnUpdateOff()
 BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
 	ON_WM_CREATE()
 	ON_WM_TIMER()
-	ON_WM_PAINT()
+//	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
 void invalidateSwitcher(LONG diff_x, LONG diff_y)
@@ -1403,6 +1391,16 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 				Sleep(300);
 				terminateSwitcher();
 			}
+
+			for (list<HWND>::iterator itr = e_global->dockedWindowList.begin(); itr != e_global->dockedWindowList.end(); itr++)
+			{
+				WINDOWPLACEMENT windowinfo;
+				::GetWindowPlacement(*itr, &windowinfo);
+				UINT winstate = windowinfo.showCmd;
+
+				if ((winstate == SW_HIDE) && !(::IsWindowVisible(*itr)) )
+					::ShowWindow(*itr, SW_SHOW);
+			}
 			//::ShowWindow(hTaskbarWnd, SW_SHOW);
 		}
 	}
@@ -1410,95 +1408,95 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 	__super::OnTimer(nIDEvent);
 }
 
-void E_DragAndDropSwitcher::OnPaint()
-{
-	CPaintDC dc(this); // device context for painting
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	// 그리기 메시지에 대해서는 __super::OnPaint()을(를) 호출하지 마십시오.
-	/*if ((started) && switchTaskbar != NULL)
-	{
-		CPaintDC currentDC(&currentCWnd);
-		CPaintDC switchDC(&switchCWnd);
-		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-
-		CBitmap *currentBitmap = currentTaskbar->getScreenshot();
-		BITMAP bmpinfo_current, bmpinfo_switch;
-		currentBitmap->GetBitmap(&bmpinfo_current);
-
-		// 더블 버퍼링을 위한 코드
-		//메모리 DC를 생성한다. (버퍼 메모리 할당)
-		CDC memDC_current, memDC_switch;
-		//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
-		CBitmap bmp_current, bmp_switch;
-		//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
-		memDC_current.CreateCompatibleDC(&currentDC);
-		//주어진 dc에 호환하는 비트맵을 생성한다.
-		bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), currentTaskbarRECT->bottom - currentTaskbarRECT->top);
-		//이제 memDC에 생성된 비트맵을 연결한다.
-		memDC_current.SelectObject(bmp_current);
-		
-		BITMAP icon_info_current, icon_info_switch;
-		currentBitmap->GetBitmap(&icon_info_current);
-		CDC cdc_current, cdc_switch;
-		cdc_current.CreateCompatibleDC(&currentDC);
-		cdc_current.SelectObject(currentBitmap);
-		
-		//memDC.SetStretchBltMode(COLORONCOLOR);
-		//memDC.Rectangle(0, 0, 100, 100);
-		
-		memDC_current.StretchBlt(0,//currentTaskbarRECT->left,
-			0,//currentTaskbarRECT->top,
-			currentTaskbarRECT->right - currentTaskbarRECT->left,
-			currentTaskbarRECT->bottom - currentTaskbarRECT->top, 
-			&cdc_current, 0, 0, icon_info_current.bmWidth, icon_info_current.bmHeight, SRCCOPY);
-		cdc_current.DeleteDC();
-		
-
-		//dc.Rectangle(0, 0, 1000, 100);
-		currentDC.StretchBlt(0,
-			0,//currentTaskbarRECT->top, //0,
-			enManager->getWidth(), icon_info_current.bmHeight,//enManager->getHeight(),
-			&memDC_current,
-			0, 0,
-			icon_info_current.bmWidth, icon_info_current.bmHeight,
-			SRCCOPY);
-
-		//dc 해제
-		memDC_current.DeleteDC();
-		bmp_current.DeleteObject();
-		
-		memDC_switch.CreateCompatibleDC(&switchDC);
-
-		bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), switchTaskbarRECT->bottom - switchTaskbarRECT->top);
-		memDC_switch.SelectObject(bmp_switch);
-		cdc_switch.CreateCompatibleDC(&switchDC);
-
-		CBitmap *switchBitmap = switchTaskbar->getScreenshot();
-		switchBitmap->GetBitmap(&bmpinfo_switch);
-		switchBitmap->GetBitmap(&icon_info_switch);
-		cdc_switch.SelectObject(switchBitmap);
-
-		memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
-			0,//currentTaskbarRECT->top,
-			switchTaskbarRECT->right - switchTaskbarRECT->left,
-			switchTaskbarRECT->bottom - switchTaskbarRECT->top,
-			&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
-
-		cdc_switch.DeleteDC();
-
-		switchDC.StretchBlt(0,
-			0,//currentTaskbarRECT->top, //0,
-			enManager->getWidth(), icon_info_switch.bmHeight,//enManager->getHeight(),
-			&memDC_switch,
-			0, 0,
-			icon_info_switch.bmWidth, icon_info_switch.bmHeight,
-			SRCCOPY);
-
-		memDC_switch.DeleteDC();
-		bmp_switch.DeleteObject();
-		
-		E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
-		//::ShowWindow(hTaskbarWnd, SW_SHOW);
-		//Invalidate(true);
-	}*/
-}
+//void E_DragAndDropSwitcher::OnPaint()
+//{
+//	CPaintDC dc(this); // device context for painting
+//	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+//	// 그리기 메시지에 대해서는 __super::OnPaint()을(를) 호출하지 마십시오.
+//	/*if ((started) && switchTaskbar != NULL)
+//	{
+//		CPaintDC currentDC(&currentCWnd);
+//		CPaintDC switchDC(&switchCWnd);
+//		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+//
+//		CBitmap *currentBitmap = currentTaskbar->getScreenshot();
+//		BITMAP bmpinfo_current, bmpinfo_switch;
+//		currentBitmap->GetBitmap(&bmpinfo_current);
+//
+//		// 더블 버퍼링을 위한 코드
+//		//메모리 DC를 생성한다. (버퍼 메모리 할당)
+//		CDC memDC_current, memDC_switch;
+//		//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
+//		CBitmap bmp_current, bmp_switch;
+//		//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
+//		memDC_current.CreateCompatibleDC(&currentDC);
+//		//주어진 dc에 호환하는 비트맵을 생성한다.
+//		bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), currentTaskbarRECT->bottom - currentTaskbarRECT->top);
+//		//이제 memDC에 생성된 비트맵을 연결한다.
+//		memDC_current.SelectObject(bmp_current);
+//		
+//		BITMAP icon_info_current, icon_info_switch;
+//		currentBitmap->GetBitmap(&icon_info_current);
+//		CDC cdc_current, cdc_switch;
+//		cdc_current.CreateCompatibleDC(&currentDC);
+//		cdc_current.SelectObject(currentBitmap);
+//		
+//		//memDC.SetStretchBltMode(COLORONCOLOR);
+//		//memDC.Rectangle(0, 0, 100, 100);
+//		
+//		memDC_current.StretchBlt(0,//currentTaskbarRECT->left,
+//			0,//currentTaskbarRECT->top,
+//			currentTaskbarRECT->right - currentTaskbarRECT->left,
+//			currentTaskbarRECT->bottom - currentTaskbarRECT->top, 
+//			&cdc_current, 0, 0, icon_info_current.bmWidth, icon_info_current.bmHeight, SRCCOPY);
+//		cdc_current.DeleteDC();
+//		
+//
+//		//dc.Rectangle(0, 0, 1000, 100);
+//		currentDC.StretchBlt(0,
+//			0,//currentTaskbarRECT->top, //0,
+//			enManager->getWidth(), icon_info_current.bmHeight,//enManager->getHeight(),
+//			&memDC_current,
+//			0, 0,
+//			icon_info_current.bmWidth, icon_info_current.bmHeight,
+//			SRCCOPY);
+//
+//		//dc 해제
+//		memDC_current.DeleteDC();
+//		bmp_current.DeleteObject();
+//		
+//		memDC_switch.CreateCompatibleDC(&switchDC);
+//
+//		bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), switchTaskbarRECT->bottom - switchTaskbarRECT->top);
+//		memDC_switch.SelectObject(bmp_switch);
+//		cdc_switch.CreateCompatibleDC(&switchDC);
+//
+//		CBitmap *switchBitmap = switchTaskbar->getScreenshot();
+//		switchBitmap->GetBitmap(&bmpinfo_switch);
+//		switchBitmap->GetBitmap(&icon_info_switch);
+//		cdc_switch.SelectObject(switchBitmap);
+//
+//		memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
+//			0,//currentTaskbarRECT->top,
+//			switchTaskbarRECT->right - switchTaskbarRECT->left,
+//			switchTaskbarRECT->bottom - switchTaskbarRECT->top,
+//			&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
+//
+//		cdc_switch.DeleteDC();
+//
+//		switchDC.StretchBlt(0,
+//			0,//currentTaskbarRECT->top, //0,
+//			enManager->getWidth(), icon_info_switch.bmHeight,//enManager->getHeight(),
+//			&memDC_switch,
+//			0, 0,
+//			icon_info_switch.bmWidth, icon_info_switch.bmHeight,
+//			SRCCOPY);
+//
+//		memDC_switch.DeleteDC();
+//		bmp_switch.DeleteObject();
+//		
+//		E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+//		//::ShowWindow(hTaskbarWnd, SW_SHOW);
+//		//Invalidate(true);
+//	}*/
+//}

@@ -29,8 +29,8 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_KEYUP()
 	ON_WM_TIMER()
 	ON_WM_CREATE()
-	ON_WM_SYSKEYDOWN()
-	ON_WM_SYSKEYUP()
+//	ON_WM_SYSKEYDOWN()
+//	ON_WM_SYSKEYUP()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
@@ -288,18 +288,18 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 }
 
 
-void CExpandableView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//void CExpandableView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//
+//	TRACE_WIN32A("OnSysKeyDown");
+//	CView::OnSysKeyDown(nChar, nRepCnt, nFlags);
+//}
 
-	TRACE_WIN32A("OnSysKeyDown");
-	CView::OnSysKeyDown(nChar, nRepCnt, nFlags);
-}
 
-
-void CExpandableView::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	TRACE_WIN32A("OnSysKeyUp");
-	CView::OnSysKeyUp(nChar, nRepCnt, nFlags);
-}
+//void CExpandableView::OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//	TRACE_WIN32A("OnSysKeyUp");
+//	CView::OnSysKeyUp(nChar, nRepCnt, nFlags);
+//}

@@ -28,6 +28,13 @@ private:
 	bool desktop_selected;
 
 public:
+	list<CWnd*> desktop_CWnd_list;
+	CWnd* mainCWnd;
+	bool window_squeezed_inlist;
+	LONG window_squeezed_left, window_squeezed_top;
+
+	CRect *leftarrow, *rightarrow;
+	
 	bool ison;
 
 	int target_desktop_index, desktoplist_startindex;
@@ -93,4 +100,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnPaint();
+	afx_msg void OnDestroy();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
