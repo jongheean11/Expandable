@@ -71,6 +71,13 @@ void EnviromnmentDialog::OnBnClickedOk()
 	e_global->setIconsize(iconSize);
 	e_global->desktopwidth = mapwidth.GetCurSel() + 1;
 	e_global->desktopheight = mapHeight.GetCurSel() + 1;
+
+	//세팅 저장
+	E_SettingManager::getSingleton()->saveSetting();
+	SettingInfo info;
+	E_SettingManager::getSingleton()->loadSetting(info);
+
+	//
 	if (swapflag)
 	{
 		e_global->desktopwidth = (mapwidth.GetCurSel() + 1);

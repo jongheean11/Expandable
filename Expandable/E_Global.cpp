@@ -12,17 +12,36 @@ wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
+	//Setting init
+	SettingInfo info;
+	E_SettingManager* smanager = E_SettingManager::getSingleton();
+	
+	//
 	dockcount = 0;
 	nowActiveNotify = -1;
 	nextActiveNotify = 0;
 	mapopen = false;
 	hotkeyinvalidate = false;
-	settingTimer = 5;
-	transparent = 160;
-	mapsize = 0.06;
-	iconsize = 1;
-	desktopwidth = 3;
-	desktopheight = 3;
+
+	//Setting Load
+	if (smanager->loadSetting(info) == false){
+		settingTimer = 5;
+		transparent = 160;
+		mapsize = 0.06;
+		iconsize = 1;
+		desktopwidth = 3;
+		desktopheight = 3;
+	}
+	else {
+		settingTimer = info.settingTimer;
+		transparent = info.transparent;
+		mapsize = info.mapsize;
+		iconsize = info.iconsize;
+		desktopwidth = info.desktopwidth;
+		desktopheight = info.desktopheight;
+	}
+
+
 	//설정 파일을 읽어온 후
 	desktopCount = desktopwidth*desktopheight;
 	notifyAblePos[0] = notifyAblePos[1] = notifyAblePos[2] = notifyAblePos[3] = notifyAblePos[4] = 0;
@@ -1009,6 +1028,9 @@ void E_Global::moveDesktop(int index)
 		if (last != NULL){
 
 			selectedDesktop->setAllHide();//숨김
+			for (list<HWND>::iterator iter = dockedWindowList.begin(); iter != dockedWindowList.end(); iter++){
+				ShowWindow((*iter), SW_SHOWNORMAL);
+			}
 			last->setAllShow();	//보여줌
 
 			selectedIndex = index;	//인덱스 업데이트

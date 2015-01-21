@@ -9,6 +9,7 @@
 init()로 초기화 필요.
 */
 #pragma once
+#include "E_SettingManager.h"
 class E_Global : E_GlobalUpdater, E_IGlobal
 {
 private:
@@ -21,20 +22,22 @@ private:
 	static E_Global* singleton;
 	E_Global();
 	~E_Global();
-	double mapsize;
-	double iconsize;
 	//스레드
 	thread* currentThread;
 	std::unordered_map<std::thread::id, bool> thread_map;
 	std::unordered_map<std::thread::id, bool> thread_inner_map;
 	std::unordered_map<std::thread::id, std::thread*> thread_pmap;
-	//
-	int transparent;
-	int settingTimer;
+
 	bool hotkeyinvalidate;
 	DWORD parnetpid;
 	//제외 윈도우
 	static wchar_t* const excludeWindows[];
+	
+	//setting variables
+	double mapsize;//
+	double iconsize;//
+	int transparent;//
+	int settingTimer;//
 public:
 
 	int dockcount;
@@ -66,8 +69,10 @@ public:
 
 
 	bool ExpandableRunningFlag;
-	int desktopwidth;
-	int desktopheight;
+
+	//setting variables
+	int desktopwidth;//
+	int desktopheight;//
 	int desktopCount;
 
 	CWnd* getBackgroundWindow();

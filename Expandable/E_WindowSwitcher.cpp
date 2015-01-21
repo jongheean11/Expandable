@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "E_WindowSwitcher.h"
-
+#define WM_TRAY_EVENT (WM_USER + 3)
 const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xe5);
@@ -113,7 +113,7 @@ void E_WindowSwitcher::startSwitcher()
 	}
 
 	this->ShowWindow(SW_SHOW);
-	//this->BringWindowToTop();
+	this->BringWindowToTop();
 	running = true;
 }
 
@@ -1246,6 +1246,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					//stealFocus(hwnd);
 					//stealFocus2(hwnd);
+					::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 
 				}
 				terminateSwitcher();
@@ -1335,6 +1336,8 @@ void E_WindowSwitcher::selectTabWindow()
 			if (::IsIconic(hwnd) == true)
 				::ShowWindow(hwnd, SW_RESTORE);
 			::BringWindowToTop(hwnd);
+
+			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 			//::SetFocus(hwnd);
 			//stealFocus(hwnd);
 			//stealFocus2(hwnd);
@@ -1593,6 +1596,8 @@ void E_WindowSwitcher::startTPMode()
 
 		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
 		(*iterDesktop)->setAllNormalExclude();
+		
+		//현재 창 포커스
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }

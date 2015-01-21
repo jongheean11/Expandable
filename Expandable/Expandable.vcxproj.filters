@@ -55,6 +55,9 @@
     <Filter Include="Image">
       <UniqueIdentifier>{762ec67a-8bc7-4a12-8ea8-425d9acb1398}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Setting">
+      <UniqueIdentifier>{328c3966-e4ae-41f3-8ab5-35ada50ac17e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -159,6 +162,9 @@
     <ClInclude Include="InjDll.h">
       <Filter>Injector</Filter>
     </ClInclude>
+    <ClInclude Include="E_SettingManager.h">
+      <Filter>Setting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Expandable.cpp">
@@ -253,6 +259,9 @@
     </ClCompile>
     <ClCompile Include="InjDll.cpp">
       <Filter>Injector</Filter>
+    </ClCompile>
+    <ClCompile Include="E_SettingManager.cpp">
+      <Filter>Setting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

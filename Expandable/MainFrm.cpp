@@ -12,6 +12,12 @@
 #include "E_Map.h"
 #include "E_Notify.h"
 #include "E_Server.h"
+//
+
+//
+
+
+
 #define WM_USER_NOTIFY (WM_USER + 4)
 #define WM_USER_MAPR (WM_USER + 5)
 
@@ -61,7 +67,14 @@ CMainFrame::CMainFrame()
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2008);
 	DwmEnableComposition(DWM_EC_ENABLECOMPOSITION); //DWM_EC_ENABLECOMPOSITION // DWM_EC_DISABLECOMPOSITION
 	//DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
+	
+
 }
+
+
+
+
+
 
 HRESULT CMainFrame::OnUserNotify(WPARAM wParam, LPARAM lParam)
 {
@@ -162,6 +175,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
+	
+	ShellExecute(this->GetSafeHwnd(), TEXT("open"), TEXT(".\\AutoHotkey\\AutoHotkey.exe"), NULL, NULL, SW_HIDE);
 
 	//tray 아이콘 생성
 	this->ShowWindow(SW_HIDE);
@@ -429,9 +444,67 @@ void CMainFrame::DestroyTrayIcon()
 	nid.uID = IDR_MAINFRAME;
 	nid.hWnd = GetSafeHwnd();
 	bRet = ::Shell_NotifyIcon(NIM_DELETE, &nid);
+	//HWND ahk = ::FindWindow(NULL, L"AutoHotKey.exe");
+	//::SendMessage(autohwnd, WM_CLOSE, 0, 0);
+	//::DestroyWindow(autohwnd);
+	
+	CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
+	ProcessName.MakeUpper();
+	//ProcessName.Format()
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if ((int)hSnapshot != -1)
+	{
+		PROCESSENTRY32 pe32;
+		pe32.dwSize = sizeof(PROCESSENTRY32);
+		BOOL bContinue;
+		CString tempProcessName;
+		if (Process32First(hSnapshot, &pe32))
+		{
+			//프로세스 목록 검색 시작
+			do
+			{
+				tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
+				tempProcessName.MakeUpper();
+				if ((tempProcessName.Find(ProcessName, 0) != -1))
+				{
+					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
+					if (hProcess)
+					{
+						DWORD dwExitCode;
+						GetExitCodeProcess(hProcess, &dwExitCode);
+						TerminateProcess(hProcess, dwExitCode);
+						CloseHandle(hProcess);
+					}
+				}
+				bContinue = Process32Next(hSnapshot, &pe32);
+			} while (bContinue);
+		}
+		CloseHandle(hSnapshot);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return;
 
 
 }
+
+////
+
+
 
 void CMainFrame::On32775()
 {
