@@ -112,7 +112,7 @@ void E_WindowSwitcher::startSwitcher()
 	}
 
 	this->ShowWindow(SW_SHOW);
-	//this->BringWindowToTop();
+	this->BringWindowToTop();
 	running = true;
 }
 
@@ -1593,6 +1593,8 @@ void E_WindowSwitcher::startTPMode()
 
 		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
 		(*iterDesktop)->setAllNormalExclude();
+		
+		//현재 창 포커스
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }

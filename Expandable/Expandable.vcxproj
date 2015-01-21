@@ -173,6 +173,7 @@
     <ClInclude Include="E_Mutex.h" />
     <ClInclude Include="E_Server.h" />
     <ClInclude Include="E_Notify.h" />
+    <ClInclude Include="E_SettingManager.h" />
     <ClInclude Include="E_Util.h" />
     <ClInclude Include="E_UtilTest.h" />
     <ClInclude Include="E_Window.h" />
@@ -209,6 +210,7 @@
     <ClCompile Include="E_Mutex.cpp" />
     <ClCompile Include="E_Notify.cpp" />
     <ClCompile Include="E_Server.cpp" />
+    <ClCompile Include="E_SettingManager.cpp" />
     <ClCompile Include="E_Util.cpp" />
     <ClCompile Include="E_UtilTest.cpp" />
     <ClCompile Include="E_Window.cpp" />
