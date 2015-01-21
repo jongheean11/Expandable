@@ -22,7 +22,7 @@ public:
 	bool takeScreenshot();
 	//최소/최대화 애니메이션 제거 및 활성화
 	static void SetMinimizeMaximizeAnimation(bool status);
-
+	
 	static bool setIconInvisible(HWND hwnd);
 	static bool setIconVisible(HWND hwnd);
 	void setTransparent();

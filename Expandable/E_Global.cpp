@@ -52,8 +52,10 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	//초기 데스크탑 
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
-
+	
 	Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+
+	//::SetWindowPos(this->hwnd_frame, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 void E_Global::setTimer(int value)
 {

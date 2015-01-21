@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_CREATE()
 //	ON_WM_SYSKEYDOWN()
 //	ON_WM_SYSKEYUP()
+ON_WM_SYSCOMMAND()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
@@ -248,7 +249,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				SetTimer(30, 32, NULL);
 			}
 			else
-			{
+			{//
 				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
 				if (mapCRect.PtInRect(point))
 				{
@@ -303,3 +304,11 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	TRACE_WIN32A("OnSysKeyUp");
 //	CView::OnSysKeyUp(nChar, nRepCnt, nFlags);
 //}
+
+
+void CExpandableView::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("CExpandableView::OnSysCommand");
+	CView::OnSysCommand(nID, lParam);
+}
