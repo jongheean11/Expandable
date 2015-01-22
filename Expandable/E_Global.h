@@ -82,6 +82,8 @@ public:
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackForZIndex(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumHide(HWND hwnd, LPARAM lParam);
+	static const int DLLINJECTIONTIMER;
+
 
 	virtual void OnDualMonitorMode(bool result);
 	//인터페이스 호출을 위한 함수

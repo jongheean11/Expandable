@@ -5,9 +5,9 @@ const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xe5);
 const COLORREF E_WindowSwitcher::aeroColorSelectedMouse = RGB(0x30, 0xb0, 0xee);
-const COLORREF E_WindowSwitcher::borderColor = RGB(0xdc, 0xdb, 0xdb);
+const COLORREF E_WindowSwitcher::borderColor = RGB(120, 120, 120);
 const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
-const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(0xcf, 0xdc, 0xdc);
+const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
@@ -44,6 +44,9 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 	//brush_map.DeleteObject();
 	//  selectedIndex = 0;
 	startTaboffset = 0;
+
+	//예외 리스트
+	aero_exclude_winlist.push_back("Microsoft Visual Studio");
 }
 
 
@@ -301,6 +304,7 @@ void E_WindowSwitcher::OnPaint()
 				winlist.push_front(global->backgroundWindow);	//바탕화면 포함
 
 				int windowSize = winlist.size();
+					
 				if (windowSize >= 7)
 					maxWidthCount = 7;
 				else
@@ -316,7 +320,8 @@ void E_WindowSwitcher::OnPaint()
 				long switcherLeft = 0;				//윈도우 기준 오프셋				
 				long switcherTop = 0;				//CDC기준으로 항상 0
 
-				if (windowSize == 0){ switcherWidth = 0; switcherHeight = 0; }
+				if (windowSize == 0){ switcherWidth = 0; switcherHeight = 0;}
+				if (windowSize == 1){ tabIndex = 0; }
 
 				//크기 계산을 위한 카운트 변수
 				int count = 0;
@@ -411,7 +416,6 @@ void E_WindowSwitcher::OnPaint()
 				//현재 데스크탑 배경 색
 				{
 					CBitmap *cbm = getBackgroundCBitmap(switcherWidth, switcherHeight);
-					
 					CBrush brush;
 					//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
 					brush.CreatePatternBrush(cbm);
@@ -423,20 +427,24 @@ void E_WindowSwitcher::OnPaint()
 					memDC.FillRect(&rect, &brush);
 					brush.DeleteObject();
 				}
-
-				//다른 데스크탑 배경 
+				
+				//다른 데스크탑 배경
 				{
-					CBrush brush;
-					brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
-					RECT rect;
-					rect.left = 0;
-					rect.top = 0;
-					rect.right = secondSwitcherWidth;
-					rect.bottom = secondSwitcherHeight;
-					secondMemDC.FillRect(&rect, &brush);
-					brush.DeleteObject();
+					if (secondSwitcherWidth != 0 && secondSwitcherHeight != 0){
+						CBitmap *cbm = getBackgroundCBitmap(secondSwitcherWidth, secondSwitcherHeight);
+						CBrush brush;
+						//brush.CreateSolidBrush(E_WindowSwitcher::aeroColor);
+						brush.CreatePatternBrush(cbm);
+						RECT rect;
+						rect.left = 0;
+						rect.top = 0;
+						rect.right = secondSwitcherWidth;
+						rect.bottom = secondSwitcherHeight;
+						secondMemDC.FillRect(&rect, &brush);
+						brush.DeleteObject();
+					}
 				}
-
+				  
 				//첫번째 데스크탑에 업데이트가 존재하는지?
 				int existUpdateMode = 0;
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
@@ -524,15 +532,15 @@ void E_WindowSwitcher::OnPaint()
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColor);
 					else if (mode == UPDATE_TAB)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelected);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelected);
 					else if (mode == UPDATE_TOUCH)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelectedMouse);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelectedMouse);
 
 					//배경 그리기
 					//dc.Rectangle(temprect);
-					memDC.FillRect(&temprect, &brush1);
+					//memDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
 					if (tabIndex == count && tabMode == SELECTEDDESKTOP) {
@@ -603,7 +611,7 @@ void E_WindowSwitcher::OnPaint()
 
 					CBitmap* screenshot;
 					BITMAP bmpinfo;             //비트맵은 높이와 크기가 달라서
-					bool isAero = true;	//(*iter)->isAeroPossible();	//모두 AERO 모드
+					bool isAero = (*iter)->isAeroPossible();	//모두 AERO 모드
 					unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find(cwnd->GetSafeHwnd());
 					if (isAero && (validKey != thumb_map.end()))
 						cwnd->GetWindowRect(crect);
@@ -652,8 +660,8 @@ void E_WindowSwitcher::OnPaint()
 
 					//에어로 좌표 (윈도우 좌표계)
 					RECT rectForAero;
-					rectForAero.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rectForAero.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset + switcherLeft;
+					rectForAero.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rectForAero.right = rectForAero.left + windowWidth;
 					rectForAero.bottom = rectForAero.top + windowHeight;
 					
@@ -699,29 +707,20 @@ void E_WindowSwitcher::OnPaint()
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
 						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
-						//CPaintDC iconDC(iconCWnd);
 						CBitmap* icon = (*iter)->getIcon();
 						BITMAP icon_info;
-
+						int iconpadding = 2;
 						if (icon->m_hObject != NULL){
 							icon->GetBitmap(&icon_info);
 
 							RECT windowRect;
-							/*windowRect.left = 0;
-							windowRect.top = 0;
-							windowRect.bottom = 1;
-							windowRect.right = 1;
-
-							iconCWnd->MoveWindow(&windowRect);*/
 
 							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
 							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
-							windowRect.bottom = allswitcherTop + rectForAero.bottom;
-							windowRect.right = allswitcherLeft + rectForAero.right;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom - iconpadding;
+							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
-							//iconCWnd->SetWindowPos(NULL, windowRect.left, windowRect.top, windowRect.right, windowRect.bottom, 0);
 							CDC* iconDC = iconCWnd->GetDC();
-							//SetBkMode(*iconDC, TRANSPARENT);
 							
 							CDC cdc; 
 							cdc.CreateCompatibleDC(iconDC);
@@ -796,20 +795,20 @@ void E_WindowSwitcher::OnPaint()
 					temprect.left = aeroLeftoffset;
 					temprect.bottom = temprect.top + aeroHeight;
 					temprect.right = temprect.left + aeroWidth;
-
+					
 
 					//경계선 브러쉬
 					CPen pen;
 					if (mode == DRAW_NORMAL)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColor);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColor);
 					else if (mode == UPDATE_TAB)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelected);
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelected);
 					else if (mode == UPDATE_TOUCH)
-						pen.CreatePen(PS_SOLID, 1, E_WindowSwitcher::borderColorSelectedMouse);
-
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::borderColorSelectedMouse);
+					
 					//배경 그리기
 					//dc.Rectangle(temprect);
-					secondMemDC.FillRect(&temprect, &brush1);
+					//secondMemDC.FillRect(&temprect, &brush1);
 
 					//탭 경계선 그리기
 					if (tabIndex == secondCount && tabMode == OTHERDESKTOP) {
@@ -983,15 +982,15 @@ void E_WindowSwitcher::OnPaint()
 						//CPaintDC iconDC(iconCWnd);
 						CBitmap* icon = (*iter)->getIcon();
 						BITMAP icon_info;
-
+						int iconpadding = 2;
 						if (icon->m_hObject != NULL){
 							icon->GetBitmap(&icon_info);
 
 							RECT windowRect;
 							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
 							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
-							windowRect.bottom = allswitcherTop + rectForAero.bottom;
-							windowRect.right = allswitcherLeft + rectForAero.right;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom - iconpadding;
+							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
 
 							CDC* iconDC = iconCWnd->GetDC();
@@ -1182,6 +1181,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	//E_Global::getSingleton()->stopUpdate();
+	HWND focushwnd = NULL;
 	HWND hwnd = NULL;	//지역 변수 사용을 통해 iterating 제거 예외 우회
 	TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
@@ -1208,12 +1208,10 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
-
 						::BringWindowToTop(hwnd);
-						//::SetFocus(hwnd);
-						//stealFocus(hwnd);
-						//stealFocus2(hwnd);
 
+						focushwnd = hwnd;
+						SetTimer(2, 5, NULL);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1225,7 +1223,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					E_Global* global = E_Global::getSingleton();
 
 					hwnd = itr->first;	//지역 변수 사용
-
+					
 					//LOSS FOCUS
 					global->moveDesktop(desktop->getIndex());
 
@@ -1238,15 +1236,11 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					if (::IsIconic(hwnd) == TRUE)
 						::ShowWindow(hwnd, SW_RESTORE);
-					/*if (windowState.showCmd != SW_MAXIMIZE)
-						::ShowWindow(hwnd, SW_RESTORE);*/
-
 
 					::BringWindowToTop(hwnd);
-					//::SetFocus(hwnd);
 
-					//stealFocus(hwnd);
-					//stealFocus2(hwnd);
+					focushwnd = hwnd;
+					SetTimer(2, 5, NULL);
 					::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 
 				}
@@ -1309,10 +1303,7 @@ void E_WindowSwitcher::selectTabWindow()
 				::BringWindowToTop(hwnd);
 
 				focushwnd = hwnd;
-				SetTimer(2, 5, NULL);
-				//::SetFocus(hwnd);
-				//stealFocus(hwnd);
-				//stealFocus2(hwnd);
+				SetTimer(2, 50, NULL);
 			}
 		}
 		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
@@ -1341,10 +1332,7 @@ void E_WindowSwitcher::selectTabWindow()
 
 			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 			focushwnd = hwnd;
-			SetTimer(2, 5, NULL);
-			//::SetFocus(hwnd);
-			//stealFocus(hwnd);
-			//stealFocus2(hwnd);
+			SetTimer(2, 50, NULL);
 		}
 	}
 }
@@ -1395,8 +1383,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	if (running==true)
-		terminateSwitcher();
+	/*if (running==true)
+		terminateSwitcher();*/
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1581,12 +1569,12 @@ void E_WindowSwitcher::startTPMode()
 	E_Window::SetMinimizeMaximizeAnimation(false);
 	E_Global* global = E_Global::getSingleton();  
 	E_Desktop* selectedDesktop = global->getSelectedDesktop();
-
+	
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (selectedDesktop == *iterDesktop){
 			(*iterDesktop)->setAllTransParentExclude();	//tp 모드로 만듬
 			//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-			(*iterDesktop)->setAllNormalExclude();
+			(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
 			continue;
 		}
 		(*iterDesktop)->setAllIconInvisible();
@@ -1599,10 +1587,10 @@ void E_WindowSwitcher::startTPMode()
 		(*iterDesktop)->setAllHide();			//창 위치 숨기기
 
 		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-		(*iterDesktop)->setAllNormalExclude();
+		(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
 		
 		//현재 창 포커스
-		::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
+		//::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }
@@ -1610,7 +1598,7 @@ void E_WindowSwitcher::startTPMode()
 
 void E_WindowSwitcher::stopTPMode()
 {
-	int saveState = running;
+	int saveState = running;	//순간적으로 포커스 읽는 문제
 	running = false; // 투명을 제거할때는 잠시 오프
 	E_Window::SetMinimizeMaximizeAnimation(false);
 	E_Global* global = E_Global::getSingleton();
@@ -1744,7 +1732,7 @@ void E_WindowSwitcher::stealFocus2(HWND parm_dest_wnd)
 
 			CWnd *p_child_wnd = p_prev_wnd->GetLastActivePopup();
 			if (p_prev_wnd->IsIconic() == TRUE) p_prev_wnd->ShowWindow(SW_RESTORE);
-			p_prev_wnd->ShowWindow(SW_SHOWNORMAL);
+		//	p_prev_wnd->ShowWindow(SW_SHOWNORMAL);
 
 			if (p_child_wnd != NULL && p_prev_wnd != p_child_wnd){
 				p_child_wnd->BringWindowToTop();
@@ -1837,10 +1825,16 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	SelectObject(memdc2, hbmOrig);
 	StretchBlt(memdc, 0, 0, width, height, memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
 	::ReleaseDC(::GetDesktopWindow(), dc);
-
+	
 	SelectObject(memdc, hOld);
 	DeleteDC(memdc);
 	DeleteDC(memdc2);
+
+	//DeleteObject(hbm);
+	//DeleteObject(hOld);	
+
+	DeleteObject(hbmOrig);	//비트맵 해제
+
 
 	return CBitmap::FromHandle(hbm);
 }
@@ -1862,7 +1856,8 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 			//윈도우를 띄움
 			this->ShowWindow(SW_SHOW);
 			this->stealFocus2(this->GetSafeHwnd());
-
+			::SetFocus(focushwnd);
+		
 			KillTimer(1);
 		}
 	}
@@ -1870,6 +1865,8 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 		//TRACE_WIN32A("FOCUS - 2");
 		::ShowWindow(focushwnd, SW_SHOW);
 		this->stealFocus2(focushwnd);
+		::SetFocus(focushwnd);
+
 		KillTimer(2);
 	}
 	__super::OnTimer(nIDEvent);

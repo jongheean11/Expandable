@@ -50,9 +50,7 @@ void E_Desktop::setAllTransParentExclude()
 {
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
 		if (!(*itr)->isAeroPossible()){
-			TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
 			(*itr)->setTransparent();	//투명
 			//윈도우 상태 저장
 
@@ -67,11 +65,32 @@ void E_Desktop::setAllNormalExclude()
 
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
-		TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
 		if (!(*itr)->isAeroPossible()){
-			TRACE_WIN32A("WINDOWNAME %s", (*itr)->getWindowName());
-
+			/*char pname[255] = { 0, };
+			GetWindowTextA((*itr)->getWindow(), pname, 255);
+			TRACE_WIN32A("E_Desktop::setAllNormalExclude->%s", pname);*/
 			(*itr)->setNormal();
+		}
+	}
+}
+
+
+void E_Desktop::setAllNormalExclude(list<char*> exclude)
+{
+	char pname[255] = { 0, };
+	char* subpname = NULL;
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		//비주얼 스튜디오 제외
+		if (!(*itr)->isAeroPossible()){
+			GetWindowTextA((*itr)->getWindow(), pname, 255);
+			for (list<char*>::iterator iter = exclude.begin(); iter != exclude.end(); iter++) {
+				subpname = strstr(pname, (*iter));
+				if (subpname == NULL){	//Visual Studio 제외
+					(*itr)->setNormal();
+					break;
+				}
+			}
 		}
 	}
 }

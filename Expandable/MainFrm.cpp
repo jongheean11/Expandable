@@ -12,6 +12,7 @@
 #include "E_Map.h"
 #include "E_Notify.h"
 #include "E_Server.h"
+#include "InjDll.h"
 #include "E_DesktopSwitcher.h"
 //
 
@@ -42,8 +43,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
-	//	ON_WM_SYSKEYDOWN()
-	//	ON_WM_SYSKEYUP()
+//	ON_WM_SYSKEYDOWN()
+//	ON_WM_SYSKEYUP()
 	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
 	ON_MESSAGE(WM_USER_MAPR, OnMapRight)
@@ -52,6 +53,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_32779, &CMainFrame::On32779)
 	ON_COMMAND(ID_32781, &CMainFrame::On32781)
 	ON_WM_TIMER()
+	ON_WM_SYSCOMMAND()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -71,6 +74,7 @@ CMainFrame::CMainFrame()
 	//DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 	icondisable = false;
 	alreadyrun = false;
+	autoalready = false;
 	////
 	//프로그램 켜져있을시 종료 추가
 	
@@ -184,7 +188,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
-
+	
 
 
 	//
@@ -198,7 +202,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 
 		AfxMessageBox(TEXT("이미 프로그램이 실행중입니다."));
-
+		autoalready = true;
 		PostQuitMessage(WM_QUIT);
 
 	}
@@ -207,9 +211,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	//
-
-
-
 
 
 	SetTimer(1, 10, NULL);
@@ -221,8 +222,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	::SetLayeredWindowAttributes(e_global->hwnd_frame, 0, 0, LWA_ALPHA); //창투명
 	//
 
-
-	ShellExecute(this->GetSafeHwnd(), TEXT("open"), TEXT(".\\AutoHotkey\\AutoHotkey.exe"), NULL, NULL, SW_HIDE);
+	if (!autoalready)
+	ShellExecute(this->GetSafeHwnd(), TEXT("open"), TEXT("AutoHotkey.exe"), NULL, NULL, SW_HIDE);
 
 	//tray 아이콘 생성
 	this->ShowWindow(SW_HIDE);
@@ -493,7 +494,7 @@ void CMainFrame::DestroyTrayIcon()
 	//HWND ahk = ::FindWindow(NULL, L"AutoHotKey.exe");
 	//::SendMessage(autohwnd, WM_CLOSE, 0, 0);
 	//::DestroyWindow(autohwnd);
-
+	
 
 
 	return;
@@ -518,6 +519,9 @@ void CMainFrame::On32775()
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
+	//이젝션
+	Injector(L"explorer.exe", EJECTION_MODE, L"ExpandableDLL_x86.dll");
+
 	DestroyTrayIcon();
 	E_Global* e_global = E_Global::getSingleton();
 
@@ -533,40 +537,40 @@ void CMainFrame::OnDestroy()
 	//AHK종료
 	if (!alreadyrun)
 	{
-		CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
-		ProcessName.MakeUpper();
-		//ProcessName.Format()
-		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if ((int)hSnapshot != -1)
+	CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
+	ProcessName.MakeUpper();
+	//ProcessName.Format()
+	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if ((int)hSnapshot != -1)
+	{
+		PROCESSENTRY32 pe32;
+		pe32.dwSize = sizeof(PROCESSENTRY32);
+		BOOL bContinue;
+		CString tempProcessName;
+		if (Process32First(hSnapshot, &pe32))
 		{
-			PROCESSENTRY32 pe32;
-			pe32.dwSize = sizeof(PROCESSENTRY32);
-			BOOL bContinue;
-			CString tempProcessName;
-			if (Process32First(hSnapshot, &pe32))
+			//프로세스 목록 검색 시작
+			do
 			{
-				//프로세스 목록 검색 시작
-				do
+				tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
+				tempProcessName.MakeUpper();
+				if ((tempProcessName.Find(ProcessName, 0) != -1))
 				{
-					tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
-					tempProcessName.MakeUpper();
-					if ((tempProcessName.Find(ProcessName, 0) != -1))
+					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
+					if (hProcess)
 					{
-						HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
-						if (hProcess)
-						{
-							DWORD dwExitCode;
-							GetExitCodeProcess(hProcess, &dwExitCode);
-							TerminateProcess(hProcess, dwExitCode);
-							CloseHandle(hProcess);
-						}
+						DWORD dwExitCode;
+						GetExitCodeProcess(hProcess, &dwExitCode);
+						TerminateProcess(hProcess, dwExitCode);
+						CloseHandle(hProcess);
 					}
-					bContinue = Process32Next(hSnapshot, &pe32);
-				} while (bContinue);
-			}
-			CloseHandle(hSnapshot);
+				}
+				bContinue = Process32Next(hSnapshot, &pe32);
+			} while (bContinue);
 		}
+		CloseHandle(hSnapshot);
 	}
+}
 
 	//
 
@@ -595,11 +599,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					keydown = 1;
 					startChecking();
 					switcher->stealFocus2(switcher->GetSafeHwnd());
-
+					
 				}
 				else{
 					//쉬프트 탭
-					//	switcher->stealFocus2(switcher->GetSafeHwnd());
+				//	switcher->stealFocus2(switcher->GetSafeHwnd());
 					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
 					if (shift == false){
 						E_WindowSwitcher::getSingleton()->selectNextWindow();
@@ -628,7 +632,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
-
+	
 	}
 
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -786,6 +790,8 @@ void CMainFrame::changetray(int num)
 	lstrcpy(nid.szTip, TEXT("Expandable"));
 	nid.uCallbackMessage = WM_TRAY_NOTIFICATION;
 	BOOL bRet = ::Shell_NotifyIcon(NIM_ADD, &nid);
+	::SendMessage(E_Map::getSingleton()->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 1);
+
 	//E_Map* e_map = E_Map::getSingleton();
 	//e_map->leave2 = true;
 	//::BringWindowToTop(e_map->maphwnd);
@@ -809,12 +815,12 @@ void CMainFrame::On32779()
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	E_Map* e_map = E_Map::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
-
+	
 	e_global->dockedWindowList.push_back(hwnd);
 
 
 
-
+	
 	std::list<E_Desktop*> desklist = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 	{
@@ -876,7 +882,7 @@ void CMainFrame::On32781()
 
 	}
 }
-
+		
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
@@ -887,8 +893,28 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		{
 			icondisable = true;
 			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
+			::MoveWindow(this->GetSafeHwnd(), 3000, 3000, 200, 200, TRUE);
 			KillTimer(1);
 		}
 	}
 	CFrameWndEx::OnTimer(nIDEvent);
+}
+
+
+void CMainFrame::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	//TRACE_WIN32A("OnSysCommand");
+	CFrameWndEx::OnSysCommand(nID, lParam);
+}
+
+
+void CMainFrame::OnSize(UINT nType, int cx, int cy)
+{
+	CFrameWndEx::OnSize(nType, cx, cy);
+	if (nType == SIZE_MINIMIZED){
+		//TRACE_WIN32A("CMAINFRAME ONSIZE");
+		this->ShowWindow(SW_SHOWNORMAL);
+	}
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }

@@ -617,7 +617,7 @@ void E_DesktopSwitcher::terminateSwitcher()
 				(*itr)->setShow();
 		}
 
-		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
+		
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 
@@ -663,6 +663,7 @@ void E_DesktopSwitcher::terminateSwitcher()
 
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
+		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 	}
 }
 

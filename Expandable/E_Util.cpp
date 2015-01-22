@@ -252,6 +252,147 @@ HMODULE getModuleByWndTitle(wchar_t* searchStr){ // gets the module from a windo
 	return hModuleT;
 }
 
+int PrintModules(DWORD processID)
+{
+	HMODULE hMods[1024];
+	HANDLE hProcess;
+	DWORD cbNeeded;
+	unsigned int i;
+
+	// Print the process identifier.
+
+	printf("\nProcess ID: %u\n", processID);
+
+	// Get a handle to the process.
+
+	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+		PROCESS_VM_READ,
+		FALSE, processID);
+	if (NULL == hProcess)
+		return 1;
+
+	// Get a list of all the modules in this process.
+
+	if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+	{
+		for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+
+			// Get the full path to the module's file.
+
+			if (GetModuleFileNameEx(hProcess, hMods[i], szModName,
+				sizeof(szModName) / sizeof(TCHAR)))
+			{
+				// Print the module name and handle value.
+				TRACE_WIN32A("[%d]Module List %s", i, szModName);
+				//_tprintf(TEXT("\t%s (0x%08X)\n"), szModName, hMods[i]);
+			}
+		}
+	}
+
+	// Release the handle to the process.
+
+	CloseHandle(hProcess);
+
+	return 0;
+}
+
+//존재하지 않거나 이미 DLL을 포함할때 true를 반환
+bool E_Util::isContainDLL(wchar_t* processName, wchar_t* dllname)
+{
+	DWORD processID = GetProcessID(processName);
+	if (processID == 0)
+		return true;//프로세스아디가 존재하지 않음
+	bool result = false;
+	HMODULE hMods[1024];
+	HANDLE hProcess;
+	DWORD cbNeeded;
+	unsigned int i;
+
+	// Print the process identifier.
+
+	//printf("\nProcess ID: %u\n", processID);
+
+	// Get a handle to the process.
+
+	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+		PROCESS_VM_READ,
+		FALSE, processID);
+	if (NULL == hProcess)
+		return result;
+
+	// Get a list of all the modules in this process.
+
+	if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+	{
+		for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+
+			// Get the full path to the module's file.
+
+			if (GetModuleFileNameEx(hProcess, hMods[i], szModName,
+				sizeof(szModName) / sizeof(TCHAR)))
+			{
+				// Print the module name and handle value.
+				//TRACE_WIN32A("[isContainDLL]%d. Module List %s", i, szModName);
+				if (wcsstr(szModName, dllname) != 0)
+				{
+					//TRACE_WIN32A("[isContainDLL]IT HAS EXPANDABLE DLL");
+					result = true;
+					break;
+				}
+				//_tprintf(TEXT("\t%s (0x%08X)\n"), szModName, hMods[i]);
+			}
+		}
+	}
+
+	// Release the handle to the process.
+
+	CloseHandle(hProcess);
+
+	return result;
+}
+
+DWORD E_Util::GetProcessID(LPCTSTR pszProcessName)
+{
+
+	HANDLE         hProcessSnap = NULL;
+	BOOL           bRet = FALSE;
+	PROCESSENTRY32 pe32 = { 0 };
+
+	hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessSnap == (HANDLE)-1)
+		return false;
+
+	pe32.dwSize = sizeof(PROCESSENTRY32);
+	DWORD dwProcessID = 0;
+
+	//프로세스가 메모리상에 있으면 첫번째 프로세스를 얻는다
+	if (Process32First(hProcessSnap, &pe32))
+	{
+		BOOL          bCurrent = FALSE;
+		MODULEENTRY32 me32 = { 0 };
+		do
+		{
+			if (!_wcsicmp(pe32.szExeFile, pszProcessName))
+				bCurrent = TRUE;
+			//bCurrent = GetProcessModule(pe32.th32ProcessID, pszProcessName);
+			if (bCurrent)
+			{
+				dwProcessID = pe32.th32ProcessID;
+				break;
+			}
+
+			//TRACE_WIN32(L"filesname :%s", pe32.szExeFile);
+		} while (Process32Next(hProcessSnap, &pe32)); //다음 프로세스의 정보를 구하여 있으면 루프
+	}
+
+	CloseHandle(hProcessSnap);
+	return dwProcessID;
+}
+
 
 //int main()
 //{

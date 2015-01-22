@@ -208,7 +208,7 @@ bool E_Window::takeScreenshot()
 		this->setTransparent();
 		ShowWindow(window, SW_RESTORE);
 	}
-	
+
 
 	HWND hTargetWnd = window;
 
@@ -338,9 +338,13 @@ bool E_Window::getTPMode()
 // 윈도우 쇼 상태
 void E_Window::saveShowState()
 {
-	if (isAeroPossible())
+	if (isMaximized())
 	{
-		savedState = SW_NORMAL;
+		savedState = SW_MAXIMIZE;
+	}
+	else if (isAeroPossible())
+	{
+		savedState = SW_SHOWNORMAL;
 	}
 	else{
 		savedState = SW_MINIMIZE;
@@ -360,3 +364,11 @@ void E_Window::setRestore()
 {
 	ShowWindow(window, SW_RESTORE);
 }
+
+
+// 상태 검사시 사용 (일반적으로 최대화 여부 검사)
+bool E_Window::isMaximized()
+{
+	return IsZoomed(window);
+}
+	

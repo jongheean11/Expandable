@@ -61,6 +61,7 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 //	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 //	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 };
 
 #ifndef _DEBUG  // ExpandableView.cpp의 디버그 버전

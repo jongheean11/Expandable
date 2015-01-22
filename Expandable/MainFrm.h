@@ -54,6 +54,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	bool autoalready;
 	bool alreadyrun;
 	HWND autohwnd;
 	afx_msg void On32775();
@@ -79,6 +80,8 @@ public:
 	afx_msg void On32779();
 	afx_msg void On32781();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 

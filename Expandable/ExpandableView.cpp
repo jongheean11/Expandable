@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CExpandableView, CView)
 	ON_WM_CREATE()
 //	ON_WM_SYSKEYDOWN()
 //	ON_WM_SYSKEYUP()
+ON_WM_SYSCOMMAND()
 END_MESSAGE_MAP()
 
 // CExpandableView 생성/소멸
@@ -248,7 +249,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				SetTimer(30, 32, NULL);
 			}
 			else
-			{
+			{//
 				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
 				if (mapCRect.PtInRect(point))
 				{
@@ -256,17 +257,34 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 					if(!e_map->ison)
 						e_map->drawMap();
 				}
-			}
+			} 
 		}
-	}
-
-	if (nIDEvent == 30)
+	}else if (nIDEvent == 30)
 	{
 		E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
 		if (!drSwitcher->ison)
 		{
 			KillTimer(30);
 			SetTimer(3, 32, NULL);
+		}
+	}
+	else if (nIDEvent == E_Global::DLLINJECTIONTIMER)
+	{
+		E_EnvironmentManager* envm = E_EnvironmentManager::getSingleton();
+		TRACE_WIN32A("TRY INJECT");
+		if (!envm->is64bitsWindows()){
+			if (!E_Util::isContainDLL(L"explorer.exe", L"ExpandableDLL_x86.dll"))
+				Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+			if (!E_Util::isContainDLL(L"chrome.exe", L"ExpandableDLL_x86.dll"))
+				Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+			if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
+				Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		}
+		else{
+			if (!E_Util::isContainDLL(L"chrome.exe", L"ExpandableDLL_x86.dll"))
+				Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+			if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
+				Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 		}
 	}
 
@@ -280,6 +298,8 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//SetCapture();
 	SetTimer(3, 32, NULL);
+	
+	SetTimer(E_Global::DLLINJECTIONTIMER, 60000, NULL);
 	//SetTimer(2, 5000, NULL);
 
 	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
@@ -303,3 +323,11 @@ int CExpandableView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	TRACE_WIN32A("OnSysKeyUp");
 //	CView::OnSysKeyUp(nChar, nRepCnt, nFlags);
 //}
+
+
+void CExpandableView::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	TRACE_WIN32A("CExpandableView::OnSysCommand");
+	CView::OnSysCommand(nID, lParam);
+}

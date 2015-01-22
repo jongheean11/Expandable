@@ -16,6 +16,7 @@ private:
 	unsigned int savedState;	//saveShowState로 저장한 상태
 	
 public:
+
 	bool dock;
 	E_Window(HWND);
 	~E_Window();
@@ -51,6 +52,8 @@ public:
 	// 저장된 상태 복구
 	void restoreShowState();
 	void setRestore();
+	// 상태 검사시 사용 (일반적으로 최대화 여부 검사)
+	bool isMaximized();
 
 	void doTake(int state);
 };
