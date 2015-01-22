@@ -11,6 +11,8 @@ const wchar_t* E_Global::testFrameName = L"expandable";
 wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
 #define WM_TRAY_EVENT (WM_USER + 3)
 
+const int E_Global::DLLINJECTIONTIMER = 50;
+
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
 {
 	//Setting init
@@ -53,8 +55,23 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 	selectedDesktop = *(desktopList.begin());
 	selectedIndex = 0;
 	
-	Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+	E_EnvironmentManager *envm = E_EnvironmentManager::getSingleton();
 
+	if (envm->is64bitsWindows() == FALSE){
+		if(!E_Util::isContainDLL(L"explorer.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"explorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"chrome.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+	}
+	else{
+		if (!E_Util::isContainDLL(L"chrome.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		
+	}
 	//::SetWindowPos(this->hwnd_frame, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 void E_Global::setTimer(int value)
