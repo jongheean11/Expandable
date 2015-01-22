@@ -86,11 +86,32 @@ bool E_SettingManager::readData(SettingInfo& info)
 
 	//값 세팅
 	info.mapsize = result.get("mapsize", 0.06).asDouble();
-	info.iconsize = result.get("iconsize", 1).asDouble();
+	info.iconsize = result.get("iconsize", 1.0).asDouble();
 	info.settingTimer = result.get("settingTimer", 5).asInt();
 	info.transparent = result.get("transparent", 160).asInt();
 	info.desktopwidth = result.get("desktopwidth", 3).asInt();
 	info.desktopheight = result.get("desktopheight", 3).asInt();
+	
+	//예외 처리
+	if (info.desktopwidth <= 0 || info.desktopwidth >4){
+		info.desktopwidth = 3;
+	}
+	if (info.desktopheight <= 0 || info.desktopheight >4){
+		info.desktopheight = 3;
+	}
+	if (info.mapsize < 0.02 || info.mapsize > 0.09){
+		info.mapsize = 0.06;
+	}
+	if (info.transparent < 10 || info.transparent > 255){
+		info.transparent = 160;
+	}
+	if (info.iconsize < 0.5|| info.iconsize > 1.5){
+		info.iconsize = 1.0;
+	}
+	if (info.settingTimer < 1 || info.settingTimer > 10){
+		info.settingTimer = 5;
+	}
+
 	return true;
 }
 bool E_SettingManager::saveSetting()

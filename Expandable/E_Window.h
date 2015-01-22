@@ -23,7 +23,7 @@ public:
 	bool takeScreenshot();
 	//최소/최대화 애니메이션 제거 및 활성화
 	static void SetMinimizeMaximizeAnimation(bool status);
-	
+
 	static bool setIconInvisible(HWND hwnd);
 	static bool setIconVisible(HWND hwnd);
 	void setTransparent();
@@ -52,4 +52,8 @@ public:
 	// 저장된 상태 복구
 	void restoreShowState();
 	void setRestore();
+	// 상태 검사시 사용 (일반적으로 최대화 여부 검사)
+	bool isMaximized();
+
+	void doTake(int state);
 };

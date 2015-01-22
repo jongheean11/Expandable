@@ -79,16 +79,16 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 			&& !_stricmp(processName, EXPLORER)
 			&& globalhook == false){
 			startGlobalHook();
-		}
+			//}
 
-		//ShowHook은 Explorer를 제외한 메인 윈도우의 고유의 기능
-		if (processName != NULL
-			&& _stricmp(processName, EXPLORER)
-			&& showhook == false){
-			startShowHook();
-		}
+			////ShowHook은 Explorer를 제외한 메인 윈도우의 고유의 기능
+			//if (processName != NULL
+			//	&& _stricmp(processName, EXPLORER)
+			//	&& showhook == false){
+			//	startShowHook();
+			//}
 
-		break;
+			break;
 	case DLL_THREAD_ATTACH:
 	{
 							  TRACE_WIN32A("[Attach] DLL_THREAD_ATTACH");
@@ -144,10 +144,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 			}
 		}
 		break;
+		}
 	}
-
 	return TRUE;
 }
+
 
 
 // NT32Debug-Executable configuration인 경우,

@@ -16,7 +16,9 @@ public:
 	//E_Window *currentTaskbar, *switchTaskbar;
 	//CWnd currentCWnd, switchCWnd;
 	//CBitmap *currentBitmap, *switchBitmap;
-	bool ison, started, switchable;
+	bool ison, started, switchable, restore;
+
+	int initindex;
 
 	bool cursor_left, cursor_right, cursor_top, cursor_bottom;
 	LONG main_left, main_right, main_top, main_bottom;
@@ -44,5 +46,6 @@ public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };
 

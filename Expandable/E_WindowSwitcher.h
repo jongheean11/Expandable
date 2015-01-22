@@ -29,6 +29,7 @@ private:
 
 	list<E_Window*> temp_windowlist;
 	list<E_Window*> temp_secondwindowlist;
+	list<char*> aero_exclude_winlist;
 protected:
 	
 
