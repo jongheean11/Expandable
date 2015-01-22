@@ -13,9 +13,9 @@ private:
 	char windowName[255];
 
 	bool tpmode;	//투명 모드인가?
-	unsigned int savedState;	//saveShowState로 저장한 상태
-	
+	WINDOWPLACEMENT savedRect;	//투명 모드때 원래의 위치 저장
 public:
+	unsigned int savedState;	//saveShowState로 저장한 상태
 
 	bool dock;
 	E_Window(HWND);
@@ -31,6 +31,7 @@ public:
 	void setHide();
 	void setShow();
 	void setNormal();
+	void setNormal(RECT& rect);
 	void setMinimize();
 	// 윈도우 세팅
 	void setWindow(HWND window);
@@ -56,4 +57,6 @@ public:
 	bool isMaximized();
 
 	void doTake(int state);
+	void saveRect(WINDOWPLACEMENT& rect);
+	void loadRect(WINDOWPLACEMENT& rect);
 };

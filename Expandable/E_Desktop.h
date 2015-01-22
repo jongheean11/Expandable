@@ -1,5 +1,6 @@
 #include "E_Window.h"
 #include "E_Mutex.h"
+#include "E_EnvironmentManager.h"
 using namespace Gdiplus;
 
 #pragma once
@@ -18,7 +19,7 @@ public:
 	void setAllShow();
 	void setAllTransparent();
 	void setAllTransParentExclude();
-	void setAllMinimizeTransparent();
+	void setAllMinimizeTransparentRemoveDirty();
 	void setAllOpaque();
 	void setAllHide();
 
@@ -50,5 +51,6 @@ public:
 	void setAllSaveShowState();
 	void setAllRestoreSavedShowState();
 	void setAllNormalExclude();
-	void setAllNormalExclude(list<char*> exclude);
+	void setAllNormalExcludeRemoveDirty(list<char*> exclude);
+	void removeDirtyAfter();
 };

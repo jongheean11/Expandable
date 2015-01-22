@@ -277,6 +277,11 @@ void E_Window::setNormal()
 	ShowWindow(window, SW_NORMAL);
 }
 
+void E_Window::setNormal(RECT& rect)
+{
+	ShowWindow(window, SW_NORMAL);
+}
+
 
 CBitmap* E_Window::getScreenshot()
 {
@@ -371,4 +376,15 @@ bool E_Window::isMaximized()
 {
 	return IsZoomed(window);
 }
-	
+
+
+void E_Window::saveRect(WINDOWPLACEMENT& rect)
+{
+	savedRect = rect;
+}
+
+
+void E_Window::loadRect(WINDOWPLACEMENT& rect)
+{
+	rect = savedRect;
+}

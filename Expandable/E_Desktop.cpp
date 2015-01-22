@@ -74,8 +74,8 @@ void E_Desktop::setAllNormalExclude()
 	}
 }
 
-
-void E_Desktop::setAllNormalExclude(list<char*> exclude)
+//잔상 이슈 해결 종속적
+void E_Desktop::setAllNormalExcludeRemoveDirty(list<char*> exclude)
 {
 	char pname[255] = { 0, };
 	char* subpname = NULL;
@@ -83,11 +83,29 @@ void E_Desktop::setAllNormalExclude(list<char*> exclude)
 	{
 		//비주얼 스튜디오 제외
 		if (!(*itr)->isAeroPossible()){
+
 			GetWindowTextA((*itr)->getWindow(), pname, 255);
 			for (list<char*>::iterator iter = exclude.begin(); iter != exclude.end(); iter++) {
 				subpname = strstr(pname, (*iter));
 				if (subpname == NULL){	//Visual Studio 제외
 					(*itr)->setNormal();
+
+					//잔상 이슈 해결
+					LONG_PTR tt = GetWindowLongPtr((*itr)->getWindow(), GWL_STYLE);
+					if (tt & DS_3DLOOK)
+					{
+						//현재위치 저장
+						RECT rect;
+						GetWindowRect((*itr)->getWindow(), &rect);
+						WINDOWPLACEMENT placement;
+						GetWindowPlacement((*itr)->getWindow(), &placement);
+						placement.rcNormalPosition = rect;
+						placement.showCmd = SW_MINIMIZE;	//최소화로 예상하고 해결
+						(*itr)->saveRect(placement);
+
+						MoveWindow((*itr)->getWindow(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right - rect.left, rect.bottom - rect.top, FALSE);
+					}
+
 					break;
 				}
 			}
@@ -95,14 +113,43 @@ void E_Desktop::setAllNormalExclude(list<char*> exclude)
 	}
 }
 
+void E_Desktop::removeDirtyAfter()
+{
+	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
+	{
+		if ((*itr)->getTPMode()){
 
-void E_Desktop::setAllMinimizeTransparent()
+			//잔상 이슈 해결
+			LONG_PTR tt = GetWindowLongPtr((*itr)->getWindow(), GWL_STYLE);
+			if (tt & DS_3DLOOK)
+			{
+				WINDOWPLACEMENT placement;
+				(*itr)->loadRect(placement);
+				placement.showCmd = (*itr)->savedState;
+				SetWindowPlacement((*itr)->getWindow(), &placement);
+			}
+
+		}
+	}
+}
+
+void E_Desktop::setAllMinimizeTransparentRemoveDirty()
 {
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
 		if ((*itr)->getTPMode()){
 			(*itr)->setMinimize();
 			(*itr)->setOpaque();
+
+			//잔상 이슈 해결
+			LONG_PTR tt = GetWindowLongPtr((*itr)->getWindow(), GWL_STYLE);
+			if (tt & DS_3DLOOK)
+			{
+				WINDOWPLACEMENT placement;
+				(*itr)->loadRect(placement);
+				SetWindowPlacement((*itr)->getWindow(), &placement);
+			}
+
 		}
 	}
 }
