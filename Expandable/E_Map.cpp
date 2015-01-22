@@ -570,9 +570,11 @@ BOOL CALLBACK  E_Map::EnumCallBackMap(HWND hwnd, LPARAM lParam)
 	//WCHAR name4[] = L"카카오";
 	::GetWindowText(hwnd, name2, 4);
 
-
-
-
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
+	::GetWindowText(hwnd, expandable, 11);
+	if (wcscmp(expandable, expan) == 0)
+		return TRUE;
 
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
@@ -829,8 +831,13 @@ BOOL CALLBACK  E_Map::EnumShow(HWND hwnd, LPARAM lParam)
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
 	//WCHAR name4[] = L"카카오";
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
 	::GetWindowText(hwnd, name2, 4);
+	::GetWindowText(hwnd, expandable, 11);
 
+	if (wcscmp(expandable, expan) == 0)
+		return TRUE;
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
@@ -848,12 +855,17 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	WCHAR name2[4];
 	WCHAR name3[] = L"스티커";
 	WCHAR name4[] = L"카카오";
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
+
+	::GetWindowText(hwnd, expandable, 11);
 	//WCHAR name4[] = L"Microsoft Spy++";
 	//WCHAR name5[16];
 	::GetWindowText(hwnd, name2, 4);
 	//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
-
+	if (wcscmp(expandable, expan) == 0)
+		return TRUE;
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();

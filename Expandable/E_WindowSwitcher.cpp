@@ -1878,7 +1878,8 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 			//윈도우를 띄움
 			this->ShowWindow(SW_SHOW);
 			this->stealFocus2(this->GetSafeHwnd());
-
+			::SetFocus(focushwnd);
+		
 			KillTimer(1);
 		}
 	}
@@ -1886,6 +1887,7 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 		//TRACE_WIN32A("FOCUS - 2");
 		::ShowWindow(focushwnd, SW_SHOW);
 		this->stealFocus2(focushwnd);
+		::SetFocus(focushwnd);
 		KillTimer(2);
 	}
 	__super::OnTimer(nIDEvent);
