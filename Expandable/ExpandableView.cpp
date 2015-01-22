@@ -205,9 +205,6 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	if (nIDEvent == 3)
 	{
-		if (E_DesktopSwitcher::getSingleton()->ison)
-			return;
-
 		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 		POINT point;
 		GetCursorPos(&point);
