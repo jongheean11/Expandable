@@ -50,4 +50,5 @@ public:
 	void setAllSaveShowState();
 	void setAllRestoreSavedShowState();
 	void setAllNormalExclude();
+	void setAllNormalExclude(list<char*> exclude);
 };

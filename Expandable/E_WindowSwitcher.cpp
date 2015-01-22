@@ -11,7 +11,9 @@ const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
-
+//150122
+//핫키 자기자신 예외 처리
+//window가 0개일 경우 tab index 0
 void E_WindowSwitcher::updateSelectedDesktop()
 {
 	if (running){
@@ -44,6 +46,9 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 	//brush_map.DeleteObject();
 	//  selectedIndex = 0;
 	startTaboffset = 0;
+
+	//예외 리스트
+	aero_exclude_winlist.push_back("Microsoft Visual Studio");
 }
 
 
@@ -301,6 +306,7 @@ void E_WindowSwitcher::OnPaint()
 				winlist.push_front(global->backgroundWindow);	//바탕화면 포함
 
 				int windowSize = winlist.size();
+					
 				if (windowSize >= 7)
 					maxWidthCount = 7;
 				else
@@ -316,7 +322,8 @@ void E_WindowSwitcher::OnPaint()
 				long switcherLeft = 0;				//윈도우 기준 오프셋				
 				long switcherTop = 0;				//CDC기준으로 항상 0
 
-				if (windowSize == 0){ switcherWidth = 0; switcherHeight = 0; }
+				if (windowSize == 0){ switcherWidth = 0; switcherHeight = 0;}
+				if (windowSize == 1){ tabIndex = 0; }
 
 				//크기 계산을 위한 카운트 변수
 				int count = 0;
@@ -606,7 +613,7 @@ void E_WindowSwitcher::OnPaint()
 
 					CBitmap* screenshot;
 					BITMAP bmpinfo;             //비트맵은 높이와 크기가 달라서
-					bool isAero = true;	//(*iter)->isAeroPossible();	//모두 AERO 모드
+					bool isAero = (*iter)->isAeroPossible();	//모두 AERO 모드
 					unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find(cwnd->GetSafeHwnd());
 					if (isAero && (validKey != thumb_map.end()))
 						cwnd->GetWindowRect(crect);
@@ -1212,15 +1219,10 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
-
 						::BringWindowToTop(hwnd);
 
 						focushwnd = hwnd;
 						SetTimer(2, 5, NULL);
-						//::SetFocus(hwnd);
-						//stealFocus(hwnd);
-						//stealFocus2(hwnd);
-
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1245,18 +1247,11 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					if (::IsIconic(hwnd) == TRUE)
 						::ShowWindow(hwnd, SW_RESTORE);
-					/*if (windowState.showCmd != SW_MAXIMIZE)
-						::ShowWindow(hwnd, SW_RESTORE);*/
-
 
 					::BringWindowToTop(hwnd);
 
 					focushwnd = hwnd;
 					SetTimer(2, 5, NULL);
-					//::SetFocus(hwnd);
-
-					//stealFocus(hwnd);
-					//stealFocus2(hwnd);
 					::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 
 				}
@@ -1319,10 +1314,7 @@ void E_WindowSwitcher::selectTabWindow()
 				::BringWindowToTop(hwnd);
 
 				focushwnd = hwnd;
-				SetTimer(2, 5, NULL);
-				//::SetFocus(hwnd);
-				//stealFocus(hwnd);
-				//stealFocus2(hwnd);
+				SetTimer(2, 50, NULL);
 			}
 		}
 		else if (group_map.find(hwnd)->second == OTHERDESKTOP) {
@@ -1351,10 +1343,7 @@ void E_WindowSwitcher::selectTabWindow()
 
 			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 			focushwnd = hwnd;
-			SetTimer(2, 5, NULL);
-			//::SetFocus(hwnd);
-			//stealFocus(hwnd);
-			//stealFocus2(hwnd);
+			SetTimer(2, 50, NULL);
 		}
 	}
 }
@@ -1591,12 +1580,12 @@ void E_WindowSwitcher::startTPMode()
 	E_Window::SetMinimizeMaximizeAnimation(false);
 	E_Global* global = E_Global::getSingleton();  
 	E_Desktop* selectedDesktop = global->getSelectedDesktop();
-
+	
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (selectedDesktop == *iterDesktop){
 			(*iterDesktop)->setAllTransParentExclude();	//tp 모드로 만듬
 			//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-			(*iterDesktop)->setAllNormalExclude();
+			(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
 			continue;
 		}
 		(*iterDesktop)->setAllIconInvisible();
@@ -1609,10 +1598,10 @@ void E_WindowSwitcher::startTPMode()
 		(*iterDesktop)->setAllHide();			//창 위치 숨기기
 
 		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-		(*iterDesktop)->setAllNormalExclude();
+		(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
 		
 		//현재 창 포커스
-		::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
+		//::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
 	}
 	E_Window::SetMinimizeMaximizeAnimation(true);
 }
@@ -1620,7 +1609,7 @@ void E_WindowSwitcher::startTPMode()
 
 void E_WindowSwitcher::stopTPMode()
 {
-	int saveState = running;
+	int saveState = running;	//순간적으로 포커스 읽는 문제
 	running = false; // 투명을 제거할때는 잠시 오프
 	E_Window::SetMinimizeMaximizeAnimation(false);
 	E_Global* global = E_Global::getSingleton();
@@ -1754,7 +1743,7 @@ void E_WindowSwitcher::stealFocus2(HWND parm_dest_wnd)
 
 			CWnd *p_child_wnd = p_prev_wnd->GetLastActivePopup();
 			if (p_prev_wnd->IsIconic() == TRUE) p_prev_wnd->ShowWindow(SW_RESTORE);
-			p_prev_wnd->ShowWindow(SW_SHOWNORMAL);
+		//	p_prev_wnd->ShowWindow(SW_SHOWNORMAL);
 
 			if (p_child_wnd != NULL && p_prev_wnd != p_child_wnd){
 				p_child_wnd->BringWindowToTop();
@@ -1888,6 +1877,7 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 		::ShowWindow(focushwnd, SW_SHOW);
 		this->stealFocus2(focushwnd);
 		::SetFocus(focushwnd);
+
 		KillTimer(2);
 	}
 	__super::OnTimer(nIDEvent);
