@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "E_Window.h"
+#include "E_EnvironmentManager.h"
 
 E_Window::E_Window(HWND window) : tpmode(false)
 {
@@ -146,6 +147,33 @@ void E_Window::SetMinimizeMaximizeAnimation(bool status)
 	//}
 }
 
+void E_Window::doTake(int state)
+{
+	wchar_t name[100];
+	GetWindowText(window, name, 100);
+	LONG_PTR tt = GetWindowLongPtr(window, GWL_STYLE);
+	if (tt & DS_3DLOOK)
+	{
+		RECT rect;
+		GetWindowRect(window, &rect);
+		
+		MoveWindow(window, E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right, rect.bottom, FALSE);
+		ShowWindow(window, SW_MINIMIZE);
+		this->setOpaque();
+		
+		WINDOWPLACEMENT placement;
+		GetWindowPlacement(window, &placement);
+		placement.rcNormalPosition = rect;
+
+		SetWindowPlacement(window, &placement);
+	}
+ 	else
+	{
+		ShowWindow(window, state);
+		this->setOpaque();
+	}
+}
+
 bool E_Window::takeScreenshot()
 {
 	//ShowWindow(window,SW_FORCEMINIMIZE); // ½ºÅ©¸°¼¦ ¾ÈµÊ
@@ -179,8 +207,8 @@ bool E_Window::takeScreenshot()
 		notShowing = true;
 		this->setTransparent();
 		ShowWindow(window, SW_RESTORE);
-		//ShowWindow(window, SW_SHOW);
 	}
+	
 
 	HWND hTargetWnd = window;
 
@@ -220,10 +248,8 @@ bool E_Window::takeScreenshot()
 
 	screenshot.DeleteObject();
 	screenshot.Attach(hBitmap);
-
 	if (notShowing == true){
-		ShowWindow(window, state);
-		this->setOpaque();
+		doTake(state);
 	}
 	
 	return bSuccess;

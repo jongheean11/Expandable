@@ -51,4 +51,6 @@ public:
 	// 저장된 상태 복구
 	void restoreShowState();
 	void setRestore();
+
+	void doTake(int state);
 };

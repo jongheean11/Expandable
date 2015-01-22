@@ -501,6 +501,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 {
 	if (ison)
 	{
+		initindex = E_Global::getSingleton()->getSelectedIndex();
 		E_Window::setIconInvisible(this->m_hWnd);
 		
 		E_Global::getSingleton()->onUpdate();
@@ -553,6 +554,13 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 void E_DragAndDropSwitcher::terminateSwitcher()
 {
+	if (restore)
+	{
+		E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
+		E_Global::getSingleton()->setSelectedIndex(initindex);
+		E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+	}
+	restore = false;
 	ison = false;
 	started = false;
 	cursor_left = false;
@@ -601,6 +609,7 @@ BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
 	ON_WM_CREATE()
 	ON_WM_TIMER()
 //	ON_WM_PAINT()
+ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 void invalidateSwitcher(LONG diff_x, LONG diff_y)
@@ -1242,4 +1251,12 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	__super::OnTimer(nIDEvent);
+}
+
+void E_DragAndDropSwitcher::OnKillFocus(CWnd* pNewWnd)
+{
+	terminateSwitcher();
+
+	__super::OnKillFocus(pNewWnd);
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
