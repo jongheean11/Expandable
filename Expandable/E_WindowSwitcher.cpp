@@ -439,7 +439,7 @@ void E_WindowSwitcher::OnPaint()
 						brush.DeleteObject();
 					}
 				}
-
+				  
 				//첫번째 데스크탑에 업데이트가 존재하는지?
 				int existUpdateMode = 0;
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
