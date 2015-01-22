@@ -660,8 +660,8 @@ void E_WindowSwitcher::OnPaint()
 
 					//에어로 좌표 (윈도우 좌표계)
 					RECT rectForAero;
-					rectForAero.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rectForAero.left = aeroLeftoffset + previewLeftoffset + windowLeftOffset + switcherLeft;
+					rectForAero.top = aeroTopoffset + previewTopoffset + windowTopOffset;
 					rectForAero.right = rectForAero.left + windowWidth;
 					rectForAero.bottom = rectForAero.top + windowHeight;
 					
@@ -707,29 +707,20 @@ void E_WindowSwitcher::OnPaint()
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
 						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
-						//CPaintDC iconDC(iconCWnd);
 						CBitmap* icon = (*iter)->getIcon();
 						BITMAP icon_info;
-
+						int iconpadding = 2;
 						if (icon->m_hObject != NULL){
 							icon->GetBitmap(&icon_info);
 
 							RECT windowRect;
-							/*windowRect.left = 0;
-							windowRect.top = 0;
-							windowRect.bottom = 1;
-							windowRect.right = 1;
-
-							iconCWnd->MoveWindow(&windowRect);*/
 
 							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
 							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
-							windowRect.bottom = allswitcherTop + rectForAero.bottom;
-							windowRect.right = allswitcherLeft + rectForAero.right;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom - iconpadding;
+							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
-							//iconCWnd->SetWindowPos(NULL, windowRect.left, windowRect.top, windowRect.right, windowRect.bottom, 0);
 							CDC* iconDC = iconCWnd->GetDC();
-							//SetBkMode(*iconDC, TRANSPARENT);
 							
 							CDC cdc; 
 							cdc.CreateCompatibleDC(iconDC);
@@ -991,15 +982,15 @@ void E_WindowSwitcher::OnPaint()
 						//CPaintDC iconDC(iconCWnd);
 						CBitmap* icon = (*iter)->getIcon();
 						BITMAP icon_info;
-
+						int iconpadding = 2;
 						if (icon->m_hObject != NULL){
 							icon->GetBitmap(&icon_info);
 
 							RECT windowRect;
 							windowRect.left = allswitcherLeft + rectForAero.right - icon_info.bmWidth;
 							windowRect.top = allswitcherTop + rectForAero.bottom - icon_info.bmHeight;
-							windowRect.bottom = allswitcherTop + rectForAero.bottom;
-							windowRect.right = allswitcherLeft + rectForAero.right;
+							windowRect.bottom = allswitcherTop + rectForAero.bottom - iconpadding;
+							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
 
 							CDC* iconDC = iconCWnd->GetDC();

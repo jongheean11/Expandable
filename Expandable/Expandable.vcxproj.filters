@@ -55,6 +55,9 @@
     <Filter Include="Image">
       <UniqueIdentifier>{762ec67a-8bc7-4a12-8ea8-425d9acb1398}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Setting">
+      <UniqueIdentifier>{406c05d3-b413-406b-b483-5c34d5c292f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Expandable.h">
@@ -160,7 +163,7 @@
       <Filter>Injector</Filter>
     </ClInclude>
     <ClInclude Include="E_SettingManager.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Setting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +261,7 @@
       <Filter>Injector</Filter>
     </ClCompile>
     <ClCompile Include="E_SettingManager.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Setting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
