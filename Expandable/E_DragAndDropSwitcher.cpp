@@ -395,7 +395,7 @@ void drawDragAndDropSwitcher()
 	E_Global* e_global = E_Global::getSingleton();
 	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
 	drSwitcher->hTaskbarWnd = FindWindowW(_T("Shell_TrayWnd"), NULL); // 작업표시줄 hwnd
-	//drSwitcher->currentTaskbar = new E_Window(drSwitcher->hTaskbarWnd);
+	
 	GetWindowRect(drSwitcher->hTaskbarWnd, &(drSwitcher->sizeRect_taskbar)); // 작업표시줄 크기 얻기
 	drSwitcher->hShellWnd = GetShellWindow(); // 바탕화면 hwnd
 	GetWindowRect(drSwitcher->hShellWnd, &(drSwitcher->sizeRect_background)); // 바탕화면 크기 얻기
@@ -412,6 +412,7 @@ void drawDragAndDropSwitcher()
 
 E_DragAndDropSwitcher::E_DragAndDropSwitcher()
 {
+	restore = false;
 	ison = false;
 	started = false;
 	switchable = false;
@@ -419,8 +420,6 @@ E_DragAndDropSwitcher::E_DragAndDropSwitcher()
 	cursor_right = false;
 	cursor_top = false;
 	cursor_bottom = false;
-
-	//mainCWnd = new CWnd;
 
 	winThumbProps.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_VISIBLE | DWM_TNP_SOURCECLIENTAREAONLY;
 	// Use the window frame and client area
@@ -432,9 +431,6 @@ E_DragAndDropSwitcher::E_DragAndDropSwitcher()
 	currentTaskbarRECT = NULL;
 	switchDesktopRECT = NULL;
 	switchTaskbarRECT = NULL;
-
-	//currentTaskbar = NULL;
-	//switchTaskbar = NULL;
 }
 
 E_DragAndDropSwitcher* E_DragAndDropSwitcher::singleton = NULL;
@@ -487,8 +483,8 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
-		//WS_EX_TOPMOST,
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		
 		ison = true;
 
 		E_Window::setIconInvisible(this->m_hWnd);
@@ -554,54 +550,50 @@ void E_DragAndDropSwitcher::startSwitcher()
 
 void E_DragAndDropSwitcher::terminateSwitcher()
 {
+	if (started && restore)
+	{
+		KillTimer(1);
+	}
 	if (restore)
 	{
 		E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
 		E_Global::getSingleton()->setSelectedIndex(initindex);
 		E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+		restore = false;
 	}
-	restore = false;
-	ison = false;
-	started = false;
-	cursor_left = false;
-	cursor_right = false;
-	cursor_top = false;
-	cursor_bottom = false;
-	switchable = false;
-
-	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
-	
-	for (hash_map<RECT*, HTHUMBNAIL>::iterator itr_current = current_RECT_HTHUMBNAIL_map.begin(); itr_current != current_RECT_HTHUMBNAIL_map.end(); itr_current++)
-		aeController->unregisterAero(itr_current->second);
-	for (hash_map<RECT*, HTHUMBNAIL>::iterator itr_switch = switch_RECT_HTHUMBNAIL_map.begin(); itr_switch != switch_RECT_HTHUMBNAIL_map.end(); itr_switch++)
-		aeController->unregisterAero(itr_switch->second);
-	aeController->unregisterAero(currentDesktopThumbnail);
-	aeController->unregisterAero(switchDesktopThumbnail);
-
-	aeController->unregisterAllAreo();
-
-	current_RECT_HTHUMBNAIL_map.clear();
-	switch_RECT_HTHUMBNAIL_map.clear();
-	
-	E_Window::setIconVisible(this->m_hWnd);
-	DestroyWindow();
-
-	SetCursor(LoadCursor(NULL, IDC_ARROW));
-
-	if (currentTaskbarRECT != NULL)
+	if (started)
 	{
-		delete currentDesktopRECT;
-		delete currentTaskbarRECT;
-		delete switchDesktopRECT;
-		delete switchTaskbarRECT;
-		currentDesktopRECT = NULL;
-		currentTaskbarRECT = NULL;
-		switchDesktopRECT = NULL;
-		switchTaskbarRECT = NULL;
-		//currentTaskbar = NULL;
-		//switchTaskbar = NULL;
-		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
-		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+		started = false;
+		switchable = false;
+
+		E_AeroPeekController::getSingleton()->unregisterAllAreo();
+		
+		if (currentTaskbarRECT != NULL)
+		{
+			delete currentDesktopRECT;
+			delete currentTaskbarRECT;
+			delete switchDesktopRECT;
+			delete switchTaskbarRECT;
+			currentDesktopRECT = NULL;
+			currentTaskbarRECT = NULL;
+			switchDesktopRECT = NULL;
+			switchTaskbarRECT = NULL;
+			::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
+			::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+		}
+	}
+	if (ison)
+	{
+		ison = false;
+		cursor_left = false;
+		cursor_right = false;
+		cursor_top = false;
+		cursor_bottom = false;
+
+		SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+		E_Window::setIconVisible(this->m_hWnd);
+		DestroyWindow();
 	}
 }
 
@@ -611,7 +603,7 @@ BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
 //	ON_WM_PAINT()
 ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
-
+/*
 void invalidateSwitcher(LONG diff_x, LONG diff_y)
 {
 	E_Global* e_global = E_Global::getSingleton();
@@ -693,7 +685,7 @@ void invalidateSwitcher(LONG diff_x, LONG diff_y)
 			DwmUpdateThumbnailProperties((*itr_switch_RECT_HTHUMBNAIL).second, &drSwitcher->winThumbProps);
 		}
 	} 
-}
+}*/
 
 int E_DragAndDropSwitcher::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {

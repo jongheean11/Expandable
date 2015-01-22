@@ -31,7 +31,6 @@ public:
 	HTHUMBNAIL currentDesktopThumbnail, currentTaskbarThumbnail, switchDesktopThumbnail, switchTaskbarThumbnail;
 	DWM_THUMBNAIL_PROPERTIES winThumbProps;
 
-	hash_map<RECT*, HTHUMBNAIL> current_RECT_HTHUMBNAIL_map, switch_RECT_HTHUMBNAIL_map;
 	
 	E_Desktop* switchDesktop;
 	int switchIndex;
