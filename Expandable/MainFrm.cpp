@@ -183,7 +183,6 @@ HRESULT CMainFrame::OnMapRight(WPARAM wParam, LPARAM lParam)
 
 	return TRUE;
 }
-
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	E_Global* e_global = E_Global::getSingleton();
@@ -537,40 +536,40 @@ void CMainFrame::OnDestroy()
 	//AHK종료
 	if (!alreadyrun)
 	{
-	CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
-	ProcessName.MakeUpper();
-	//ProcessName.Format()
-	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if ((int)hSnapshot != -1)
-	{
-		PROCESSENTRY32 pe32;
-		pe32.dwSize = sizeof(PROCESSENTRY32);
-		BOOL bContinue;
-		CString tempProcessName;
-		if (Process32First(hSnapshot, &pe32))
+		CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
+		ProcessName.MakeUpper();
+		//ProcessName.Format()
+		HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if ((int)hSnapshot != -1)
 		{
-			//프로세스 목록 검색 시작
-			do
+			PROCESSENTRY32 pe32;
+			pe32.dwSize = sizeof(PROCESSENTRY32);
+			BOOL bContinue;
+			CString tempProcessName;
+			if (Process32First(hSnapshot, &pe32))
 			{
-				tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
-				tempProcessName.MakeUpper();
-				if ((tempProcessName.Find(ProcessName, 0) != -1))
+				//프로세스 목록 검색 시작
+				do
 				{
-					HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
-					if (hProcess)
+					tempProcessName = pe32.szExeFile;  //프로세스 목록 중 비교할 프로세스 이름;
+					tempProcessName.MakeUpper();
+					if ((tempProcessName.Find(ProcessName, 0) != -1))
 					{
-						DWORD dwExitCode;
-						GetExitCodeProcess(hProcess, &dwExitCode);
-						TerminateProcess(hProcess, dwExitCode);
-						CloseHandle(hProcess);
+						HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, pe32.th32ProcessID);  //프로세스 핸들 얻기
+						if (hProcess)
+						{
+							DWORD dwExitCode;
+							GetExitCodeProcess(hProcess, &dwExitCode);
+							TerminateProcess(hProcess, dwExitCode);
+							CloseHandle(hProcess);
+						}
 					}
-				}
-				bContinue = Process32Next(hSnapshot, &pe32);
-			} while (bContinue);
+					bContinue = Process32Next(hSnapshot, &pe32);
+				} while (bContinue);
+			}
+			CloseHandle(hSnapshot);
 		}
-		CloseHandle(hSnapshot);
 	}
-}
 
 	//
 
@@ -893,7 +892,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		{
 			icondisable = true;
 			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
-			::MoveWindow(this->GetSafeHwnd(), 3000, 3000, 200, 200, TRUE);
+			::MoveWindow(this->GetSafeHwnd(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), 200, 200, TRUE);
 			KillTimer(1);
 		}
 	}

@@ -513,7 +513,6 @@ void E_WindowSwitcher::OnPaint()
 					long aeroLeftoffset = paddingSize + (aeroWidth * widthCount); //윈도우 별로 위치가 달라짐!!!
 					long aeroTopoffset = titleSize + paddingSize + (aeroHeight * heightCount); //스위치 이름 높이 나중에 추가 필요 //윈도우 별로 위치가 달라짐!!!
 
-
 					//Aero 내부 사각형 브러쉬
 					CBrush brush1;   // Must initialize!
 					if (mode == DRAW_NORMAL)
@@ -1574,7 +1573,7 @@ void E_WindowSwitcher::startTPMode()
 		if (selectedDesktop == *iterDesktop){
 			(*iterDesktop)->setAllTransParentExclude();	//tp 모드로 만듬
 			//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-			(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
+			(*iterDesktop)->setAllNormalExcludeRemoveDirty(aero_exclude_winlist);	//비주얼 제외
 			continue;
 		}
 		(*iterDesktop)->setAllIconInvisible();
@@ -1587,7 +1586,7 @@ void E_WindowSwitcher::startTPMode()
 		(*iterDesktop)->setAllHide();			//창 위치 숨기기
 
 		//모두 보여줌 (SW_NORMAL(원래의 상태로 보여줌))
-		(*iterDesktop)->setAllNormalExclude(aero_exclude_winlist);	//비주얼 제외
+		(*iterDesktop)->setAllNormalExcludeRemoveDirty(aero_exclude_winlist);	//비주얼 제외
 		
 		//현재 창 포커스
 		//::SetFocus((*selectedDesktop->getWindowList().rbegin())->getWindow());
@@ -1606,14 +1605,16 @@ void E_WindowSwitcher::stopTPMode()
 	//최소화
 	E_Desktop* selectedDesktop = global->getSelectedDesktop();
 	std::list<E_Window*> winlist = selectedDesktop->getWindowList();
-	selectedDesktop->setAllMinimizeTransparent();	//tp모드 해제
+	selectedDesktop->setAllMinimizeTransparentRemoveDirty();	//tp모드 해제
 	
 	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
 		if (*iterDesktop == selectedDesktop)
 			continue;
 
+
 		//창 모양 유지용
 		(*iterDesktop)->setAllRestoreSavedShowState(); //원래 창 위치 복구 후 
+		(*iterDesktop)->removeDirtyAfter();			//잔상 제거 후 처리
 		(*iterDesktop)->setAllHide();					//숨김
 		(*iterDesktop)->setAllIconVisible();			//아이콘 보여 줌
 
@@ -1829,7 +1830,7 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	SelectObject(memdc, hOld);
 	DeleteDC(memdc);
 	DeleteDC(memdc2);
-
+	
 	//DeleteObject(hbm);
 	//DeleteObject(hOld);	
 
