@@ -104,6 +104,16 @@ void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->stopUpdate();
+
+	std::list<RECT*> Rectlist2 = E_Map::getSingleton()->iconRectList;
+	for (std::list<RECT*>::iterator itr_rect = Rectlist2.begin(); itr_rect != Rectlist2.end(); itr_rect++)	//각 데스크탑 별로출력
+	{
+		if ((*itr_rect))
+			delete *itr_rect;
+		*itr_rect = NULL;
+	}
+
+
 	e_global->mapopen = false;
 	iconRectList.clear();
 	iconHwndList.clear();
@@ -183,7 +193,26 @@ void E_Map::OnPaint()
 		e_global->sethotkey(false);
 		drawable = true;
 		forSelectMap = false;
-	
+
+
+		
+		std::list<RECT*> Rectlist2 = E_Map::getSingleton()->iconRectList;
+		for (std::list<RECT*>::iterator itr_rect = Rectlist2.begin(); itr_rect != Rectlist2.end(); itr_rect++)	//각 데스크탑 별로출력
+		{
+			if ((*itr_rect))
+				delete *itr_rect;
+			*itr_rect = NULL;
+		}
+
+
+
+
+
+
+
+
+
+
 		iconRectList.clear();
 		iconHwndList.clear();
 		ison = true;
@@ -249,8 +278,10 @@ void E_Map::OnPaint()
 				if (icon->m_hObject != NULL)
 				{
 					icon->GetBitmap(&icon_info);
+
 					CDC cdc;
-					cdc.CreateCompatibleDC(this->GetWindowDC());
+					CDC* pDC = GetDC();
+					cdc.CreateCompatibleDC(pDC);
 					cdc.SelectObject((*itr_window)->getIcon());
 					cdc.SetBkMode(1);
 					cdc.SetBkColor(E_Map::backgroundColor);
@@ -329,11 +360,15 @@ void E_Map::OnPaint()
 
 					iconRectList.push_front(iconRect);
 					iconHwndList.push_front(tmphwnd);
+
+					ReleaseDC(pDC);
 					cdc.DeleteDC();
+
 				}
 			}
 
 		}
+	
 		RECT rectForSelectDesktop;
 		//int nowselect = e_global->getSelectedIndex();
 		int selectx = e_global->getSelectedIndex() % mapWidth;
@@ -708,10 +743,10 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			::MoveWindow(selectIconHwnd, (xp - iconSize / 2) / mapsize, (yp - iconSize / 2) * (h - th) / w / mapsize, trect2.right - trect2.left, trect2.bottom - trect2.top, TRUE);
 
 			in = true;
-			iconHwndList.remove((*itr_hwnd));
+			/*iconHwndList.remove((*itr_hwnd));
 			iconRectList.remove((*itr_rect));
 			iconHwndList.push_front(selectIconHwnd);
-			iconRectList.push_front(&trect);
+			iconRectList.push_front(&trect);*/
 			selectIconHwnd = NULL;
 
 			for (int i = 1; i < mapHeight + 1; i++)

@@ -119,8 +119,7 @@ void CExpandableView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (nChar == 'A')
 	{
-		E_Global* e_global = E_Global::getSingleton();
-		::SendMessage(e_global->hwnd_frame, WM_USER_NOTIFY, 0, 0);
+
 		
 	}
 	if (nChar == 'C'){
@@ -247,7 +246,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{//
-				CRect mapCRect = new CRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
+				CRect mapCRect(enManager->getWidth() - 50, enManager->getHeight() - 50, enManager->getWidth(), enManager->getHeight());
 				if (mapCRect.PtInRect(point))
 				{
 					E_Map* e_map = E_Map::getSingleton();
