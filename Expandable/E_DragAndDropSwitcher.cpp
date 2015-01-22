@@ -495,7 +495,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 
 void E_DragAndDropSwitcher::startSwitcher()
 {
-	if (ison)
+	if (ison && (this->m_hWnd!=NULL))
 	{
 		initindex = E_Global::getSingleton()->getSelectedIndex();
 		E_Window::setIconInvisible(this->m_hWnd);
@@ -536,11 +536,14 @@ void E_DragAndDropSwitcher::startSwitcher()
 		
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		MoveWindow(movingCRect);
-
-		GetCursorPos(&prev_point);
 		
 		ShowWindow(SW_SHOW);
+
+		::GetCursorPos(&prev_point);
+		
 		SetCursor(LoadCursor(NULL, IDC_HAND));
+
+		restore = true;
 	}
 	else
 	{
@@ -594,13 +597,15 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
+
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 }
 
 BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)
 	ON_WM_CREATE()
 	ON_WM_TIMER()
-//	ON_WM_PAINT()
 ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 /*
@@ -812,12 +817,22 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 		else if (started)
 		{
 			KillTimer(1);
+			restore = false;
 			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 			E_Global* e_global = E_Global::getSingleton();
 			if (cursor_left)
 			{
 				if (switchable)
 				{
+					while (prev_point.x <= enManager->getWidth())
+					{
+						movingRects_x(2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.x += 2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.x <= enManager->getWidth())
 					{
 						movingRects_x(2);
@@ -851,7 +866,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.x += 1;
-					}
+					}*/
 					e_global->getSelectedDesktop()->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
@@ -864,10 +879,18 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						}
 					}
 					e_global->setSelectedIndex(switchIndex);
-					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
+					while (prev_point.x >= 0)
+					{
+						movingRects_x(-2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.x += -2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.x >= 0)
 					{
 						movingRects_x(-2);
@@ -901,7 +924,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.x += -1;
-					}
+					}*/
 					switchDesktop->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
@@ -927,6 +950,15 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_x(-2);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.x += -2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
+					while (prev_point.x >= 0)
+					{
+						movingRects_x(-2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.x += -2;
 					}
 					Sleep(60);
 					while (prev_point.x <= enManager->getWidth()*0.2)
@@ -955,7 +987,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_x(-1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.x += -1;
-					}
+					}*/
 					e_global->getSelectedDesktop()->setAllIconVisible();
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
 					{
@@ -967,10 +999,18 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						}
 					}
 					e_global->setSelectedIndex(switchIndex);
-					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
+					while (prev_point.x <= enManager->getWidth())
+					{
+						movingRects_x(2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.x += 2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.x <= enManager->getWidth())
 					{
 						movingRects_x(2);
@@ -1004,7 +1044,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_x(1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.x += 1;
-					}
+					}*/
 					switchDesktop->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
@@ -1025,6 +1065,15 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			{
 				if (switchable)
 				{
+					while (prev_point.y <= enManager->getHeight())
+					{
+						movingRects_y(2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.y += 2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.y <= enManager->getHeight())
 					{
 						movingRects_y(2);
@@ -1058,7 +1107,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.y += 1;
-					}
+					}*/
 					e_global->getSelectedDesktop()->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
@@ -1071,10 +1120,18 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						}
 					}
 					e_global->setSelectedIndex(switchIndex);
-					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 				}
 				else
 				{
+					while (prev_point.y >= 0)
+					{
+						movingRects_y(-2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.y += -2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.y >= 0)
 					{
 						movingRects_y(-2);
@@ -1108,7 +1165,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_y(-1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.y += -1;
-					}
+					}*/
 					switchDesktop->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
@@ -1129,6 +1186,15 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			{
 				if (switchable)
 				{
+					while (prev_point.y >= 0)
+					{
+						movingRects_y(-2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.y += -2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.y >= 0)
 					{
 						movingRects_y(-2);
@@ -1163,6 +1229,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						MoveWindow(movingCRect, FALSE);
 						prev_point.y += -1;
 					}
+					*/
 					e_global->getSelectedDesktop()->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = e_global->getSelectedDesktop()->windowList.begin(); itr != e_global->getSelectedDesktop()->windowList.end(); itr++)
@@ -1175,10 +1242,19 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						}
 					}
 					e_global->setSelectedIndex(switchIndex);
-					::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
+					
 				}
 				else
 				{
+					while (prev_point.y <= enManager->getHeight())
+					{
+						movingRects_y(2);
+						MoveWindow(movingCRect, FALSE);
+						prev_point.y += 2;
+						Sleep(0);
+					}
+					Sleep(60);
+					/*
 					while (prev_point.y <= enManager->getHeight())
 					{
 						movingRects_y(2);
@@ -1212,7 +1288,7 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 						movingRects_y(1);
 						MoveWindow(movingCRect, FALSE);
 						prev_point.y += 1;
-					}
+					}*/
 					switchDesktop->setAllIconVisible();
 					
 					for (list<E_Window*>::iterator itr = switchDesktop->windowList.begin(); itr != switchDesktop->windowList.end(); itr++)
@@ -1247,7 +1323,10 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 
 void E_DragAndDropSwitcher::OnKillFocus(CWnd* pNewWnd)
 {
-	terminateSwitcher();
+	if (restore)
+	{
+		terminateSwitcher();
+	}
 
 	__super::OnKillFocus(pNewWnd);
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
