@@ -183,6 +183,7 @@ void E_Map::OnPaint()
 		e_global->sethotkey(false);
 		drawable = true;
 		forSelectMap = false;
+	
 		iconRectList.clear();
 		iconHwndList.clear();
 		ison = true;
