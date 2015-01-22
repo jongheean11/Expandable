@@ -1040,7 +1040,7 @@ void E_Global::moveDesktop(int index)
 
 			selectedDesktop->setAllHide();//¼û±è
 			for (list<HWND>::iterator iter = dockedWindowList.begin(); iter != dockedWindowList.end(); iter++){
-				ShowWindow((*iter), SW_SHOWNORMAL);
+				ShowWindow((*iter), SW_SHOW);
 			}
 			last->setAllShow();	//º¸¿©ÁÜ
 

@@ -11,9 +11,7 @@ const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
 const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
-//150122
-//핫키 자기자신 예외 처리
-//window가 0개일 경우 tab index 0
+
 void E_WindowSwitcher::updateSelectedDesktop()
 {
 	if (running){
@@ -1394,8 +1392,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	if (running==true)
-		terminateSwitcher();
+	/*if (running==true)
+		terminateSwitcher();*/
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
