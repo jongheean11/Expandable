@@ -89,7 +89,7 @@ void E_WindowSwitcher::startSwitcher()
 
 			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
-			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
+			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){
 				//thumb_list.push_back(hthumbnail);
 				thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 			}
@@ -220,7 +220,7 @@ void E_WindowSwitcher::restartSwitcher()
 
 			icon_map.insert(unordered_map<HWND, CWnd*>::value_type(hwnd, createChild()));
 			mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(hwnd, DRAW_NORMAL));
-			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ // && (*iter)->isAeroPossible()) {
+			if (SUCCEEDED(aeroManager->registerAero(hwnd, this->GetSafeHwnd(), r, hthumbnail))){ 
 				//thumb_list.push_back(hthumbnail);
 				thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(hwnd, hthumbnail));
 			}
@@ -268,7 +268,7 @@ void E_WindowSwitcher::OnPaint()
 
 	E_Global* global = E_Global::getSingleton();
 	//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
-	if (E_AeroPeekController::getSingleton()->isAeroPeekMode()) {
+	if (E_AeroPeekController::getSingleton()->isAeroPeekMode() || true ){	//에어로픽 모드일때만 동작하지 않도록   ) {
 
 		//aero peek size...
 		//전체 데스크탑 공용 변수...
@@ -1581,7 +1581,7 @@ void E_WindowSwitcher::selectOtherDesktop()
 
 void E_WindowSwitcher::startTPMode() 
 {
-	if (!tpmode){
+	if (!tpmode && E_AeroPeekController::getSingleton()->isAeroPeekMode()){
 		E_Window::SetMinimizeMaximizeAnimation(false);
 		E_Global* global = E_Global::getSingleton();
 		E_Desktop* selectedDesktop = global->getSelectedDesktop();
@@ -1616,7 +1616,7 @@ void E_WindowSwitcher::startTPMode()
 
 void E_WindowSwitcher::stopTPMode()
 {
-	if (tpmode){
+	if (tpmode && E_AeroPeekController::getSingleton()->isAeroPeekMode()){
 		bool saveState = running;	//순간적으로 포커스 잃는 문제 때문에 처리
 		running = false; // 투명을 제거할때는 잠시 오프
 		E_Window::SetMinimizeMaximizeAnimation(false);

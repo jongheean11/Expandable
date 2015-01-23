@@ -1,9 +1,9 @@
+#pragma once
+#include "E_AeroPeekController.h"
 #include "E_Util.h"
-
 using namespace Gdiplus;
 using namespace std;
 
-#pragma once
 class E_Window
 {
 private:

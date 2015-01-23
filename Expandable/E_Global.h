@@ -1,4 +1,3 @@
-#include "E_Desktop.h"
 #include "E_GlobalUpdater.h"
 #include "E_IGlobal.h"
 #include "E_Mutex.h"
@@ -9,6 +8,7 @@
 init()로 초기화 필요.
 */
 #pragma once
+#include "E_Desktop.h"
 #include "E_SettingManager.h"
 class E_Global : E_GlobalUpdater, E_IGlobal
 {

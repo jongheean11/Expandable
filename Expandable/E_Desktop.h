@@ -1,9 +1,8 @@
-#include "E_Window.h"
 #include "E_Mutex.h"
 #include "E_EnvironmentManager.h"
 using namespace Gdiplus;
-
 #pragma once
+#include "E_Window.h"
 class E_Desktop
 {
 private:
