@@ -919,7 +919,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 			//WS_EX_TOPMOST
 			E_Window::setIconInvisible(switchCWnd->m_hWnd);
 			
-			desktopWindow = E_Global::getSingleton()->backgroundWindow;
+			desktopWindow = new E_Window(hShellWnd);
 			taskbarWindow = new E_Window(hTaskbarWnd);
 
 
