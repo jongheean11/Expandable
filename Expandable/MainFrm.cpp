@@ -893,11 +893,10 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			int monitorCount = GetSystemMetrics(SM_CMONITORS);
 			if (monitorCount > 1) {
 				HWND hwnd = GetDesktopWindow()->m_hWnd;
-				MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다."), TEXT("error"), MB_OK, 0);
+				MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
 				terminateAHK();
 				PostQuitMessage(WM_QUIT);
 			}
-
 		}
 	}
 	if (nIDEvent == 2)
@@ -907,7 +906,8 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		int monitorCount = GetSystemMetrics(SM_CMONITORS);
 		if (monitorCount > 1) {
 			KillTimer(2);
-			MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다."), TEXT("error"), MB_OK, 0);
+			HWND hwnd = GetDesktopWindow()->m_hWnd;
+			MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
 			terminateAHK();
 			PostQuitMessage(WM_QUIT);
 		}
