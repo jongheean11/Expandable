@@ -79,10 +79,6 @@ CMainFrame::CMainFrame()
 	//프로그램 켜져있을시 종료 추가
 	
 
-
-
-
-
 }
 
 
@@ -116,8 +112,9 @@ HRESULT CMainFrame::OnTrayEvent(WPARAM wParam, LPARAM lParam)
 		OutputDebugString(L"OnTrayEvent ifenter ");
 		e_map->drawMap();
 	}
+	
 	changetray((int)wParam + 1);
-
+	
 	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
 	//::SetFocus(e_map->hwnd_cwnd_emap->m_hWnd);
 	//e_map->leave2 = true;
@@ -188,7 +185,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
 	
-
+	//::SetWindowText(this->GetSafeHwnd(), TEXT("E_expandable"));
 
 	//
 
