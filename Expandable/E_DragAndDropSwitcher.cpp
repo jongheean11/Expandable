@@ -584,6 +584,9 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 			::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 			::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 		}
+
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 	if (ison)
 	{
@@ -597,9 +600,6 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
-
-		if (initindex != E_Global::getSingleton()->getSelectedIndex())
-			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 }
 

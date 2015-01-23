@@ -55,13 +55,16 @@ void eraseDesktopList()
 	for (std::hash_map<RECT*, HTHUMBNAIL>::iterator itr_ = deSwitcher->desktop_RECT_hthumbnail_map.begin(); itr_ != deSwitcher->desktop_RECT_hthumbnail_map.end(); itr_++)
 	{
 		aeController->unregisterAero(itr_->second);
+		delete itr_->first;
 	}
 	for (std::hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::iterator itr_ = deSwitcher->window_desktop_RECT_hthumbnail_map.begin(); itr_ != deSwitcher->window_desktop_RECT_hthumbnail_map.end(); itr_++)
 	{
 		for (std::hash_map<RECT*, HTHUMBNAIL>::iterator itr__ = itr_->second.begin(); itr__ != itr_->second.end(); itr__++)
 		{
 			aeController->unregisterAero(itr__->second);
+			delete itr__->first;
 		}
+		itr_->second.clear();
 	}
 
 	deSwitcher->desktop_RECT_hthumbnail_map.clear();
@@ -280,6 +283,7 @@ void eraseWindowS()
 	for (list<RECT*>::iterator itr_rect = deSwitcher->window_area_list_rect.begin(); itr_rect != deSwitcher->window_area_list_rect.end(); itr_rect++)
 	{
 		aeController->unregisterAero(deSwitcher->window_RECT_hthumbnail_map.find(*itr_rect)->second);
+		delete *itr_rect;
 	}
 
 	aeController->unregisterAero(deSwitcher->main_backgroundHTHUMBNAIL);
@@ -534,13 +538,6 @@ void E_DesktopSwitcher::startSwitcher()
 		else
 			desktoplist_startindex = (e_global->desktopList.size() + e_global->getSelectedIndex() - 1) % e_global->desktopList.size();
 		
-		/*CBrush m_oBkgndBrush;
-		m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
-		UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-		CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
-		Create(szClassName, _T(""), WS_VISIBLE || WS_EX_TOPMOST, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234);*/
-
-
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		
@@ -561,7 +558,8 @@ void E_DesktopSwitcher::startSwitcher()
 		SelectObject(memdc, hOld);
 		DeleteDC(memdc);
 		DeleteDC(memdc2);
-		
+		DeleteObject(hbmOrig);
+
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
 
@@ -641,8 +639,8 @@ void E_DesktopSwitcher::terminateSwitcher()
 		window_squeezed = false;
 		desktop_selected = false;
 
-		//e_global->stopUpdate();
 		aeController->unregisterAllAreo();
+
 		window_area_list_rect.clear();
 		window_area_map_RECT_EWindow.clear();
 		window_desktop_RECT_hthumbnail_map.clear();
