@@ -12,6 +12,11 @@ private:
 	E_DragAndDropSwitcher();
 	~E_DragAndDropSwitcher();
 
+//noAero
+public:
+	CWnd *currentCWnd, *switchCWnd;
+
+//Aero&common
 public:
 	bool ison, started, switchable, restore;
 

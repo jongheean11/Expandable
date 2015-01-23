@@ -23,6 +23,7 @@ void drawCurrentDesktop()
 	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
 	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
 
+
 	HTHUMBNAIL pushThumbnail;
 
 	LONG plus_width = 0, plus_height = 0;
@@ -43,8 +44,8 @@ void drawCurrentDesktop()
 		drSwitcher->sizeRect_background.bottom + plus_height
 	};
 	aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->currentDesktopRECT), drSwitcher->currentDesktopThumbnail);
-	
-	
+
+
 	drSwitcher->currentTaskbarRECT = new RECT
 	{
 		drSwitcher->sizeRect_taskbar.left + plus_width,
@@ -53,7 +54,7 @@ void drawCurrentDesktop()
 		drSwitcher->sizeRect_taskbar.bottom + plus_height
 	};
 	aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->currentTaskbarRECT), drSwitcher->currentTaskbarThumbnail);
-	
+
 	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
 	{
 		UINT state;
@@ -65,7 +66,7 @@ void drawCurrentDesktop()
 
 		if (winstate == SW_HIDE)
 			::ShowWindow(*itr_window_docked, SW_SHOW);
-		
+
 		if (!((state = winstate) == SW_FORCEMINIMIZE
 			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
 			|| (state = winstate) == SW_MINIMIZE
@@ -103,7 +104,7 @@ void drawCurrentDesktop()
 			{
 				CRect getSize;
 				GetWindowRect((*itr_window)->getWindow(), &getSize);
-				
+
 				RECT *windowRECT = new RECT
 				{
 					getSize.left + plus_width,
@@ -120,7 +121,7 @@ void drawCurrentDesktop()
 	{
 		CRect getSize;
 		GetWindowRect((*itr_window)->getWindow(), &getSize);
-		
+
 		RECT *windowRECT = new RECT
 		{
 			getSize.left + plus_width,
@@ -129,6 +130,196 @@ void drawCurrentDesktop()
 			getSize.bottom + plus_height
 		};
 		aeController->registerAero((*itr_window)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		//drSwitcher->current_RECT_HTHUMBNAIL_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+	}
+}
+
+void drawCurrentDesktop_noAero()
+{
+	E_Global* e_global = E_Global::getSingleton();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+
+	CPaintDC dc(drSwitcher);
+	CPaintDC currentDC((drSwitcher->currentCWnd));
+	CPaintDC switchDC((drSwitcher->switchCWnd));
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
+	//////CBitmap *currentBitmap = currentTaskbar->getScreenshot();
+	BITMAP bmpinfo_current, bmpinfo_switch;
+	//////currentBitmap->GetBitmap(&bmpinfo_current);
+
+	// 더블 버퍼링을 위한 코드
+	//메모리 DC를 생성한다. (버퍼 메모리 할당)
+	CDC memDC_current, memDC_switch;
+	//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
+	CBitmap bmp_current, bmp_switch;
+	//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
+	memDC_current.CreateCompatibleDC(&currentDC);
+	//주어진 dc에 호환하는 비트맵을 생성한다.
+	//////bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), currentTaskbarRECT->bottom - currentTaskbarRECT->top);
+	//이제 memDC에 생성된 비트맵을 연결한다.
+	memDC_current.SelectObject(bmp_current);
+
+	BITMAP icon_info_current, icon_info_switch;
+	//////currentBitmap->GetBitmap(&icon_info_current);
+	CDC cdc_current, cdc_switch;
+	cdc_current.CreateCompatibleDC(&currentDC);
+	//////cdc_current.SelectObject(currentBitmap);
+
+	//memDC.SetStretchBltMode(COLORONCOLOR);
+	//memDC.Rectangle(0, 0, 100, 100);
+
+	//////memDC_current.StretchBlt(0,0, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top,&cdc_current, 0, 0, icon_info_current.bmWidth, icon_info_current.bmHeight, SRCCOPY);
+	cdc_current.DeleteDC();
+
+
+	//dc.Rectangle(0, 0, 1000, 100);
+	currentDC.StretchBlt(0,
+		0,//currentTaskbarRECT->top, //0,
+		enManager->getWidth(), icon_info_current.bmHeight,//enManager->getHeight(),
+		&memDC_current,
+		0, 0,
+		icon_info_current.bmWidth, icon_info_current.bmHeight,
+		SRCCOPY);
+
+	//dc 해제
+	memDC_current.DeleteDC();
+	bmp_current.DeleteObject();
+
+	memDC_switch.CreateCompatibleDC(&switchDC);
+
+	//////bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), switchTaskbarRECT->bottom - switchTaskbarRECT->top);
+	memDC_switch.SelectObject(bmp_switch);
+	cdc_switch.CreateCompatibleDC(&switchDC);
+
+	//////CBitmap *switchBitmap = switchTaskbar->getScreenshot();
+	//////switchBitmap->GetBitmap(&bmpinfo_switch);
+	//////switchBitmap->GetBitmap(&icon_info_switch);
+	//////cdc_switch.SelectObject(switchBitmap);
+
+	//////memDC_switch.StretchBlt(0, 0,switchTaskbarRECT->right - switchTaskbarRECT->left,switchTaskbarRECT->bottom - switchTaskbarRECT->top,&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
+
+	cdc_switch.DeleteDC();
+
+	switchDC.StretchBlt(0,
+		0,//currentTaskbarRECT->top, //0,
+		enManager->getWidth(), icon_info_switch.bmHeight,//enManager->getHeight(),
+		&memDC_switch,
+		0, 0,
+		icon_info_switch.bmWidth, icon_info_switch.bmHeight,
+		SRCCOPY);
+
+	memDC_switch.DeleteDC();
+	bmp_switch.DeleteObject();
+
+	E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
+
+	LONG plus_width = 0, plus_height = 0;
+	if (drSwitcher->cursor_left)
+	{
+		plus_width = drSwitcher->sizeRect_background.right;
+	}
+	else if (drSwitcher->cursor_top)
+	{
+		plus_height = drSwitcher->sizeRect_background.bottom;
+	}
+
+	drSwitcher->currentDesktopRECT = new RECT
+	{
+		drSwitcher->sizeRect_background.left + plus_width,
+		drSwitcher->sizeRect_background.top + plus_height,
+		drSwitcher->sizeRect_background.right + plus_width,
+		drSwitcher->sizeRect_background.bottom + plus_height
+	};
+	//aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->currentDesktopRECT), drSwitcher->currentDesktopThumbnail);
+
+
+	drSwitcher->currentTaskbarRECT = new RECT
+	{
+		drSwitcher->sizeRect_taskbar.left + plus_width,
+		drSwitcher->sizeRect_taskbar.top + plus_height,
+		drSwitcher->sizeRect_taskbar.right + plus_width,
+		drSwitcher->sizeRect_taskbar.bottom + plus_height
+	};
+	aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->currentTaskbarRECT), drSwitcher->currentTaskbarThumbnail);
+
+	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	{
+		UINT state;
+		WINDOWPLACEMENT windowinfo;
+		GetWindowPlacement(*itr_window_docked, &windowinfo);
+		UINT winstate = windowinfo.showCmd;
+		BOOL isVisible = IsWindowVisible(*itr_window_docked);
+		BOOL isMinimized = IsIconic(*itr_window_docked);
+
+		if (winstate == SW_HIDE)
+			::ShowWindow(*itr_window_docked, SW_SHOW);
+
+		if (!((state = winstate) == SW_FORCEMINIMIZE
+			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+			|| (state = winstate) == SW_MINIMIZE
+			|| (state = winstate) == SW_SHOWMINIMIZED
+			|| (state = winstate) == SW_SHOWMINNOACTIVE
+			|| isVisible == FALSE
+			|| isMinimized == TRUE)
+			&& IsWindow(*itr_window_docked))
+		{
+			CRect getSize;
+			GetWindowRect(*itr_window_docked, &getSize);
+			RECT *windowRECT = new RECT
+			{
+				getSize.left + plus_width,
+				getSize.top + plus_height,
+				getSize.right + plus_width,
+				getSize.bottom + plus_height
+			};
+			//////aeController->registerAero(*itr_window_docked, drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		}
+	}
+
+	std::list<E_Window*> window_list = e_global->getSelectedDesktop()->windowList;
+	std::list<E_Window*> window_list_topmost;
+	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
+	{
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
+		{
+			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
+			if ((dwExStyle & WS_EX_TOPMOST) != 0)
+			{
+				window_list_topmost.push_front(*itr_window);
+			}
+			else
+			{
+				CRect getSize;
+				GetWindowRect((*itr_window)->getWindow(), &getSize);
+
+				RECT *windowRECT = new RECT
+				{
+					getSize.left + plus_width,
+					getSize.top + plus_height,
+					getSize.right + plus_width,
+					getSize.bottom + plus_height
+				};
+				//////aeController->registerAero((*itr_window)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+				//drSwitcher->current_RECT_HTHUMBNAIL_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+			}
+		}
+	}
+	for (std::list<E_Window*>::iterator itr_window = window_list_topmost.begin(); itr_window != window_list_topmost.end(); itr_window++)
+	{
+		CRect getSize;
+		GetWindowRect((*itr_window)->getWindow(), &getSize);
+
+		RECT *windowRECT = new RECT
+		{
+			getSize.left + plus_width,
+			getSize.top + plus_height,
+			getSize.right + plus_width,
+			getSize.bottom + plus_height
+		};
+		//////aeController->registerAero((*itr_window)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
 		//drSwitcher->current_RECT_HTHUMBNAIL_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
 	}
 }
@@ -393,14 +584,8 @@ void drawSwitchDesktop()
 
 void drawDragAndDropSwitcher()
 {
-	E_Global* e_global = E_Global::getSingleton();
 	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
-	drSwitcher->hTaskbarWnd = FindWindowW(_T("Shell_TrayWnd"), NULL); // 작업표시줄 hwnd
-	
-	GetWindowRect(drSwitcher->hTaskbarWnd, &(drSwitcher->sizeRect_taskbar)); // 작업표시줄 크기 얻기
-	drSwitcher->hShellWnd = GetShellWindow(); // 바탕화면 hwnd
-	GetWindowRect(drSwitcher->hShellWnd, &(drSwitcher->sizeRect_background)); // 바탕화면 크기 얻기
-	
+
 	drawCurrentDesktop();
 	drawSwitchDesktop();
 
@@ -409,6 +594,14 @@ void drawDragAndDropSwitcher()
 
 	hdc = BeginPaint(*drSwitcher, &ps);
 	EndPaint(*drSwitcher, &ps);
+}
+
+void drawDragAndDropSwitcher()
+{
+	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+
+	drawCurrentDesktop_noAero();
+	//////drawSwitchDesktop_noAero();
 }
 
 E_DragAndDropSwitcher::E_DragAndDropSwitcher()
@@ -496,55 +689,122 @@ void E_DragAndDropSwitcher::initSwitcher()
 
 void E_DragAndDropSwitcher::startSwitcher()
 {
-	if (ison && (this->m_hWnd!=NULL))
+	if (ison && (this->m_hWnd != NULL))
 	{
 		initindex = E_Global::getSingleton()->getSelectedIndex();
 		E_Window::setIconInvisible(this->m_hWnd);
-		
-		E_Global::getSingleton()->onUpdate();
-		drawDragAndDropSwitcher();
 
-		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-		
-		if (cursor_left)
+		E_Global::getSingleton()->onUpdate();
+
+		hTaskbarWnd = ::FindWindowW(_T("Shell_TrayWnd"), NULL); // 작업표시줄 hwnd
+		::GetWindowRect(hTaskbarWnd, &(sizeRect_taskbar)); // 작업표시줄 크기 얻기
+		hShellWnd = ::GetShellWindow(); // 바탕화면 hwnd
+		::GetWindowRect(hShellWnd, &(sizeRect_background)); // 바탕화면 크기 얻기
+
+		if (E_AeroPeekController::getSingleton()->isAeroPeekMode())
 		{
-			main_left = 0;
-			main_top = 0;
-			main_right = enManager->getWidth() * 2;
-			main_bottom = enManager->getHeight();
-		}
-		else if (cursor_right)
-		{
-			main_left = 0;
-			main_top = 0;
-			main_right = enManager->getWidth() * 2;
-			main_bottom = enManager->getHeight();
-		}
-		else if (cursor_top)
-		{
-			main_left = 0;
-			main_top = 0;
-			main_right = enManager->getWidth();
-			main_bottom = enManager->getHeight() * 2;
+			drawDragAndDropSwitcher();
+
+			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
+			if (cursor_left)
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth() * 2;
+				main_bottom = enManager->getHeight();
+				currentTaskbarRECT->left += -enManager->getWidth();
+				currentTaskbarRECT->right += -enManager->getWidth();
+			}
+			else if (cursor_right)
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth() * 2;
+				main_bottom = enManager->getHeight();
+			}
+			else if (cursor_top)
+			{
+				main_left = 0;				
+				main_top = 0;
+				main_right = enManager->getWidth();
+				main_bottom = enManager->getHeight() * 2;
+				currentTaskbarRECT->top += -enManager->getHeight();
+				currentTaskbarRECT->bottom += -enManager->getHeight();
+			}
+			else
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth();
+				main_bottom = enManager->getHeight() * 2;
+			}
+
+			movingCRect = CRect(main_left, main_top, main_right, main_bottom);
+			MoveWindow(movingCRect);
+
+			ShowWindow(SW_SHOW);
+
+			::GetCursorPos(&prev_point);
+
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+
+			restore = true;
 		}
 		else
 		{
-			main_left = 0;
-			main_top = 0;
-			main_right = enManager->getWidth();
-			main_bottom = enManager->getHeight() * 2;
+			//////drawDragAndDropSwitcher_noAero();
+
+			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
+			if (cursor_left)
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth() * 2;
+				main_bottom = enManager->getHeight();
+			}
+			else if (cursor_right)
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth() * 2;
+				main_bottom = enManager->getHeight();
+			}
+			else if (cursor_top)
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth();
+				main_bottom = enManager->getHeight() * 2;
+			}
+			else
+			{
+				main_left = 0;
+				main_top = 0;
+				main_right = enManager->getWidth();
+				main_bottom = enManager->getHeight() * 2;
+			}
+
+			movingCRect = CRect(main_left, main_top, main_right, main_bottom);
+			MoveWindow(movingCRect);
+
+			ShowWindow(SW_SHOW);
+
+			::GetCursorPos(&prev_point);
+
+			SetCursor(LoadCursor(NULL, IDC_HAND));
+
+			restore = true;
+
+			UINT nClassStyle_window = 0;
+			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
+			//////currentCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_currentTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
+			//////E_Window::setIconInvisible(currentCWnd.m_hWnd);
+			//////WS_EX_TOPMOST,
+			//////switchCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_switchTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
+			//////E_Window::setIconInvisible(switchCWnd.m_hWnd);
 		}
-		
-		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
-		MoveWindow(movingCRect);
-		
-		ShowWindow(SW_SHOW);
-
-		::GetCursorPos(&prev_point);
-		
-		SetCursor(LoadCursor(NULL, IDC_HAND));
-
-		restore = true;
 	}
 	else
 	{

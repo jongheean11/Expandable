@@ -639,7 +639,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//
 	{
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
-					if (E_DesktopSwitcher::getSingleton()->ison)
+					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
 						return;
 				TRACE_WIN32A("컨트롤 알트 탭");
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();

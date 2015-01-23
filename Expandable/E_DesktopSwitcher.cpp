@@ -343,8 +343,8 @@ void drawWindowS()
 	e_global->getSelectedDesktop()->setAllIconVisible();
 
 	//Selected Desktop ºÎºÐ
-	double background_bottom = 1080 - 0.15 * (1080 - (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height)),
-		background_top = (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height) + 0.05 * (1080 - (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height));
+	double background_bottom = enManager->getHeight() - 0.15 * (enManager->getHeight() - (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height)),
+		background_top = (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height) + 0.05 * (enManager->getHeight() - (2 * deSwitcher->initial_padding_height + deSwitcher->switch_height));
 	double background_left = (enManager->getWidth() - (background_bottom - background_top) * deSwitcher->ratio_wh) / 2;
 	double background_right = enManager->getWidth() - background_left;
 
