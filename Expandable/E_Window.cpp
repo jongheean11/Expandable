@@ -244,8 +244,7 @@ bool E_Window::takeScreenshot()
 	//DeleteObject(hBitmap);
 
 	::DeleteDC(hMemDC);
-	::
-		(hTargetWnd, hDC);
+	::ReleaseDC(hTargetWnd, hDC);
 
 	screenshot.DeleteObject();
 	screenshot.Attach(hBitmap);
