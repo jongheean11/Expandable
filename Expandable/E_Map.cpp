@@ -321,7 +321,7 @@ void E_Map::OnPaint()
 						memDC.MoveTo(iconRect->left, iconRect->bottom);
 						memDC.LineTo(iconRect->right, iconRect->bottom);
 						pen.DeleteObject();
-
+						 
 					}
 					
 					
