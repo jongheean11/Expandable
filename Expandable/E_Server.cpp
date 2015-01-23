@@ -20,21 +20,30 @@ E_Server* E_Server::getSingleton()
 }
 bool E_Server::startServer()
 {
+	//WSAStartup
 	if (!AfxSocketInit())                          //소켓초기화
 	{
 		return false;
 	}
 	
 	if (th == NULL){
-		th = new std::thread{ &E_Server::onServer, this };
+		//serverSocket
+		serverSocket.Create(PORT, SOCK_STREAM, L"127.0.0.1");
+		SOCKET param = serverSocket.Detach();
+		th = new std::thread{ &E_Server::onServer, this, param };
 	}
 	TRACE_WIN32A("[E_Server::startServer] 정상적으로 서버가 시작하였습니다.");
 	return true;
 }
-void E_Server::onServer()
+
+void E_Server::onServer(SOCKET param)
 {
-	//serverSocket
-	serverSocket.Create(PORT, SOCK_STREAM, L"127.0.0.1");
+	if (!AfxSocketInit())                          //소켓초기화
+	{
+		return;
+	}
+	E_MyCSocket serverSocket;
+	serverSocket.Attach(param);
 	BOOL reuse = TRUE;
 	if (!serverSocket.SetSockOpt(SO_REUSEADDR, &reuse, sizeof(int))) {
 		TRACE_WIN32A("[SetSockOpt] SO_REUSEADDR ERROR");
@@ -67,6 +76,10 @@ void E_Server::onServer()
 
 void E_Server::onClient(E_MyCSocket* param)
 {
+	if (!AfxSocketInit())                          //소켓초기화
+	{
+		return;
+	}
 	int stateCount = 0;
 	CString clientName = L"";
 	UINT clientPort = 0;
