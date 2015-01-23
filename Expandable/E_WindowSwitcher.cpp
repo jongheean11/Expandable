@@ -10,7 +10,7 @@ const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
 const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
 
 E_WindowSwitcher* E_WindowSwitcher::singleton = NULL;
-const wchar_t* E_WindowSwitcher::caption = L"WindowSwitcher";
+const wchar_t* E_WindowSwitcher::caption = L"E_WindowSwitcher";
 
 void E_WindowSwitcher::updateSelectedDesktop()
 {
@@ -32,7 +32,7 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 	envManager = E_EnvironmentManager::getSingleton();
 
 	UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-
+	
 	CBrush brush_map;
 	//////brush_map.CreateSolidBrush(E_WindowSwitcher::backgroundColor);
 	brush_map.CreateStockObject(NULL_BRUSH);

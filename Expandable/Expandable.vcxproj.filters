@@ -389,4 +389,9 @@
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="AutoHotkey.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

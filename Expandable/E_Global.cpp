@@ -7,7 +7,7 @@
 
 E_Global* E_Global::singleton = NULL;
 
-const wchar_t* E_Global::testFrameName = L"expandable";
+const wchar_t* E_Global::testFrameName = L"E_expandable";
 wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
 #define WM_TRAY_EVENT (WM_USER + 3)
 
