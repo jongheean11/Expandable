@@ -81,11 +81,6 @@ CMainFrame::CMainFrame()
 
 }
 
-
-
-
-
-
 HRESULT CMainFrame::OnUserNotify(WPARAM wParam, LPARAM lParam)
 {
 	// TODO: Your Code
@@ -194,17 +189,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	hEvent = CreateEvent(NULL, FALSE, TRUE, AfxGetAppName());
 
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
-
 	{
-
 		AfxMessageBox(TEXT("이미 프로그램이 실행중입니다."));
 		autoalready = true;
 		PostQuitMessage(WM_QUIT);
-
 	}
-
-
-
 
 	//
 
