@@ -267,6 +267,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			KillTimer(30);
 			SetTimer(3, 32, NULL);
 			E_DesktopSwitcher::getSingleton()->restore = true;
+		
 		}
 	}
 	else if (nIDEvent == E_Global::DLLINJECTIONTIMER)

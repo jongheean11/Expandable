@@ -142,7 +142,7 @@ void E_Notify::OnPaint()
 	font.CreateFont(w/95, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
 	pOld_Font = dc.SelectObject(&font);
 	dc.TextOutW(10,  notifyheight/2+10, s2);
-
+	DeleteDC(dc);
 }
 
 void E_Notify::OnTimer(UINT_PTR nIDEvent)
@@ -214,6 +214,7 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 	//선택된 핸들인 pHwnd핸들이 어떤 데스크탑인지 확인하고
 	//해당 데스크탑 show
 	int desDesk = e_global->getSelectedIndex();
+	int foreDesk = desDesk;
 	int firstDesk = desDesk;
 	//bool useHwndFind = false;
 	std::list<E_Desktop*> desklist = e_global->desktopList;
@@ -235,7 +236,11 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 	}
 	//해당 데스크탑 찾음 
 	//만약 못찾았으면 ->useHwndFInd 가 false 일때
-
+	if (foreDesk == desDesk)
+	{
+		::BringWindowToTop(pHwnd);
+		return;
+	}
 	//
 	std::list<E_Desktop*> desklist2 = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
@@ -247,6 +252,7 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 			std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
 			{
+				
 				e_global->pidforhideNotify = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
 				EnumWindows(E_Notify::EnumCallHide, 0);
 			}
@@ -265,6 +271,7 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 	if (firstDesk != e_global->getSelectedIndex())
 		e_map->drawMap();
 
+	::SetFocus(pHwnd);
 	::BringWindowToTop(pHwnd);
 	click = false;
 	CWnd::OnLButtonUp(nFlags, point);
