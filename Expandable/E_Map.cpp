@@ -804,15 +804,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
-		WCHAR name[] = TEXT("expandable");
-		WCHAR name2[] = L"스티커";
-		WCHAR name3[] = L"곰오디오";
-		WCHAR name4[] = L"곰플레이어";
-		WCHAR expandable[100];
-		
-		::GetWindowText(hwnd, expandable, 100);
-
-
+	
 
 		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
@@ -825,11 +817,9 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
 				for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
 				{
-					if (wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0)
-					{
-						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
-						EnumWindows(E_Map::EnumCallHide, 0);
-					}
+					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					EnumWindows(E_Map::EnumCallHide, 0);
+					
 				}
 				continue;
 			}
@@ -838,12 +828,8 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
 			{
-				if (wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0)
-				{
-					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
-					EnumWindows(E_Map::EnumCallHide, 1);
-				}
-				
+				pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+				EnumWindows(E_Map::EnumCallHide, 1);
 			}
 		}
 
@@ -913,12 +899,21 @@ BOOL CALLBACK  E_Map::EnumShow(HWND hwnd, LPARAM lParam)
 
 BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 {
-	WCHAR name[10];
-	WCHAR name2[4];
-	WCHAR name3[] = L"스티커";
-	WCHAR name4[] = L"카카오";
-	WCHAR expandable[11];
-	WCHAR expan[] = TEXT("expandable");
+
+	WCHAR name[] = TEXT("expandable");
+	WCHAR name2[] = L"스티커 메모";
+	WCHAR name3[] = L"곰오디오";
+	WCHAR name4[] = L"곰플레이어";
+	WCHAR expandable[100];
+
+	::GetWindowText(hwnd, expandable, 100);
+	if (wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0)
+	{
+
+	}
+	else
+		return TRUE;
+
 
 	::GetWindowText(hwnd, expandable, 11);
 	//WCHAR name4[] = L"Microsoft Spy++";
@@ -926,8 +921,7 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	::GetWindowText(hwnd, name2, 4);
 	//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
-	if (wcscmp(expandable, expan) == 0)
-		return TRUE;
+	
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
