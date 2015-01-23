@@ -1362,8 +1362,25 @@ BOOL E_WindowSwitcher::OnEraseBkgnd(CDC* pDC)
 void E_WindowSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
-	//TRACE_WIN32A("OnKeyDown %c",nChar);
-	
+	TRACE_WIN32A("OnKeyDown %c",nChar);
+	switch (nChar){
+	case VK_RIGHT:
+	{
+					 selectNextWindow();
+	}
+		break;
+	case VK_LEFT:
+	{
+
+					selectPrevWindow();
+	}
+		break;
+	case  VK_TAB:
+	{
+					selectNextWindow();
+	}
+		break;
+	}
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -1519,7 +1536,6 @@ void E_WindowSwitcher::selectPrevWindow()
 			startTaboffset--;
 			resetIconcwndAndAero();
 		}
-		TRACE_WIN32A("tabIndex: %d %d", tabIndex, startTaboffset);
 	}
 
 	//다른 데스크탑
