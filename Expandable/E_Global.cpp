@@ -134,7 +134,7 @@ CWnd* E_Global::getTaskbarWindow(){
 
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
-
+	SendMessage(hwnd_frame, WM_CLOSE, 0, 0);
 }
 
 
