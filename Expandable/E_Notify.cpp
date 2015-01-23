@@ -88,7 +88,7 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 	brush_map.CreateSolidBrush(RGB(255, 255, 255));
 	brush_map.CreateStockObject(NULL_BRUSH);
 	CString szClassName_notify = AfxRegisterWndClass(nClassStyle_map, 0, (HBRUSH)brush_map.GetSafeHandle(), 0);
-	hwnd_cwnd_notify->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_notify, E_Notify::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, notifywidth, notifyheight), CWnd::GetDesktopWindow(), 0);
+	hwnd_cwnd_notify->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_notify, E_Notify::caption, WS_VISIBLE | WS_POPUP , CRect(0, 0, notifywidth, notifyheight), CWnd::GetDesktopWindow(), 0);
 
 	SetTimer(1, 100, NULL);
 	hwnd_cwnd_notify->ShowWindow(SW_SHOW);
@@ -142,7 +142,39 @@ void E_Notify::OnPaint()
 	font.CreateFont(w/100, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("굴림체"));
 	pOld_Font = dc.SelectObject(&font);
 	dc.TextOutW(10,  notifyheight/2+10, s2);
+	//
+	CDC cdc;
+	CDC* pDC = GetDC();
+	cdc.CreateCompatibleDC(pDC);
+	BITMAP icon_info ;
+	bool pass = false;
+	std::list<E_Desktop*> all_Desktop = E_Global::getSingleton()->desktopList;
+	for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
+	{
+		std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
+		for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+		{
+			if ((*itr_window)->getWindow() == pHwnd)
+			{
+				CBitmap* icon = (*itr_window)->getIcon();
+				if (icon->m_hObject != NULL)
+				{
+					icon->GetBitmap(&icon_info);
+					cdc.SelectObject(icon);
+					cdc.SetBkMode(1);
+					cdc.SetBkColor(E_Map::backgroundColor);
+					dc.TransparentBlt(notifywidth / 2 + 3, notifyheight / 2 + 5, notifyheight / 3, notifyheight / 3, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));
+					pass = true;
+					break;
+				}
+			}
+		}
+		if (pass)
+			break;
+	}
+	ReleaseDC(pDC);
 	DeleteDC(dc);
+	cdc.DeleteDC();
 }
 
 void E_Notify::OnTimer(UINT_PTR nIDEvent)
