@@ -15,6 +15,8 @@ private:
 //noAero
 public:
 	CWnd *currentCWnd, *switchCWnd;
+	RECT *currentCWndRECT, *switchCWndRECT;
+	E_Window *desktopWindow, *taskbarWindow;
 
 //Aero&common
 public:
