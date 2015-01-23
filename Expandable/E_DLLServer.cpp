@@ -38,7 +38,6 @@ void readJSON(__out NOTIFICATION_ITEM& item, __in std::string& buffer)
 	item.infomation.pid = ps.get(hwnd_key, "defaultvalue").asUInt();
 	
 	strcpy(item.infomation.pname, processName.c_str());
-
 }
 void readJSON(__out NOTIFICATION_ITEM& item, __in char* buffer)
 {
@@ -58,7 +57,6 @@ void readJSON(__out NOTIFICATION_ITEM& item, __in char* buffer)
 	item.infomation.pid = ps.get(pid_key, "defaultvalue").asUInt();
 
 	strcpy(item.infomation.pname, processName.c_str());
-
 }
 
 //╪рдо
