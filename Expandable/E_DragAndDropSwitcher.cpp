@@ -483,7 +483,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
 		
 		ison = true;
 
