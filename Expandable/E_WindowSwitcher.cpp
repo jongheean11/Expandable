@@ -117,8 +117,6 @@ void E_WindowSwitcher::startSwitcher()
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
-	//동작 중
-	SetTimer(1, 50, NULL);
 
 	//스위처 시작 
 	running = true;
@@ -126,6 +124,8 @@ void E_WindowSwitcher::startSwitcher()
 	//startAnimate = false;
 	//윈도우를 띄움
 	this->ShowWindow(SW_SHOW);
+	//동작 중
+	SetTimer(1, 50, NULL);
 	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher END()");
 }
 
@@ -1881,8 +1881,9 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (!isfocus)
 		{
+			TRACE_WIN32A("E_WindowSwitcher::OnTimer() _ FOCUS");
 			this->stealFocus2(this->GetSafeHwnd());
-			//::SetFocus(focushwnd);
+			::SetFocus(this->GetSafeHwnd());
 		
 			KillTimer(1);
 		}

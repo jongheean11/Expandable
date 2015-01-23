@@ -598,7 +598,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					switcher->startSwitcher();
 					keydown = 1;
 					startChecking();
-					//switcher->stealFocus2(switcher->GetSafeHwnd());
+					switcher->stealFocus2(switcher->GetSafeHwnd());
 					
 				}
 				else{
