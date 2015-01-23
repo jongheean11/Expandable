@@ -73,6 +73,7 @@ public:
 	int startChecking();
 	int stopChecking();
 	int onChecking();
+	void terminateAHK();
 
 	afx_msg void On32777();
 	void changetray(int num);
