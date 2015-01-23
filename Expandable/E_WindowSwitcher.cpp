@@ -1837,7 +1837,7 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 			//윈도우를 띄움
 			this->ShowWindow(SW_SHOW);
 			this->stealFocus2(this->GetSafeHwnd());
-			::SetFocus(focushwnd);
+			//::SetFocus(focushwnd);
 		
 			KillTimer(1);
 		}
