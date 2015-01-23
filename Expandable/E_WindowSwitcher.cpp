@@ -116,7 +116,7 @@ void E_WindowSwitcher::startSwitcher()
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
-	SetTimer(1, 5, NULL);
+	SetTimer(1, 50, NULL);
 }
 
 
@@ -1207,10 +1207,10 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
-						::BringWindowToTop(hwnd);
+							::BringWindowToTop(hwnd);
 
 						focushwnd = hwnd;
-						SetTimer(2, 5, NULL);
+						SetTimer(2, 50, NULL);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1380,6 +1380,10 @@ void E_WindowSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					selectNextWindow();
 	}
 		break;
+	case VK_ESCAPE:
+	{
+					  terminateSwitcher();
+	}
 	}
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
