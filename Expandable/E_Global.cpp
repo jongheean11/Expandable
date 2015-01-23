@@ -170,14 +170,20 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	E_Global *global = E_Global::getSingleton();
 	
 	WCHAR Cap[255];
-	WCHAR expandable[11];
+	WCHAR expandable[100];
 	WCHAR expan[] = TEXT("expandable");
+	WCHAR expan1[] = TEXT("E_DragAndDropSwitcher");
+	WCHAR expan2[] = TEXT("E_DesktopSwitcher");
+	WCHAR expan3[] = TEXT("E_WindowSwitcher");
+
+	::GetWindowText(hwnd, expandable, 100);
+	if (wcscmp(expan1, expandable) == 0 || wcscmp(expan2, expandable) == 0 || wcscmp(expan3, expandable) == 0)
+		return TRUE;
 	int length;
 	::GetWindowText(hwnd, Cap, 254);
-	::GetWindowText(hwnd, expandable, 11);
 	length = ::GetWindowTextLength(hwnd);
 
-	if (IsWindowVisible(hwnd) && !(wcscmp(expandable, expan) == 0))
+	if (IsWindowVisible(hwnd) && !(wcscmp(expandable, expan) == 0) )
 	{
 		// Tool windows should not be displayed either, these do not appear in the
 		// task bar.

@@ -34,7 +34,7 @@ public:
 
 	CRect *leftarrow, *rightarrow;
 	
-	bool ison;
+	bool ison, restore;
 
 	int target_desktop_index, desktoplist_startindex;
 
@@ -105,4 +105,5 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };

@@ -55,13 +55,16 @@ void eraseDesktopList()
 	for (std::hash_map<RECT*, HTHUMBNAIL>::iterator itr_ = deSwitcher->desktop_RECT_hthumbnail_map.begin(); itr_ != deSwitcher->desktop_RECT_hthumbnail_map.end(); itr_++)
 	{
 		aeController->unregisterAero(itr_->second);
+		delete itr_->first;
 	}
 	for (std::hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::iterator itr_ = deSwitcher->window_desktop_RECT_hthumbnail_map.begin(); itr_ != deSwitcher->window_desktop_RECT_hthumbnail_map.end(); itr_++)
 	{
 		for (std::hash_map<RECT*, HTHUMBNAIL>::iterator itr__ = itr_->second.begin(); itr__ != itr_->second.end(); itr__++)
 		{
 			aeController->unregisterAero(itr__->second);
+			delete itr__->first;
 		}
+		itr_->second.clear();
 	}
 
 	deSwitcher->desktop_RECT_hthumbnail_map.clear();
@@ -137,7 +140,7 @@ void drawDesktopList()
 			deSwitcher->background_right,
 			deSwitcher->background_bottom,
 		};
-		pushCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_list", WS_VISIBLE | WS_POPUP, *backgroundRECT, deSwitcher, 0);
+		pushCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, *backgroundRECT, deSwitcher, 0);
 
 		//aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->m_hWnd, *backgroundRECT, pushThumbnail);
 		//aeController->registerAero(deSwitcher->hShellWnd, pushCWnd->m_hWnd, *backgroundRECT, pushThumbnail);
@@ -280,6 +283,7 @@ void eraseWindowS()
 	for (list<RECT*>::iterator itr_rect = deSwitcher->window_area_list_rect.begin(); itr_rect != deSwitcher->window_area_list_rect.end(); itr_rect++)
 	{
 		aeController->unregisterAero(deSwitcher->window_RECT_hthumbnail_map.find(*itr_rect)->second);
+		delete *itr_rect;
 	}
 
 	aeController->unregisterAero(deSwitcher->main_backgroundHTHUMBNAIL);
@@ -329,7 +333,7 @@ void drawWindowS()
 	if (deSwitcher->mainCWnd == NULL)
 	{
 		deSwitcher->mainCWnd = new CWnd;
-		deSwitcher->mainCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_main", WS_VISIBLE | WS_POPUP, *deSwitcher->main_backgroundRECT, deSwitcher, 0);
+		deSwitcher->mainCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, *deSwitcher->main_backgroundRECT, deSwitcher, 0);
 	}
 
 	aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->mainCWnd->m_hWnd, CRect(0, 0, deSwitcher->main_backgroundRECT->right - deSwitcher->main_backgroundRECT->left, deSwitcher->main_backgroundRECT->bottom - deSwitcher->main_backgroundRECT->top), deSwitcher->main_backgroundHTHUMBNAIL);
@@ -495,6 +499,8 @@ E_DesktopSwitcher::E_DesktopSwitcher()
 
 	mainCWnd = NULL;
 	window_squeezed_inlist = false;
+
+	restore = false;
 	ison = false;
 	doubleclick_first = false;
 	doubleclick_second = false;
@@ -534,13 +540,6 @@ void E_DesktopSwitcher::startSwitcher()
 		else
 			desktoplist_startindex = (e_global->desktopList.size() + e_global->getSelectedIndex() - 1) % e_global->desktopList.size();
 		
-		/*CBrush m_oBkgndBrush;
-		m_oBkgndBrush.CreateSolidBrush(RGB(255, 255, 255));
-		UINT nClassStyle = CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
-		CString szClassName = AfxRegisterWndClass(nClassStyle, 0, (HBRUSH)m_oBkgndBrush.GetSafeHandle(), 0);
-		Create(szClassName, _T(""), WS_VISIBLE || WS_EX_TOPMOST, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 1234);*/
-
-
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		
@@ -561,13 +560,14 @@ void E_DesktopSwitcher::startSwitcher()
 		SelectObject(memdc, hOld);
 		DeleteDC(memdc);
 		DeleteDC(memdc2);
-		
+		DeleteObject(hbmOrig);
+
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
 
 		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
 		//WS_EX_TOPMOST
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 
@@ -588,6 +588,8 @@ void E_DesktopSwitcher::startSwitcher()
 		SetCapture();
 
 		stealFocus(this->m_hWnd);
+
+		restore = true;
 	}
 	else
 	{
@@ -597,6 +599,16 @@ void E_DesktopSwitcher::startSwitcher()
 
 void E_DesktopSwitcher::terminateSwitcher()
 {
+	if (restore)
+	{
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+		{
+			E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
+			E_Global::getSingleton()->setSelectedIndex(initindex);
+		}
+		restore = false;
+	}
+
 	if (ison)
 	{
 		E_Global* e_global = E_Global::getSingleton();
@@ -641,8 +653,8 @@ void E_DesktopSwitcher::terminateSwitcher()
 		window_squeezed = false;
 		desktop_selected = false;
 
-		//e_global->stopUpdate();
 		aeController->unregisterAllAreo();
+
 		window_area_list_rect.clear();
 		window_area_map_RECT_EWindow.clear();
 		window_desktop_RECT_hthumbnail_map.clear();
@@ -681,6 +693,7 @@ ON_WM_DESTROY()
 ON_WM_CREATE()
 ON_WM_KEYDOWN()
 ON_WM_KEYUP()
+ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 
@@ -701,6 +714,8 @@ int testflag = 0;
 
 void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	restore = false;
+
 	E_Global* e_global = E_Global::getSingleton();
 
 	//e_global->stopUpdate();
@@ -732,11 +747,15 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		if (leftarrow->PtInRect(point))
 		{
 			leftarrow_pressed = true;
+			
+			restore = true;
 			return;
 		}
 		else if (rightarrow->PtInRect(point))
 		{
 			rightarrow_pressed = true;
+
+			restore = true;
 			return;
 		}
 	}
@@ -750,6 +769,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 			target_desktop_index = i;
 
 			stealFocus(this->m_hWnd);
+
+			restore = true;
 			return;
 		}
 		i = (i + 1) % e_global->desktopList.size();
@@ -826,6 +847,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(e_global->getSelectedIndex(), window_desktop_RECT_hthumbnail_map__));
 
 					stealFocus(this->m_hWnd);
+
+					restore = true;
 					return;
 				}
 				itr_window_desktop_area++;
@@ -865,6 +888,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_copy, window_hthumbnail));
 
 					stealFocus(this->m_hWnd);
+
+					restore = true;
 					return;
 				}
 			}
@@ -1559,4 +1584,17 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	esckey_pressed = false;
 
 	__super::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+void E_DesktopSwitcher::OnKillFocus(CWnd* pNewWnd)
+{
+	if (restore)
+	{
+		terminateSwitcher();
+	}
+
+	__super::OnKillFocus(pNewWnd);
+
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }

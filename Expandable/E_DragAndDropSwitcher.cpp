@@ -483,7 +483,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
 		
 		ison = true;
 
@@ -584,6 +584,9 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 			::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 			::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 		}
+
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 	if (ison)
 	{
@@ -597,9 +600,6 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
-
-		if (initindex != E_Global::getSingleton()->getSelectedIndex())
-			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 }
 
