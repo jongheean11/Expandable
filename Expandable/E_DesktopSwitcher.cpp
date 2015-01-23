@@ -499,6 +499,8 @@ E_DesktopSwitcher::E_DesktopSwitcher()
 
 	mainCWnd = NULL;
 	window_squeezed_inlist = false;
+
+	restore = false;
 	ison = false;
 	doubleclick_first = false;
 	doubleclick_second = false;
@@ -595,6 +597,11 @@ void E_DesktopSwitcher::startSwitcher()
 
 void E_DesktopSwitcher::terminateSwitcher()
 {
+	if (restore)
+	{
+		restore = false;
+	}
+
 	if (ison)
 	{
 		E_Global* e_global = E_Global::getSingleton();
@@ -679,6 +686,7 @@ ON_WM_DESTROY()
 ON_WM_CREATE()
 ON_WM_KEYDOWN()
 ON_WM_KEYUP()
+ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 
@@ -1557,4 +1565,17 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	esckey_pressed = false;
 
 	__super::OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+
+void E_DesktopSwitcher::OnKillFocus(CWnd* pNewWnd)
+{
+	if (restore)
+	{
+		terminateSwitcher();
+	}
+
+	__super::OnKillFocus(pNewWnd);
+
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
