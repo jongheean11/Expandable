@@ -66,6 +66,7 @@ public:
 	afx_msg HRESULT OnTrayEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnUserNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg HRESULT OnMapRight(WPARAM wParam, LPARAM lParam);
+	afx_msg HRESULT OnChange(WPARAM wParam, LPARAM lParam);
 	static BOOL CALLBACK EnumAuto(HWND hwnd, LPARAM lParam);
 	DWORD GetProcessByFileName(char* name);
 	bool icondisable;
