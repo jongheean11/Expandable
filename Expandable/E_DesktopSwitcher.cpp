@@ -140,7 +140,7 @@ void drawDesktopList()
 			deSwitcher->background_right,
 			deSwitcher->background_bottom,
 		};
-		pushCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_list", WS_VISIBLE | WS_POPUP, *backgroundRECT, deSwitcher, 0);
+		pushCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, *backgroundRECT, deSwitcher, 0);
 
 		//aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->m_hWnd, *backgroundRECT, pushThumbnail);
 		//aeController->registerAero(deSwitcher->hShellWnd, pushCWnd->m_hWnd, *backgroundRECT, pushThumbnail);
@@ -333,7 +333,7 @@ void drawWindowS()
 	if (deSwitcher->mainCWnd == NULL)
 	{
 		deSwitcher->mainCWnd = new CWnd;
-		deSwitcher->mainCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher_main", WS_VISIBLE | WS_POPUP, *deSwitcher->main_backgroundRECT, deSwitcher, 0);
+		deSwitcher->mainCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, *deSwitcher->main_backgroundRECT, deSwitcher, 0);
 	}
 
 	aeController->registerAero(deSwitcher->hShellWnd, deSwitcher->mainCWnd->m_hWnd, CRect(0, 0, deSwitcher->main_backgroundRECT->right - deSwitcher->main_backgroundRECT->left, deSwitcher->main_backgroundRECT->bottom - deSwitcher->main_backgroundRECT->top), deSwitcher->main_backgroundHTHUMBNAIL);
@@ -565,7 +565,7 @@ void E_DesktopSwitcher::startSwitcher()
 
 		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
 		//WS_EX_TOPMOST
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
 
