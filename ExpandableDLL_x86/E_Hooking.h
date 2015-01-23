@@ -12,6 +12,7 @@ extern HWND hwnd;
 BOOL hook_by_hotpatch_ShowWindow();
 BOOL unhook_by_hotpatch_ShowWindow();
 BOOL hook_by_hotpatch_SetProgressState();
+BOOL unhook_by_hotpatch_SetProgressState();
 BOOL hook_by_hotpatch_SetProgressValue();
 BOOL unhook_by_hotpatch_SetProgressValue();
 BOOL unhook_by_hotpatch(FARPROC pFunc);

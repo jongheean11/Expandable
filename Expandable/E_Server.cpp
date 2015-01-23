@@ -67,6 +67,7 @@ void E_Server::onServer()
 
 void E_Server::onClient(E_MyCSocket* param)
 {
+	int stateCount = 0;
 	CString clientName = L"";
 	UINT clientPort = 0;
 	E_MyCSocket client;
@@ -104,9 +105,18 @@ void E_Server::onClient(E_MyCSocket* param)
 				readJSON(*item, buff);
 				if (item->type == PROGRESSSTATE)
 				{
-					TRACE_WIN32A("%d,%d", item->infomation.pid, item->infomation.hwnd);
+					//TRACE_WIN32A("[PROGRESSSTATE] %d,%d", item->infomation.pid, item->infomation.hwnd);
 					E_Global* e_map = E_Global::getSingleton();
-					::SendMessage(e_map->hwnd_frame, WM_USER_NOTIFY, (WPARAM)item, 0);
+					if (item->value == TBPF_NOPROGRESS && stateCount == 0){
+						::SendMessage(e_map->hwnd_frame, WM_USER_NOTIFY, (WPARAM)item, 0);
+						stateCount++;
+					}
+					
+				}
+				else if (item->type == PROGRESSVALUE)	//다운로드가 70% 이상일 때, 용량이 큰 파일을 다운로드 받을때 동작
+				{
+					//TRACE_WIN32A("[PROGRESSVALUE] %d",item->value);
+					stateCount = 0;
 				}
 			}
 		}
