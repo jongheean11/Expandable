@@ -260,7 +260,8 @@ void E_Map::OnPaint()
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
-
+				if (!IsWindow((*itr_window)->getWindow()))
+					continue;
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
 				long iconPosstx = rectForIcon.left *e_global->getMapsize() + idx*w*mapsize;  //check
