@@ -138,8 +138,13 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		if (processName != NULL){
 			for (int i = 0; i < PROCESSSIZE; i++){
 				if (!_stricmp(processName, processList[i])
-					&& interfacehook == true){
-					stopInterfaceHook();	//크롬, 익스플로러 .. 후킹
+					){
+					if (interfacehook == true){
+						stopInterfaceHook();	//크롬, 익스플로러 .. 후킹
+					}
+					if (interfacestatehook == true){
+						stopInterfaceStateHook();
+					}
 				}
 			}
 		}

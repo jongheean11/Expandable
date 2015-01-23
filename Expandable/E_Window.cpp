@@ -310,6 +310,7 @@ UINT E_Window::getShowState()
 // 에어로가 가능한지 아는 함수.
 bool E_Window::isAeroPossible()
 {
+	E_AeroPeekController* aerom = E_AeroPeekController::getSingleton();
 	UINT state;
 	UINT winstate = getShowState();
 	BOOL isVisible = IsWindowVisible(this->getWindow());
@@ -321,6 +322,7 @@ bool E_Window::isAeroPossible()
 		|| (state = winstate) == SW_SHOWMINNOACTIVE
 		|| isVisible == FALSE
 		|| isMinimized == TRUE
+		|| aerom->isAeroPeekMode() == false
 		//|| (state = winstate) == SW_SHOWNA
 		){
 		//스크린샷이 안되는 상황

@@ -7,3 +7,4 @@ void startGlobalHook();
 void stopShowHook();
 void stopGlobalHook();
 void stopInterfaceHook();
+void stopInterfaceStateHook();

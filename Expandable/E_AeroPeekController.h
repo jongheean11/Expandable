@@ -1,9 +1,8 @@
-
-#include "E_Global.h"
+#pragma once
+//#include "E_Global.h"
 #include "E_EnvironmentManager.h"
 using namespace std;
 
-#pragma once
 class E_AeroPeekController
 {
 private:

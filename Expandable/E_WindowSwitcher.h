@@ -3,6 +3,7 @@
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
 #include "E_ISwitcherUpdator.h"
+#include "E_Global.h"
 
 enum SHAPE{VERTICAL, HORIZONTAL};
 enum DRAWMODE{DRAW_NORMAL, UPDATE_TOUCH, UPDATE_TAB, DONT_DRAW};

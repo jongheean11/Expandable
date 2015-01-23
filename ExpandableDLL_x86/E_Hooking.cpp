@@ -214,6 +214,52 @@ BOOL unhook_by_hotpatch_SetProgressValue()
 	return TRUE;
 }
 
+
+BOOL unhook_by_hotpatch_SetProgressState()
+{
+	OutputDebugStringA("[CALL] unhook_by_hotpatch_SetProgressValue");
+	BOOL result = TRUE;
+	HRESULT hresult = NULL;
+	DWORD* ptr;
+	FARPROC pfSetProgressValue = NULL;;
+	ITaskbarList3 *pTaskList3 = NULL;
+
+	hresult = CoInitialize(NULL);
+	//1)인터페이스 생성
+	if (SUCCEEDED(hresult)) {
+		hresult = CoCreateInstance(CLSID_TaskbarList, NULL,
+			CLSCTX_SERVER, IID_ITaskbarList3,
+			(LPVOID *)&pTaskList3);
+	}
+	else {
+		return FALSE;
+	}
+
+	if (SUCCEEDED(hresult)) {
+		ptr = (DWORD*)pTaskList3;
+		ptr = (DWORD*)*ptr;
+		ptr = (DWORD*)*(ptr + 10);
+		pfSetProgressValue = (FARPROC)ptr;
+		//char dbgmsg[255] = { 0, };
+		//sprintf_s(dbgmsg, "ptr %x", (DWORD)ptr);
+		//OutputDebugStringA(dbgmsg);
+		//pTaskList3->Release();
+	}
+	else {
+		pTaskList3->Release();
+		return FALSE;
+	}
+
+	//2)언후킹
+	if (!unhook_by_hotpatch(pfSetProgressValue)){
+		pTaskList3->Release();
+		return FALSE;
+	}
+
+	pTaskList3->Release();
+	return TRUE;
+}
+
 //7바이트 핫 패치 복원
 BOOL unhook_by_hotpatch(LPCSTR szDllName, LPCSTR szFuncName)
 {
@@ -789,12 +835,14 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	//프로세스 정보
 	if (NULL != processName)
 		strcpy_s(item.infomation.pname, processName);
-	else
+	else{
 		item.infomation.pname[0] = 'N';
+		item.infomation.pname[1] = '\0';
+	}
 	item.infomation.pid = pid;
 	item.infomation.hwnd = (unsigned int)hwnd;
-
-	//notify(item);
+	if (item.value > 70)
+		notify(item);
 
 	return hresult;
 }
@@ -816,8 +864,6 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 		(LPVOID *)&pTaskList3);
 
 	if (SUCCEEDED(hresult)) {
-		//hresult = pTaskList3->SetProgressState(hwnd, TBPF_NOPROGRESS);
-		//	pTaskList3->Release();
 
 		//실제 함수의 +2를 호출하기 위한 코드
 		__asm
@@ -841,8 +887,10 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 	//프로세스 정보
 	if (NULL != processName)
 		strcpy_s(item.infomation.pname, processName);
-	else
+	else{
 		item.infomation.pname[0] = 'N';
+		item.infomation.pname[1] = '\0';
+	}
 	item.infomation.pid = pid;
 	item.infomation.hwnd = (unsigned int)hwnd;
 

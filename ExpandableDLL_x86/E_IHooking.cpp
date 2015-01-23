@@ -70,6 +70,16 @@ void stopInterfaceHook(){
 		OutputDebugStringA("[Fail] unhook_by_hotpatch_SetProgressValue");
 }
 
+void stopInterfaceStateHook(){
+	if (interfacestatehook == true && unhook_by_hotpatch_SetProgressState()){
+		OutputDebugStringA("[Success] unhook_by_hotpatch_SetProgressState");
+		interfacestatehook = false;
+	}
+	else
+		OutputDebugStringA("[Fail] unhook_by_hotpatch_SetProgressState");
+}
+
+
 void stopGlobalHook(){
 	// unhook
 	if (globalhook == true){
