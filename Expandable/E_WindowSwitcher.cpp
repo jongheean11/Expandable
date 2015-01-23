@@ -697,8 +697,8 @@ void E_WindowSwitcher::OnPaint()
 							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
 							CDC* iconDC = iconCWnd->GetDC();
-							SetBkColor(*iconDC, RGB(255, 255, 255));
-							SetBkMode(*iconDC, TRANSPARENT);
+							/*SetBkColor(*iconDC, RGB(255, 255, 255));
+							SetBkMode(*iconDC, TRANSPARENT);*/
 							
 							CDC cdc; 
 							cdc.CreateCompatibleDC(iconDC);
@@ -708,7 +708,7 @@ void E_WindowSwitcher::OnPaint()
 							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 							cdc.DeleteDC();
-							iconDC->DeleteDC();
+							//iconDC->DeleteDC();
 						}
 					}
 
@@ -940,6 +940,20 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//아이콘
+					/*CBitmap* icon = (*iter)->getIcon();
+					BITMAP icon_info;
+					if (icon->m_hObject != NULL){
+						icon->GetBitmap(&icon_info);
+						CDC cdc;
+						cdc.CreateCompatibleDC(&dc);
+						cdc.SelectObject(icon);
+						secondMemDC.SetStretchBltMode(COLORONCOLOR);
+						secondMemDC.TransparentBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+						cdc.DeleteDC();
+					}*/
+
+
+					//아이콘
 					int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
@@ -959,19 +973,19 @@ void E_WindowSwitcher::OnPaint()
 							iconCWnd->MoveWindow(&windowRect);
 
 							CDC* iconDC = iconCWnd->GetDC();
-							SetBkColor(*iconDC, RGB(255, 255, 255));
-							SetBkMode(*iconDC, TRANSPARENT);
+						/*	SetBkColor(*iconDC, RGB(255, 255, 255));
+							SetBkMode(*iconDC, TRANSPARENT);*/
 
 							CDC cdc;
 							cdc.CreateCompatibleDC(iconDC);
 							cdc.SelectObject(icon);
-							//iconDC->SetStretchBltMode(COLORONCOLOR);
+							iconDC->SetStretchBltMode(COLORONCOLOR);
 							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc,0,0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
-							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 
+							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 							cdc.DeleteDC();
 							iconCWnd->ShowWindow(SW_SHOW);
-							iconDC->DeleteDC();
+							//iconDC->DeleteDC();
 						}
 					}
 
@@ -991,21 +1005,8 @@ void E_WindowSwitcher::OnPaint()
 					brush1.DeleteObject();
 					pen.DeleteObject();
 				}
-
-				/*for (list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++){
-					unordered_map<HWND, CWnd*>::iterator itr = icon_map.find((*iter)->getWindow());
-					if (itr != icon_map.end())
-						itr->second->ShowWindow(SW_SHOW);
-				}
-
-				for (list<E_Window*>::iterator iter = secondWinlist.begin(); iter != secondWinlist.end(); iter++){
-					unordered_map<HWND, CWnd*>::iterator itr = icon_map.find((*iter)->getWindow());
-					if (itr != icon_map.end())
-						itr->second->ShowWindow(SW_SHOW);
-				}*/
 				
 				//버퍼에 있는 내용 한번에 그리기
-				
 				dc.StretchBlt(switcherLeft, 0, switcherWidth, switcherHeight, &memDC, 0, 0, switcherWidth, switcherHeight, SRCCOPY);
 				dc.StretchBlt(secondSwitcherLeft, switcherHeight + bottomPadding, secondSwitcherWidth, secondSwitcherHeight
 					, &secondMemDC
@@ -1210,8 +1211,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 
 					focushwnd = hwnd;
 					SetTimer(2, 5, NULL);
-					::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
-
+					//::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 				}
 				terminateSwitcher();
 				break;
@@ -1444,7 +1444,7 @@ void E_WindowSwitcher::selectNextWindow()
 			std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
 			for (std::list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++) {
 				secondWinlist.push_back(*iter);
-				icon_map.find((*iter)->getWindow())->second->MoveWindow(&winRect,0);
+				//icon_map.find((*iter)->getWindow())->second->MoveWindow(&winRect,0);
 			}
 		}
 	}
@@ -1661,59 +1661,6 @@ CWnd* E_WindowSwitcher::createChild()
 
 	return cwnd;
 }
-
-
-
-// 아이콘을 미리 그리는 코드
-// 사용안함
-void E_WindowSwitcher::drawIcon()
-{
-	int offset = 0;
-	HWND hwnd;
-	E_Global* global = E_Global::getSingleton();
-	for (list<E_Desktop*>::iterator iterDesktop = global->desktopList.begin(); iterDesktop != global->desktopList.end(); iterDesktop++){
-		std::list<E_Window*> winlist = (*iterDesktop)->getWindowList();
-		for (std::list<E_Window*>::iterator iter = winlist.begin(); iter != winlist.end(); iter++) {
-			hwnd = (*iter)->getWindow();
-			
-			int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
-			CWnd* iconCWnd = NULL;
-			if (icon_map.find(hwnd) != icon_map.end()){
-				iconCWnd = icon_map.find(hwnd)->second;
-				//CPaintDC iconDC(iconCWnd);
-				CBitmap* icon = (*iter)->getIcon();
-				BITMAP icon_info;
-
-				if (icon->m_hObject != NULL){
-					icon->GetBitmap(&icon_info);
-
-					offset += icon_info.bmWidth;	//투명유지
-
-					//iconCWnd->ShowWindow(SW_HIDE);
-
-					RECT windowRect;
-					windowRect.left = offset;
-					windowRect.top = 0;
-					windowRect.right = icon_info.bmWidth + windowRect.left;
-					windowRect.bottom = icon_info.bmHeight + windowRect.top;
-
-					iconCWnd->MoveWindow(&windowRect);
-					iconCWnd->SetWindowPos(NULL, windowRect.left, windowRect.top, windowRect.right, windowRect.bottom, 0);
-					CDC* iconDC = iconCWnd->GetDC();
-					//SetBkMode(*iconDC, TRANSPARENT);
-
-					CDC cdc;
-					cdc.CreateCompatibleDC(iconDC);
-					cdc.SelectObject(icon);
-					iconDC->TransparentBlt(0, 0, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
-					
-					cdc.DeleteDC();
-				}
-			}
-		}
-	}
-}
-
 
 void E_WindowSwitcher::stealFocus(HWND hwnd)
 {

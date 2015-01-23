@@ -607,6 +607,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 	}
 		break;
+		//알트 업
 	case 'B':
 	{
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
@@ -619,6 +620,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 		break;
 	case 'C':
+		//데스크탑 스위처
 	{
 		if (E_WindowSwitcher::getSingleton()->isRunning() || E_DragAndDropSwitcher::getSingleton()->started)
 			return;
@@ -626,13 +628,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 		break;
 	case 'D':
+		//
 	{
-
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
 					if (E_DesktopSwitcher::getSingleton()->ison)
 						return;
-
-
 				TRACE_WIN32A("컨트롤 알트 탭");
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
 				if (switcher->isRunning() == false){
