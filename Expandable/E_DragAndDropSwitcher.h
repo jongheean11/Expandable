@@ -13,9 +13,6 @@ private:
 	~E_DragAndDropSwitcher();
 
 public:
-	//E_Window *currentTaskbar, *switchTaskbar;
-	//CWnd currentCWnd, switchCWnd;
-	//CBitmap *currentBitmap, *switchBitmap;
 	bool ison, started, switchable, restore;
 
 	int initindex;

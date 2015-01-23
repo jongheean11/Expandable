@@ -5,6 +5,7 @@
 #include "E_Global.h"
 #include "E_EnvironmentManager.h"
 #include "E_AeroPeekController.h"
+#include "E_DesktopSwitcher.h"
 #define WM_TRAY_EVENT (WM_USER + 3)
 
 const COLORREF E_DragAndDropSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
@@ -566,6 +567,15 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 	}
 	if (started)
 	{
+		E_Window::setIconVisible(this->m_hWnd);
+		DestroyWindow();
+
+		ison = false;
+		cursor_left = false;
+		cursor_right = false;
+		cursor_top = false;
+		cursor_bottom = false;
+
 		started = false;
 		switchable = false;
 
@@ -585,22 +595,24 @@ void E_DragAndDropSwitcher::terminateSwitcher()
 			::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 		}
 
+		if (E_DesktopSwitcher::getSingleton()->ison)
+			E_DesktopSwitcher::getSingleton()->terminateSwitcher();
+
 		if (initindex != E_Global::getSingleton()->getSelectedIndex())
 			::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, switchIndex, 0);
 	}
 	if (ison)
 	{
+		E_Window::setIconVisible(this->m_hWnd);
+		DestroyWindow();
+
 		ison = false;
 		cursor_left = false;
 		cursor_right = false;
 		cursor_top = false;
 		cursor_bottom = false;
-
-		SetCursor(LoadCursor(NULL, IDC_ARROW));
-
-		E_Window::setIconVisible(this->m_hWnd);
-		DestroyWindow();
 	}
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
 }
 
 BEGIN_MESSAGE_MAP(E_DragAndDropSwitcher, CWnd)

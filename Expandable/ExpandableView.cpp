@@ -214,6 +214,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 			{
 				KillTimer(3);
+				E_DesktopSwitcher::getSingleton()->restore = false;
 				//SetTimer(4, 30, NULL);
 				E_DragAndDropSwitcher::getSingleton()->cursor_left = true;
 				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
@@ -224,6 +225,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			{
 				KillTimer(3);
 				//SetTimer(5, 30, NULL);
+				E_DesktopSwitcher::getSingleton()->restore = false;
 				E_DragAndDropSwitcher::getSingleton()->cursor_right = true;
 				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
 				SetTimer(30, 32, NULL);
@@ -232,6 +234,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			{
 				KillTimer(3);
 				//SetTimer(6, 30, NULL);
+				E_DesktopSwitcher::getSingleton()->restore = false;
 				E_DragAndDropSwitcher::getSingleton()->cursor_top = true;
 				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
 				SetTimer(30, 32, NULL);
@@ -240,6 +243,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			{
 				KillTimer(3);
 				//SetTimer(7, 30, NULL);
+				E_DesktopSwitcher::getSingleton()->restore = false;
 				E_DragAndDropSwitcher::getSingleton()->cursor_bottom = true;
 				E_DragAndDropSwitcher::getSingleton()->initSwitcher();
 				SetTimer(30, 32, NULL);
@@ -262,6 +266,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		{
 			KillTimer(30);
 			SetTimer(3, 32, NULL);
+			E_DesktopSwitcher::getSingleton()->restore = true;
 		}
 	}
 	else if (nIDEvent == E_Global::DLLINJECTIONTIMER)
