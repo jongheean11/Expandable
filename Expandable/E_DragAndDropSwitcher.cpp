@@ -154,7 +154,7 @@ void drawCurrentDesktop_noAero()
 	// 더블 버퍼링을 위한 코드
 	//메모리 DC를 생성한다. (버퍼 메모리 할당)
 	CDC memDC_current, memDC_switch;
-	//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)
+	//그릴 Bitmap을 생성한다. (한번에 그릴 도화지 정도 개념)		
 	CBitmap bmp_current, bmp_switch;
 	//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
 	memDC_current.CreateCompatibleDC(&currentDC);
@@ -216,7 +216,7 @@ void drawCurrentDesktop_noAero()
 		0,//currentTaskbarRECT->top,
 		drSwitcher->currentCWndRECT->right - drSwitcher->currentCWndRECT->left,
 		drSwitcher->currentCWndRECT->bottom - drSwitcher->currentCWndRECT->top,
-		&cdc_current, 0, 0, icon_info_desktop.bmWidth, icon_info_desktop.bmHeight, SRCCOPY);
+		&cdc_switch, 0, 0, icon_info_desktop.bmWidth, icon_info_desktop.bmHeight, SRCCOPY);
 	//dc.Rectangle(0, 0, 1000, 100);
 	switchDC.StretchBlt(0,
 		0,//currentTaskbarRECT->top, //0,
@@ -994,7 +994,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
 		//WS_EX_TOPMOST
 		
 		ison = true;
@@ -1111,11 +1111,11 @@ void E_DragAndDropSwitcher::startSwitcher()
 			UINT nClassStyle_window = 0;
 			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
 			currentCWnd = new CWnd();
-			currentCWnd->CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *currentCWndRECT, this, 0, NULL);
+			currentCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *currentCWndRECT, this, 0, NULL);
 			//WS_EX_TOPMOST
 			//E_Window::setIconInvisible(currentCWnd->m_hWnd);
 			switchCWnd = new CWnd();
-			switchCWnd->CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *switchCWndRECT, this, 0, NULL);
+			switchCWnd->CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *switchCWndRECT, this, 0, NULL);
 			//WS_EX_TOPMOST
 			//E_Window::setIconInvisible(switchCWnd->m_hWnd);
 			

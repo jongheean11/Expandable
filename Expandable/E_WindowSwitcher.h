@@ -32,6 +32,13 @@ private:
 	list<E_Window*> temp_windowlist;
 	list<E_Window*> temp_secondwindowlist;
 	list<char*> aero_exclude_winlist;
+
+	//E_Window* blur_selectedWindow;
+	//
+	////unordered_map<HWND, bool> blur_map;
+	//HWND blur_hwnd = NULL;
+	//bool changeAnimate = true;	//창의 변경 여부(블러 관련)
+	//bool startAnimate = false;	//블러 효과 관련
 protected:
 	
 
@@ -112,4 +119,9 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	CBitmap* getBackgroundCBitmap(long width, long height);
+	//void enableAnimate();
+	//void disableAnimate();
+	//void enableBlurWithout(E_Window* window);
+	//void disableAllBlur();
+	//void disableBlurWithout(E_Window* window);
 };

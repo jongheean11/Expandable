@@ -27,7 +27,7 @@ void E_WindowSwitcher::updateSelectedDesktop()
 	//TRACE_WIN32A("[E_WindowSwitcher::updateSelectedDesktop()]");
 }
 
-E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMode(SELECTEDDESKTOP), isfocus(false)
+E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMode(SELECTEDDESKTOP), isfocus(false)//, blur_selectedWindow(NULL)
 {
 	envManager = E_EnvironmentManager::getSingleton();
 
@@ -123,6 +123,7 @@ void E_WindowSwitcher::startSwitcher()
 	//스위처 시작 
 	running = true;
 	isfocus = true;
+	//startAnimate = false;
 	//윈도우를 띄움
 	this->ShowWindow(SW_SHOW);
 	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher END()");
@@ -135,8 +136,11 @@ void E_WindowSwitcher::terminateSwitcher()
 	if (running) {
 		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
 		isfocus = false;	//포커스 플래그 초기화
-		running = false;		
+		running = false;
+		/*startAnimate = false;
 
+		disableAnimate();
+		disableAllBlur();*/
 		stopTPMode();
 		//크리티컬 세션?									
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
@@ -184,6 +188,9 @@ void E_WindowSwitcher::terminateSwitcher()
 // 스위처를 재시작하는 함수
 void E_WindowSwitcher::restartSwitcher()
 {
+	//disableAnimate();
+	//disableAllBlur();
+
 	//투명 해제 모드
 	stopTPMode();
 	
@@ -389,8 +396,8 @@ void E_WindowSwitcher::OnPaint()
 				long allSwitcherHeight = switcherHeight + bottomPadding + secondSwitcherHeight;
 				long allswitcherLeft = resWidth / 2 - allSwitcherWidth / 2;
 				long allswitcherTop = resHeight / 2 - switcherHeight / 2;
-
-
+				
+				
 				//모든 스위처 왼쪽 오프셋 초기화
 				switcherLeft = allSwitcherWidth / 2 - switcherWidth / 2;
 				secondSwitcherLeft = allSwitcherWidth / 2 - secondSwitcherWidth / 2;
@@ -427,7 +434,7 @@ void E_WindowSwitcher::OnPaint()
 				//이제 memDC에 생성된 비트맵을 연결한다.
 				secondMemDC.SelectObject(secondBmp);
 
-				TRACE_WIN32A("[E_WindowSwitcher::OnPaint] OnPaint() 배경 그리기");
+				//TRACE_WIN32A("[E_WindowSwitcher::OnPaint] OnPaint() 배경 그리기");
 
 
 				//현재 데스크탑 배경 색
@@ -549,6 +556,16 @@ void E_WindowSwitcher::OnPaint()
 					//배경 그리기
 					//dc.Rectangle(temprect);
 					//memDC.FillRect(&temprect, &brush1);
+
+					////블러 효과
+					//if (startAnimate && changeAnimate && tabIndex == count && tabMode == SELECTEDDESKTOP || windowSize == 1){
+					//	/*
+					//	E_AeroPeekController* aerom = E_AeroPeekController::getSingleton(); 
+					//	aerom->enableBlurWindow(blur_hwnd);*/
+					//	
+					//	disableAllBlur();
+					//	enableBlurWithout((*iter));
+					//}
 
 					//탭 경계선 그리기
 					if (tabIndex == count && tabMode == SELECTEDDESKTOP || windowSize == 1) {	//바탕 화면만 있을 경우도 고려
@@ -807,6 +824,16 @@ void E_WindowSwitcher::OnPaint()
 					//배경 그리기
 					//dc.Rectangle(temprect);
 					//secondMemDC.FillRect(&temprect, &brush1);
+
+					////블러 효과
+					//if (startAnimate && changeAnimate && tabIndex == count && tabMode == SELECTEDDESKTOP || windowSize == 1){
+					//	/*
+					//	E_AeroPeekController* aerom = E_AeroPeekController::getSingleton();
+					//	aerom->enableBlurWindow(blur_hwnd);*/
+					//	disableAllBlur();
+					//	enableBlurWithout((*iter));
+					//}
+
 
 					//탭 경계선 그리기
 					if (tabIndex == secondCount && tabMode == OTHERDESKTOP) {
@@ -1180,6 +1207,9 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		HWND hwnd = itr->first;
 		if (rect.left < point.x && rect.right > point.x && rect.top < point.y && rect.bottom > point.y) {
 			if (IsWindow(itr->first) && group_map.find(itr->first) != group_map.end()){
+				/*disableAnimate();
+				disableAllBlur();*/
+
 				stopTPMode();
 				if (group_map.find(itr->first)->second == SELECTEDDESKTOP){
 					WINDOWPLACEMENT windowState;
@@ -1272,6 +1302,9 @@ void E_WindowSwitcher::selectTabWindow()
 	}
 	//TRACE_WIN32A("[GROUP BEFORE] %d", group_map.size());
 	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
+	/*	disableAnimate();
+		disableAllBlur();*/
+
 		stopTPMode();
 		//TRACE_WIN32A("[GROUP AFTER] %d", group_map.size());
 		if (group_map.find(hwnd)->second == SELECTEDDESKTOP){
@@ -1459,7 +1492,7 @@ void E_WindowSwitcher::selectNextWindow()
 	//에어로
 	E_Global* global = E_Global::getSingleton();
 	E_AeroPeekController* aero = E_AeroPeekController::getSingleton();
-
+	
 	RECT winRect;
 	winRect.left = 0;
 	winRect.top = 0;
@@ -1487,7 +1520,6 @@ void E_WindowSwitcher::selectNextWindow()
 
 	//현재 데스크탑
 	if (tabMode == SELECTEDDESKTOP){
-		//TRACE_WIN32A("[SELECTEDDESKTOP BEFORE tabIndex] %d", tabIndex);
 		tabIndex++;
 		
 		if (tabIndex + startTaboffset >= selectedSize){
@@ -1500,16 +1532,13 @@ void E_WindowSwitcher::selectNextWindow()
 			tabIndex = 13;
 			resetIconcwndAndAero();
 		}
-		//TRACE_WIN32A("[SELECTEDDESKTOP tabIndex] %d", tabIndex);
 	}
 	
 	//다른 데스크탑
 	else if (tabMode == OTHERDESKTOP){
-		//TRACE_WIN32A("[OTHERDESKTOP BEFORE tabIndex] %d", tabIndex);
 		tabIndex++;
 
 		if (tabIndex + startTaboffset >= otherSize){
-			//TRACE_WIN32A("[OTHERDESKTOP ING tabIndex] %d", tabIndex);
 			tabIndex = 0;
 			startTaboffset = 0;
 			resetIconcwndAndAero();
@@ -1519,12 +1548,14 @@ void E_WindowSwitcher::selectNextWindow()
 			tabIndex = 13;
 			resetIconcwndAndAero();
 		}
-		//TRACE_WIN32A("[OTHERDESKTOP AFTER tabIndex] %d", tabIndex);
 	}
 	Invalidate(0);
 	if (startTaboffset > 0){
 		Invalidate(1);
 	}
+
+	////블러 변경
+	//changeAnimate = true;
 }
 
 // 이전 윈도우로 이동
@@ -1591,6 +1622,9 @@ void E_WindowSwitcher::selectPrevWindow()
 		}
 	}
 	Invalidate(0);
+
+	//블러 변경
+	//changeAnimate = true;
 }
 
 // 다른 데스크탑으로 토글
@@ -1867,3 +1901,68 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	}
 	__super::OnTimer(nIDEvent);
 }
+
+
+//void E_WindowSwitcher::enableAnimate()
+//{
+//	startAnimate = true;
+//}
+//
+//
+//void E_WindowSwitcher::disableAnimate()
+//{
+//	startAnimate = false;
+//}
+//
+//
+//void E_WindowSwitcher::enableBlurWithout(E_Window* window)
+//{
+//	if (startAnimate){
+//		if (blur_selectedWindow != NULL){
+//			TRACE_WIN32A("[E_WindowSwitcher::enableBlurWithout]이미 선택된 Blur 창이 있습니다.");
+//			return;
+//		}
+//
+//		blur_selectedWindow = window;
+//		E_AeroPeekController* aerom = E_AeroPeekController::getSingleton();
+//
+//		for (list<E_Window*>::iterator iter = temp_windowlist.begin(); iter != temp_windowlist.end(); iter++){
+//			if (IsWindow((*iter)->getWindow()))
+//				aerom->enableBlurWindow((*iter)->getWindow());
+//		}
+//		for (list<E_Window*>::iterator iter = temp_secondwindowlist.begin(); iter != temp_secondwindowlist.end(); iter++){
+//			if (IsWindow((*iter)->getWindow()))
+//				aerom->enableBlurWindow((*iter)->getWindow());
+//		}
+//		if (NULL != blur_selectedWindow && IsWindow(blur_selectedWindow->getWindow())){
+//			blur_selectedWindow->setOpaque();
+//		}
+//	}
+//}
+//
+//
+//
+//void E_WindowSwitcher::disableAllBlur()
+//{
+//	//if (startAnimate){
+//		E_AeroPeekController* aerom = E_AeroPeekController::getSingleton();
+//		for (list<E_Window*>::iterator iter = temp_windowlist.begin(); iter != temp_windowlist.end(); iter++){
+//			if (IsWindow((*iter)->getWindow()))
+//				aerom->disableBlurWindow((*iter)->getWindow());
+//		}
+//		for (list<E_Window*>::iterator iter = temp_secondwindowlist.begin(); iter != temp_secondwindowlist.end(); iter++){
+//			if (IsWindow((*iter)->getWindow()))
+//				aerom->disableBlurWindow((*iter)->getWindow());
+//		}
+//		if (NULL != blur_selectedWindow && IsWindow(blur_selectedWindow->getWindow())){
+//			if (blur_selectedWindow->getTPMode() == true)
+//				blur_selectedWindow->setTransparent();
+//		}
+//		blur_selectedWindow = NULL;
+//	//}
+//}
+//
+//
+//void E_WindowSwitcher::disableBlurWithout(E_Window* window)
+//{
+//}

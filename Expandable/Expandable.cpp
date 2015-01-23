@@ -214,6 +214,9 @@ protected:
 // 구현입니다.
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	// 블러효과 추가
+//	void enableBlurWindow();
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -258,3 +261,9 @@ void CExpandableApp::SaveCustomState()
 
 
 
+
+
+// 블러효과 추가
+//void CAboutDlg::enableBlurWindow()
+//{
+//}

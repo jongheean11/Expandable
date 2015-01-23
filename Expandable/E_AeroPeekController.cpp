@@ -107,3 +107,27 @@ bool E_AeroPeekController::existHandle(HTHUMBNAIL thumbnail)
 	}
 	return result;
 }
+
+
+void E_AeroPeekController::enableBlurWindow(HWND hwnd)
+{
+	DWM_BLURBEHIND binfo;
+	binfo.dwFlags = DWM_BB_ENABLE;
+	binfo.fEnable = TRUE;
+	binfo.fTransitionOnMaximized = TRUE;
+	binfo.hRgnBlur = NULL;
+
+	DwmEnableBlurBehindWindow(hwnd, &binfo);
+}
+
+
+void E_AeroPeekController::disableBlurWindow(HWND hwnd)
+{
+	DWM_BLURBEHIND binfo;
+	binfo.dwFlags = DWM_BB_ENABLE;
+	binfo.fEnable = FALSE;
+	binfo.fTransitionOnMaximized = TRUE;
+	binfo.hRgnBlur = NULL;
+
+	DwmEnableBlurBehindWindow(hwnd, &binfo);
+}
