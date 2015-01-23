@@ -16,6 +16,7 @@ private:
 	E_EnvironmentManager* envManager;
 	bool running;
 	bool updateFlag;
+	bool tpmode;
 	int tabIndex;
 	int startTaboffset;
 	GROUP2 tabMode;

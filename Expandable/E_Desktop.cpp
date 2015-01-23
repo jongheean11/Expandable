@@ -102,7 +102,7 @@ void E_Desktop::setAllNormalExcludeRemoveDirty(list<char*> exclude)
 						placement.rcNormalPosition = rect;
 						placement.showCmd = SW_MINIMIZE;	//최소화로 예상하고 해결
 						(*itr)->saveRect(placement);
-
+						
 						MoveWindow((*itr)->getWindow(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right - rect.left, rect.bottom - rect.top, FALSE);
 					}
 

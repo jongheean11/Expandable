@@ -1062,13 +1062,17 @@ void E_Global::moveDesktop(int index)
 		if (last != NULL){
 
 			selectedDesktop->setAllHide();//숨김
-			for (list<HWND>::iterator iter = dockedWindowList.begin(); iter != dockedWindowList.end(); iter++){
-				ShowWindow((*iter), SW_SHOW);
-			}
 			last->setAllShow();	//보여줌
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
+			
+			for (list<HWND>::iterator iter = dockedWindowList.begin(); iter != dockedWindowList.end(); iter++){
+				char name[255] = { 0, };
+				GetWindowTextA((*iter), name, 255);
+				TRACE_WIN32A("독 윈도우: %s", name);	
+				ShowWindow((*iter), SW_SHOW);
+			}
 		}
 	}
 }
