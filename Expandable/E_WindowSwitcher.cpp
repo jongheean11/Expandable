@@ -426,6 +426,7 @@ void E_WindowSwitcher::OnPaint()
 					rect.bottom = switcherHeight;
 					memDC.FillRect(&rect, &brush);
 					brush.DeleteObject();
+					cbm->DeleteObject();
 				}
 				
 				//다른 데스크탑 배경
@@ -442,6 +443,7 @@ void E_WindowSwitcher::OnPaint()
 						rect.bottom = secondSwitcherHeight;
 						secondMemDC.FillRect(&rect, &brush);
 						brush.DeleteObject();
+						cbm->DeleteObject();
 					}
 				}
 				  
@@ -708,7 +710,7 @@ void E_WindowSwitcher::OnPaint()
 							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 							cdc.DeleteDC();
-							//iconDC->DeleteDC();
+							ReleaseDC(iconDC);
 						}
 					}
 
@@ -1792,14 +1794,12 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	HGDIOBJ hOld = SelectObject(memdc, hbm);
 	SelectObject(memdc2, hbmOrig);
 	StretchBlt(memdc, 0, 0, width, height, memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
-	::ReleaseDC(::GetDesktopWindow(), dc);
 	
 	SelectObject(memdc, hOld);
 	DeleteDC(memdc);
 	DeleteDC(memdc2);
 	
-	//DeleteObject(hbm);
-	//DeleteObject(hOld);	
+	::ReleaseDC(::GetDesktopWindow(), dc);
 
 	DeleteObject(hbmOrig);	//비트맵 해제
 
