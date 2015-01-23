@@ -3,6 +3,7 @@
 #include "E_Map.h"
 #include "E_Global.h"
 #include <stdint.h>
+#include "E_AeroPeekController.h"
 #define WM_TRAY_EVENT (WM_USER + 3)
 #define WM_USER_MAPR (WM_USER + 5)
 #define WM_INVALIDATE (WM_USER + 6)
@@ -84,7 +85,8 @@ void E_Map::drawMap()
 		//
 		SetTimer(1, 1000, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
-		::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+		if (E_AeroPeekController::getSingleton()->isAeroPeekMode())
+			::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 		::SetLayeredWindowAttributes(hwnd_cwnd_emap->m_hWnd, 0, e_global->getTransparent(), LWA_ALPHA); //창투명
 		hwnd_cwnd_emap->UpdateWindow();
 		//hwnd_cwnd_emap->SetWindowPos(NULL, w*0.85, (h - th)*0.75, w*0.15, (h - th)*0.25, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -600,6 +602,7 @@ void E_Map::OnPaint()
 	memDC.DeleteDC();
 	bmp.DeleteObject();
 	brush.DeleteObject();
+	DeleteDC(dc);
 
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 	// 그리기 메시지에 대해서는 CWnd::OnPaint()을(를) 호출하지 마십시오.
