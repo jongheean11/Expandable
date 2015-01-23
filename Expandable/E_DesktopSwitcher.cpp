@@ -588,6 +588,8 @@ void E_DesktopSwitcher::startSwitcher()
 		SetCapture();
 
 		stealFocus(this->m_hWnd);
+
+		restore = true;
 	}
 	else
 	{
@@ -599,6 +601,11 @@ void E_DesktopSwitcher::terminateSwitcher()
 {
 	if (restore)
 	{
+		if (initindex != E_Global::getSingleton()->getSelectedIndex())
+		{
+			E_Global::getSingleton()->getSelectedDesktop()->setAllIconInvisible();
+			E_Global::getSingleton()->setSelectedIndex(initindex);
+		}
 		restore = false;
 	}
 
