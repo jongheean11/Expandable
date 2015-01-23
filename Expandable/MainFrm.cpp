@@ -578,12 +578,12 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//알트 탭
 	case 'A':
 	{
+
+				TRACE_WIN32A("알트 탭");
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
 					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
 						return;
 
-
-				TRACE_WIN32A("알트 탭");
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
 				if (switcher->isRunning() == false){
 					//스위처가 동작중이 아닐 때
