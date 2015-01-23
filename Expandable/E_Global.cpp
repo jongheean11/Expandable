@@ -171,7 +171,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 	
 	WCHAR Cap[255];
 	WCHAR expandable[100];
-	WCHAR expan[] = TEXT("expandable");
+	WCHAR expan[] = TEXT("E_expandable");
 	WCHAR expan1[] = TEXT("E_DragAndDropSwitcher");
 	WCHAR expan2[] = TEXT("E_DesktopSwitcher");
 	WCHAR expan3[] = TEXT("E_WindowSwitcher");
