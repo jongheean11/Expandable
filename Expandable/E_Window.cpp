@@ -4,6 +4,9 @@
 
 E_Window::E_Window(HWND window) : tpmode(false)
 {
+	//윈도우 이름
+	GetWindowTextA(window, windowName, 255);
+
 	this->window = window;
 	//스크린샷
 	SetMinimizeMaximizeAnimation(false);
@@ -16,8 +19,6 @@ E_Window::E_Window(HWND window) : tpmode(false)
 	HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
 	icon.Attach(bitmap);
 
-	//윈도우 이름
-	GetWindowTextA(window, windowName, 255);
 	savedState = 0xffffffff;
 }
 
