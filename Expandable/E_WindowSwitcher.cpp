@@ -116,7 +116,10 @@ void E_WindowSwitcher::startSwitcher()
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
+	//동작 중
 	SetTimer(1, 50, NULL);
+
+	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher()");
 }
 
 
@@ -124,16 +127,18 @@ void E_WindowSwitcher::startSwitcher()
 void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
-		stopTPMode();
 		isfocus = false;	//포커스 플래그 초기화
 		running = false;
+
+		stopTPMode();
 		//크리티컬 세션?
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 		//E_Global::getSingleton()->stopUpdate();
 
-		HRESULT result;
 		this->ShowWindow(SW_HIDE);
+		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] SW_HIDE");
 
+		HRESULT result;
 		//자원 정리
 		for (unordered_map<HWND, HTHUMBNAIL>::iterator iter = thumb_map.begin(); iter != thumb_map.end(); iter++) {
 			result = aeroManager->unregisterAero(iter->second);
@@ -164,6 +169,8 @@ void E_WindowSwitcher::terminateSwitcher()
 			, 0
 			, 1, 1
 			, SWP_NOZORDER);
+
+		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher()");
 	}
 }
 
@@ -268,7 +275,7 @@ void E_WindowSwitcher::OnPaint()
 
 	E_Global* global = E_Global::getSingleton();
 	//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
-	if (E_AeroPeekController::getSingleton()->isAeroPeekMode() || true ){	//에어로픽 모드일때만 동작하지 않도록   ) {
+	if ((E_AeroPeekController::getSingleton()->isAeroPeekMode() || true) && running ){	//에어로픽 모드일때만 동작하지 않도록   ) {
 
 		//aero peek size...
 		//전체 데스크탑 공용 변수...
@@ -412,6 +419,9 @@ void E_WindowSwitcher::OnPaint()
 				secondBmp.CreateCompatibleBitmap(&dc, secondSwitcherWidth, secondSwitcherHeight);
 				//이제 memDC에 생성된 비트맵을 연결한다.
 				secondMemDC.SelectObject(secondBmp);
+
+				TRACE_WIN32A("[E_WindowSwitcher::OnPaint] OnPaint() 배경 그리기");
+
 
 				//현재 데스크탑 배경 색
 				{
@@ -1392,7 +1402,13 @@ void E_WindowSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 {
 	__super::OnKillFocus(pNewWnd);
+	if (pNewWnd->GetSafeHwnd() != NULL){
 
+	}
+	wchar_t name[255] = { 0, };
+	::GetWindowTextW(pNewWnd->GetSafeHwnd(),name, 255);
+	
+	TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] %s", name);
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	if (running==true)
 		terminateSwitcher();
@@ -1816,15 +1832,12 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (!isfocus)
 		{
-			isfocus = true;
-			
-			//동작 중
 			running = true;
-			
+			isfocus = true;
 			//윈도우를 띄움
 			this->ShowWindow(SW_SHOW);
 			this->stealFocus2(this->GetSafeHwnd());
-			::SetFocus(focushwnd);
+			//::SetFocus(focushwnd);
 		
 			KillTimer(1);
 		}

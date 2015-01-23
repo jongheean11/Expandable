@@ -144,11 +144,12 @@ void drawCurrentDesktop_noAero()
 	CPaintDC dc(drSwitcher);
 	CPaintDC currentDC((drSwitcher->currentCWnd));
 	CPaintDC switchDC((drSwitcher->switchCWnd));
-	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 
-	//////CBitmap *currentBitmap = currentTaskbar->getScreenshot();
-	BITMAP bmpinfo_current, bmpinfo_switch;
-	//////currentBitmap->GetBitmap(&bmpinfo_current);
+	CBitmap *currentDesktopBitmap = drSwitcher->desktopWindow->getScreenshot(),
+		*currentTaskbarBitmap = drSwitcher->taskbarWindow->getScreenshot();
+	BITMAP bmpinfo_desktop, bmpinfo_taskbar;
+	currentDesktopBitmap->GetBitmap(&bmpinfo_desktop);
+	currentTaskbarBitmap->GetBitmap(&bmpinfo_taskbar);
 
 	// 더블 버퍼링을 위한 코드
 	//메모리 DC를 생성한다. (버퍼 메모리 할당)
@@ -157,49 +158,109 @@ void drawCurrentDesktop_noAero()
 	CBitmap bmp_current, bmp_switch;
 	//메모리 DC를 위의 CPaintDC인 dc에 호환되게 만들어 준다.
 	memDC_current.CreateCompatibleDC(&currentDC);
+	memDC_switch.CreateCompatibleDC(&switchDC);
 	//주어진 dc에 호환하는 비트맵을 생성한다.
-	//////bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), currentTaskbarRECT->bottom - currentTaskbarRECT->top);
+	//bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), drSwitcher->currentTaskbarRECT->bottom - drSwitcher->currentTaskbarRECT->top);
+	bmp_current.CreateCompatibleBitmap(&currentDC, enManager->getWidth(), enManager->getHeight());
+	bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), enManager->getHeight());
 	//이제 memDC에 생성된 비트맵을 연결한다.
 	memDC_current.SelectObject(bmp_current);
+	memDC_switch.SelectObject(bmp_switch);
 
-	BITMAP icon_info_current, icon_info_switch;
-	//////currentBitmap->GetBitmap(&icon_info_current);
+	BITMAP icon_info_desktop, icon_info_taskbar;
+	currentDesktopBitmap->GetBitmap(&icon_info_desktop);
+	currentTaskbarBitmap->GetBitmap(&icon_info_taskbar);
 	CDC cdc_current, cdc_switch;
 	cdc_current.CreateCompatibleDC(&currentDC);
-	//////cdc_current.SelectObject(currentBitmap);
+	cdc_current.SelectObject(currentDesktopBitmap);
+	cdc_switch.CreateCompatibleDC(&switchDC);
+	cdc_switch.SelectObject(currentDesktopBitmap);
 
 	//memDC.SetStretchBltMode(COLORONCOLOR);
 	//memDC.Rectangle(0, 0, 100, 100);
 
-	//////memDC_current.StretchBlt(0,0, currentTaskbarRECT->right - currentTaskbarRECT->left, currentTaskbarRECT->bottom - currentTaskbarRECT->top,&cdc_current, 0, 0, icon_info_current.bmWidth, icon_info_current.bmHeight, SRCCOPY);
-	cdc_current.DeleteDC();
-
-
+	memDC_current.StretchBlt(0,//currentTaskbarRECT->left,
+		0,//currentTaskbarRECT->top,
+		drSwitcher->currentCWndRECT->right - drSwitcher->currentCWndRECT->left,
+		drSwitcher->currentCWndRECT->bottom - drSwitcher->currentCWndRECT->top,
+		&cdc_current, 0, 0, icon_info_desktop.bmWidth, icon_info_desktop.bmHeight, SRCCOPY);
 	//dc.Rectangle(0, 0, 1000, 100);
 	currentDC.StretchBlt(0,
-		0,//currentTaskbarRECT->top, //0,
-		enManager->getWidth(), icon_info_current.bmHeight,//enManager->getHeight(),
+		0, //currentTaskbarRECT->top, //0,
+		enManager->getWidth(), enManager->getHeight(),
 		&memDC_current,
 		0, 0,
-		icon_info_current.bmWidth, icon_info_current.bmHeight,
+		icon_info_desktop.bmWidth, icon_info_desktop.bmHeight,
 		SRCCOPY);
 
+	/*cdc_current.SelectObject(currentTaskbarBitmap);
+	memDC_current.StretchBlt(0,//currentTaskbarRECT->left,
+		drSwitcher->currentTaskbarRECT->top,
+		drSwitcher->currentTaskbarRECT->right - drSwitcher->currentTaskbarRECT->left,
+		drSwitcher->currentTaskbarRECT->bottom - drSwitcher->currentTaskbarRECT->top,
+		&cdc_current, 0, 0, icon_info_taskbar.bmWidth, icon_info_taskbar.bmHeight, SRCCOPY);
+	currentDC.StretchBlt(0,
+		drSwitcher->currentTaskbarRECT->top, //0,
+		enManager->getWidth(), drSwitcher->currentTaskbarRECT->bottom - drSwitcher->currentTaskbarRECT->top,
+		&memDC_current,
+		0, 0,
+		icon_info_taskbar.bmWidth, icon_info_taskbar.bmHeight,
+		SRCCOPY);
+		*/
 	//dc 해제
+	cdc_current.DeleteDC();
 	memDC_current.DeleteDC();
 	bmp_current.DeleteObject();
 
+	memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
+		0,//currentTaskbarRECT->top,
+		drSwitcher->currentCWndRECT->right - drSwitcher->currentCWndRECT->left,
+		drSwitcher->currentCWndRECT->bottom - drSwitcher->currentCWndRECT->top,
+		&cdc_current, 0, 0, icon_info_desktop.bmWidth, icon_info_desktop.bmHeight, SRCCOPY);
+	//dc.Rectangle(0, 0, 1000, 100);
+	switchDC.StretchBlt(0,
+		0,//currentTaskbarRECT->top, //0,
+		enManager->getWidth(), enManager->getHeight(),
+		&memDC_switch,
+		0, 0,
+		icon_info_desktop.bmWidth, icon_info_desktop.bmHeight,
+		SRCCOPY);
+
+	/*cdc_switch.SelectObject(currentTaskbarBitmap);
+	memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
+		drSwitcher->currentTaskbarRECT->top,
+		drSwitcher->currentTaskbarRECT->right - drSwitcher->currentTaskbarRECT->left,
+		drSwitcher->currentTaskbarRECT->bottom - drSwitcher->currentTaskbarRECT->top,
+		&cdc_switch, 0, 0, icon_info_taskbar.bmWidth, icon_info_taskbar.bmHeight, SRCCOPY);
+	switchDC.StretchBlt(0,
+		drSwitcher->currentTaskbarRECT->top, //0,
+		enManager->getWidth(), drSwitcher->currentTaskbarRECT->bottom - drSwitcher->currentTaskbarRECT->top,
+		&memDC_switch,
+		0, 0,
+		icon_info_taskbar.bmWidth, icon_info_taskbar.bmHeight,
+		SRCCOPY);
+		*/
+	cdc_switch.DeleteDC();
+	memDC_switch.DeleteDC();
+	bmp_switch.DeleteObject();
+
+	/*
 	memDC_switch.CreateCompatibleDC(&switchDC);
 
-	//////bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), switchTaskbarRECT->bottom - switchTaskbarRECT->top);
+	bmp_switch.CreateCompatibleBitmap(&switchDC, enManager->getWidth(), enManager->getHeight());
 	memDC_switch.SelectObject(bmp_switch);
 	cdc_switch.CreateCompatibleDC(&switchDC);
 
-	//////CBitmap *switchBitmap = switchTaskbar->getScreenshot();
-	//////switchBitmap->GetBitmap(&bmpinfo_switch);
-	//////switchBitmap->GetBitmap(&icon_info_switch);
-	//////cdc_switch.SelectObject(switchBitmap);
+	CBitmap *switchBitmap = switchTaskbar->getScreenshot();
+	switchBitmap->GetBitmap(&bmpinfo_switch);
+	switchBitmap->GetBitmap(&icon_info_switch);
+	cdc_switch.SelectObject(switchBitmap);
 
-	//////memDC_switch.StretchBlt(0, 0,switchTaskbarRECT->right - switchTaskbarRECT->left,switchTaskbarRECT->bottom - switchTaskbarRECT->top,&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
+	memDC_switch.StretchBlt(0,//currentTaskbarRECT->left,
+		0,//currentTaskbarRECT->top,
+		switchTaskbarRECT->right - switchTaskbarRECT->left,
+		switchTaskbarRECT->bottom - switchTaskbarRECT->top,
+		&cdc_switch, 0, 0, icon_info_switch.bmWidth, icon_info_switch.bmHeight, SRCCOPY);
 
 	cdc_switch.DeleteDC();
 
@@ -213,7 +274,7 @@ void drawCurrentDesktop_noAero()
 
 	memDC_switch.DeleteDC();
 	bmp_switch.DeleteObject();
-
+	*/
 	E_Global::getSingleton()->getSelectedDesktop()->setAllIconVisible();
 
 	LONG plus_width = 0, plus_height = 0;
@@ -582,6 +643,264 @@ void drawSwitchDesktop()
 	}
 }
 
+void drawSwitchDesktop_noAero()
+{
+	E_Global* e_global = E_Global::getSingleton();
+	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
+	E_AeroPeekController* aeController = E_AeroPeekController::getSingleton();
+
+	HTHUMBNAIL pushThumbnail;
+
+	drSwitcher->switchDesktop;
+
+	LONG width = 0, height = 0;
+
+	if (drSwitcher->cursor_left)
+	{
+		width = 0;
+
+		drSwitcher->switchDesktopRECT = new RECT
+		{
+			0,
+			drSwitcher->sizeRect_background.top,
+			drSwitcher->sizeRect_background.right,
+			drSwitcher->sizeRect_background.bottom
+		};
+		aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->switchDesktopRECT), drSwitcher->switchDesktopThumbnail);
+
+		drSwitcher->switchTaskbarRECT = new RECT
+		{
+			0,
+			drSwitcher->sizeRect_taskbar.top,
+			drSwitcher->sizeRect_taskbar.right,
+			drSwitcher->sizeRect_taskbar.bottom
+		};
+		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
+
+		drSwitcher->switchIndex = 0;
+		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		for (int p = 0; p < e_global->getSelectedIndex() - 1; p++)
+		{
+			itr_desktop++;
+			drSwitcher->switchIndex++;
+		}
+		if ((e_global->getSelectedIndex() % e_global->getDesktopWidth()) == 0)
+		{
+			for (int p = 0; p != (e_global->getDesktopWidth() - 1); p++)
+			{
+				itr_desktop++;
+				drSwitcher->switchIndex++;
+			}
+		}
+		drSwitcher->switchDesktop = *itr_desktop;
+	}
+	else if (drSwitcher->cursor_right)
+	{
+		width = drSwitcher->sizeRect_background.right;
+
+		drSwitcher->switchDesktopRECT = new RECT
+		{
+			drSwitcher->sizeRect_background.right + drSwitcher->sizeRect_background.left,
+			drSwitcher->sizeRect_background.top,
+			drSwitcher->sizeRect_background.right + drSwitcher->sizeRect_background.right,
+			drSwitcher->sizeRect_background.bottom
+		};
+		aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->switchDesktopRECT), drSwitcher->switchDesktopThumbnail);
+
+		drSwitcher->switchTaskbarRECT = new RECT
+		{
+			drSwitcher->sizeRect_taskbar.right + drSwitcher->sizeRect_taskbar.left,
+			drSwitcher->sizeRect_taskbar.top,
+			drSwitcher->sizeRect_taskbar.right + drSwitcher->sizeRect_taskbar.right,
+			drSwitcher->sizeRect_taskbar.bottom
+		};
+		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
+
+		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
+		if (((e_global->getSelectedIndex() + 1) % e_global->getDesktopWidth()) == 0)
+		{
+			drSwitcher->switchIndex = ((int)(e_global->getSelectedIndex() / e_global->getDesktopWidth())) * e_global->getDesktopWidth();
+		}
+		else
+		{
+			drSwitcher->switchIndex = e_global->getSelectedIndex() + 1;
+		}
+		for (int j = 0; j<drSwitcher->switchIndex; j++)
+		{
+			itr_desktop++;
+		}
+		drSwitcher->switchDesktop = *itr_desktop;
+	}
+	else if (drSwitcher->cursor_top)
+	{
+		height = 0;
+
+		drSwitcher->switchDesktopRECT = new RECT
+		{
+			drSwitcher->sizeRect_background.left,
+			0,
+			drSwitcher->sizeRect_background.right,
+			drSwitcher->sizeRect_background.bottom
+		};
+		aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->switchDesktopRECT), drSwitcher->switchDesktopThumbnail);
+
+		drSwitcher->switchTaskbarRECT = new RECT
+		{
+			drSwitcher->sizeRect_taskbar.left,
+			drSwitcher->sizeRect_taskbar.top,
+			drSwitcher->sizeRect_taskbar.right,
+			drSwitcher->sizeRect_taskbar.bottom
+		};
+		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
+
+		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
+		if ((e_global->getSelectedIndex() / e_global->getDesktopWidth()) == 0)
+		{
+			for (int p = 0; p != (e_global->getDesktopCount() - (e_global->getDesktopWidth() - e_global->getSelectedIndex())); p++)
+			{
+				itr_desktop++;
+				drSwitcher->switchIndex++;
+			}
+		}
+		else
+		{
+			for (int p = 0; p != (e_global->getSelectedIndex() - e_global->getDesktopWidth()); p++)
+			{
+				itr_desktop++;
+				drSwitcher->switchIndex++;
+			}
+		}
+		drSwitcher->switchDesktop = *itr_desktop;
+	}
+	else
+	{
+		height = drSwitcher->sizeRect_background.bottom;
+
+		drSwitcher->switchDesktopRECT = new RECT
+		{
+			drSwitcher->sizeRect_background.left,
+			drSwitcher->sizeRect_background.bottom + drSwitcher->sizeRect_background.top,
+			drSwitcher->sizeRect_background.right,
+			drSwitcher->sizeRect_background.bottom + drSwitcher->sizeRect_background.bottom
+		};
+		aeController->registerAero(drSwitcher->hShellWnd, drSwitcher->m_hWnd, *(drSwitcher->switchDesktopRECT), drSwitcher->switchDesktopThumbnail);
+
+		drSwitcher->switchTaskbarRECT = new RECT
+		{
+			drSwitcher->sizeRect_taskbar.left,
+			drSwitcher->sizeRect_taskbar.bottom + drSwitcher->sizeRect_taskbar.top,
+			drSwitcher->sizeRect_taskbar.right,
+			drSwitcher->sizeRect_taskbar.bottom + drSwitcher->sizeRect_taskbar.bottom
+		};
+		aeController->registerAero(drSwitcher->hTaskbarWnd, drSwitcher->m_hWnd, *(drSwitcher->switchTaskbarRECT), drSwitcher->switchTaskbarThumbnail);
+
+		list<E_Desktop*>::iterator itr_desktop = e_global->desktopList.begin();
+		drSwitcher->switchIndex = 0;
+		if ((e_global->getSelectedIndex() / e_global->getDesktopWidth()) == e_global->getDesktopWidth() - 1)
+		{
+			for (int p = 0; p != (e_global->getSelectedIndex() % e_global->getDesktopWidth()); p++)
+			{
+				itr_desktop++;
+				drSwitcher->switchIndex++;
+			}
+		}
+		else
+		{
+			for (int p = 0; p != e_global->getSelectedIndex() + e_global->getDesktopWidth(); p++)
+			{
+				itr_desktop++;
+				drSwitcher->switchIndex++;
+			}
+		}
+		drSwitcher->switchDesktop = *itr_desktop;
+	}
+
+	for (list<HWND>::iterator itr_window_docked = e_global->dockedWindowList.begin(); itr_window_docked != e_global->dockedWindowList.end(); itr_window_docked++)
+	{
+		UINT state;
+		WINDOWPLACEMENT windowinfo;
+		GetWindowPlacement(*itr_window_docked, &windowinfo);
+		UINT winstate = windowinfo.showCmd;
+		BOOL isVisible = IsWindowVisible(*itr_window_docked);
+		BOOL isMinimized = IsIconic(*itr_window_docked);
+		if (!((state = winstate) == SW_FORCEMINIMIZE
+			|| (state = winstate) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+			|| (state = winstate) == SW_MINIMIZE
+			|| (state = winstate) == SW_SHOWMINIMIZED
+			|| (state = winstate) == SW_SHOWMINNOACTIVE
+			|| isVisible == FALSE
+			|| isMinimized == TRUE)
+			&& IsWindow(*itr_window_docked))
+		{
+			CRect getSize;
+			GetWindowRect(*itr_window_docked, &getSize);
+			RECT *windowRECT = new RECT
+			{
+				getSize.left + width,
+				getSize.top + height,
+				getSize.right + width,
+				getSize.bottom + height
+			};
+			aeController->registerAero(*itr_window_docked, drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		}
+	}
+
+	for (list<E_Window*>::iterator itr = drSwitcher->switchDesktop->windowList.begin(); itr != drSwitcher->switchDesktop->windowList.end(); itr++)
+	{
+		if (!(*itr)->dock)
+			(*itr)->setShow();
+	}
+
+	//drSwitcher->switchDesktop->setAllShow();
+	std::list<E_Window*> window_list = drSwitcher->switchDesktop->getWindowList();
+	std::list<E_Window*> window_list_topmost;
+	for (std::list<E_Window*>::iterator itr_window = window_list.begin(); itr_window != window_list.end(); itr_window++)
+	{
+		if (((*itr_window)->isAeroPossible()) && IsWindow((*itr_window)->getWindow()) && (!(*itr_window)->dock))
+		{
+			//(*itr_window)->setShow();
+			DWORD dwExStyle = ::GetWindowLong((*itr_window)->getWindow(), GWL_EXSTYLE);
+			if ((dwExStyle & WS_EX_TOPMOST) != 0)
+			{
+				window_list_topmost.push_front(*itr_window);
+			}
+			else
+			{
+				CRect getSize;
+				GetWindowRect((*itr_window)->getWindow(), &getSize);
+
+				RECT *windowRECT = new RECT
+				{
+					getSize.left + width,
+					getSize.top + height,
+					getSize.right + width,
+					getSize.bottom + height
+				};
+				aeController->registerAero((*itr_window)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+				//drSwitcher->switch_RECT_HTHUMBNAIL_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+			}
+		}
+	}
+	for (std::list<E_Window*>::iterator itr_window = window_list_topmost.begin(); itr_window != window_list_topmost.end(); itr_window++)
+	{
+		CRect getSize;
+		GetWindowRect((*itr_window)->getWindow(), &getSize);
+
+		RECT *windowRECT = new RECT
+		{
+			getSize.left + width,
+			getSize.top + height,
+			getSize.right + width,
+			getSize.bottom + height
+		};
+		aeController->registerAero((*itr_window)->getWindow(), drSwitcher->m_hWnd, *windowRECT, pushThumbnail);
+		//drSwitcher->switch_RECT_HTHUMBNAIL_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(windowRECT, pushThumbnail));
+	}
+}
+
 void drawDragAndDropSwitcher()
 {
 	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
@@ -596,12 +915,10 @@ void drawDragAndDropSwitcher()
 	EndPaint(*drSwitcher, &ps);
 }
 
-void drawDragAndDropSwitcher()
+void drawDragAndDropSwitcher_noAero()
 {
-	E_DragAndDropSwitcher* drSwitcher = E_DragAndDropSwitcher::getSingleton();
-
 	drawCurrentDesktop_noAero();
-	//////drawSwitchDesktop_noAero();
+	drawSwitchDesktop_noAero();
 }
 
 E_DragAndDropSwitcher::E_DragAndDropSwitcher()
@@ -677,11 +994,12 @@ void E_DragAndDropSwitcher::initSwitcher()
 		movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 		UINT nClassStyle_window = 0;
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, movingCRect, CWnd::GetDesktopWindow(), 0);
+		//WS_EX_TOPMOST
 		
 		ison = true;
 
-		E_Window::setIconInvisible(this->m_hWnd);
+		//E_Window::setIconInvisible(this->m_hWnd);
 
 		SetCursor(LoadCursor(NULL, IDC_APPSTARTING));
 	}
@@ -701,11 +1019,11 @@ void E_DragAndDropSwitcher::startSwitcher()
 		hShellWnd = ::GetShellWindow(); // 바탕화면 hwnd
 		::GetWindowRect(hShellWnd, &(sizeRect_background)); // 바탕화면 크기 얻기
 
-		if (E_AeroPeekController::getSingleton()->isAeroPeekMode())
+		E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+
+		if (!E_AeroPeekController::getSingleton()->isAeroPeekMode())//////
 		{
 			drawDragAndDropSwitcher();
-
-			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 
 			if (cursor_left)
 			{
@@ -753,10 +1071,6 @@ void E_DragAndDropSwitcher::startSwitcher()
 		}
 		else
 		{
-			//////drawDragAndDropSwitcher_noAero();
-
-			E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-
 			if (cursor_left)
 			{
 				main_left = 0;
@@ -789,6 +1103,28 @@ void E_DragAndDropSwitcher::startSwitcher()
 			movingCRect = CRect(main_left, main_top, main_right, main_bottom);
 			MoveWindow(movingCRect);
 
+			currentCWndRECT = new RECT{ 0, 0, enManager->getWidth(), enManager->getHeight() };
+			switchCWndRECT = new RECT{ 0, 0, enManager->getWidth(), enManager->getHeight() };
+			currentTaskbarRECT = new CRect(sizeRect_taskbar);
+			switchTaskbarRECT = new CRect(sizeRect_taskbar);
+
+			UINT nClassStyle_window = 0;
+			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
+			currentCWnd = new CWnd();
+			currentCWnd->CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *currentCWndRECT, this, 0, NULL);
+			//WS_EX_TOPMOST
+			//E_Window::setIconInvisible(currentCWnd->m_hWnd);
+			switchCWnd = new CWnd();
+			switchCWnd->CreateEx(NULL, szClassName_window, L"E_DragAndDropSwitcher", WS_VISIBLE | WS_POPUP, *switchCWndRECT, this, 0, NULL);
+			//WS_EX_TOPMOST
+			//E_Window::setIconInvisible(switchCWnd->m_hWnd);
+			
+			//desktopWindow = new E_Window(hShellWnd);
+			desktopWindow = E_Global::getSingleton()->backgroundWindow;
+			taskbarWindow = new E_Window(hTaskbarWnd);
+
+			drawDragAndDropSwitcher_noAero();
+
 			ShowWindow(SW_SHOW);
 
 			::GetCursorPos(&prev_point);
@@ -796,14 +1132,6 @@ void E_DragAndDropSwitcher::startSwitcher()
 			SetCursor(LoadCursor(NULL, IDC_HAND));
 
 			restore = true;
-
-			UINT nClassStyle_window = 0;
-			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_DragAndDropSwitcher::backgroundColor), 0);
-			//////currentCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_currentTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
-			//////E_Window::setIconInvisible(currentCWnd.m_hWnd);
-			//////WS_EX_TOPMOST,
-			//////switchCWnd.CreateEx(NULL, szClassName_window, L"DragAndDropSwitcher_switchTaskbar", WS_VISIBLE | WS_POPUP, *currentTaskbarRECT, this, 0, NULL);
-			//////E_Window::setIconInvisible(switchCWnd.m_hWnd);
 		}
 	}
 	else
@@ -1012,18 +1340,26 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 
 				startSwitcher();
 				
-				E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
-				if (cursor_left)
+				if (!E_AeroPeekController::getSingleton()->isAeroPeekMode())//////
 				{
-					movingCRect = CRect(-enManager->getWidth(), 0, enManager->getWidth(), enManager->getHeight());
-					MoveWindow(movingCRect);
+					E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+					if (cursor_left)
+					{
+						movingCRect = CRect(-enManager->getWidth(), 0, enManager->getWidth(), enManager->getHeight());
+						MoveWindow(movingCRect);
+					}
+					else if (cursor_top)
+					{
+						movingCRect = CRect(0, -enManager->getHeight(), enManager->getWidth(), enManager->getHeight());
+						MoveWindow(movingCRect);
+					}
+					E_Window::setIconInvisible(this->m_hWnd);
 				}
-				else if (cursor_top)
+				else
 				{
-					movingCRect = CRect(0, -enManager->getHeight(), enManager->getWidth(), enManager->getHeight());
-					MoveWindow(movingCRect);				
+					//E_Window::setIconInvisible(this->m_hWnd);
 				}
-				E_Window::setIconInvisible(this->m_hWnd);
+				
 
 				E_Global::getSingleton()->getDesktop(switchIndex)->setAllIconInvisible();
 
@@ -1032,6 +1368,8 @@ void E_DragAndDropSwitcher::OnTimer(UINT_PTR nIDEvent)
 			}
 			else
 			{
+				if (!E_AeroPeekController::getSingleton()->isAeroPeekMode())//////
+					return;
 				E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 				E_Global* e_global = E_Global::getSingleton();
 				if ((cursor_left || cursor_right) && (abs(point.x - prev_point.x) > 3))
