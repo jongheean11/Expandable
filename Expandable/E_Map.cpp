@@ -254,7 +254,7 @@ void E_Map::OnPaint()
 			int idx = (*itr_desktop)->getIndex() % mapWidth;
 			int idy = (*itr_desktop)->getIndex() / mapWidth;
 			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
-			for (std::list<E_Window*>::reverse_iterator itr_window = desktop_window.rbegin(); itr_window != desktop_window.rend(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
