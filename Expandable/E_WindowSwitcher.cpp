@@ -1382,8 +1382,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	/*if (running==true)
-		terminateSwitcher();*/
+	if (running==true)
+		terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
