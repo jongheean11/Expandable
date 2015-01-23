@@ -65,6 +65,7 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 // UI를 보여주고 입력을 받는 창을 활성화 시킴
 void E_WindowSwitcher::startSwitcher()
 {
+	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher()");
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
 	//global->startUpdate();
@@ -119,7 +120,12 @@ void E_WindowSwitcher::startSwitcher()
 	//동작 중
 	SetTimer(1, 50, NULL);
 
-	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher()");
+	//스위처 시작 
+	running = true;
+	isfocus = true;
+	//윈도우를 띄움
+	this->ShowWindow(SW_SHOW);
+	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher END()");
 }
 
 
@@ -127,11 +133,12 @@ void E_WindowSwitcher::startSwitcher()
 void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
+		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
 		isfocus = false;	//포커스 플래그 초기화
-		running = false;
+		running = false;		
 
 		stopTPMode();
-		//크리티컬 세션?
+		//크리티컬 세션?									
 		E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 		//E_Global::getSingleton()->stopUpdate();
 
@@ -170,7 +177,7 @@ void E_WindowSwitcher::terminateSwitcher()
 			, 1, 1
 			, SWP_NOZORDER);
 
-		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher()");
+		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() END");
 	}
 }
 
@@ -1044,6 +1051,12 @@ void E_WindowSwitcher::OnPaint()
 	else {
 		//icon size...
 	}
+
+	//만약  메인 프레임 쓰레드와 윈도우 스위처 쓰레드가 따로 동작하여  running이 OnPaint() 도중에 값이 바뀔 경우 terminate를 다시 한다.
+	if (running == false){
+		running = true;
+		terminateSwitcher();
+	}
 	//update 일 경우 처리
 	/*if (updateFlag == true){
 		restartSwitcher();
@@ -1410,8 +1423,10 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	
 	TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] %s", name);
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	if (running==true)
+	if (running == true){
+		TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] TRACE -> %s", name);
 		terminateSwitcher();
+	}
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1472,7 +1487,7 @@ void E_WindowSwitcher::selectNextWindow()
 
 	//현재 데스크탑
 	if (tabMode == SELECTEDDESKTOP){
-		TRACE_WIN32A("[SELECTEDDESKTOP BEFORE tabIndex] %d", tabIndex);
+		//TRACE_WIN32A("[SELECTEDDESKTOP BEFORE tabIndex] %d", tabIndex);
 		tabIndex++;
 		
 		if (tabIndex + startTaboffset >= selectedSize){
@@ -1485,16 +1500,16 @@ void E_WindowSwitcher::selectNextWindow()
 			tabIndex = 13;
 			resetIconcwndAndAero();
 		}
-		TRACE_WIN32A("[SELECTEDDESKTOP tabIndex] %d", tabIndex);
+		//TRACE_WIN32A("[SELECTEDDESKTOP tabIndex] %d", tabIndex);
 	}
 	
 	//다른 데스크탑
 	else if (tabMode == OTHERDESKTOP){
-		TRACE_WIN32A("[OTHERDESKTOP BEFORE tabIndex] %d", tabIndex);
+		//TRACE_WIN32A("[OTHERDESKTOP BEFORE tabIndex] %d", tabIndex);
 		tabIndex++;
 
 		if (tabIndex + startTaboffset >= otherSize){
-			TRACE_WIN32A("[OTHERDESKTOP ING tabIndex] %d", tabIndex);
+			//TRACE_WIN32A("[OTHERDESKTOP ING tabIndex] %d", tabIndex);
 			tabIndex = 0;
 			startTaboffset = 0;
 			resetIconcwndAndAero();
@@ -1504,7 +1519,7 @@ void E_WindowSwitcher::selectNextWindow()
 			tabIndex = 13;
 			resetIconcwndAndAero();
 		}
-		TRACE_WIN32A("[OTHERDESKTOP AFTER tabIndex] %d", tabIndex);
+		//TRACE_WIN32A("[OTHERDESKTOP AFTER tabIndex] %d", tabIndex);
 	}
 	Invalidate(0);
 	if (startTaboffset > 0){
@@ -1832,10 +1847,6 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (!isfocus)
 		{
-			running = true;
-			isfocus = true;
-			//윈도우를 띄움
-			this->ShowWindow(SW_SHOW);
 			this->stealFocus2(this->GetSafeHwnd());
 			//::SetFocus(focushwnd);
 		
