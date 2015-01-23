@@ -10,7 +10,7 @@ E_Global* E_Global::singleton = NULL;
 const wchar_t* E_Global::testFrameName = L"E_expandable";
 wchar_t* const E_Global::excludeWindows[] = { L"Spy++" };
 #define WM_TRAY_EVENT (WM_USER + 3)
-
+#define WM_CHANGEDISPLAY (WM_USER + 7)
 const int E_Global::DLLINJECTIONTIMER = 50;
 
 E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(NULL)
@@ -134,7 +134,7 @@ CWnd* E_Global::getTaskbarWindow(){
 
 //듀얼 모니터 관련 콜백
 void E_Global::OnDualMonitorMode(bool dualMonitorMode){
-	SendMessage(hwnd_frame, WM_CLOSE, 0, 0);
+	SendMessage(hwnd_frame, WM_CHANGEDISPLAY, 0, 0);
 }
 
 

@@ -23,7 +23,7 @@
 
 #define WM_USER_NOTIFY (WM_USER + 4)
 #define WM_USER_MAPR (WM_USER + 5)
-
+#define WM_CHANGEDISPLAY (WM_USER + 7)
 #define WM_INVALIDATE (WM_USER + 6)
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,6 +49,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(WM_USER_NOTIFY, OnUserNotify)
 	ON_MESSAGE(WM_TRAY_EVENT, OnTrayEvent)
 	ON_MESSAGE(WM_USER_MAPR, OnMapRight)
+	ON_MESSAGE(WM_CHANGEDISPLAY, OnChange)
 	ON_COMMAND(ID_32777, &CMainFrame::On32777)
 	ON_COMMAND(ID_32778, &CMainFrame::On32778)
 	ON_COMMAND(ID_32779, &CMainFrame::On32779)
@@ -181,6 +182,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	E_Global* e_global = E_Global::getSingleton();
 	e_global->hwnd_frame = this->GetSafeHwnd();
 	
+	
+
+
 	//::SetWindowText(this->GetSafeHwnd(), TEXT("E_expandable"));
 
 	//
@@ -200,8 +204,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	SetTimer(1, 10, NULL);
-
-
+	
 	//
 
 	SetWindowLongW(e_global->hwnd_frame, GWL_EXSTYLE, GetWindowLong(e_global->hwnd_frame, GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -521,6 +524,19 @@ void CMainFrame::OnDestroy()
 	}
 
 	//AHK종료
+	terminateAHK();
+	//
+
+
+	HWND hTaskbarWnd = ::FindWindowW(_T("Shell_TrayWnd"), NULL);
+	::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
+	::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+
+	PostMessage(WM_QUIT);
+	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+}
+void CMainFrame::terminateAHK()
+{
 	if (!alreadyrun)
 	{
 		CString ProcessName("AutoHotkey");  //종료할 프로세스 이름
@@ -558,17 +574,9 @@ void CMainFrame::OnDestroy()
 		}
 	}
 
-	//
 
 
-	HWND hTaskbarWnd = ::FindWindowW(_T("Shell_TrayWnd"), NULL);
-	::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
-	::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-
-	PostMessage(WM_QUIT);
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
-
 
 void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
@@ -916,8 +924,19 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
 			::MoveWindow(this->GetSafeHwnd(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), 200, 200, TRUE);
 			KillTimer(1);
+
+			bool dualMonitorMode = false;
+			//Some code for resolution...
+			int monitorCount = GetSystemMetrics(SM_CMONITORS);
+			if (monitorCount > 1) {
+				HWND hwnd = GetDesktopWindow()->m_hWnd;
+				MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
+				terminateAHK();
+				PostQuitMessage(WM_QUIT);
+			}
 		}
 	}
+	
 	CFrameWndEx::OnTimer(nIDEvent);
 }
 
@@ -938,4 +957,19 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 		this->ShowWindow(SW_SHOWNORMAL);
 	}
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+}
+
+HRESULT CMainFrame::OnChange(WPARAM wParam, LPARAM lParam)
+{
+	bool dualMonitorMode = false;
+	//Some code for resolution...
+	int monitorCount = GetSystemMetrics(SM_CMONITORS);
+	if (monitorCount > 1) {
+		HWND hwnd = GetDesktopWindow()->m_hWnd;
+		MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
+		terminateAHK();
+		PostQuitMessage(WM_QUIT);
+	}
+
+	return true;
 }
