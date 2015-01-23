@@ -620,7 +620,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 'C':
 	{
-		if (E_WindowSwitcher::getSingleton()->isRunning())
+		if (E_WindowSwitcher::getSingleton()->isRunning() || E_DragAndDropSwitcher::getSingleton()->started)
 			return;
 		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
@@ -629,7 +629,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
-					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
+					if (E_DesktopSwitcher::getSingleton()->ison)
 						return;
 
 

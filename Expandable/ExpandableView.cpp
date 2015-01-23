@@ -211,7 +211,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 		
 		if (!(GetAsyncKeyState(VK_RBUTTON) && 0x8000) && !(GetAsyncKeyState(VK_LBUTTON) && 0x8000))
 		{
-			if (!E_DesktopSwitcher::getSingleton()->ison)
+			if (!(E_DesktopSwitcher::getSingleton()->ison || E_WindowSwitcher::getSingleton()->isRunning()))
 			{
 				if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 				{
