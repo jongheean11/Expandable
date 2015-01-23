@@ -52,10 +52,10 @@ void readJSON(__out NOTIFICATION_ITEM& item, __in char* buffer)
 	item.type = (TYPE)root.get(type_key, "defaultvalue").asInt();
 	item.value = (VALUE)root.get(value_key, "defaultvalue").asUInt();
 	Json::Value ps = root.get(infomation_key, "defaultvalue");
-
-	item.infomation.hwnd = ps.get(pid_key, "defaultvalue").asUInt();
+	
+	item.infomation.hwnd = ps.get(hwnd_key, "defaultvalue").asUInt();
 	std::string processName = ps.get(pname_key, "defaultvalue").asString();
-	item.infomation.pid = ps.get(hwnd_key, "defaultvalue").asUInt();
+	item.infomation.pid = ps.get(pid_key, "defaultvalue").asUInt();
 
 	strcpy(item.infomation.pname, processName.c_str());
 
