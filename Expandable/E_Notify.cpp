@@ -139,7 +139,7 @@ void E_Notify::OnPaint()
 	
 	dc.TextOutW(10, 10, s1);
 	font.DeleteObject(); 
-	font.CreateFont(w/95, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("±¼¸²Ã¼"));
+	font.CreateFont(w/100, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("±¼¸²Ã¼"));
 	pOld_Font = dc.SelectObject(&font);
 	dc.TextOutW(10,  notifyheight/2+10, s2);
 	DeleteDC(dc);
