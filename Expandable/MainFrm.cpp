@@ -587,7 +587,7 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'A':
 	{
 
-				TRACE_WIN32A("알트 탭");
+				//TRACE_WIN32A("알트 탭");
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
 					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
 						return;
@@ -636,12 +636,12 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 		break;
 	case 'D':
-		//
+		// 컨트롤 알트 탭
 	{
 					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
 					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
 						return;
-				TRACE_WIN32A("컨트롤 알트 탭");
+				//TRACE_WIN32A("컨트롤 알트 탭");
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
 				if (switcher->isRunning() == false){
 					//스위처가 동작중이 아닐 때
@@ -706,9 +706,22 @@ int CMainFrame::startChecking()
 		thread_list.clear();
 		isCheckRunning = true;
 		t = new thread{ &CMainFrame::onChecking, this };
+		//SetTimer(5, 3000, NULL);
 	}
 	return 0;
 }
+
+// Alt 오래 누를시 창효과 타이머 재시작
+//void CMainFrame::restartTimer()
+//{
+//	if (startAnimate == true){
+//		
+//	}
+//	else{
+//		KillTimer(5);
+//		SetTimer(5, 3000, NULL);
+//	}
+//}
 
 
 int CMainFrame::stopChecking()
@@ -718,6 +731,7 @@ int CMainFrame::stopChecking()
 	t->detach();
 	thread_list.push_back(t);
 	t = NULL;
+	//startAnimate = false;
 	return 0;
 }
 
@@ -935,6 +949,13 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			}
 		}
 	}
+	//if (nIDEvent == 5)
+	//{
+	//	startAnimate = true;
+	//	KillTimer(5);
+	//	//창 백그라운드 효과 시작
+	//	E_WindowSwitcher::getSingleton()->enableAnimate();
+	//}
 	
 	CFrameWndEx::OnTimer(nIDEvent);
 }

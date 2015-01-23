@@ -40,5 +40,7 @@ public:
 	// 핸들이 존재하는지 검사
 	bool existHandle(HTHUMBNAIL thumbnail);
 	
+	void enableBlurWindow(HWND hwnd);
+	void disableBlurWindow(HWND hwnd);
 };
 

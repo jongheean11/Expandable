@@ -18,10 +18,10 @@ public:
 	int keydown = 0;
 	int isCheckRunning = false;
 	thread* t = NULL;
+	//int startAnimate = false;
 	// 작업입니다.
 	HWND hwnd;
 	//윈도우 리스트
-
 public:
 
 	// 재정의입니다.
@@ -73,6 +73,7 @@ public:
 	// alt up 체킹
 	int startChecking();
 	int stopChecking();
+	//void restartTimer();
 	int onChecking();
 	void terminateAHK();
 
