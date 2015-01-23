@@ -195,13 +195,17 @@ bool E_Window::takeScreenshot()
 	WINDOWPLACEMENT windowinfo;
 	GetWindowPlacement(window, &windowinfo);
 
+	BOOL isVisible = IsWindowVisible(this->getWindow());
+	BOOL isMinimized = IsIconic(this->getWindow());
 	//몇몇 상태는 아예 필요없는 조건일 수 있으나 스크린샷이 찍히지 않는 경우를 모두 찾음
-	if ((state = (windowinfo.showCmd )) == SW_FORCEMINIMIZE
-		|| (state = (windowinfo.showCmd )) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
-		|| (state = (windowinfo.showCmd )) == SW_MINIMIZE
-		|| (state = (windowinfo.showCmd )) == SW_SHOWMINIMIZED
-		|| (state = (windowinfo.showCmd )) == SW_SHOWMINNOACTIVE
-		|| (state = (windowinfo.showCmd )) == SW_SHOWNA
+	if ((state = (windowinfo.showCmd)) == SW_FORCEMINIMIZE
+		|| (state = (windowinfo.showCmd)) == SW_HIDE		//HIDE는 사실 처리 안됨 (invisible)
+		|| (state = (windowinfo.showCmd)) == SW_MINIMIZE
+		|| (state = (windowinfo.showCmd)) == SW_SHOWMINIMIZED
+		|| (state = (windowinfo.showCmd)) == SW_SHOWMINNOACTIVE
+		|| (state = (windowinfo.showCmd)) == SW_SHOWNA
+		|| isVisible == FALSE
+		|| isMinimized == TRUE
 		){
 		//스크린샷이 안되는 상황
 		notShowing = true;
@@ -237,7 +241,6 @@ bool E_Window::takeScreenshot()
 		bSuccess = FALSE;
 	else
 		bSuccess = TRUE;
-
 
 	SelectObject(hMemDC, hOldBitmap);
 
