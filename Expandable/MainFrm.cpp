@@ -14,6 +14,7 @@
 #include "E_Server.h"
 #include "InjDll.h"
 #include "E_DesktopSwitcher.h"
+#include "E_DragAndDropSwitcher.h"
 //
 
 //
@@ -577,6 +578,11 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//알트 탭
 	case 'A':
 	{
+					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
+					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
+						return;
+
+
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
 				if (switcher->isRunning() == false){
 					//스위처가 동작중이 아닐 때
