@@ -260,7 +260,8 @@ void E_Map::OnPaint()
 			{
 				//E_Winodw 클래스(*itr_window)의 getIcon()을 그리면됨
 				//아이콘별위치는?
-
+				if (!IsWindow((*itr_window)->getWindow()))
+					continue;
 				tmphwnd = (*itr_window)->getWindow();
 				::GetWindowRect(tmphwnd, &rectForIcon);
 				long iconPosstx = rectForIcon.left *e_global->getMapsize() + idx*w*mapsize;  //check
@@ -804,6 +805,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
+	
 
 		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
@@ -818,6 +820,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 				{
 					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
 					EnumWindows(E_Map::EnumCallHide, 0);
+					
 				}
 				continue;
 			}
@@ -897,12 +900,21 @@ BOOL CALLBACK  E_Map::EnumShow(HWND hwnd, LPARAM lParam)
 
 BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 {
-	WCHAR name[10];
-	WCHAR name2[4];
-	WCHAR name3[] = L"스티커";
-	WCHAR name4[] = L"카카오";
-	WCHAR expandable[11];
-	WCHAR expan[] = TEXT("expandable");
+
+	WCHAR name[] = TEXT("expandable");
+	WCHAR name2[] = L"스티커 메모";
+	WCHAR name3[] = L"곰오디오";
+	WCHAR name4[] = L"곰플레이어";
+	WCHAR expandable[100];
+
+	::GetWindowText(hwnd, expandable, 100);
+	if (wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0)
+	{
+
+	}
+	else
+		return TRUE;
+
 
 	::GetWindowText(hwnd, expandable, 11);
 	//WCHAR name4[] = L"Microsoft Spy++";
@@ -910,8 +922,7 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	::GetWindowText(hwnd, name2, 4);
 	//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
-	if (wcscmp(expandable, expan) == 0)
-		return TRUE;
+	
 	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
