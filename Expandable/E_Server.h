@@ -20,7 +20,8 @@ public:
 	E_MyCSocket serverSocket;
 	bool startServer();
 	bool stopServer();
-	void onServer();
+	//void onServer();
+	void onServer(SOCKET param);
 	void onClient(E_MyCSocket* client);
 	void garbageCollect();
 	bool stopFlag;

@@ -209,9 +209,10 @@ bool E_Window::takeScreenshot()
 		|| isMinimized == TRUE
 		){
 		//스크린샷이 안되는 상황
-		notShowing = true;
 		this->setTransparent();
 		ShowWindow(window, SW_RESTORE);
+		//Sleep(50);
+		notShowing = true;
 	}
 
 
@@ -255,9 +256,7 @@ bool E_Window::takeScreenshot()
 	if (notShowing == true){
 		doTake(state);
 	}
-	
 	return bSuccess;
-	
 }
 
 void E_Window::setMinimize()

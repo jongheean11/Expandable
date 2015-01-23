@@ -302,7 +302,7 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 	terminateNotify();
 	if (firstDesk != e_global->getSelectedIndex())
 		e_map->drawMap();
-
+	::ShowWindow(pHwnd, SW_SHOW);
 	::SetFocus(pHwnd);
 	::BringWindowToTop(pHwnd);
 	click = false;
