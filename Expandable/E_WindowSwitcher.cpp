@@ -116,7 +116,7 @@ void E_WindowSwitcher::startSwitcher()
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
-	SetTimer(1, 5, NULL);
+	SetTimer(1, 50, NULL);
 }
 
 
@@ -485,16 +485,6 @@ void E_WindowSwitcher::OnPaint()
 					}
 					//윈도우 개수가 14개 이상일 때 제외
 					if (emptyforIndex++ < startTaboffset && tabMode == SELECTEDDESKTOP){
-						//RECT rect; rect.left = 0; rect.top = 0; rect.right = 1; rect.bottom = 1;
-						//TRACE_WIN32A("startTaboffset %d, listcount %d", startTaboffset, winlist.size());
-						////에어로 효과 제거
-						//unordered_map<HWND, HTHUMBNAIL>::iterator validKey = thumb_map.find((*iter)->getWindow());
-						//E_AeroPeekController::getSingleton()->moveAero(validKey->second, rect);
-						//if (icon_map.find(validKey->first) != icon_map.end()){
-						//	CWnd* iconCWnd = icon_map.find(validKey->first)->second;
-						//	iconCWnd->MoveWindow(&rect);
-						//}
-						//
 						continue;
 					}
 					
@@ -690,19 +680,6 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//아이콘
-					/*CBitmap* icon = (*iter)->getIcon();
-					BITMAP icon_info;
-					if (icon->m_hObject != NULL){
-						icon->GetBitmap(&icon_info);
-						CDC cdc;
-						cdc.CreateCompatibleDC(&dc);
-						cdc.SelectObject(icon);
-						memDC.SetStretchBltMode(COLORONCOLOR);
-						memDC.TransparentBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
-						cdc.DeleteDC();
-					}*/
-
-					//아이콘
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
 						iconCWnd = icon_map.find(cwnd->GetSafeHwnd())->second;
@@ -720,6 +697,8 @@ void E_WindowSwitcher::OnPaint()
 							windowRect.right = allswitcherLeft + rectForAero.right - iconpadding;
 							iconCWnd->MoveWindow(&windowRect);
 							CDC* iconDC = iconCWnd->GetDC();
+							SetBkColor(*iconDC, RGB(255, 255, 255));
+							SetBkMode(*iconDC, TRANSPARENT);
 							
 							CDC cdc; 
 							cdc.CreateCompatibleDC(iconDC);
@@ -729,6 +708,7 @@ void E_WindowSwitcher::OnPaint()
 							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
 							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 							cdc.DeleteDC();
+							iconDC->DeleteDC();
 						}
 					}
 
@@ -960,20 +940,6 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//아이콘
-					/*CBitmap* icon = (*iter)->getIcon();
-					BITMAP icon_info;
-					if (icon->m_hObject != NULL){
-						icon->GetBitmap(&icon_info);
-						CDC cdc;
-						cdc.CreateCompatibleDC(&dc);
-						cdc.SelectObject(icon);
-						secondMemDC.SetStretchBltMode(COLORONCOLOR);
-						secondMemDC.TransparentBlt(rect.right - icon_info.bmWidth, rect.bottom - icon_info.bmHeight, icon_info.bmWidth, icon_info.bmHeight, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
-						cdc.DeleteDC();
-					}*/
-
-
-					//아이콘
 					int iconSize = getIconSize(E_EnvironmentManager::getSingleton()->getWidth());
 					CWnd* iconCWnd = NULL;
 					if (icon_map.find(cwnd->GetSafeHwnd()) != icon_map.end()){
@@ -993,15 +959,19 @@ void E_WindowSwitcher::OnPaint()
 							iconCWnd->MoveWindow(&windowRect);
 
 							CDC* iconDC = iconCWnd->GetDC();
-							//SetBkMode(*iconDC, TRANSPARENT);
+							SetBkColor(*iconDC, RGB(255, 255, 255));
+							SetBkMode(*iconDC, TRANSPARENT);
 
 							CDC cdc;
 							cdc.CreateCompatibleDC(iconDC);
 							cdc.SelectObject(icon);
-							iconDC->SetStretchBltMode(COLORONCOLOR);
+							//iconDC->SetStretchBltMode(COLORONCOLOR);
+							//iconDC->StretchBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc,0,0, icon_info.bmWidth, icon_info.bmHeight, SRCCOPY);
 							iconDC->TransparentBlt(0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, 0xffffffff);
+
 							cdc.DeleteDC();
 							iconCWnd->ShowWindow(SW_SHOW);
+							iconDC->DeleteDC();
 						}
 					}
 
@@ -1207,10 +1177,10 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						if (::IsIconic(hwnd) == TRUE)
 							::ShowWindow(hwnd, SW_RESTORE);
 						
-						::BringWindowToTop(hwnd);
+							::BringWindowToTop(hwnd);
 
 						focushwnd = hwnd;
-						SetTimer(2, 5, NULL);
+						SetTimer(2, 50, NULL);
 					}
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
@@ -1231,7 +1201,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					char title[255] = { 0, };
 					::GetWindowTextA(hwnd, title, 255);
 					::GetWindowPlacement(hwnd, &windowState);
-					TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+					//TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
 					if (::IsIconic(hwnd) == TRUE)
 						::ShowWindow(hwnd, SW_RESTORE);
@@ -1287,7 +1257,7 @@ void E_WindowSwitcher::selectTabWindow()
 			char title[255] = { 0, };
 			::GetWindowTextA(hwnd, title, 255);
 			::GetWindowPlacement(hwnd, &windowState);
-			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+			//TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
 			hwnd = hwnd;	//지역 변수 사용
 
@@ -1323,7 +1293,7 @@ void E_WindowSwitcher::selectTabWindow()
 			char title[255] = { 0, };
 			::GetWindowTextA(hwnd, title, 255);
 			::GetWindowPlacement(hwnd, &windowState);
-			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+			//TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
 			if (::IsIconic(hwnd) == true)
 				::ShowWindow(hwnd, SW_RESTORE);
@@ -1363,7 +1333,49 @@ void E_WindowSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	//TRACE_WIN32A("OnKeyDown %c",nChar);
-	
+
+	if (isRunning() == true){
+		switch (nChar){
+		case VK_RIGHT:
+		{
+						 selectNextWindow();
+		}
+			break;
+		case VK_LEFT:
+		{
+
+						selectPrevWindow();
+		}
+			break;
+		case  VK_TAB:
+		{
+						bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
+						if (shift == false){
+							selectNextWindow();
+						}
+						else{
+							selectPrevWindow();
+
+						}
+		}
+			break;
+		case VK_ESCAPE:
+		{
+						  terminateSwitcher();
+		}
+			break;
+		case VK_RETURN:
+		{
+						  //스위처가 동작중이 아닐 때
+						  selectTabWindow();
+						  terminateSwitcher();
+		}
+			break;
+		case VK_OEM_3:
+			//토글
+			selectOtherDesktop();
+		}
+	}
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
 }
@@ -1382,8 +1394,8 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	__super::OnKillFocus(pNewWnd);
 
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	/*if (running==true)
-		terminateSwitcher();*/
+	if (running==true)
+		terminateSwitcher();
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
 }
 
@@ -1519,7 +1531,6 @@ void E_WindowSwitcher::selectPrevWindow()
 			startTaboffset--;
 			resetIconcwndAndAero();
 		}
-		TRACE_WIN32A("tabIndex: %d %d", tabIndex, startTaboffset);
 	}
 
 	//다른 데스크탑

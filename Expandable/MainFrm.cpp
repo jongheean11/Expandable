@@ -14,6 +14,7 @@
 #include "E_Server.h"
 #include "InjDll.h"
 #include "E_DesktopSwitcher.h"
+#include "E_DragAndDropSwitcher.h"
 //
 
 //
@@ -584,6 +585,12 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//알트 탭
 	case 'A':
 	{
+
+				TRACE_WIN32A("알트 탭");
+					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
+					if (E_DesktopSwitcher::getSingleton()->ison || E_DragAndDropSwitcher::getSingleton()->started)
+						return;
+
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
 				if (switcher->isRunning() == false){
 					//스위처가 동작중이 아닐 때
@@ -607,11 +614,10 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 	}
 		break;
-		//알트탭 종료
 	case 'B':
 	{
 				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
-				TRACE_WIN32A("ALT UP");
+				//TRACE_WIN32A("ALT UP");
 				if (switcher->isRunning() == true){
 					//스위처가 동작중이 아닐 때
 					switcher->selectTabWindow();
@@ -621,10 +627,40 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		break;
 	case 'C':
 	{
+		if (E_WindowSwitcher::getSingleton()->isRunning() || E_DragAndDropSwitcher::getSingleton()->started)
+			return;
 		E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
-	
+	case 'D':
+	{
+
+					//추가(DesktopSwitcher 또는 Drag&DropSwitcher Breaking
+					if (E_DesktopSwitcher::getSingleton()->ison)
+						return;
+
+
+				TRACE_WIN32A("컨트롤 알트 탭");
+				E_WindowSwitcher* switcher = E_WindowSwitcher::getSingleton();
+				if (switcher->isRunning() == false){
+					//스위처가 동작중이 아닐 때
+					switcher->startSwitcher();
+					keydown = 1;
+					switcher->stealFocus2(switcher->GetSafeHwnd());
+				}
+				else{
+					//쉬프트 탭
+					//	switcher->stealFocus2(switcher->GetSafeHwnd());
+					bool shift = GetKeyState(VK_LSHIFT) < 0 ? true : false;
+					if (shift == false){
+						E_WindowSwitcher::getSingleton()->selectNextWindow();
+					}
+					else{
+						E_WindowSwitcher::getSingleton()->selectPrevWindow();
+
+					}
+				}
+	}
 	}
 
 	CFrameWndEx::OnKeyDown(nChar, nRepCnt, nFlags);
