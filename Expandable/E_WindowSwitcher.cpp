@@ -1149,10 +1149,6 @@ HBRUSH E_WindowSwitcher::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
-	//E_Global::getSingleton()->stopUpdate();
-	HWND focushwnd = NULL;
-	HWND hwnd = NULL;	//지역 변수 사용을 통해 iterating 제거 예외 우회
 	//TRACE_WIN32A("x: %d, y: %d", point.x, point.y);
 	for (unordered_map<HWND, RECT>::iterator itr = rect_map.begin(); itr != rect_map.end(); itr++){
 		RECT rect = itr->second;
@@ -1183,6 +1179,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						focushwnd = hwnd;
 						SetTimer(2, 50, NULL);
 					}
+					TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] SELECTEDDESKTOP");
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
 					//소속 데스크탑
@@ -1214,6 +1211,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					//::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 				}
 				terminateSwitcher();
+				TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] terminateSwitcher()");
 				break;
 			}
 		}
@@ -1267,7 +1265,7 @@ void E_WindowSwitcher::selectTabWindow()
 			}
 			else{
 
-				if (::IsIconic(hwnd) == true)
+				if (::IsIconic(hwnd) == TRUE)
 					::ShowWindow(hwnd, SW_RESTORE);
 				::BringWindowToTop(hwnd);
 
@@ -1295,7 +1293,7 @@ void E_WindowSwitcher::selectTabWindow()
 			::GetWindowPlacement(hwnd, &windowState);
 			//TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
-			if (::IsIconic(hwnd) == true)
+			if (::IsIconic(hwnd) == TRUE)
 				::ShowWindow(hwnd, SW_RESTORE);
 			::BringWindowToTop(hwnd);
 			
@@ -1617,7 +1615,7 @@ void E_WindowSwitcher::startTPMode()
 void E_WindowSwitcher::stopTPMode()
 {
 	if (tpmode){
-		int saveState = running;	//순간적으로 포커스 잃는 문제 때문에 처리
+		bool saveState = running;	//순간적으로 포커스 잃는 문제 때문에 처리
 		running = false; // 투명을 제거할때는 잠시 오프
 		E_Window::SetMinimizeMaximizeAnimation(false);
 		E_Global* global = E_Global::getSingleton();
@@ -1833,6 +1831,10 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	}
 	if (nIDEvent == 2){
 		//TRACE_WIN32A("FOCUS - 2");
+		char name[255];
+		GetWindowTextA(focushwnd, name, 255);
+		TRACE_WIN32A("FOCUS PROCESS NAME %u ,%s", focushwnd,name);
+
 		::ShowWindow(focushwnd, SW_SHOW);
 		this->stealFocus2(focushwnd);
 		::SetFocus(focushwnd);

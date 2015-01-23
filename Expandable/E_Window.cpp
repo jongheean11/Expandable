@@ -43,7 +43,7 @@ bool E_Window::operator==(const E_Window &tmp)
 	if (window == tmp.window)
 		return true;
 	else
-		false;
+		return false;
 }
 
 bool E_Window::setIconInvisible(HWND hwnd)
