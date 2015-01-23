@@ -714,6 +714,8 @@ int testflag = 0;
 
 void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	restore = false;
+
 	E_Global* e_global = E_Global::getSingleton();
 
 	//e_global->stopUpdate();
@@ -745,11 +747,15 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 		if (leftarrow->PtInRect(point))
 		{
 			leftarrow_pressed = true;
+			
+			restore = true;
 			return;
 		}
 		else if (rightarrow->PtInRect(point))
 		{
 			rightarrow_pressed = true;
+
+			restore = true;
 			return;
 		}
 	}
@@ -763,6 +769,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 			target_desktop_index = i;
 
 			stealFocus(this->m_hWnd);
+
+			restore = true;
 			return;
 		}
 		i = (i + 1) % e_global->desktopList.size();
@@ -839,6 +847,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					window_desktop_RECT_hthumbnail_map.insert(hash_map<int, hash_map<RECT*, HTHUMBNAIL>>::value_type(e_global->getSelectedIndex(), window_desktop_RECT_hthumbnail_map__));
 
 					stealFocus(this->m_hWnd);
+
+					restore = true;
 					return;
 				}
 				itr_window_desktop_area++;
@@ -878,6 +888,8 @@ void E_DesktopSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					window_RECT_hthumbnail_map.insert(hash_map<RECT*, HTHUMBNAIL>::value_type(window_RECT_copy, window_hthumbnail));
 
 					stealFocus(this->m_hWnd);
+
+					restore = true;
 					return;
 				}
 			}
