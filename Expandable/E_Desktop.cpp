@@ -78,20 +78,21 @@ void E_Desktop::setAllNormalExclude()
 void E_Desktop::setAllNormalExcludeRemoveDirty(list<char*> exclude)
 {
 	char pname[255] = { 0, };
-	char* subpname = NULL;
 	for (list<E_Window*>::iterator itr = windowList.begin(); itr != windowList.end(); itr++)
 	{
+		char* subpname = NULL;
 		//비주얼 스튜디오 제외
 		if (!(*itr)->isAeroPossible()){
-
 			GetWindowTextA((*itr)->getWindow(), pname, 255);
 			for (list<char*>::iterator iter = exclude.begin(); iter != exclude.end(); iter++) {
 				subpname = strstr(pname, (*iter));
 				if (subpname != NULL)
 					break;
 			}
+			TRACE_WIN32A("[setAllNormalExcludeRemoveDirty] %s", pname);
 
 			if (subpname == NULL){	//Visual Studio 제외
+				TRACE_WIN32A("[setAllNormalExcludeRemoveDirty] %s setNormal",pname );
 				(*itr)->setNormal();
 
 				//잔상 이슈 해결

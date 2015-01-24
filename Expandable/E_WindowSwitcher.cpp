@@ -569,7 +569,7 @@ void E_WindowSwitcher::OnPaint()
 					//}
 
 					//탭 경계선 그리기
-					if (tabIndex == count && tabMode == SELECTEDDESKTOP || windowSize == 1) {	//바탕 화면만 있을 경우도 고려
+					if (tabIndex == count && tabMode == SELECTEDDESKTOP || (windowSize == 1 && tabMode == SELECTEDDESKTOP)) {	//바탕 화면만 있을 경우도 고려
 						memDC.SelectObject(pen);
 						::InflateRect(temprect, 1, 1);
 						int padding = 2;
@@ -599,7 +599,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//타이틀 그리기
-					if (tabIndex == count && existUpdateMode == 0 && tabMode == SELECTEDDESKTOP || windowSize == 1) {	//바탕 화면만 있을 경우도 고려
+					if (tabIndex == count && existUpdateMode == 0 && tabMode == SELECTEDDESKTOP || (windowSize == 1 && tabMode == SELECTEDDESKTOP)) {	//바탕 화면만 있을 경우도 고려
 						RECT fontRect;
 						fontRect.top = paddingSize;
 						fontRect.left = paddingSize;
@@ -776,7 +776,7 @@ void E_WindowSwitcher::OnPaint()
 					}
 
 					//윈도우 개수가 14개 이상일 때 제외
-					if (emptyforIndex++ < startTaboffset && tabMode == SELECTEDDESKTOP){
+					if (emptyforIndex++ < startTaboffset && tabMode == OTHERDESKTOP){
 						continue;
 					}
 
@@ -1624,13 +1624,13 @@ void E_WindowSwitcher::selectPrevWindow()
 		tabIndex--;
 
 		if (tabIndex < 0 && startTaboffset == 0){
-			if (selectedSize > 14){
+			if (otherSize > 14){
 				tabIndex = 13;
-				startTaboffset = selectedSize - 14;
+				startTaboffset = otherSize - 14;
 				resetIconcwndAndAero();
 			}
 			else{
-				tabIndex = selectedSize - 1;//selectedSize - 1;
+				tabIndex = otherSize - 1;//selectedSize - 1;
 				startTaboffset = 0;
 			}
 		}

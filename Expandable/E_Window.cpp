@@ -277,12 +277,12 @@ void E_Window::setShow()
 
 void E_Window::setNormal()
 {
-	ShowWindow(window, SW_NORMAL);
+	ShowWindow(window, SW_SHOWNORMAL);
 }
 
 void E_Window::setNormal(RECT& rect)
 {
-	ShowWindow(window, SW_NORMAL);
+	ShowWindow(window, SW_SHOWNORMAL);
 }
 
 
