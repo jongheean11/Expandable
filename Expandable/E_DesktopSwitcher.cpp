@@ -1661,6 +1661,7 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	else if ((nChar == VK_RETURN) && enterkey_pressed)
 	{
+		restore = false;
 		terminateSwitcher();
 	}
 	else if ((nChar == VK_ESCAPE) && esckey_pressed)
