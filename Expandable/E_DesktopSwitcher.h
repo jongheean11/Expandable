@@ -34,7 +34,7 @@ public:
 
 	CRect *leftarrow, *rightarrow;
 	
-	bool ison, restore, otherkey;
+	bool ison, restore, otherkey, initial;
 
 	int target_desktop_index, desktoplist_startindex;
 
