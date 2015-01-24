@@ -92,7 +92,8 @@ void E_Notify::showNotify(int processId, char* processName, HWND hwnd)
 
 	SetTimer(1, 100, NULL);
 	hwnd_cwnd_notify->ShowWindow(SW_SHOW);
-	::SetWindowLongW(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+	if (E_AeroPeekController::getSingleton()->isAeroPeekMode())
+		::SetWindowLongW(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_notify->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 	::SetLayeredWindowAttributes(hwnd_cwnd_notify->m_hWnd, 0, e_global->getTransparent(), LWA_ALPHA); //Ã¢Åõ¸í
 	hwnd_cwnd_notify->UpdateWindow();
 	hwnd_cwnd_notify->SetWindowPos(NULL, 0, (h - th) - notifyheight*(myPos + 1), notifywidth, notifyheight, SWP_NOZORDER | SWP_SHOWWINDOW);
@@ -271,6 +272,7 @@ void E_Notify::OnLButtonUp(UINT nFlags, CPoint point)
 	if (foreDesk == desDesk)
 	{
 		::BringWindowToTop(pHwnd);
+		terminateNotify();
 		return;
 	}
 	//
