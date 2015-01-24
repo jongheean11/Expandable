@@ -646,7 +646,7 @@ void E_DesktopSwitcher::startSwitcher()
 			DeleteObject(hbm);
 
 			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
-			CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+			CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);//////
 		}
 		UpdateWindow();
 		//WS_EX_TOPMOST
@@ -1291,10 +1291,13 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 							
 							double ratio_wW = (((double)enManager->getWidth() - 100) * (double)0.175) / main_desktop_width,
 								ratio_hH = (((double)enManager->getWidth() - 100) * (double)0.175 * (double)enManager->getHeight() / (double)enManager->getWidth()) / main_desktop_height;
-							(*window_RECT_from_desktop).left = ((*window_RECT).left - main_backgroundRECT->left) * ratio_wW;
-							(*window_RECT_from_desktop).right = ((*window_RECT).right - main_backgroundRECT->left) * ratio_wW;
-							(*window_RECT_from_desktop).top = ((*window_RECT).top - main_backgroundRECT->top) * ratio_hH;
-							(*window_RECT_from_desktop).bottom = ((*window_RECT).bottom - main_backgroundRECT->top) * ratio_hH;
+							window_RECT_from_desktop = new RECT
+							{
+								((*window_RECT).left - main_backgroundRECT->left) * ratio_wW,
+								((*window_RECT).top - main_backgroundRECT->top) * ratio_hH,
+								((*window_RECT).right - main_backgroundRECT->left) * ratio_wW,
+								((*window_RECT).bottom - main_backgroundRECT->top) * ratio_hH
+							};
 
 							winThumbProps.rcDestination = *window_RECT_from_desktop;
 							DwmUpdateThumbnailProperties(window_hthumbnail, &winThumbProps); 

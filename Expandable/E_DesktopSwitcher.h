@@ -77,9 +77,7 @@ public:
 
 	std::hash_map<RECT*, HTHUMBNAIL> window_RECT_hthumbnail_map;
 	std::hash_map<RECT*, E_Window*> window_area_map_RECT_EWindow;
-
 	std::hash_map<RECT*, HTHUMBNAIL> desktop_RECT_hthumbnail_map;
-
 	std::hash_map<int,hash_map<RECT*, HTHUMBNAIL>> window_desktop_RECT_hthumbnail_map;
 	std::hash_map<int, list<RECT*>> window_desktop_rect_map;
 
