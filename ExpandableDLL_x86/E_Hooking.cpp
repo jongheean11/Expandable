@@ -3,6 +3,7 @@
 
 BYTE g_pZWRT[5] = { 0, };
 BYTE g_pICW[5] = { 0, };
+BYTE PROGRESS[100] = { 0, };
 
 //5바이트 ShowWindow를 위한 핫 패치 7652F2A9
 BOOL hook_by_hotpatch_ShowWindow() {
@@ -792,7 +793,7 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	_In_  ULONGLONG ullTotal)
 {
 	if (processName != NULL)
-	TRACE_WIN32A("[%s] SetProgressValueHook (%I64u, %I64u)", processName, ullCompleted, ullTotal);
+	//TRACE_WIN32A("[%s] SetProgressValueHook (%I64u, %I64u)", processName, ullCompleted, ullTotal);
 
 	PFSETPROGRESSVALUE pfProgressValue;
 	ITaskbarList3* pTaskList3 = NULL;
@@ -841,8 +842,12 @@ HRESULT WINAPI SetProgressValueHook(_In_ void* thisPtr,
 	}
 	item.infomation.pid = pid;
 	item.infomation.hwnd = (unsigned int)hwnd;
-	if (item.value > 70)
+
+	
+	if (PROGRESS[item.value] != 1)
 		notify(item);
+
+	PROGRESS[item.value] = 1;
 
 	return hresult;
 }
@@ -881,6 +886,7 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 		pTaskList3->Release();
 	}
 
+
 	NOTIFICATION_ITEM item;
 	item.type = PROGRESSSTATE;
 	item.value = tbpFlags;
@@ -895,6 +901,13 @@ HRESULT WINAPI SetProgressStateHook(_In_ void* thisPtr,
 	item.infomation.hwnd = (unsigned int)hwnd;
 
 	notify(item);
+	
+	//프로그레스 초기화
+	//if (item.type == TBPF_NOPROGRESS){
+		for (int i = 0; i < 100; i++){
+			PROGRESS[i] = 0;
+		}
+	//}
 
 	return hresult;
 }

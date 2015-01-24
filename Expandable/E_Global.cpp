@@ -64,13 +64,20 @@ E_Global::E_Global() : selectedDesktop(NULL), updateMode(false), currentThread(N
 			Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 		if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
 			Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"firefox.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"firefox.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"Safari.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"Safari.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 	}
 	else{
 		if (!E_Util::isContainDLL(L"chrome.exe", L"ExpandableDLL_x86.dll"))
 			Injector(L"chrome.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 		if (!E_Util::isContainDLL(L"iexplorer.exe", L"ExpandableDLL_x86.dll"))
 			Injector(L"iexplorer.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
-		
+		if (!E_Util::isContainDLL(L"firefox.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"firefox.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
+		if (!E_Util::isContainDLL(L"Safari.exe", L"ExpandableDLL_x86.dll"))
+			Injector(L"Safari.exe", INJECTION_MODE, L"ExpandableDLL_x86.dll");
 	}
 	//::SetWindowPos(this->hwnd_frame, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }

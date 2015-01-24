@@ -39,9 +39,9 @@ int pid = NULL;
 char fileName[255] = { 0, };
 
 //프로세스 리스트 변수
-#define PROCESSSIZE 2
-static char processList[PROCESSSIZE][255] = { "chrome.exe", "iexplore.exe" };
-static wchar_t wprocessList[PROCESSSIZE][255] = { L"chrome.exe", L"iexplore.exe" };
+#define PROCESSSIZE 4
+static char processList[PROCESSSIZE][255] = { "chrome.exe", "iexplore.exe", "firefox.exe", "Safari.exe" };
+static wchar_t wprocessList[PROCESSSIZE][255] = { L"chrome.exe", L"iexplore.exe",L"firefox.exe",L"Safari.exe" };
 static const char* EXPLORER = "explorer.exe";
 static const wchar_t* WEXPLORER = L"explorer.exe";
 

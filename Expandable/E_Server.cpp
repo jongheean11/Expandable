@@ -80,7 +80,7 @@ void E_Server::onClient(E_MyCSocket* param)
 	{
 		return;
 	}
-	int stateCount = 0;
+	int stateCount = 1;	//대용량 파일만 처리
 	CString clientName = L"";
 	UINT clientPort = 0;
 	E_MyCSocket client;
@@ -129,7 +129,8 @@ void E_Server::onClient(E_MyCSocket* param)
 				else if (item->type == PROGRESSVALUE)	//다운로드가 70% 이상일 때, 용량이 큰 파일을 다운로드 받을때 동작
 				{
 					//TRACE_WIN32A("[PROGRESSVALUE] %d",item->value);
-					stateCount = 0;
+					if (item->value > 70L)
+						stateCount = 0;
 				}
 			}
 		}
