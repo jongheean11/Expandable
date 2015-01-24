@@ -582,7 +582,7 @@ void E_DesktopSwitcher::startSwitcher()
 		if (enManager->getWidth() == 1920 && enManager->getHeight() == 1080)
 		{
 			if (e_global->desktopList.size() > 4)
-				hbmOrig =(HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 			else
 				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 		}
@@ -630,7 +630,9 @@ void E_DesktopSwitcher::startSwitcher()
 		SelectObject(memdc, hOld);
 		DeleteDC(memdc);
 		DeleteDC(memdc2);
+		DeleteDC(dc);
 		DeleteObject(hbmOrig);
+		DeleteObject(hOld);
 
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
