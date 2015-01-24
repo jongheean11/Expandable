@@ -205,8 +205,8 @@ void drawDesktopList()
 				GetWindowRect(*itr_window_docked, &getSize);
 				double window_left = getSize.left * deSwitcher->ratio_ww,// + deSwitcher->background_left,
 					window_top = getSize.top * deSwitcher->ratio_hh;// +deSwitcher->background_top;
-				double window_right = getSize.Width() * deSwitcher->ratio_ww,// + window_left,
-					window_bottom = getSize.Height() * deSwitcher->ratio_hh;// + window_top;
+				double window_right = getSize.Width() * deSwitcher->ratio_ww  + window_left,
+					window_bottom = getSize.Height() * deSwitcher->ratio_hh + window_top;
 				RECT *windowRECT = new RECT
 				{
 					window_left,
@@ -578,7 +578,42 @@ void E_DesktopSwitcher::startSwitcher()
 		CBrush brush_window;
 		UINT nClassStyle_window = 0;// CS_NOCLOSE | CS_VREDRAW | CS_HREDRAW | CS_DBLCLKS;
 		
-		HBITMAP hbmOrig = (HBITMAP)LoadImage(NULL, __T("DesktopSwitcher_background_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		HBITMAP hbmOrig;
+		if (enManager->getWidth() == 1920 && enManager->getHeight() == 1080)
+		{
+			if (e_global->desktopList.size() > 4)
+				hbmOrig =(HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+			else
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		}
+		else if (enManager->getWidth() == 1600 && enManager->getHeight() == 900)
+		{
+			if (e_global->desktopList.size() > 4)
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1600900_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+			else
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1600900.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		}
+		else if (enManager->getWidth() == 1024 && enManager->getHeight() == 768)
+		{
+			if (e_global->desktopList.size() > 4)
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1024768_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+			else
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1024768.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		}
+		else if (enManager->getWidth() == 1280 && enManager->getHeight() == 1024)
+		{
+			if (e_global->desktopList.size() > 4)
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background12801024_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+			else
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background12801024.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		}
+		else // 1280x720
+		{
+			if (e_global->desktopList.size() > 4)
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1280720_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+			else
+				hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1280720.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		}
 
 		BITMAP bm = { 0 };
 		GetObject(hbmOrig, sizeof(BITMAP), &bm);
@@ -1431,13 +1466,16 @@ void E_DesktopSwitcher::OnMouseMove(UINT nFlags, CPoint point)
 	
 	else
 	{
-		if ((leftarrow->PtInRect(point)) || (rightarrow->PtInRect(point)))
+		if (E_Global::getSingleton()->desktopList.size() > 4)
 		{
-			SetCursor(LoadCursor(NULL, IDC_HAND));
-		}
-		else
-		{
-			SetCursor(LoadCursor(NULL, IDC_ARROW));
+			if ((leftarrow->PtInRect(point)) || (rightarrow->PtInRect(point)))
+			{
+				SetCursor(LoadCursor(NULL, IDC_HAND));
+			}
+			else
+			{
+				SetCursor(LoadCursor(NULL, IDC_ARROW));
+			}
 		}
 	}
 
@@ -1511,8 +1549,8 @@ void E_DesktopSwitcher::keyArrowPress(int direction)
 		if (e_global->desktopList.size() == 1)
 			return;
 
-		else if ((e_global->desktopList.size() >= 2) && (e_global->desktopList.size() <= 2))
-		{
+		else if ((e_global->desktopList.size() >= 2) && (e_global->desktopList.size() <= 4))
+		{			
 			eraseWindowS();
 			e_global->getSelectedDesktop()->setAllIconInvisible();
 			e_global->setSelectedIndex(index);
@@ -1524,7 +1562,7 @@ void E_DesktopSwitcher::keyArrowPress(int direction)
 		}
 		else
 		{	
-			int i = desktoplist_startindex, p=0;
+			int i = desktoplist_startindex, p = 0;
 			while (p < 4)
 			{
 				if (e_global->getSelectedIndex() == i)
@@ -1605,15 +1643,21 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	if ((nChar == VK_LEFT) && leftkey_pressed)
 	{
-		keyArrowPress(-1);
-		stealFocus(this->m_hWnd);
-		E_Window::setIconInvisible(this->m_hWnd);
+		if (!((0 == E_Global::getSingleton()->getSelectedIndex()) && (E_Global::getSingleton()->desktopList.size() <= 4)))
+		{	
+			keyArrowPress(-1);
+			stealFocus(this->m_hWnd);
+			E_Window::setIconInvisible(this->m_hWnd);
+		}
 	}
 	else if ((nChar == VK_RIGHT) && rightkey_pressed)
 	{
-		keyArrowPress(1);
-		stealFocus(this->m_hWnd);
-		E_Window::setIconInvisible(this->m_hWnd);
+		if (!((E_Global::getSingleton()->getSelectedIndex() == (E_Global::getSingleton()->desktopList.size() - 1)) && (E_Global::getSingleton()->desktopList.size() <= 4)))
+		{
+			keyArrowPress(1);
+			stealFocus(this->m_hWnd);
+			E_Window::setIconInvisible(this->m_hWnd);
+		}
 	}
 	else if ((nChar == VK_RETURN) && enterkey_pressed)
 	{

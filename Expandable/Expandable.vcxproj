@@ -231,9 +231,9 @@
     <ResourceCompile Include="Expandable.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="DesktopSwitcher_background.bmp" />
+    <Image Include="DesktopSwitcher_background12801024.bmp" />
     <Image Include="DesktopSwitcher_background.png" />
-    <Image Include="DesktopSwitcher_background_witharrow.bmp" />
+    <Image Include="DesktopSwitcher_background12801024_witharrow.bmp" />
     <Image Include="DesktopSwitcher_leftarrow.bmp" />
     <Image Include="DesktopSwitcher_leftarrow.png" />
     <Image Include="DesktopSwitcher_rightarrow.bmp" />
