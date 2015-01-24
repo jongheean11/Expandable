@@ -714,7 +714,7 @@ void E_DesktopSwitcher::terminateSwitcher()
 		eraseWindowS();
 
 		window_squeezed_inlist = false;
-		ison = false;
+		
 		doubleclick_first = false;
 		doubleclick_second = false;
 		desktop_inrange = true;
@@ -763,6 +763,8 @@ void E_DesktopSwitcher::terminateSwitcher()
 		E_Window::setIconVisible(this->m_hWnd);
 		DestroyWindow();
 		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
+
+		ison = false;
 	}
 }
 
@@ -1054,6 +1056,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 	if (leftarrow->PtInRect(point) && leftarrow_pressed)
 	{
+		restore = false;
 		leftarrow_pressed = false;
 		eraseDesktopList();
 		desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex - 1) % e_global->desktopList.size();
@@ -1070,10 +1073,12 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 		Invalidate(TRUE);
 		//e_global->startUpdate();
+		restore = true;
 		return;
 	}
 	if (rightarrow->PtInRect(point) && rightarrow_pressed)
 	{
+		restore = false;
 		rightarrow_pressed = false;
 		eraseDesktopList();
 		desktoplist_startindex = (desktoplist_startindex + 1) % e_global->desktopList.size();
@@ -1090,6 +1095,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 
 		Invalidate(TRUE);
 		//e_global->startUpdate();
+		restore = true;
 		return;
 	}
 
@@ -1102,6 +1108,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 		{
 			if (((CRect)(*itr_desktop_area)).PtInRect(point) && (i == target_desktop_index))
 			{
+				restore = false;
 				eraseWindowS();
 				e_global->getSelectedDesktop()->setAllIconInvisible();
 				e_global->setSelectedIndex(i);
@@ -1109,6 +1116,7 @@ void E_DesktopSwitcher::OnLButtonUp(UINT nFlags, CPoint point)
 				desktop_inrange = true;
 
 				Invalidate(TRUE);
+				restore = true;
 				return;
 			}
 			i = (i + 1) % e_global->desktopList.size();
