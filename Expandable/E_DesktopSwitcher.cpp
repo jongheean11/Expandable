@@ -637,6 +637,7 @@ void E_DesktopSwitcher::startSwitcher()
 
 		HBRUSH fillBrush;
 		fillBrush = ::CreatePatternBrush(hbm);
+		DeleteObject(hbm);
 
 		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
