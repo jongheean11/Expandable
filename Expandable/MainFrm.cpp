@@ -845,6 +845,17 @@ void CMainFrame::On32778()
 	//종료
 	E_Map* e_map = E_Map::getSingleton();
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	E_Global* e_global = E_Global::getSingleton();
+	std::list<HWND> docklist = e_global->dockedWindowList;
+	for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)
+	{
+		if ((*itr_dock) == hwnd)
+		{
+			e_global->dockedWindowList.remove((*itr_dock));
+			e_global->dockcount--;
+		}
+	}
+	
 	::SendMessage(hwnd, WM_CLOSE, 0, 0);
 	::SendMessage(e_map->hwnd_cwnd_emap->m_hWnd, WM_INVALIDATE, (WPARAM)hwnd, 0);
 
