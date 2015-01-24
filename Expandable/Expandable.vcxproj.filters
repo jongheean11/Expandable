@@ -351,9 +351,6 @@
     <Image Include="WindowSwitcher_background.png">
       <Filter>Image</Filter>
     </Image>
-    <Image Include="DesktopSwitcher_background.bmp">
-      <Filter>Image</Filter>
-    </Image>
     <Image Include="Map_background.bmp">
       <Filter>Image</Filter>
     </Image>
@@ -366,9 +363,6 @@
     <Image Include="DesktopSwitcher_rightarrow.bmp">
       <Filter>Image</Filter>
     </Image>
-    <Image Include="DesktopSwitcher_background_witharrow.bmp">
-      <Filter>Image</Filter>
-    </Image>
     <Image Include="WindowSwitcher_background_squeezed.bmp">
       <Filter>Image</Filter>
     </Image>
@@ -379,6 +373,12 @@
       <Filter>Image</Filter>
     </Image>
     <Image Include="WindowSwitcher_background3.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="DesktopSwitcher_background12801024.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="DesktopSwitcher_background12801024_witharrow.bmp">
       <Filter>Image</Filter>
     </Image>
   </ItemGroup>
