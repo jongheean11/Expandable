@@ -87,28 +87,32 @@ void E_Desktop::setAllNormalExcludeRemoveDirty(list<char*> exclude)
 			GetWindowTextA((*itr)->getWindow(), pname, 255);
 			for (list<char*>::iterator iter = exclude.begin(); iter != exclude.end(); iter++) {
 				subpname = strstr(pname, (*iter));
-				if (subpname == NULL){	//Visual Studio 제외
-					(*itr)->setNormal();
-
-					//잔상 이슈 해결
-					LONG_PTR tt = GetWindowLongPtr((*itr)->getWindow(), GWL_STYLE);
-					if (tt & DS_3DLOOK)
-					{
-						//현재위치 저장
-						RECT rect;
-						GetWindowRect((*itr)->getWindow(), &rect);
-						WINDOWPLACEMENT placement;
-						GetWindowPlacement((*itr)->getWindow(), &placement);
-						placement.rcNormalPosition = rect;
-						placement.showCmd = SW_MINIMIZE;	//최소화로 예상하고 해결
-						(*itr)->saveRect(placement);
-						
-						MoveWindow((*itr)->getWindow(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right - rect.left, rect.bottom - rect.top, FALSE);
-					}
-
+				if (subpname != NULL)
 					break;
-				}
 			}
+
+			if (subpname == NULL){	//Visual Studio 제외
+				(*itr)->setNormal();
+
+				//잔상 이슈 해결
+				LONG_PTR tt = GetWindowLongPtr((*itr)->getWindow(), GWL_STYLE);
+				if (tt & DS_3DLOOK)
+				{
+					//현재위치 저장
+					RECT rect;
+					GetWindowRect((*itr)->getWindow(), &rect);
+					WINDOWPLACEMENT placement;
+					GetWindowPlacement((*itr)->getWindow(), &placement);
+					placement.rcNormalPosition = rect;
+					placement.showCmd = SW_MINIMIZE;	//최소화로 예상하고 해결
+					(*itr)->saveRect(placement);
+
+					MoveWindow((*itr)->getWindow(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right - rect.left, rect.bottom - rect.top, FALSE);
+				}
+
+				break;
+			}
+
 		}
 	}
 }

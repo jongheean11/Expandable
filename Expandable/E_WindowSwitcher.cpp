@@ -47,6 +47,7 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 
 	//예외 리스트
 	aero_exclude_winlist.push_back("Microsoft Visual Studio");
+	aero_exclude_winlist.push_back("스티커 메모");
 }
 
 
