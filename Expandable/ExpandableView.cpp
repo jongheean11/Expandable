@@ -215,40 +215,52 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 			{
 				if ((point.x < 5) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 				{
-					KillTimer(3);
-					E_DesktopSwitcher::getSingleton()->restore = false;
-					//SetTimer(4, 30, NULL);
-					E_DragAndDropSwitcher::getSingleton()->cursor_left = true;
-					E_DragAndDropSwitcher::getSingleton()->initSwitcher();
-					SetTimer(30, 32, NULL);
+					if (E_Global::getSingleton()->getDesktopWidth() != 1)
+					{
+						KillTimer(3);
+						E_DesktopSwitcher::getSingleton()->restore = false;
+						//SetTimer(4, 30, NULL);
+						E_DragAndDropSwitcher::getSingleton()->cursor_left = true;
+						E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+						SetTimer(30, 32, NULL);
+					}
 				}
 
 				else if ((point.x >(enManager->getWidth() - 5)) && (((enManager->getHeight() * 0.3) < point.y) && (point.y < (enManager->getHeight() * 0.7))))
 				{
-					KillTimer(3);
-					//SetTimer(5, 30, NULL);
-					E_DesktopSwitcher::getSingleton()->restore = false;
-					E_DragAndDropSwitcher::getSingleton()->cursor_right = true;
-					E_DragAndDropSwitcher::getSingleton()->initSwitcher();
-					SetTimer(30, 32, NULL);
+					if (E_Global::getSingleton()->getDesktopWidth() != 1)
+					{
+						KillTimer(3);
+						//SetTimer(5, 30, NULL);
+						E_DesktopSwitcher::getSingleton()->restore = false;
+						E_DragAndDropSwitcher::getSingleton()->cursor_right = true;
+						E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+						SetTimer(30, 32, NULL);
+					}
 				}
 				else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y < 5))
 				{
-					KillTimer(3);
-					//SetTimer(6, 30, NULL);
-					E_DesktopSwitcher::getSingleton()->restore = false;
-					E_DragAndDropSwitcher::getSingleton()->cursor_top = true;
-					E_DragAndDropSwitcher::getSingleton()->initSwitcher();
-					SetTimer(30, 32, NULL);
+					if (E_Global::getSingleton()->getDesktopHeight() != 1)
+					{
+						KillTimer(3);
+						//SetTimer(6, 30, NULL);
+						E_DesktopSwitcher::getSingleton()->restore = false;
+						E_DragAndDropSwitcher::getSingleton()->cursor_top = true;
+						E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+						SetTimer(30, 32, NULL);
+					}
 				}
 				else if ((((enManager->getWidth() * 0.3) < point.x) && (point.x < (enManager->getWidth() * 0.7))) && (point.y >(enManager->getHeight() - 5)))
 				{
-					KillTimer(3);
-					//SetTimer(7, 30, NULL);
-					E_DesktopSwitcher::getSingleton()->restore = false;
-					E_DragAndDropSwitcher::getSingleton()->cursor_bottom = true;
-					E_DragAndDropSwitcher::getSingleton()->initSwitcher();
-					SetTimer(30, 32, NULL);
+					if (E_Global::getSingleton()->getDesktopHeight() != 1)
+					{
+						KillTimer(3);
+						//SetTimer(7, 30, NULL);
+						E_DesktopSwitcher::getSingleton()->restore = false;
+						E_DragAndDropSwitcher::getSingleton()->cursor_bottom = true;
+						E_DragAndDropSwitcher::getSingleton()->initSwitcher();
+						SetTimer(30, 32, NULL);
+					}
 				}
 			}
 			CRect mapCRect(enManager->getWidth() - 30, enManager->getHeight() - 30, enManager->getWidth(), enManager->getHeight());
