@@ -140,11 +140,29 @@ void E_Map::terminateMap()
 	if (clickedforerror)
 	{
 		//클릭하고 타임아웃시 처리
-		//int stopdesktop = getdesktop(clickindexx, clickindexy); //stopdesktop-1 이 해당 윈도우가 있던 위치
+		int stopdesktop = getdesktop(clickindexx, clickindexy); //stopdesktop-1 이 해당 윈도우가 있던 위치
+		RECT rectForerror;
+		int foredesktop = E_Global::getSingleton()->getSelectedIndex();
 
+		if (stopdesktop != foredesktop)
+			::ShowWindow(selectIconHwnd, SW_SHOW);
+		//E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		//E_Global* e_global = E_Global::getSingleton();
+		//long w = enManager->getWidth();
+		//long h = enManager->getHeight();
+		//long th = enManager->getTaskbarHeight();
+		//int mapWidth = e_global->getDesktopWidth();
+		//int mapHeight = e_global->getDesktopHeight();
+		//double mapsize = e_global->getMapsize();
+		//long iconSize = w*e_global->getMapsize() / 4 * e_global->getIconsize();
 
+		//int idx = (stopdesktop-1) % mapWidth;
+		//int idy = (stopdesktop - 1) / mapWidth;
+		//::GetWindowRect(selectIconHwnd, &rectForerror);
+		//long iconPosstx = rectForerror.left *e_global->getMapsize() + idx*w*mapsize;  //check
+		//long iconPossty = rectForerror.top *e_global->getMapsize()*w / (h - th) + idy*w*mapsize;//check
 
-
+	
 
 		//selectIconHwnd = NULL;
 
