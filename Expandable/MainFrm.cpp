@@ -937,7 +937,7 @@ void CMainFrame::On32781()
 
 	}
 }
-		
+
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
