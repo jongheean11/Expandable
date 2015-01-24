@@ -56,6 +56,18 @@ void E_Map::drawMap()
 {
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	E_Global* e_global = E_Global::getSingleton();
+
+
+	std::list<HWND> docklist = e_global->dockedWindowList;
+	for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)
+	{
+		if (!IsWindow(*itr_dock))
+		{
+			e_global->dockedWindowList.remove((*itr_dock));
+			e_global->dockcount--;
+		}
+	}
+
 	time = e_global->getTimer();
 	e_global->mapopen = true;
 	ison2 = true;
