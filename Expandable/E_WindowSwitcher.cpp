@@ -43,7 +43,7 @@ E_WindowSwitcher::E_WindowSwitcher() : running(false), updateFlag(false), tabMod
 	this->CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, szClassName_window, E_WindowSwitcher::caption, WS_VISIBLE | WS_POPUP, CRect(0, 0, 1, 1), CWnd::GetDesktopWindow(), 0);
 	this->ShowWindow(SW_HIDE);
 	this->UpdateWindow();
-	//brush_map.DeleteObject();
+	brush_map.DeleteObject();
 	//  selectedIndex = 0;
 	startTaboffset = 0;
 
@@ -1222,7 +1222,7 @@ SHAPE E_WindowSwitcher::getShape(int width, int height, int res_width, int res_h
 	if (targetRatio > ratio) {
 		shape = HORIZONTAL;
 	}
-	else {
+	else{ 
 		shape = VERTICAL;
 	}
 	return shape;
