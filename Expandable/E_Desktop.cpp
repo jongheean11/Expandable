@@ -111,7 +111,7 @@ void E_Desktop::setAllNormalExcludeRemoveDirty(list<char*> exclude)
 					MoveWindow((*itr)->getWindow(), E_EnvironmentManager::getSingleton()->getWidth(), E_EnvironmentManager::getSingleton()->getHeight(), rect.right - rect.left, rect.bottom - rect.top, FALSE);
 				}
 
-				break;
+				//break;
 			}
 
 		}
