@@ -115,9 +115,9 @@ void E_WindowSwitcher::startSwitcher()
 	//데스크탑
 	E_Window* desktopWindow = global->backgroundWindow;
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
+	group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	if (SUCCEEDED(aeroManager->registerAero(desktopWindow->getWindow(), this->GetSafeHwnd(), r, hthumbnail)) && desktopWindow->isAeroPossible()) {
 		thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(desktopWindow->getWindow(), hthumbnail));
-		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
 
 
@@ -262,7 +262,7 @@ void E_WindowSwitcher::restartSwitcher()
 	//데스크탑
 	E_Window* desktopWindow = global->backgroundWindow;
 	mode_map.insert(unordered_map<HWND, DRAWMODE>::value_type(desktopWindow->getWindow(), DRAW_NORMAL));
-	if (SUCCEEDED(aeroManager->registerAero(desktopWindow->getWindow(), this->GetSafeHwnd(), r, hthumbnail)) && desktopWindow->isAeroPossible()) {
+	if (SUCCEEDED(aeroManager->registerAero(desktopWindow->getWindow(), this->GetSafeHwnd(), r, hthumbnail))) {// && desktopWindow->isAeroPossible()
 		thumb_map.insert(unordered_map<HWND, HTHUMBNAIL>::value_type(desktopWindow->getWindow(), hthumbnail));
 		group_map.insert(unordered_map<HWND, GROUP2>::value_type(desktopWindow->getWindow(), SELECTEDDESKTOP));
 	}
@@ -1337,7 +1337,7 @@ void E_WindowSwitcher::selectTabWindow()
 			offset++;
 		}
 	}
-	//TRACE_WIN32A("[GROUP BEFORE] %d", group_map.size());
+	TRACE_WIN32A("[GROUP BEFORE] %d", group_map.size());
 	if (IsWindow(hwnd) && (group_map.find(hwnd) != group_map.end())){
 	/*	disableAnimate();
 		disableAllBlur();*/
@@ -1350,12 +1350,13 @@ void E_WindowSwitcher::selectTabWindow()
 			char title[255] = { 0, };
 			::GetWindowTextA(hwnd, title, 255);
 			::GetWindowPlacement(hwnd, &windowState);
-			//TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
+			TRACE_WIN32A("[OnLButtonDown] title: %s showCmd: %d", title, windowState.showCmd);
 
 			hwnd = hwnd;	//지역 변수 사용
 
 			//LOSS FOCUS
 			if (strcmp(title, "Program Manager") == 0){
+				TRACE_WIN32A("[WindowSwitcher] Program Manager");
 				E_Global::getSingleton()->getSelectedDesktop()->setAllMinimize();
 			}
 			else{
