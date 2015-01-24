@@ -997,15 +997,17 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 
 HRESULT CMainFrame::OnChange(WPARAM wParam, LPARAM lParam)
 {
+	E_DesktopSwitcher::getSingleton()->DestroyWindow();
+	E_DesktopSwitcher::getSingleton()->initial = true;
 	bool dualMonitorMode = false;
 	//Some code for resolution...
 	int monitorCount = GetSystemMetrics(SM_CMONITORS);
 	if (monitorCount > 1) {
-		HWND hwnd = GetDesktopWindow()->m_hWnd;
-		MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
+		MessageBoxEx(GetDesktopWindow()->m_hWnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
 		terminateAHK();
 		PostQuitMessage(WM_QUIT);
 	}
+
 
 	return true;
 }
