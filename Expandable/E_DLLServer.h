@@ -12,6 +12,7 @@ const std::string PONG = "PONG";
 
 enum TYPE{PROGRESSVALUE, PROGRESSSTATE, SHOWWINDOW};
 
+//알림 및 프로세스 정보 
 typedef struct _PROCESS{
 	unsigned int pid;
 	char pname[255];

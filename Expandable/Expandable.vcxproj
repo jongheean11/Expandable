@@ -275,12 +275,10 @@
     <Image Include="WindowSwitcher_background_squeezed2.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AutoHotkey.ahk" />
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
     <None Include="res\Expandable.rc2" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="AutoHotkey.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -319,20 +319,6 @@ bool E_Global::onUpdate()
 	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
 		list<E_Window*> noChangeList;
-		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
-			HWND findWindow = 0;
-			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
-			if (*iter == (*iter_window)->getWindow()){
-			noChangeList.push_back(*iter_window);
-			selectedDesktop->excludeWindow(*iter_window);
-			findWindow = *iter;
-			}
-			}
-			if (findWindow == NULL){
-			E_Window* window = new E_Window(findWindow);
-			noChangeList.push_back(window);
-			}
-			}*/
 		//리스트 업데이트
 		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
 			HWND findWindow = NULL;
