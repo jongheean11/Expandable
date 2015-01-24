@@ -65,7 +65,7 @@ E_WindowSwitcher* E_WindowSwitcher::getSingleton()
 // UI를 보여주고 입력을 받는 창을 활성화 시킴
 void E_WindowSwitcher::startSwitcher()
 {
-	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher()");
+	//TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher()");
 	E_AeroPeekController* aeroManager = E_AeroPeekController::getSingleton();
 	E_Global* global = E_Global::getSingleton();
 	//global->startUpdate();
@@ -126,7 +126,7 @@ void E_WindowSwitcher::startSwitcher()
 	this->ShowWindow(SW_SHOW);
 	//동작 중
 	SetTimer(1, 50, NULL);
-	TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher END()");
+	//TRACE_WIN32A("[E_WindowSwitcher::startSwitcher] startSwitcher END()");
 }
 
 
@@ -134,7 +134,7 @@ void E_WindowSwitcher::startSwitcher()
 void E_WindowSwitcher::terminateSwitcher()
 {
 	if (running) {
-		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
+		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
 		isfocus = false;	//포커스 플래그 초기화
 		running = false;
 		/*startAnimate = false;
@@ -147,7 +147,7 @@ void E_WindowSwitcher::terminateSwitcher()
 		//E_Global::getSingleton()->stopUpdate();
 
 		this->ShowWindow(SW_HIDE);
-		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] SW_HIDE");
+		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] SW_HIDE");
 
 		HRESULT result;
 		//자원 정리
@@ -181,7 +181,7 @@ void E_WindowSwitcher::terminateSwitcher()
 			, 1, 1
 			, SWP_NOZORDER);
 
-		TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() END");
+		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() END");
 	}
 }
 
@@ -506,7 +506,7 @@ void E_WindowSwitcher::OnPaint()
 				for (list<E_Window*>::reverse_iterator iter = winlist.rbegin(); iter != winlist.rend(); iter++){
 					//mode_map.key
 					if (mode_map.find((*iter)->getWindow()) == mode_map.end() || (IsWindow((*iter)->getWindow()) == FALSE)){
-						TRACE_WIN32A("[invalid window]");
+						//TRACE_WIN32A("[invalid window]");
 						continue;
 					}
 					//윈도우 개수가 14개 이상일 때 제외
@@ -1234,7 +1234,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 						focushwnd = hwnd;
 						SetTimer(2, 50, NULL);
 					}
-					TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] SELECTEDDESKTOP");
+					//TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] SELECTEDDESKTOP");
 				}
 				else if (group_map.find(itr->first)->second == OTHERDESKTOP) {
 					//소속 데스크탑
@@ -1266,7 +1266,7 @@ void E_WindowSwitcher::OnLButtonDown(UINT nFlags, CPoint point)
 					//::SendMessage(E_Global::getSingleton()->hwnd_frame, WM_TRAY_EVENT, desktop->getIndex(), 0);
 				}
 				terminateSwitcher();
-				TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] terminateSwitcher()");
+				//TRACE_WIN32A("[E_WindowSwitcher::OnLButtonDown] terminateSwitcher()");
 				break;
 			}
 		}
@@ -1454,10 +1454,10 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	wchar_t name[255] = { 0, };
 	::GetWindowTextW(pNewWnd->GetSafeHwnd(),name, 255);
 	
-	TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] %s", name);
+	//TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] %s", name);
 	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	if (running == true){
-		TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] TRACE -> %s", name);
+		//TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] TRACE -> %s", name);
 		terminateSwitcher();
 	}
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
@@ -1881,7 +1881,7 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (!isfocus)
 		{
-			TRACE_WIN32A("E_WindowSwitcher::OnTimer() _ FOCUS");
+			//TRACE_WIN32A("E_WindowSwitcher::OnTimer() _ FOCUS");
 			this->stealFocus2(this->GetSafeHwnd());
 			::SetFocus(this->GetSafeHwnd());
 		
@@ -1892,7 +1892,7 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 		//TRACE_WIN32A("FOCUS - 2");
 		char name[255];
 		GetWindowTextA(focushwnd, name, 255);
-		TRACE_WIN32A("FOCUS PROCESS NAME %u ,%s", focushwnd,name);
+		//TRACE_WIN32A("FOCUS PROCESS NAME %u ,%s", focushwnd,name);
 
 		::ShowWindow(focushwnd, SW_SHOW);
 		this->stealFocus2(focushwnd);

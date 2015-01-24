@@ -83,7 +83,7 @@ void E_Map::drawMap()
 		//
 		e_global->hwnd_cwnd = hwnd_cwnd_emap;
 		//
-		SetTimer(1, 1000, NULL);
+		SetTimer(1, 500, NULL);
 		hwnd_cwnd_emap->ShowWindow(SW_SHOW);
 		if (E_AeroPeekController::getSingleton()->isAeroPeekMode())
 			::SetWindowLongW(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE, GetWindowLong(hwnd_cwnd_emap->m_hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
