@@ -799,7 +799,7 @@ void E_DragAndDropSwitcher::startSwitcher()
 		}
 		else
 		{
-			if ((e_global->getSelectedIndex() / e_global->getDesktopWidth()) == e_global->getDesktopWidth() - 1)
+			if (((int)(e_global->getSelectedIndex() / e_global->getDesktopWidth())) == (e_global->getDesktopHeight() - 1))
 			{
 				for (int p = 0; p != (e_global->getSelectedIndex() % e_global->getDesktopWidth()); p++)
 				{
