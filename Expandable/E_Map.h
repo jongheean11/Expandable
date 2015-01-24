@@ -18,6 +18,7 @@ private:
 	int iconMoveMode;
 	bool forSelectMap;
 	bool clicked;
+	bool clickedforerror;
 	bool redraw;
 	bool select;
 	bool up;

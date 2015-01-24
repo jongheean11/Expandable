@@ -31,7 +31,7 @@ E_Map::E_Map()
 	select = false;
 	forSelectMap = false;
 	hwnd = this->GetSafeHwnd();
-
+	clickedforerror = false;
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
 	ison = false;
@@ -119,7 +119,7 @@ void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->stopUpdate();
-
+	//::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
 	std::list<RECT*> Rectlist2 = E_Map::getSingleton()->iconRectList;
 	for (std::list<RECT*>::iterator itr_rect = Rectlist2.begin(); itr_rect != Rectlist2.end(); itr_rect++)	//각 데스크탑 별로출력
 	{
@@ -132,9 +132,24 @@ void E_Map::terminateMap()
 	e_global->mapopen = false;
 	iconRectList.clear();
 	iconHwndList.clear();
-	hwnd_cwnd_emap->DestroyWindow();
+	
+	
 	ison = false;
 	ison2 = false;
+
+	if (clickedforerror)
+	{
+		//클릭하고 타임아웃시 처리
+		//int stopdesktop = getdesktop(clickindexx, clickindexy); //stopdesktop-1 이 해당 윈도우가 있던 위치
+
+
+
+
+
+		//selectIconHwnd = NULL;
+
+	}
+	hwnd_cwnd_emap->DestroyWindow();
 }
 
 
@@ -356,23 +371,34 @@ void E_Map::OnPaint()
 						memDC.SelectObject(oldpen);
 						pen.DeleteObject();
 
-
-
+						
 						for (int jdx = 0; jdx < mapWidth; jdx++)
 						{
 							for (int jdy = 0; jdy < mapHeight; jdy++)
 							{
 								if (jdx == idx && jdy == idy)
 									continue;
+								
 								iconPosstx = rectForIcon.left *e_global->getMapsize() + jdx*w*mapsize;  //check
 								iconPossty = rectForIcon.top *e_global->getMapsize()*w / (h - th) + jdy*w*mapsize;//check
+								memDC.SelectObject(oldpen);
+								pen.CreatePen(PS_SOLID, 2, RGB(160, 160, 160));	//노랑
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2);
+								oldpen = memDC.SelectObject(&pen);
+								memDC.LineTo(iconPosstx + 2 +iconSize, iconPossty + 2);
+								memDC.MoveTo(iconPosstx + 2 + iconSize, iconPossty + 2);
+								memDC.LineTo(iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize);
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2);
+								memDC.LineTo(iconPosstx + 2, iconPossty + 2 + iconSize);
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2 + iconSize);
+								memDC.LineTo(iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize);
+								pen.DeleteObject();
+								
 								memDC.TransparentBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));//SRCCOPY);
 
 							}
 						}
-						
-
-
+					
 
 					}
 
@@ -685,6 +711,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
+	clickedforerror = true;
 	//leave2 = false;
 	::BringWindowToTop(this->GetSafeHwnd());
 	up = true;
@@ -721,6 +748,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	clickedforerror = false;
 	if (leave)
 	{
 		point.x = mouse.x;
