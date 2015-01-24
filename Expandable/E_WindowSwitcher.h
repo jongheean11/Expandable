@@ -50,6 +50,7 @@ public:
 	const static COLORREF aeroColor;
 	const static COLORREF aeroColorSelected;
 	const static COLORREF aeroColorSelectedMouse;
+	const static COLORREF switcherborderColor;
 	const static COLORREF borderColor;
 	const static COLORREF borderColorSelected;
 	const static COLORREF borderColorSelectedMouse;

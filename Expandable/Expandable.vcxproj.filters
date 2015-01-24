@@ -381,6 +381,21 @@
     <Image Include="DesktopSwitcher_background12801024_witharrow.bmp">
       <Filter>Image</Filter>
     </Image>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background1024768.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background12801024.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background19201080.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\WindowSwitcher_background_else.bmp">
+      <Filter>Image</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\WindowSwitcher_background_upper3.bmp">
+      <Filter>Image</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Expandable.rc2">
