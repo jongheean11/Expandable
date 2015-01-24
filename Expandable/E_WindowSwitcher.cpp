@@ -1524,9 +1524,15 @@ void E_WindowSwitcher::selectNextWindow()
 		tabIndex++;
 		
 		if (tabIndex + startTaboffset >= selectedSize){
-			tabIndex = 0;
-			startTaboffset = 0;
-			resetIconcwndAndAero();
+			if (tabIndex < 14){
+				tabIndex = 0;
+				startTaboffset = 0;
+			}
+			else{
+				tabIndex = 0;
+				startTaboffset = 0;
+				resetIconcwndAndAero();
+			}
 		}
 		else if (tabIndex >= 14){
 			startTaboffset++; //tabIndex - 14 + 1;
@@ -1540,9 +1546,15 @@ void E_WindowSwitcher::selectNextWindow()
 		tabIndex++;
 
 		if (tabIndex + startTaboffset >= otherSize){
-			tabIndex = 0;
-			startTaboffset = 0;
-			resetIconcwndAndAero();
+			if (tabIndex < 14){
+				tabIndex = 0;
+				startTaboffset = 0;
+			}
+			else{
+				tabIndex = 0;
+				startTaboffset = 0;
+				resetIconcwndAndAero();
+			}
 		}
 		else if (tabIndex >= 14){
 			startTaboffset++; //tabIndex - 14 + 1;
@@ -1584,15 +1596,21 @@ void E_WindowSwitcher::selectPrevWindow()
 		tabIndex--;
 		
 		if (tabIndex < 0 && startTaboffset == 0){
-			if (selectedSize>14)
+			if (selectedSize > 14){
 				tabIndex = 13;
-			else
+				startTaboffset = selectedSize - 14;
+				resetIconcwndAndAero();
+			}
+			else{
 				tabIndex = selectedSize - 1;//selectedSize - 1;
-			if (selectedSize > 14)
+				startTaboffset = 0;
+			}
+			
+			/*if (selectedSize > 14)
 				startTaboffset = selectedSize - 14;
 			else
-				startTaboffset = 0;
-			resetIconcwndAndAero();
+				startTaboffset = 0;*/
+			//resetIconcwndAndAero();
 		}
 		else if (tabIndex < 0){
 			tabIndex = 0;
@@ -1606,15 +1624,15 @@ void E_WindowSwitcher::selectPrevWindow()
 		tabIndex--;
 
 		if (tabIndex < 0 && startTaboffset == 0){
-			if (otherSize>14)
+			if (selectedSize > 14){
 				tabIndex = 13;
-			else
-				tabIndex = otherSize - 1;//selectedSize - 1;
-			if (selectedSize > 14)
-				startTaboffset = otherSize - 14;
-			else
+				startTaboffset = selectedSize - 14;
+				resetIconcwndAndAero();
+			}
+			else{
+				tabIndex = selectedSize - 1;//selectedSize - 1;
 				startTaboffset = 0;
-			resetIconcwndAndAero();
+			}
 		}
 		else if (tabIndex < 0){
 			tabIndex = 0;
