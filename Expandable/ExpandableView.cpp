@@ -264,7 +264,7 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 				}
 			}
 			CRect mapCRect(enManager->getWidth() - 30, enManager->getHeight() - 30, enManager->getWidth(), enManager->getHeight());
-			if (mapCRect.PtInRect(point))
+			if (mapCRect.PtInRect(point) && !E_WindowSwitcher::getSingleton()->isRunning())
 			{
 				E_Map* e_map = E_Map::getSingleton();
 				if(!e_map->ison)
