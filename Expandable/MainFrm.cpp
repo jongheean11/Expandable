@@ -961,6 +961,13 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 				HWND hwnd = GetDesktopWindow()->m_hWnd;
 				MessageBoxEx(hwnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
 				terminateAHK();
+				std::list<E_Desktop*> desklist = E_Global::getSingleton()->desktopList;
+				for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
+				{
+					(*itr_desk)->setAllOpaque();
+					(*itr_desk)->setAllIconVisible();
+					(*itr_desk)->setAllShow();
+				}
 				PostQuitMessage(WM_QUIT);
 			}
 		}
@@ -1005,6 +1012,13 @@ HRESULT CMainFrame::OnChange(WPARAM wParam, LPARAM lParam)
 	if (monitorCount > 1) {
 		MessageBoxEx(GetDesktopWindow()->m_hWnd, TEXT("듀얼 모니터는 지원하지 않습니다.\n\nExpandable 종료합니다."), TEXT("Not Apply"), MB_OK, 0);
 		terminateAHK();
+		std::list<E_Desktop*> desklist = E_Global::getSingleton()->desktopList;
+		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)
+		{
+			(*itr_desk)->setAllOpaque();
+			(*itr_desk)->setAllIconVisible();
+			(*itr_desk)->setAllShow();
+		}
 		PostQuitMessage(WM_QUIT);
 	}
 
