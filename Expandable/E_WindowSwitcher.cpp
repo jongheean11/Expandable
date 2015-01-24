@@ -120,7 +120,7 @@ void E_WindowSwitcher::startSwitcher()
 
 	//스위처 시작 
 	running = true;
-	isfocus = true;
+	isfocus = false;
 	//startAnimate = false;
 	//윈도우를 띄움
 	this->ShowWindow(SW_SHOW);
@@ -1881,10 +1881,10 @@ void E_WindowSwitcher::OnTimer(UINT_PTR nIDEvent)
 	{
 		if (!isfocus)
 		{
-			//TRACE_WIN32A("E_WindowSwitcher::OnTimer() _ FOCUS");
+			TRACE_WIN32A("E_WindowSwitcher::OnTimer() _ FOCUS");
 			this->stealFocus2(this->GetSafeHwnd());
 			::SetFocus(this->GetSafeHwnd());
-		
+			isfocus = true;
 			KillTimer(1);
 		}
 	}

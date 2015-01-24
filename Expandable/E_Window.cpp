@@ -354,7 +354,9 @@ void E_Window::saveShowState()
 	}
 	else if (isAeroPossible())
 	{
+		//savedState = SW_SHOW;
 		savedState = SW_SHOWNORMAL;
+
 	}
 	else{
 		savedState = SW_MINIMIZE;
