@@ -584,75 +584,73 @@ void E_DesktopSwitcher::startSwitcher()
 		if (initial)
 		{
 			initial = false;
-		HBITMAP hbmOrig;
-		if (enManager->getWidth() == 1920 && enManager->getHeight() == 1080)
-		{
-			if (e_global->desktopList.size() > 4)
+			HBITMAP hbmOrig;
+			if (enManager->getWidth() == 1920 && enManager->getHeight() == 1080)
+			{
+				if (e_global->desktopList.size() > 4)
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background19201080_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-			else
+				else
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background19201080.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		}
-		else if (enManager->getWidth() == 1600 && enManager->getHeight() == 900)
-		{
-			if (e_global->desktopList.size() > 4)
+			}
+			else if (enManager->getWidth() == 1600 && enManager->getHeight() == 900)
+			{
+				if (e_global->desktopList.size() > 4)
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1600900_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-			else
+				else
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1600900.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		}
-		else if (enManager->getWidth() == 1024 && enManager->getHeight() == 768)
-		{
-			if (e_global->desktopList.size() > 4)
+			}
+			else if (enManager->getWidth() == 1024 && enManager->getHeight() == 768)
+			{
+				if (e_global->desktopList.size() > 4)
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1024768_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-			else
+				else
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1024768.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		}
-		else if (enManager->getWidth() == 1280 && enManager->getHeight() == 1024)
-		{
-			if (e_global->desktopList.size() > 4)
+			}
+			else if (enManager->getWidth() == 1280 && enManager->getHeight() == 1024)
+			{
+				if (e_global->desktopList.size() > 4)
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background12801024_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-			else
+				else
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background12801024.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		}
-		else // 1280x720
-		{
-			if (e_global->desktopList.size() > 4)
+			}
+			else // 1280x720
+			{
+				if (e_global->desktopList.size() > 4)
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1280720_witharrow.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-			else
+				else
 					hbmOrig = (HBITMAP)LoadImage(IMAGE_BITMAP, __T("res\\DesktopSwitcher_background1280720.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-		}
+			}
 
-		BITMAP bm = { 0 };
-		GetObject(hbmOrig, sizeof(BITMAP), &bm);
+			BITMAP bm = { 0 };
+			GetObject(hbmOrig, sizeof(BITMAP), &bm);
 
-		HDC dc = ::GetDC(::GetDesktopWindow());
-		HDC memdc = CreateCompatibleDC(dc);
-		HDC memdc2 = CreateCompatibleDC(dc);
-		HBITMAP hbm = CreateCompatibleBitmap(dc, enManager->getWidth(), enManager->getHeight());
-		HGDIOBJ hOld = SelectObject(memdc, hbm);
-		SelectObject(memdc2, hbmOrig);
-		StretchBlt(memdc, 0, 0, enManager->getWidth(), enManager->getHeight(), memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
-		::ReleaseDC(::GetDesktopWindow(), dc);
+			HDC dc = ::GetDC(::GetDesktopWindow());
+			HDC memdc = CreateCompatibleDC(dc);
+			HDC memdc2 = CreateCompatibleDC(dc);
+			HBITMAP hbm = CreateCompatibleBitmap(dc, enManager->getWidth(), enManager->getHeight());
+			HGDIOBJ hOld = SelectObject(memdc, hbm);
+			SelectObject(memdc2, hbmOrig);
+			StretchBlt(memdc, 0, 0, enManager->getWidth(), enManager->getHeight(), memdc2, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+			::ReleaseDC(::GetDesktopWindow(), dc);
 
 
-		SelectObject(memdc, hOld);
+			SelectObject(memdc, hOld);
 			DeleteObject(hbmOrig);
 			DeleteDC(memdc2);
 			DeleteObject(hOld);
-		DeleteDC(memdc);
-		DeleteDC(dc);
+			DeleteDC(memdc);
+			DeleteDC(dc);
 
-		HBRUSH fillBrush;
-		fillBrush = ::CreatePatternBrush(hbm);
-		DeleteObject(hbm);
+			HBRUSH fillBrush;
+			fillBrush = ::CreatePatternBrush(hbm);
+			DeleteObject(hbm);
 
-		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
-		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+			CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
+			CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
 		}
 		UpdateWindow();
 		//WS_EX_TOPMOST
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
-
-		E_Window::setIconInvisible(this->m_hWnd);
 		
 		//e_global->stopUpdate();
 		drawDesktopSwitcher();
@@ -670,6 +668,8 @@ void E_DesktopSwitcher::startSwitcher()
 		Invalidate(FALSE);
 
 		SetCapture();
+
+		E_Window::setIconInvisible(this->m_hWnd);
 
 		stealFocus(this->m_hWnd);
 
@@ -775,11 +775,12 @@ void E_DesktopSwitcher::terminateSwitcher()
 		enterkey_pressed = false;
 		esckey_pressed = false;
 
-		E_Window::setIconVisible(this->m_hWnd);
+		
 		ison = false;
 		//DestroyWindow();
 		SetWindowLongW(this->GetSafeHwnd(), GWL_EXSTYLE, GetWindowLong(this->GetSafeHwnd(), GWL_EXSTYLE) | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(0, 0, LWA_ALPHA);
+		E_Window::setIconInvisible(this->m_hWnd);
 		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 
 		otherkey = false;
