@@ -103,10 +103,10 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 										  DWORD explorerPID = GetProcessID(WEXPLORER);	//Explorer.exe
 										  TRACE_WIN32(L"[PROCESS] target: %s, parent: %u, explorer: %u", wprocessList[i], parentPID, explorerPID);
 
-										  if (interfacehook == false && parentPID == explorerPID && isVisible(NULL)){
+										  if (interfacehook == false && isVisible(NULL)){// && parentPID == explorerPID
 											  startInterfaceHook();	//크롬, 익스플로러 .. 후킹
 										  }
-										  if (interfacestatehook == false && parentPID == explorerPID && isVisible(NULL)){
+										  if (interfacestatehook == false && isVisible(NULL)){ // && parentPID == explorerPID 
 											  startInterfaceStateHook(); //마지막 상태.. 후킹
 										  }
 

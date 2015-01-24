@@ -36,15 +36,27 @@ bool E_SettingManager::writeData(SettingInfo& info)
 	string buffer;
 	buffer = writer.write(root);
 
-	char fileName[255] = { NULL };
-	GetModuleFileNameA(NULL, fileName, 255);
+	//GetModuleFileNameA(NULL, fileName, 255);
+	//if (strlen(fileName) == NULL)
+	//	return false;
+	////현재 실행 파일 위치
+	//char* filePath = strrchr(fileName, '\\');
 
-	if (strlen(fileName) == NULL)
-		return false;
 
-	//현재 실행 파일 위치
-	char* filePath = strrchr(fileName, '\\');
-	strcpy(filePath, "setting.ini");
+	char filePath[255] = { NULL };
+	char folderPath[255] = { NULL };
+	GetEnvironmentVariableA("APPDATA", folderPath, 255);
+	strcat(folderPath, "\\expandable");
+
+	//if (folderPath)
+	if (PathFileExistsA(folderPath) == FALSE)
+	{
+		// 없으면 디렉토리 생성
+		CreateDirectoryA(folderPath, NULL);
+	}
+
+	strcpy(filePath, folderPath);
+	strcat(filePath, "\\setting.ini");
 
 	FILE* fp = fopen(filePath, "w");
 	if (NULL == fp)
@@ -53,6 +65,7 @@ bool E_SettingManager::writeData(SettingInfo& info)
 	fclose(fp);
 	return true;
 }
+
 bool E_SettingManager::readData(SettingInfo& info)
 {
 	char settingBuffer[1024] = { 0, };
@@ -64,8 +77,13 @@ bool E_SettingManager::readData(SettingInfo& info)
 		return false;
 
 	//현재 실행 파일 위치
-	char* filePath = strrchr(fileName, '\\');
-	strcpy(filePath, "setting.ini");
+	char filePath[255] = { NULL };
+	char folderPath[255] = { NULL };
+	GetEnvironmentVariableA("APPDATA", folderPath, 255);
+	strcat(folderPath, "\\expandable");
+	strcpy(filePath, folderPath);
+	strcat(filePath, "\\setting.ini");
+
 
 	if (TRUE == PathFileExistsA(filePath)){
 		FILE* fp = fopen(filePath, "r");
