@@ -642,9 +642,10 @@ void E_DesktopSwitcher::startSwitcher()
 		//CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, (HBRUSH)CreateSolidBrush(E_WindowSwitcher::backgroundColor), 0);
 		CString szClassName_window = AfxRegisterWndClass(nClassStyle_window, 0, fillBrush, 0);
 		CreateEx(WS_EX_TOPMOST, szClassName_window, L"E_DesktopSwitcher", WS_VISIBLE | WS_POPUP, CRect(0, 0, enManager->getWidth(), enManager->getHeight()), CWnd::GetDesktopWindow(), 0);
+		DeleteObject(fillBrush);
 		//WS_EX_TOPMOST
 		DwmEnableComposition(DWM_EC_ENABLECOMPOSITION);
-
+		
 		E_Window::setIconInvisible(this->m_hWnd);
 		
 		//e_global->stopUpdate();
