@@ -531,6 +531,7 @@ E_DesktopSwitcher::E_DesktopSwitcher()
 	esckey_pressed = false;
 	leftarrow = NULL; 
 	rightarrow = NULL;
+	otherkey = false;
 
 	mainCWnd = NULL;
 	window_squeezed_inlist = false;
@@ -701,8 +702,6 @@ void E_DesktopSwitcher::terminateSwitcher()
 				(*itr)->setShow();
 		}
 
-
-		
 		::SetLayeredWindowAttributes(hTaskbarWnd, 0, 255, LWA_ALPHA); //투명해제
 		::SetWindowLongW(hTaskbarWnd, GWL_EXSTYLE, GetWindowLong(hTaskbarWnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
 
@@ -763,10 +762,11 @@ void E_DesktopSwitcher::terminateSwitcher()
 		esckey_pressed = false;
 
 		E_Window::setIconVisible(this->m_hWnd);
+		ison = false;
 		DestroyWindow();
 		::SendMessage(e_global->hwnd_frame, WM_TRAY_EVENT, e_global->getSelectedIndex(), 0);
 
-		ison = false;
+		otherkey = false;
 	}
 }
 
@@ -1666,6 +1666,7 @@ void E_DesktopSwitcher::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
+	otherkey = false;
 	if ((nChar == VK_LEFT) && leftkey_pressed)
 	{
 		if (!((0 == E_Global::getSingleton()->getSelectedIndex()) && (E_Global::getSingleton()->desktopList.size() <= 4)))
@@ -1699,6 +1700,10 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 		
 		terminateSwitcher();
 	}
+	else
+	{
+		otherkey = true;
+	}
 
 	leftkey_pressed = false;
 	rightkey_pressed = false;
@@ -1711,6 +1716,11 @@ void E_DesktopSwitcher::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void E_DesktopSwitcher::OnKillFocus(CWnd* pNewWnd)
 {
+	if (otherkey)
+	{
+		otherkey = false;
+		return;
+	}
 	if (restore)
 	{
 		terminateSwitcher();
