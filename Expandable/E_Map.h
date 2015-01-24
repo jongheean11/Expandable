@@ -34,6 +34,7 @@ public:
 	static BOOL CALLBACK EnumShow(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackMap(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallHide(HWND hwnd, LPARAM lParam);
+	static BOOL CALLBACK special(HWND hwnd, LPARAM lParam);
 	DWORD parentprocessId;
 	long childmovx, childmovy;
 	RECT rectForChildMove;
