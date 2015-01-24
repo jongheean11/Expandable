@@ -1563,55 +1563,70 @@ void E_DesktopSwitcher::keyArrowPress(int direction)
 		else
 		{	
 			int i = desktoplist_startindex, p = 0;
+			desktop_inrange = false;
 			while (p < 4)
 			{
 				if (e_global->getSelectedIndex() == i)
 				{
-					if ((p == 0) && (direction == -1))
-					{
-						eraseDesktopList();
-						desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex - 1) % e_global->desktopList.size();
-						drawDesktopList();
-						
-						eraseWindowS();
-						e_global->getSelectedDesktop()->setAllIconInvisible();
-						e_global->setSelectedIndex(index);
-						drawWindowS();
-						desktop_inrange = true;
-						
-						Invalidate(TRUE);
-						return;
-					}
-					else if ((p == 3) && (direction == 1))
-					{
-						eraseDesktopList();
-						desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex + 1) % e_global->desktopList.size();
-						drawDesktopList();
-
-						eraseWindowS();
-						e_global->getSelectedDesktop()->setAllIconInvisible();
-						e_global->setSelectedIndex(index);
-						drawWindowS();
-						desktop_inrange = true;
-
-						Invalidate(TRUE);
-						return;
-					}
-					else
-					{
-						eraseWindowS();
-						e_global->getSelectedDesktop()->setAllIconInvisible();
-						e_global->setSelectedIndex(index);
-						drawWindowS();
-						desktop_inrange = true;
-
-						Invalidate(TRUE);
-						return;
-					}
+					desktop_inrange = true;
+					break;
 				}
 				i = (i + 1) % e_global->desktopList.size();
 				p++;
 			}
+			restore = false;
+			if (desktop_inrange)
+			{
+				if ((p == 0) && (direction == -1))
+				{
+					eraseDesktopList();
+					desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex - 1) % e_global->desktopList.size();
+					drawDesktopList();
+
+					eraseWindowS();
+					e_global->getSelectedDesktop()->setAllIconInvisible();
+					e_global->setSelectedIndex(index);
+					drawWindowS();
+					desktop_inrange = true;
+
+					Invalidate(TRUE);
+				}
+				else if ((p == 3) && (direction == 1))
+				{
+					eraseDesktopList();
+					desktoplist_startindex = (e_global->desktopList.size() + desktoplist_startindex + 1) % e_global->desktopList.size();
+					drawDesktopList();
+
+					eraseWindowS();
+					e_global->getSelectedDesktop()->setAllIconInvisible();
+					e_global->setSelectedIndex(index);
+					drawWindowS();
+					desktop_inrange = true;
+
+					Invalidate(TRUE);
+				}
+				else
+				{
+					eraseWindowS();
+					e_global->getSelectedDesktop()->setAllIconInvisible();
+					e_global->setSelectedIndex(index);
+					drawWindowS();
+					desktop_inrange = true;
+
+					Invalidate(TRUE);
+				}
+			}
+			else
+			{
+				eraseWindowS();
+				e_global->getSelectedDesktop()->setAllIconInvisible();
+				e_global->setSelectedIndex(index);
+				drawWindowS();
+				desktop_inrange = true;
+
+				Invalidate(TRUE);
+			}
+			restore = true;
 		}
 	}
 }
