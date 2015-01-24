@@ -899,10 +899,12 @@ void CMainFrame::On32781()
 	for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)
 	{
 		if ((*itr_dock) == hwnd)
+		{
 			e_global->dockedWindowList.remove((*itr_dock));
+			e_global->dockcount--;
+		}
 	}
-
-
+	
 	std::list<E_Desktop*> desklist2 = e_global->desktopList;
 	for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 	{
