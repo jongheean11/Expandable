@@ -632,7 +632,10 @@ void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		if (E_WindowSwitcher::getSingleton()->isRunning() || E_DragAndDropSwitcher::getSingleton()->started)
 			return;
-		E_DesktopSwitcher::getSingleton()->startSwitcher();
+		if (!E_AeroPeekController::getSingleton()->isAeroPeekMode())
+			MessageBoxEx(GetDesktopWindow()->m_hWnd, TEXT("데스크탑 스위처를 이용하려면\nAero를 켜주세요."), TEXT("Not Apply"), MB_OK, 0);
+		else
+			E_DesktopSwitcher::getSingleton()->startSwitcher();
 	}
 		break;
 	case 'D':
