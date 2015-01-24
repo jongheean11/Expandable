@@ -5,6 +5,8 @@ const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xe5);
 const COLORREF E_WindowSwitcher::aeroColorSelectedMouse = RGB(0x30, 0xb0, 0xee);
+const COLORREF E_WindowSwitcher::switcherborderColor = RGB(50, 50, 50);
+
 const COLORREF E_WindowSwitcher::borderColor = RGB(120, 120, 120);
 const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
 const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
@@ -453,6 +455,22 @@ void E_WindowSwitcher::OnPaint()
 					memDC.FillRect(&rect, &brush);
 					brush.DeleteObject();
 					cbm->DeleteObject();
+
+					//경계선
+					CPen pen;
+					pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::switcherborderColor);
+					memDC.SelectObject(pen);
+					//::InflateRect(temprect, 1, 1);
+					int padding = 1;
+					memDC.MoveTo(rect.left + padding, rect.top + padding);
+					memDC.LineTo(rect.right - padding, rect.top + padding);
+					memDC.MoveTo(rect.right - padding, rect.top + padding);
+					memDC.LineTo(rect.right - padding, rect.bottom - padding);
+					memDC.MoveTo(rect.left + padding, rect.top + padding);
+					memDC.LineTo(rect.left + padding, rect.bottom - padding);
+					memDC.MoveTo(rect.left + padding, rect.bottom - padding);
+					memDC.LineTo(rect.right - padding, rect.bottom - padding);
+					pen.DeleteObject();
 				}
 				
 				//다른 데스크탑 배경
@@ -470,6 +488,23 @@ void E_WindowSwitcher::OnPaint()
 						secondMemDC.FillRect(&rect, &brush);
 						brush.DeleteObject();
 						cbm->DeleteObject();
+
+
+						//경계선
+						CPen pen;
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::switcherborderColor);
+						secondMemDC.SelectObject(pen);
+						//::InflateRect(temprect, 1, 1);
+						int padding = 1;
+						secondMemDC.MoveTo(rect.left + padding, rect.top + padding);
+						secondMemDC.LineTo(rect.right - padding, rect.top + padding);
+						secondMemDC.MoveTo(rect.right - padding, rect.top + padding);
+						secondMemDC.LineTo(rect.right - padding, rect.bottom - padding);
+						secondMemDC.MoveTo(rect.left + padding, rect.top + padding);
+						secondMemDC.LineTo(rect.left + padding, rect.bottom - padding);
+						secondMemDC.MoveTo(rect.left + padding, rect.bottom - padding);
+						secondMemDC.LineTo(rect.right - padding, rect.bottom - padding);
+						pen.DeleteObject();
 					}
 				}
 				  
@@ -1876,7 +1911,7 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	else if (ratio > 0.5)
 		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	else if (ratio > 0.3)
-		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background_upper3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	else
 		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	
