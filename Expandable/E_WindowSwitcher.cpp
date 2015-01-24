@@ -5,6 +5,8 @@ const COLORREF E_WindowSwitcher::backgroundColor = RGB(0x37, 0xb6, 0xeb);
 const COLORREF E_WindowSwitcher::aeroColor = RGB(0x40, 0xc0, 0xef);
 const COLORREF E_WindowSwitcher::aeroColorSelected = RGB(0x30, 0xb0, 0xe5);
 const COLORREF E_WindowSwitcher::aeroColorSelectedMouse = RGB(0x30, 0xb0, 0xee);
+const COLORREF E_WindowSwitcher::switcherborderColor = RGB(50, 50, 50);
+
 const COLORREF E_WindowSwitcher::borderColor = RGB(120, 120, 120);
 const COLORREF E_WindowSwitcher::borderColorSelected = RGB(0xcc, 0xcc, 0xcc);
 const COLORREF E_WindowSwitcher::borderColorSelectedMouse = RGB(60,60,60);
@@ -134,10 +136,11 @@ void E_WindowSwitcher::startSwitcher()
 // UI를 없에고 창을 가리는 함수
 void E_WindowSwitcher::terminateSwitcher()
 {
+	//lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	if (running) {
-		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
 		isfocus = false;	//포커스 플래그 초기화
 		running = false;
+		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() START");
 		/*startAnimate = false;
 
 		disableAnimate();
@@ -181,9 +184,9 @@ void E_WindowSwitcher::terminateSwitcher()
 			, 0
 			, 1, 1
 			, SWP_NOZORDER);
-
 		//TRACE_WIN32A("[E_WindowSwitcher::terminateSwitcher] terminateSwitcher() END");
 	}
+
 }
 
 // 스위처를 재시작하는 함수
@@ -285,8 +288,8 @@ END_MESSAGE_MAP()
 void E_WindowSwitcher::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-	static long resWidth = envManager->getWidth();
-	static long resHeight = envManager->getHeight();
+	long resWidth = envManager->getWidth();
+	long resHeight = envManager->getHeight();
 
 	E_Global* global = E_Global::getSingleton();
 	//TRACE_WIN32A("[E_WindowSwitcher::OnPaint]resWidth: %d, resHeight: %d", resWidth, resHeight);
@@ -452,6 +455,22 @@ void E_WindowSwitcher::OnPaint()
 					memDC.FillRect(&rect, &brush);
 					brush.DeleteObject();
 					cbm->DeleteObject();
+
+					//경계선
+					CPen pen;
+					pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::switcherborderColor);
+					memDC.SelectObject(pen);
+					//::InflateRect(temprect, 1, 1);
+					int padding = 1;
+					memDC.MoveTo(rect.left + padding, rect.top + padding);
+					memDC.LineTo(rect.right - padding, rect.top + padding);
+					memDC.MoveTo(rect.right - padding, rect.top + padding);
+					memDC.LineTo(rect.right - padding, rect.bottom - padding);
+					memDC.MoveTo(rect.left + padding, rect.top + padding);
+					memDC.LineTo(rect.left + padding, rect.bottom - padding);
+					memDC.MoveTo(rect.left + padding, rect.bottom - padding);
+					memDC.LineTo(rect.right - padding, rect.bottom - padding);
+					pen.DeleteObject();
 				}
 				
 				//다른 데스크탑 배경
@@ -469,6 +488,23 @@ void E_WindowSwitcher::OnPaint()
 						secondMemDC.FillRect(&rect, &brush);
 						brush.DeleteObject();
 						cbm->DeleteObject();
+
+
+						//경계선
+						CPen pen;
+						pen.CreatePen(PS_SOLID, 2, E_WindowSwitcher::switcherborderColor);
+						secondMemDC.SelectObject(pen);
+						//::InflateRect(temprect, 1, 1);
+						int padding = 1;
+						secondMemDC.MoveTo(rect.left + padding, rect.top + padding);
+						secondMemDC.LineTo(rect.right - padding, rect.top + padding);
+						secondMemDC.MoveTo(rect.right - padding, rect.top + padding);
+						secondMemDC.LineTo(rect.right - padding, rect.bottom - padding);
+						secondMemDC.MoveTo(rect.left + padding, rect.top + padding);
+						secondMemDC.LineTo(rect.left + padding, rect.bottom - padding);
+						secondMemDC.MoveTo(rect.left + padding, rect.bottom - padding);
+						secondMemDC.LineTo(rect.right - padding, rect.bottom - padding);
+						pen.DeleteObject();
 					}
 				}
 				  
@@ -1456,7 +1492,6 @@ void E_WindowSwitcher::OnKillFocus(CWnd* pNewWnd)
 	::GetWindowTextW(pNewWnd->GetSafeHwnd(),name, 255);
 	
 	//TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] %s", name);
-	lock_guard<std::mutex> lock(E_Mutex::windowSwitcherEvent);
 	if (running == true){
 		//TRACE_WIN32(L"[E_WindowSwitcher::OnKillFocus] TRACE -> %s", name);
 		terminateSwitcher();
@@ -1858,7 +1893,7 @@ void E_WindowSwitcher::resetIconcwndAndAero()
 CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 {
 	HBITMAP hbmOrig;
-	bool squeezed = width / height > 5 ? TRUE : FALSE;
+	/*bool squeezed = width / height > 5 ? TRUE : FALSE;
 	if (squeezed)
 	{
 		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -1866,7 +1901,19 @@ CBitmap* E_WindowSwitcher::getBackgroundCBitmap(long width, long height)
 	else
 	{
 		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-	}
+	}*/
+
+	double ratio = (double)height / (double)width;
+	if (ratio > 0.8)
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background12801024.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	else if (ratio > 0.65)
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background1024768.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	else if (ratio > 0.5)
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\DesktopSwitcher_background19201080.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	else if (ratio > 0.3)
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background3.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	else
+		hbmOrig = (HBITMAP)LoadImage(NULL, __T("res\\WindowSwitcher_background2.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 	
 	BITMAP bm = { 0 };
 	GetObject(hbmOrig, sizeof(BITMAP), &bm);

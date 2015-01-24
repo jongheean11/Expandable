@@ -231,6 +231,11 @@
     <ResourceCompile Include="Expandable.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background1024768.bmp" />
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background12801024.bmp" />
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\DesktopSwitcher_background19201080.bmp" />
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\WindowSwitcher_background_else.bmp" />
+    <Image Include="..\..\..\..\Documents\카카오톡 받은 파일\WindowSwitcher 배경\WindowSwitcher_background_upper3.bmp" />
     <Image Include="DesktopSwitcher_background12801024.bmp" />
     <Image Include="DesktopSwitcher_background.png" />
     <Image Include="DesktopSwitcher_background12801024_witharrow.bmp" />
