@@ -549,18 +549,41 @@ void E_Map::OnPaint()
 			}
 		}
 	}
+	CBitmap *icon;
 	if (clicked && iconMoveMode == 2)
 	{
 		drawable = true;
 		memDC.FillRect(&foreRect, &brush);//이전것 지우기
-		CBitmap icon;
-		int width = E_Util::getSystemSmallIconSize();
-		HICON hicon = E_Util::getIconHandle(selectIconHwnd);
-		HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
-		icon.Attach(bitmap);
+		
+		//int width = E_Util::getSystemSmallIconSize();
+		//HICON hicon = E_Util::getIconHandle(selectIconHwnd);
+		//HBITMAP bitmap = E_Util::ConvertIconToBitmap(hicon, width, width);
+		
+		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
+		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
+		{
+			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
+			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
+			{
+				if ((*itr_window)->getWindow() == selectIconHwnd)
+				{
+					icon->Attach(*(*itr_window)->getIcon());
+				}
+				//windowindext = (*itr_desktop)->getIndex();
+			}
+		}
+
+
+
+
+
+
+		//.
+		
+		//icon.Attach(bitmap);
 
 		BITMAP icon_info;
-		icon.GetBitmap(&icon_info);
+		icon->GetBitmap(&icon_info);
 		memDC.SetStretchBltMode(COLORONCOLOR);
 		CDC cdc;
 		CDC* pDC3 = GetDC();
@@ -581,10 +604,10 @@ void E_Map::OnPaint()
 		long newypoint = (h - th)*(iconClick.y - iconSize / 2) / w / e_global->getMapsize() / mapHeight*mapHeight;
 
 		//int windowindext;
-		std::list<E_Desktop*> all_Desktop = e_global->desktopList;
-		for (std::list<E_Desktop*>::iterator itr_desktop = all_Desktop.begin(); itr_desktop != all_Desktop.end(); itr_desktop++)	//각 데스크탑 별로출력
+		std::list<E_Desktop*> all_Desktop3 = e_global->desktopList;
+		for (std::list<E_Desktop*>::iterator itr_desktop3 = all_Desktop3.begin(); itr_desktop3 != all_Desktop3.end(); itr_desktop3++)	//각 데스크탑 별로출력
 		{
-			std::list<E_Window*> desktop_window = (*itr_desktop)->getWindowList();
+			std::list<E_Window*> desktop_window = (*itr_desktop3)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = desktop_window.begin(); itr_window != desktop_window.end(); itr_window++)	//각데스크탑별로 안에 있는 윈도우 핸들 가져와서 아이콘 출력
 			{
 				if ((*itr_window)->getWindow() == selectIconHwnd)
@@ -610,6 +633,7 @@ void E_Map::OnPaint()
 		int resutr = 0;
 		if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
 			get = 1;
+		delete pStr;
 
 		//if ( (newxpoint < w && newypoint < h && e_global->getSelectedIndex() == windowindext) || e_global->getSelectedIndex() == getdesktop(movindexx,movindexy)-1)
 		if (e_global->getSelectedIndex() == getdesktop(movindexx, movindexy) - 1)
@@ -660,20 +684,25 @@ void E_Map::OnPaint()
 		memDC.LineTo(tmprect.right, tmprect.bottom);
 		memDC.SelectObject(oldpen);
 		pen.DeleteObject();
-		delete pStr;
+		
+		
 		ReleaseDC(pDC3);
 		cdc.DeleteDC();
-		icon.DeleteObject();
-		DeleteObject(hicon);
-		DeleteObject(bitmap);
+		
+		//DeleteObject(hicon);
+		//DeleteObject(bitmap);
 	}
 
 	if (drawable)
 		dc.StretchBlt(0, 0, w, h, &memDC, 0, 0, w, h, SRCCOPY);
 	::ReleaseDC(this->GetSafeHwnd(),pDCM->GetSafeHdc());
+	
+	
 	memDC.DeleteDC();
 	bmp.DeleteObject();
 	brush.DeleteObject();
+
+	
 	//DeleteDC(dc);
 
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
