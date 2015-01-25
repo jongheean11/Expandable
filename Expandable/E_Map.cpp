@@ -495,6 +495,8 @@ void E_Map::OnPaint()
 				cdc.SetBkMode(1);
 				cdc.SetBkColor(E_Map::backgroundColor);
 
+				DeleteObject(hicon);
+
 				memDC.TransparentBlt(iconClick.x - iconSize / 2, iconClick.y - iconSize / 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));// SRCCOPY);
 				cdc.DeleteDC(); 
 				ReleaseDC(pDC2);
