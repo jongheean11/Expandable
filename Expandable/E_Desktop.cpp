@@ -190,6 +190,7 @@ void E_Desktop::setAllOpaque()
 
 void E_Desktop::insertWindow(E_Window* targetWindow)
 {
+	TRACE_WIN32A("[E_Desktop::insertWindow] %s", targetWindow->getWindowName());
 	windowList.push_back(targetWindow);
 }
 
@@ -213,6 +214,7 @@ void E_Desktop::excludeWindow(E_Window* targetWindow)
 	{
 		if ((*itr)->getWindow() == targetWindow->getWindow())
 		{
+			TRACE_WIN32A("[E_Desktop::excludeWindow] %s", (*itr)->getWindowName());
 			windowList.remove(*itr);
 			break;
 		}

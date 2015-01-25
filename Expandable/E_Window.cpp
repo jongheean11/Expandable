@@ -24,6 +24,7 @@ E_Window::E_Window(HWND window) : tpmode(false)
 
 E_Window::~E_Window()
 {
+	TRACE_WIN32A("[E_Window::~E_Window()]이름- %s", this->getWindowName());
 	//스크린샷/ 아이콘 자원 해제
 	if (icon.DeleteObject()){
 		TRACE_WIN32A("[Window::~E_Window()] icon 소멸");

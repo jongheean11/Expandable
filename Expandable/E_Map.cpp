@@ -71,7 +71,9 @@ void E_Map::drawMap()
 	time = e_global->getTimer();
 	e_global->mapopen = true;
 	ison2 = true;
+	TRACE_WIN32A("[E_Map::drawMap] onUpdate() BEFORE");
 	e_global->onUpdate();
+	TRACE_WIN32A("[E_Map::drawMap] onUpdate() AFTER");
 	//e_global->startUpdate();
 	if (!ison)
 	{

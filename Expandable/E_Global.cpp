@@ -207,6 +207,7 @@ BOOL CALLBACK  E_Global::EnumCallBack(HWND hwnd, LPARAM lParam)
 			if (global->hwnd_desk.find(hwnd) != global->hwnd_desk.end()){
 				std::hash_map<HWND, int>::iterator iter = global->hwnd_desk.find(hwnd);
 				if (iter->second != global->selectedIndex) {
+					TRACE_WIN32A("[E_Global::EnumCallBack] 도킹 핸들 제거");
 					return TRUE;
 				}
 			}
@@ -316,13 +317,14 @@ bool E_Global::onUpdate()
 
 	//TRACE_WIN32A("E_Global::onUpdate ING...()");
 	//사이즈가 다르거나 마지막이 다르다면.. 업데이트 수행
+	TRACE_WIN32A("[E_Global::onUpdate] BEFORE");
 	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
+		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		list<E_Window*> noChangeList;
 
-		TRACE_WIN32A("[E_Global::onUpdate]");
+		TRACE_WIN32A("[E_Global::onUpdate] AFTER");
 
-		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//리스트 업데이트
 		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){	//새로운 리스트
 			HWND findWindow = NULL;
@@ -348,6 +350,8 @@ bool E_Global::onUpdate()
 		}
 		//업데이트
 		result = true;
+
+		TRACE_WIN32A("[E_Global::onUpdate] END");
 	}
 	else{
 
@@ -527,12 +531,16 @@ void E_Global::moveTopWindowLeft(){
 		//}
 		else{
 			//안쪽 데스크탑
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			E_Desktop* desktop = getDesktop(selectedIndex - 1);
 			desktop->insertWindow(targetWindow);	//윈도우 추가
 			//twForHide = targetWindow;
 			targetWindow->setHide();
 			selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
+			lockGuard.unlock();
 			//
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -580,6 +588,9 @@ void E_Global::moveTopWindowRight(){
 		//}
 		else{
 			//안쪽 데스크탑
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			E_Desktop* desktop = getDesktop(selectedIndex + 1);
 			E_Global* e_global = E_Global::getSingleton();
 			desktop->insertWindow(targetWindow);	//윈도우 추가
@@ -587,6 +598,7 @@ void E_Global::moveTopWindowRight(){
 			targetWindow->setHide();//윈도우 숨기기
 			selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
+			lockGuard.unlock();
 			//
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -633,12 +645,16 @@ void E_Global::moveTopWindowDown(){
 		//}
 		else{
 			//안쪽 데스크탑
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			E_Desktop* desktop = getDesktop(selectedIndex + desktopwidth);
 			desktop->insertWindow(targetWindow);	//윈도우 추가
 			//twForHide = targetWindow;
 			targetWindow->setHide();
 			selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
+			lockGuard.unlock();
 			//
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -688,12 +704,16 @@ void E_Global::moveTopWindowUp(){
 		//}
 		else{
 			//안쪽 데스크탑
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			E_Desktop* desktop = getDesktop(selectedIndex - desktopwidth);
 			desktop->insertWindow(targetWindow);	//윈도우 추가
 			//twForHide = targetWindow;
 			targetWindow->setHide();
 			selectedDesktop->excludeWindow(targetWindow);	//윈도우 삭제
 
+			lockGuard.unlock();
 			//
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
@@ -735,8 +755,13 @@ void E_Global::moveDesktopLeft()
 		TRACE_WIN32A("[E_Global::moveDesktopLeft] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
+
+			lockGuard.unlock();
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
@@ -886,8 +911,13 @@ void E_Global::moveDesktopRight()
 		E_Desktop* last = getDesktop(index);
 
 		if (last != NULL){
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
+
+			lockGuard.unlock();
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
@@ -1014,8 +1044,13 @@ void E_Global::moveDesktopUp()
 		TRACE_WIN32A("[E_Global::moveDesktopUp] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
+
+			lockGuard.unlock();
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
@@ -1133,8 +1168,13 @@ void E_Global::moveDesktopDown()
 		TRACE_WIN32A("[E_Global::moveDesktopDown] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
+			unique_lock<mutex> lockGuard(E_Mutex::updateMutex);	//뮤텍스 추가
+			//lockGuard.lock();
+
 			selectedDesktop->setAllHide();//숨김
 			last->setAllShow();	//보여줌
+
+			lockGuard.unlock();
 
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트

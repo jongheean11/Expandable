@@ -1,6 +1,7 @@
 #pragma once
 #include "afxwin.h"
 #include "E_IGlobal.h"
+#include "E_Mutex.h"
 class E_Hotkey :
 	public CWnd
 {
