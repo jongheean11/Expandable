@@ -746,19 +746,23 @@ void E_DragAndDropSwitcher::startSwitcher()
 		switchIndex = 0;
 		if (cursor_left)
 		{
-			for (int p = 0; p < e_global->getSelectedIndex() - 1; p++)
-			{
-				itr_desktop++;
-				switchIndex++;
-			}
 			if ((e_global->getSelectedIndex() % e_global->getDesktopWidth()) == 0)
 			{
-				for (int p = 0; p != (e_global->getDesktopWidth() - 1); p++)
+				for (int p = 0; p != (e_global->getSelectedIndex() + e_global->getDesktopWidth() - 1); p++)
 				{
 					itr_desktop++;
 					switchIndex++;
 				}
 			}
+			else
+			{
+				for (int p = 0; p < e_global->getSelectedIndex() - 1; p++)
+				{
+					itr_desktop++;
+					switchIndex++;
+				}
+			}
+			
 			switchDesktop = *itr_desktop;
 		}
 		else if (cursor_right)
