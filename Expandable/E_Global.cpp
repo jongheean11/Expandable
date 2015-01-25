@@ -319,23 +319,26 @@ bool E_Global::onUpdate()
 	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
 		list<E_Window*> noChangeList;
+
+		TRACE_WIN32A("[E_Global::onUpdate]");
+
+		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//리스트 업데이트
-		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
+		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){	//새로운 리스트
 			HWND findWindow = NULL;
-			for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
+			for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){	//현재 리스트
 				if (*iter == (*iter_window)->getWindow()){
 					noChangeList.push_back(*iter_window);
-					selectedDesktop->excludeWindow(*iter_window);
+					selectedDesktop->excludeWindow(*iter_window);	//제외 시키면서 누수 발생?
 					findWindow = *iter;
 				}
 			}
-			if (findWindow == NULL){
-				E_Window* window = new E_Window(*iter);
+			if (findWindow == NULL){	
+				E_Window* window = new E_Window(*iter);	//새로운 윈도우 발견?
 				noChangeList.push_back(window);
 			}
 		}
 		//TRACE_WIN32A("E_Global::updateMutex before");
-		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//TRACE_WIN32A("E_Global::updateMutex after");
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
@@ -505,6 +508,7 @@ void E_Global::moveTopWindowLeft(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowLeft] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -610,6 +614,7 @@ void E_Global::moveTopWindowDown(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowDown] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -664,6 +669,7 @@ void E_Global::moveTopWindowUp(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowUp] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -726,6 +732,7 @@ void E_Global::moveDesktopLeft()
 	}
 	else{
 		int index = selectedIndex - 1;
+		TRACE_WIN32A("[E_Global::moveDesktopLeft] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
@@ -875,6 +882,7 @@ void E_Global::moveDesktopRight()
 	}
 	else{
 		int index = selectedIndex + 1;
+		TRACE_WIN32A("[E_Global::moveDesktopRight] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 
 		if (last != NULL){
@@ -1003,6 +1011,7 @@ void E_Global::moveDesktopUp()
 	}
 	else{
 		int index = selectedIndex - desktopwidth;
+		TRACE_WIN32A("[E_Global::moveDesktopUp] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
@@ -1121,6 +1130,7 @@ void E_Global::moveDesktopDown()
 	}
 	else{
 		int index = selectedIndex + desktopwidth;
+		TRACE_WIN32A("[E_Global::moveDesktopDown] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
