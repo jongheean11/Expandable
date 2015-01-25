@@ -284,6 +284,9 @@ void CExpandableView::OnTimer(UINT_PTR nIDEvent)
 	}
 	else if (nIDEvent == E_Global::DLLINJECTIONTIMER)
 	{
+		if (IsWindow(E_Global::getSingleton()->hwnd_frame))
+			E_Window::setIconInvisible(E_Global::getSingleton()->hwnd_frame);
+
 		E_EnvironmentManager* envm = E_EnvironmentManager::getSingleton();
 		TRACE_WIN32A("TRY INJECT");
 		if (!envm->is64bitsWindows()){
