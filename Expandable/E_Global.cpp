@@ -319,37 +319,26 @@ bool E_Global::onUpdate()
 	if (wlist.size() != selectedWindows.size() || ((wlistSize != 0 && selectedSize != 0) && ((*wlist.rbegin()) != (*selectedWindows.rbegin())->getWindow()))){
 		//바뀐 윈도우만 업데이트
 		list<E_Window*> noChangeList;
-		/*for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
-			HWND findWindow = 0;
-			for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
-			if (*iter == (*iter_window)->getWindow()){
-			noChangeList.push_back(*iter_window);
-			selectedDesktop->excludeWindow(*iter_window);
-			findWindow = *iter;
-			}
-			}
-			if (findWindow == NULL){
-			E_Window* window = new E_Window(findWindow);
-			noChangeList.push_back(window);
-			}
-			}*/
+
+		TRACE_WIN32A("[E_Global::onUpdate]");
+
+		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//리스트 업데이트
-		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){
+		for (list<HWND>::iterator iter = wlist.begin(); iter != wlist.end(); iter++){	//새로운 리스트
 			HWND findWindow = NULL;
-			for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){
+			for (list<E_Window*>::iterator iter_window = selectedWindows.begin(); iter_window != selectedWindows.end(); iter_window++){	//현재 리스트
 				if (*iter == (*iter_window)->getWindow()){
 					noChangeList.push_back(*iter_window);
-					selectedDesktop->excludeWindow(*iter_window);
+					selectedDesktop->excludeWindow(*iter_window);	//제외 시키면서 누수 발생?
 					findWindow = *iter;
 				}
 			}
-			if (findWindow == NULL){
-				E_Window* window = new E_Window(*iter);
+			if (findWindow == NULL){	
+				E_Window* window = new E_Window(*iter);	//새로운 윈도우 발견?
 				noChangeList.push_back(window);
 			}
 		}
 		//TRACE_WIN32A("E_Global::updateMutex before");
-		lock_guard<mutex> lockGuard(E_Mutex::updateMutex);
 		//TRACE_WIN32A("E_Global::updateMutex after");
 		//기존 윈도우를 제외한 윈도우 제거
 		selectedDesktop->clearWindow();
@@ -519,6 +508,7 @@ void E_Global::moveTopWindowLeft(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowLeft] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -624,6 +614,7 @@ void E_Global::moveTopWindowDown(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowDown] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -678,6 +669,7 @@ void E_Global::moveTopWindowUp(){
 	if (iter != windowList.rend()){
 		E_Window* targetWindow = *iter;
 		twForHide = targetWindow;
+		TRACE_WIN32A("[E_Global::moveTopWindowUp] 윈도우 이름: %s", targetWindow->getWindowName());
 		if (desktopCount == 1)
 			return;
 
@@ -740,6 +732,7 @@ void E_Global::moveDesktopLeft()
 	}
 	else{
 		int index = selectedIndex - 1;
+		TRACE_WIN32A("[E_Global::moveDesktopLeft] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
@@ -778,6 +771,70 @@ void E_Global::moveDesktopLeft()
 			//	
 			//}
 
+			WCHAR name5[60];
+			char* pStr;
+			int index = e_global->getSelectedDesktop()->getIndex();
+			std::list<E_Desktop*> desklist = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				if ((*itr_desk)->getIndex() == index)
+				{
+					std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+					for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+					{
+						::GetWindowText((*itr_window)->getWindow(), name5, 60);
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+						if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+						{
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(special, 1);
+						}
+					/*	else
+						{
+
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(E_Map::EnumCallHide, 0);
+						}*/
+						delete pStr;
+					}
+
+					continue;
+				}
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					::GetWindowText((*itr_window)->getWindow(), name5, 60);
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+					if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+					{
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(special, 0);
+					}
+					/*else
+					{
+
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::EnumCallHide, 1);
+					}*/
+					delete pStr;
+				}
+
+			}
+
+
+
+
+
+
+
+
+
+
+
 			std::list<E_Desktop*> desklist2 = e_global->desktopList;
 			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 			{
@@ -788,12 +845,12 @@ void E_Global::moveDesktopLeft()
 					{
 						::ShowWindow((*itr_window)->getWindow(), SW_SHOW);
 
-						WCHAR name[60];
+						WCHAR name2[60];
 						int get = 0;
 						char* pStr;
-						int strSize = WideCharToMultiByte(CP_ACP, 0, name, -1, NULL, 0, NULL, NULL);
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name2, -1, NULL, 0, NULL, NULL);
 						pStr = new char[strSize];
-						WideCharToMultiByte(CP_ACP, 0, name, -1, pStr, strSize, 0, 0);
+						WideCharToMultiByte(CP_ACP, 0, name2, -1, pStr, strSize, 0, 0);
 						int resutr = 0;
 						parnetpid = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
 						if (strstr(pStr, "곰오디오") != NULL || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커"))
@@ -825,6 +882,7 @@ void E_Global::moveDesktopRight()
 	}
 	else{
 		int index = selectedIndex + 1;
+		TRACE_WIN32A("[E_Global::moveDesktopRight] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 
 		if (last != NULL){
@@ -846,6 +904,66 @@ void E_Global::moveDesktopRight()
 			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
+			//
+			WCHAR name5[60];
+			char* pStr;
+			int index = e_global->getSelectedDesktop()->getIndex();
+			std::list<E_Desktop*> desklist = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				if ((*itr_desk)->getIndex() == index)
+				{
+					std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+					for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+					{
+						::GetWindowText((*itr_window)->getWindow(), name5, 60);
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+						if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+						{
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(special, 1);
+						}
+						/*else
+						{
+
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(E_Map::EnumCallHide, 0);
+						}*/
+						delete pStr;
+					}
+
+					continue;
+				}
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					::GetWindowText((*itr_window)->getWindow(), name5, 60);
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+					if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+					{
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(special, 0);
+					}
+				/*	else
+					{
+
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::EnumCallHide, 1);
+					}*/
+					delete pStr;
+				}
+
+			}
+
+
+
+
+
+
 			//
 
 			std::list<E_Desktop*> desklist2 = e_global->desktopList;
@@ -893,6 +1011,7 @@ void E_Global::moveDesktopUp()
 	}
 	else{
 		int index = selectedIndex - desktopwidth;
+		TRACE_WIN32A("[E_Global::moveDesktopUp] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
@@ -912,6 +1031,65 @@ void E_Global::moveDesktopUp()
 			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
+			WCHAR name5[60];
+			char* pStr;
+			int index = e_global->getSelectedDesktop()->getIndex();
+			std::list<E_Desktop*> desklist = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				if ((*itr_desk)->getIndex() == index)
+				{
+					std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+					for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+					{
+						::GetWindowText((*itr_window)->getWindow(), name5, 60);
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+						if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+						{
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(special, 1);
+						}
+						/*else
+						{
+
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(E_Map::EnumCallHide, 0);
+						}*/
+						delete pStr;
+					}
+
+					continue;
+				}
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					::GetWindowText((*itr_window)->getWindow(), name5, 60);
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+					if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+					{
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(special, 0);
+					}
+					/*else
+					{
+
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::EnumCallHide, 1);
+					}*/
+					delete pStr;
+				}
+
+			}
+
+
+
+
+
+			//
 			std::list<E_Desktop*> desklist2 = e_global->desktopList;
 			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 			{
@@ -952,6 +1130,7 @@ void E_Global::moveDesktopDown()
 	}
 	else{
 		int index = selectedIndex + desktopwidth;
+		TRACE_WIN32A("[E_Global::moveDesktopDown] 이동 위치 %d", index);
 		E_Desktop* last = getDesktop(index);
 		if (last != NULL){
 			selectedDesktop->setAllHide();//숨김
@@ -971,6 +1150,65 @@ void E_Global::moveDesktopDown()
 			//e_map->leave2 = false;
 			::SendMessage(hwnd_frame, WM_TRAY_EVENT, selectedIndex, 0);
 			//::BringWindowToTop(e_map->maphwnd);
+			WCHAR name5[60];
+			char* pStr;
+			int index = e_global->getSelectedDesktop()->getIndex();
+			std::list<E_Desktop*> desklist = e_global->desktopList;
+			for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
+			{
+				if ((*itr_desk)->getIndex() == index)
+				{
+					std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
+					for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
+					{
+						::GetWindowText((*itr_window)->getWindow(), name5, 60);
+						int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+						pStr = new char[strSize];
+						WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+						if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+						{
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(special, 1);
+						}
+						/*else
+						{
+
+							pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+							EnumWindows(E_Map::EnumCallHide, 0);
+						}*/
+						delete pStr;
+					}
+
+					continue;
+				}
+				std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
+				for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
+				{
+					::GetWindowText((*itr_window)->getWindow(), name5, 60);
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+					if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+					{
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(special, 0);
+					}
+					/*else
+					{
+
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::EnumCallHide, 1);
+					}*/
+					delete pStr;
+				}
+
+			}
+
+
+
+
+
+			//
 			std::list<E_Desktop*> desklist2 = e_global->desktopList;
 			for (std::list<E_Desktop*>::iterator itr_desk = desklist2.begin(); itr_desk != desklist2.end(); itr_desk++)	//각 데스크탑 별로출력
 			{
@@ -999,6 +1237,38 @@ void E_Global::moveDesktopDown()
 		
 		}
 	}
+}
+
+BOOL CALLBACK  E_Global::special(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"카카오";
+	::GetWindowText(hwnd, name2, 4);
+
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
+	::GetWindowText(hwnd, expandable, 11);
+	if (wcscmp(expandable, expan) == 0)
+		return TRUE;
+
+	if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))//&& ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Global* e_global = E_Global::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_global->pidforhide)
+		{
+			if (lParam)
+			{
+				::ShowWindow(hwnd, SW_SHOW);
+			}
+			else
+				::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	return true;
 }
 BOOL CALLBACK  E_Global::EnumShow(HWND hwnd, LPARAM lParam)
 {

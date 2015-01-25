@@ -31,7 +31,7 @@ E_Map::E_Map()
 	select = false;
 	forSelectMap = false;
 	hwnd = this->GetSafeHwnd();
-
+	clickedforerror = false;
 	iconMoveMode = 0;
 	hwnd_cwnd_emap = this;
 	ison = false;
@@ -119,7 +119,7 @@ void E_Map::terminateMap()
 {
 	E_Global* e_global = E_Global::getSingleton();
 	//e_global->stopUpdate();
-
+	//::SendMessage(this->GetSafeHwnd(), WM_LBUTTONUP, 0, 0);
 	std::list<RECT*> Rectlist2 = E_Map::getSingleton()->iconRectList;
 	for (std::list<RECT*>::iterator itr_rect = Rectlist2.begin(); itr_rect != Rectlist2.end(); itr_rect++)	//각 데스크탑 별로출력
 	{
@@ -132,9 +132,42 @@ void E_Map::terminateMap()
 	e_global->mapopen = false;
 	iconRectList.clear();
 	iconHwndList.clear();
-	hwnd_cwnd_emap->DestroyWindow();
+	
+	
 	ison = false;
 	ison2 = false;
+
+	if (clickedforerror)
+	{
+		//클릭하고 타임아웃시 처리
+		int stopdesktop = getdesktop(clickindexx, clickindexy); //stopdesktop-1 이 해당 윈도우가 있던 위치
+		RECT rectForerror;
+		int foredesktop = E_Global::getSingleton()->getSelectedIndex();
+
+		if (stopdesktop != foredesktop)
+			::ShowWindow(selectIconHwnd, SW_SHOW);
+		//E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+		//E_Global* e_global = E_Global::getSingleton();
+		//long w = enManager->getWidth();
+		//long h = enManager->getHeight();
+		//long th = enManager->getTaskbarHeight();
+		//int mapWidth = e_global->getDesktopWidth();
+		//int mapHeight = e_global->getDesktopHeight();
+		//double mapsize = e_global->getMapsize();
+		//long iconSize = w*e_global->getMapsize() / 4 * e_global->getIconsize();
+
+		//int idx = (stopdesktop-1) % mapWidth;
+		//int idy = (stopdesktop - 1) / mapWidth;
+		//::GetWindowRect(selectIconHwnd, &rectForerror);
+		//long iconPosstx = rectForerror.left *e_global->getMapsize() + idx*w*mapsize;  //check
+		//long iconPossty = rectForerror.top *e_global->getMapsize()*w / (h - th) + idy*w*mapsize;//check
+
+	
+
+		//selectIconHwnd = NULL;
+
+	}
+	hwnd_cwnd_emap->DestroyWindow();
 }
 
 
@@ -356,23 +389,34 @@ void E_Map::OnPaint()
 						memDC.SelectObject(oldpen);
 						pen.DeleteObject();
 
-
-
+						
 						for (int jdx = 0; jdx < mapWidth; jdx++)
 						{
 							for (int jdy = 0; jdy < mapHeight; jdy++)
 							{
 								if (jdx == idx && jdy == idy)
 									continue;
+								
 								iconPosstx = rectForIcon.left *e_global->getMapsize() + jdx*w*mapsize;  //check
 								iconPossty = rectForIcon.top *e_global->getMapsize()*w / (h - th) + jdy*w*mapsize;//check
+								memDC.SelectObject(oldpen);
+								pen.CreatePen(PS_SOLID, 2, RGB(160, 160, 160));	//노랑
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2);
+								oldpen = memDC.SelectObject(&pen);
+								memDC.LineTo(iconPosstx + 2 +iconSize, iconPossty + 2);
+								memDC.MoveTo(iconPosstx + 2 + iconSize, iconPossty + 2);
+								memDC.LineTo(iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize);
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2);
+								memDC.LineTo(iconPosstx + 2, iconPossty + 2 + iconSize);
+								memDC.MoveTo(iconPosstx + 2, iconPossty + 2 + iconSize);
+								memDC.LineTo(iconPosstx + 2 + iconSize, iconPossty + 2 + iconSize);
+								pen.DeleteObject();
+								
 								memDC.TransparentBlt(iconPosstx + 2, iconPossty + 2, iconSize, iconSize, &cdc, 0, 0, icon_info.bmWidth, icon_info.bmHeight, RGB(0, 0, 0));//SRCCOPY);
 
 							}
 						}
-						
-
-
+					
 
 					}
 
@@ -616,7 +660,7 @@ void E_Map::OnPaint()
 		memDC.LineTo(tmprect.right, tmprect.bottom);
 		memDC.SelectObject(oldpen);
 		pen.DeleteObject();
-		
+		delete pStr;
 		ReleaseDC(pDC3);
 		cdc.DeleteDC();
 		icon.DeleteObject();
@@ -685,6 +729,7 @@ void E_Map::OnLButtonDown(UINT nFlags, CPoint point)
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
 	long w = enManager->getWidth();
 	double mapsize = e_global->getMapsize();
+	clickedforerror = true;
 	//leave2 = false;
 	::BringWindowToTop(this->GetSafeHwnd());
 	up = true;
@@ -721,6 +766,7 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	E_Global* e_global = E_Global::getSingleton();
 	E_EnvironmentManager* enManager = E_EnvironmentManager::getSingleton();
+	clickedforerror = false;
 	if (leave)
 	{
 		point.x = mouse.x;
@@ -833,32 +879,61 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 		//selecteddesktop 의 윈도우만 보여주고 나머지는 지우기
 	
-
+		WCHAR name5[60];
+		char* pStr;
 		int index = e_global->getSelectedDesktop()->getIndex();
 		std::list<E_Desktop*> desklist = e_global->desktopList;
 		for (std::list<E_Desktop*>::iterator itr_desk = desklist.begin(); itr_desk != desklist.end(); itr_desk++)	//각 데스크탑 별로출력
 		{
 			if ((*itr_desk)->getIndex() == index)
 			{
+				
 				(*itr_desk)->setAllShow();
-
 				std::list<E_Window*> winlist1 = (*itr_desk)->getWindowList();
 				for (std::list<E_Window*>::iterator itr_window = winlist1.begin(); itr_window != winlist1.end(); itr_window++)	//각 데스크탑 별로출력
 				{
-					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
-					EnumWindows(E_Map::EnumCallHide, 0);
-					
+					::GetWindowText((*itr_window)->getWindow(), name5, 60);
+					int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+					pStr = new char[strSize];
+					WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+					if (strstr(pStr, "곰오디오")  || strstr(pStr, "곰플레이어")  || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW") )
+					{
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::special, 1);
+					}
+					else
+					{
+
+						pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+						EnumWindows(E_Map::EnumCallHide, 0);
+					}
+					delete pStr;
 				}
+				
 				continue;
 			}
 			(*itr_desk)->setAllHide();
-			
 			std::list<E_Window*> winlist2 = (*itr_desk)->getWindowList();
 			for (std::list<E_Window*>::iterator itr_window = winlist2.begin(); itr_window != winlist2.end(); itr_window++)	//각 데스크탑 별로출력
 			{
-				pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
-				EnumWindows(E_Map::EnumCallHide, 1);
+				::GetWindowText((*itr_window)->getWindow(), name5, 60);
+				int strSize = WideCharToMultiByte(CP_ACP, 0, name5, -1, NULL, 0, NULL, NULL);
+				pStr = new char[strSize];
+				WideCharToMultiByte(CP_ACP, 0, name5, -1, pStr, strSize, 0, 0);
+				if (strstr(pStr, "곰오디오") || strstr(pStr, "곰플레이어") || strstr(pStr, "스티커") || strstr(pStr, "GXWINDOW"))
+				{
+					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					EnumWindows(E_Map::special, 0);
+				}
+				else
+				{
+
+					pidforhide = GetWindowThreadProcessId((*itr_window)->getWindow(), NULL);
+					EnumWindows(E_Map::EnumCallHide, 1);
+				}
+				delete pStr;
 			}
+			
 		}
 
 		//std::list<HWND> docklist = e_global->dockedWindowList;
@@ -901,6 +976,38 @@ void E_Map::OnLButtonUp(UINT nFlags, CPoint point)
 
 	}
 }
+BOOL CALLBACK  E_Map::special(HWND hwnd, LPARAM lParam)
+{
+	WCHAR name[10];
+	WCHAR name2[4];
+	WCHAR name3[] = L"스티커";
+	//WCHAR name4[] = L"카카오";
+	::GetWindowText(hwnd, name2, 4);
+
+	WCHAR expandable[11];
+	WCHAR expan[] = TEXT("expandable");
+	::GetWindowText(hwnd, expandable, 11);
+	if (wcscmp(expandable, expan) == 0)
+		return TRUE;
+
+	if (::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd))//&& ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	{
+		E_Map* e_map = E_Map::getSingleton();
+		DWORD childprocessId;
+		childprocessId = GetWindowThreadProcessId(hwnd, NULL);
+		if (childprocessId == e_map->pidforhide)
+		{
+			if (lParam)
+			{
+				::ShowWindow(hwnd, SW_SHOW);
+			}
+			else
+				::ShowWindow(hwnd, SW_HIDE);
+		}
+	}
+	return true;
+}
+
 BOOL CALLBACK  E_Map::EnumShow(HWND hwnd, LPARAM lParam)
 {
 	WCHAR name[10];
@@ -933,9 +1040,12 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 	WCHAR name3[] = L"곰오디오";
 	WCHAR name4[] = L"곰플레이어";
 	WCHAR expandable[100];
+	
+
+
 
 	::GetWindowText(hwnd, expandable, 100);
-	if (wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0)
+	if ( wcscmp(name, expandable) == 0 || wcscmp(name2, expandable) == 0 || wcscmp(name3, expandable) == 0 || wcscmp(name4, expandable) == 0 )
 	{
 
 	}
@@ -943,22 +1053,18 @@ BOOL CALLBACK  E_Map::EnumCallHide(HWND hwnd, LPARAM lParam)
 		return TRUE;
 
 
-	::GetWindowText(hwnd, expandable, 11);
 	//WCHAR name4[] = L"Microsoft Spy++";
 	//WCHAR name5[16];
-	::GetWindowText(hwnd, name2, 4);
 	//	::GetWindowText(hwnd, name4, 4);
 	//::GetWindowText(hwnd, name5, 16);
 	
-	if ((::GetWindowText(hwnd, name, 10) && ::IsWindowVisible(hwnd)) || wcscmp(name2, name3) == 0)//|| wcscmp(name4, name5) == 0)
+	if ((::GetWindowText(hwnd, name, 10) &&  ::IsWindowVisible(hwnd) ) )//|| wcscmp(name4, name5) == 0)
 	{
 		E_Map* e_map = E_Map::getSingleton();
 		DWORD pidforchild;
 		pidforchild = GetWindowThreadProcessId(hwnd, NULL);
 		if (pidforchild == e_map->pidforhide)
 		{
-			if (wcscmp(name2, name4) == 0)
-				return false;
 			if (lParam)
 				::ShowWindow(hwnd, SW_HIDE);
 			else

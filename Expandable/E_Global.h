@@ -39,7 +39,7 @@ private:
 	int transparent;//
 	int settingTimer;//
 public:
-
+	DWORD pidforhide;
 	int dockcount;
 	DWORD pidforhideNotify;
 	CWnd* notifyHwnd[5];
@@ -82,6 +82,7 @@ public:
 	static BOOL CALLBACK EnumCallBack(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackForZIndex(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumHide(HWND hwnd, LPARAM lParam);
+	static BOOL CALLBACK special(HWND hwnd, LPARAM lParam);
 	static const int DLLINJECTIONTIMER;
 
 
