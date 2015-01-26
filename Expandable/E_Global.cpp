@@ -543,6 +543,7 @@ void E_Global::moveTopWindowLeft(){
 			lockGuard.unlock();
 			//
 			E_Global* e_global = E_Global::getSingleton();
+			E_Map::getSingleton()->useupdate = false;
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
@@ -600,6 +601,7 @@ void E_Global::moveTopWindowRight(){
 
 			lockGuard.unlock();
 			//
+			E_Map::getSingleton()->useupdate = false;
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
 				hotkeyinvalidate = true;
@@ -656,6 +658,7 @@ void E_Global::moveTopWindowDown(){
 
 			lockGuard.unlock();
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -715,6 +718,7 @@ void E_Global::moveTopWindowUp(){
 
 			lockGuard.unlock();
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -766,6 +770,7 @@ void E_Global::moveDesktopLeft()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -922,6 +927,7 @@ void E_Global::moveDesktopRight()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -1055,6 +1061,7 @@ void E_Global::moveDesktopUp()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{
@@ -1179,6 +1186,7 @@ void E_Global::moveDesktopDown()
 			selectedIndex = index;	//인덱스 업데이트
 			selectedDesktop = last; //포인터 업데이트
 			//
+			E_Map::getSingleton()->useupdate = false;
 			E_Global* e_global = E_Global::getSingleton();
 			if (e_global->mapopen && hwnd_cwnd->m_hWnd != NULL)
 			{

@@ -38,6 +38,7 @@ E_Map::E_Map()
 	redraw = false;
 	clicked = false;
 	alreadyin = false;
+	useupdate = true;
 }
 E_Map::~E_Map()
 {
@@ -72,7 +73,11 @@ void E_Map::drawMap()
 	e_global->mapopen = true;
 	ison2 = true;
 	TRACE_WIN32A("[E_Map::drawMap] onUpdate() BEFORE");
-	e_global->onUpdate();
+	if (useupdate)
+	{
+		e_global->onUpdate();
+		useupdate = true;
+	}
 	TRACE_WIN32A("[E_Map::drawMap] onUpdate() AFTER");
 	//e_global->startUpdate();
 	if (!ison)

@@ -29,8 +29,9 @@ private:
 	POINT pt;
 	bool checkdelete;
 	DWORD parnetpid;
-
+	
 public:
+	bool useupdate;
 	DWORD pidforhide;
 	static BOOL CALLBACK EnumShow(HWND hwnd, LPARAM lParam);
 	static BOOL CALLBACK EnumCallBackMap(HWND hwnd, LPARAM lParam);
