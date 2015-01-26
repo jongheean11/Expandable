@@ -722,7 +722,7 @@ void E_DragAndDropSwitcher::initSwitcher()
 
 		E_Window::setIconInvisible(this->m_hWnd);
 
-		SetCursor(LoadCursor(NULL, IDC_APPSTARTING));
+		SetCursor(LoadCursor(NULL, IDC_HAND));
 	}
 }
 
