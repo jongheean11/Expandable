@@ -76,8 +76,8 @@ void E_Map::drawMap()
 	if (useupdate)
 	{
 		e_global->onUpdate();
-		useupdate = true;
 	}
+	useupdate = true;
 	TRACE_WIN32A("[E_Map::drawMap] onUpdate() AFTER");
 	//e_global->startUpdate();
 	if (!ison)
