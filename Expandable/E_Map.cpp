@@ -507,6 +507,17 @@ void E_Map::OnPaint()
 	if (iconMoveMode == 1)// Lbutton down
 	{
 
+		std::list<HWND> docklist = e_global->dockedWindowList;
+		for (std::list<HWND>::iterator itr_dock = docklist.begin(); itr_dock != docklist.end(); itr_dock++)
+		{
+			if ((*itr_dock) == selectIconHwnd)
+			{
+				e_global->dockedWindowList.remove((*itr_dock));
+				e_global->dockcount--;
+			}
+		}
+
+
 		drawable = true;
 		std::list<RECT*>::iterator itr_rect = iconRectList.begin();
 		for (std::list<HWND>::iterator itr_hwnd = iconHwndList.begin(); itr_rect != iconRectList.end(); itr_rect++, itr_hwnd++)	//각 데스크탑 별로출력
